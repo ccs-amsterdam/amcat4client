@@ -4,11 +4,13 @@ import Menu from './menu.js'
 import Query from './query'
 import Result from './results'
 import Output from './output'
-
+import Login from './login'
 
 function App() {
+
   return (
     <div>
+      <Login />
       <Menu />
       <Query />
       <Output />
