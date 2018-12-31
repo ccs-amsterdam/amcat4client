@@ -6,51 +6,79 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import axios from 'axios';
 
 export default class LoginDialog extends React.Component {
-  state = {
-    open: true,
-  };
+    state = {
+        open: true,
+    };
+    handleFormChange = name => event => {
+        this.setState({ [name]: event.target.value });
+    };
+    doLogin = (event) => {
+        console.log(this.state);
+        let url = this.state.server + "/auth/token/";
+        axios.get(url, {
+            auth: {
+                username: this.state.email,
+                password: this.state.password
+            }
+        }).then(function (response) {
+            let token = response.data.token;
+            alert("Logged in! " + token);
+            console.log(token);
+            this.setState({ open: false });
+        }).catch(function (error) {
+            console.log('Error on Authentication');
+            alert("Could not log in to server, sorry :-(");
+        });
 
-  open = () => {
-    this.setState({ open: true });
-  };
+    };
 
-  handleClose = () => {
-    this.setState({ open: false });
-  };
-
-  render() {
-    return (
-        <Dialog
-          open={this.state.open}
-          onClose={this.handleClose}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              To subscribe to this website, please enter your email address here. We will send
-              updates occasionally.
+    render() {
+        return (
+            <Dialog
+                open={this.state.open}
+                onClose={this.handleClose}
+                aria-labelledby="form-dialog-title"
+            >
+                <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Log in!
             </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Email Address"
-              type="email"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={this.handleClose} color="primary">
-              Cancel
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="server"
+                        label="Server"
+                        onChange={this.handleFormChange('server')}
+                        fullWidth
+                    />
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        id="email"
+                        label="Email Address"
+                        type="email"
+                        onChange={this.handleFormChange('email')}
+                        fullWidth
+                    />
+                    <TextField
+                        margin="dense"
+                        id="password"
+                        label="Password"
+                        type="password"
+                        onChange={this.handleFormChange('password')}
+                        fullWidth
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.doLogin} color="primary">
+                        Login
             </Button>
-            <Button onClick={this.handleClose} color="primary">
-              Subscribe
-            </Button>
-          </DialogActions>
-        </Dialog>
-    );
-  }
+                </DialogActions>
+            </Dialog>
+        );
+    }
 }
