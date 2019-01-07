@@ -1,23 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Menu from './menu.js'
-import Query from './query'
-import Result from './results'
-import Output from './output'
-import Login from './login'
+import MainMenu from './mainmenu.js'
+import QueryScreen from './queryscreen'
 
-function App() {
 
-  return (
-    <div>
-      <Login />
-      <Menu />
-      <Query />
-      <Output />
-      <Result />
-    </div>
-    
-  );
+export default class App extends React.Component {
+  state = {
+    user: null,
+  };
+
+  handleUserChange = (new_user) => {
+    this.setState({user: new_user})
+  }
+
+  render() {
+
+    return (
+      <div>
+        <MainMenu user={this.state.user} onUserChange={this.handleUserChange} />
+        <QueryScreen user={this.state.user} />
+      </div>
+
+    );
+  }
 }
-
 ReactDOM.render(<App />, document.querySelector('#root'));
