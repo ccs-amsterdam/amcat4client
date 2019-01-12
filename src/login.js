@@ -57,6 +57,7 @@ export default class LoginDialog extends React.Component {
                 <DialogActions>
                     <Button onClick={this.doLogin} color="primary">
                         Login
+
             </Button>
                 </DialogActions>
             </Dialog>
