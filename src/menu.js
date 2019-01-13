@@ -58,6 +58,6 @@ export default class AmCATMenu extends React.Component {
                 <Button color="inherit" onClick={this.props.onLogin}>Log in</Button>
             </Toolbar>;
         }
-        return <AppBar position="fixed">{toolbar}</AppBar>;
+        return <AppBar position="sticky">{toolbar}</AppBar>;
     }
 }
