@@ -10,7 +10,7 @@ export default class App extends React.Component {
     };
 
     render() {
-        if (this.props.user) {
+        if (this.props.user && this.props.project) {
             return (
                 <div>
                     <Query user={this.props.user} />
@@ -19,7 +19,7 @@ export default class App extends React.Component {
                 </div>
             );
         } else {
-            return <p>Please log in</p>
+            return <p>Please log in or select project</p>
         }
     };
 }

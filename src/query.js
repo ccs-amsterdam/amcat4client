@@ -1,8 +1,6 @@
 import React from 'react'
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormGroup from '@material-ui/core/FormGroup';
-import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
 
 class Query extends React.Component {
@@ -27,17 +25,7 @@ class Query extends React.Component {
                         shrink: true,
                     }}
                 />
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={this.state.autoquery}
-                            onChange={this.handleChange('autoquery')}
-                            value="autoquery"
-                        />
-                    }
-                    label="Query Automatically"
-                />
-                <Button variant="contained" color="primary" disabled={this.state.autoquery}>
+                <Button variant="contained" color="primary">
                     Query
                     </Button>
             </FormGroup>

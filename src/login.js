@@ -8,6 +8,13 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 export default class LoginDialog extends React.Component {
+
+    state = {
+        server: "http://localhost:5000",
+        email: "admin",
+        password: "admin",
+    }
+
     handleFormChange = name => event => {
         this.setState({ [name]: event.target.value });
     };
@@ -33,6 +40,7 @@ export default class LoginDialog extends React.Component {
                         margin="dense"
                         id="server"
                         label="Server"
+                        value={this.state.server}
                         onChange={this.handleFormChange('server')}
                         fullWidth
                     />
@@ -42,6 +50,7 @@ export default class LoginDialog extends React.Component {
                         id="email"
                         label="Email Address"
                         type="email"
+                        value={this.state.email}
                         onChange={this.handleFormChange('email')}
                         fullWidth
                     />
@@ -50,6 +59,7 @@ export default class LoginDialog extends React.Component {
                         id="password"
                         label="Password"
                         type="password"
+                        value={this.state.password}
                         onChange={this.handleFormChange('password')}
                         fullWidth
                     />
