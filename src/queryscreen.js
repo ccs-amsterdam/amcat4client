@@ -12,18 +12,27 @@ export default class App extends React.Component {
     };
 
     handleQueryChange = (query) => {
-        this.setState({query: query})
-        this.get_results()
+        this.get_results(query)
     }
 
-    get_results() {
+    /**
+     * Refresh results, optionally given a new query
+     * If new query is given, setState to that query when results are in. 
+     * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run
+     */
+    get_results(query=null) {
+        console.log(query)
+        var q=query!=null?query:this.state.query;
         var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
         let url = this.props.user.host + "/projects/" + this.props.project + "/documents";
-        if (this.state.query) url = url + "?q=" + this.state.query;
+        if (q) url = url + "?q=" + q;
         console.log(url);
         let self = this; // [WvA] Ugh! Is there no nicer way to do this?
         axios.get(url, config).then(function (response) {
-            self.setState({result: response.data})
+            let state = {result: response.data}
+            if (query) state['query'] = query;
+            console.log(state);
+            self.setState(state);
         }).catch(function (error) {
             console.log(error);
         });
