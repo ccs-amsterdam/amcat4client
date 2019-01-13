@@ -7,22 +7,9 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 
 
-function createData(id, date, title, url) {
-    return { id, date, title, url };
-}
+function Results(props) {
 
-const rows = [
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-    createData(123, '2018-01-01', 'This is news?', 'http://nuniet.nl'),
-];
-
-function Results() {
-
+    if (!props.result) return <p>(no results)</p>
     return (
         <Paper>
             <Table>
@@ -34,22 +21,17 @@ function Results() {
                 </colgroup>
                 <TableHead>
                     <TableRow>
-                        <TableCell>id</TableCell>
                         <TableCell>Date</TableCell>
                         <TableCell>Title</TableCell>
                         <TableCell>Url</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {rows.map(row => {
+                    {props.result.map(row => {
                         return (
-                            <TableRow key={row.id}>
-                                <TableCell component="th" scope="row">
-                                    {row.id}
-                                </TableCell>
+                            <TableRow key={row._id}>
                                 <TableCell>{row.date}</TableCell>
                                 <TableCell>{row.title}</TableCell>
-                                <TableCell>{row.url}</TableCell>
                             </TableRow>
                         );
                     })}
