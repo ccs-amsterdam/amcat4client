@@ -5,7 +5,7 @@ import Result from './results'
 import Output from './output'
 import axios from 'axios';
 
-export default class App extends React.Component {
+export default class QueryScreen extends React.Component {
     state = {
         result: null,
         query: null,
@@ -27,13 +27,12 @@ export default class App extends React.Component {
         let url = this.props.user.host + "/projects/" + this.props.project + "/documents";
         if (q) url = url + "?q=" + q;
         console.log(url);
-        let self = this; // [WvA] Ugh! Is there no nicer way to do this?
-        axios.get(url, config).then(function (response) {
+        axios.get(url, config).then((response) => {
             let state = {result: response.data}
             if (query) state['query'] = query;
             console.log(state);
-            self.setState(state);
-        }).catch(function (error) {
+            this.setState(state);
+        }).catch((error) => {
             console.log(error);
         });
     }

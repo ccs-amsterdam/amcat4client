@@ -22,7 +22,7 @@ export default class LoginDialog extends React.Component {
     doLogin = (event) => {
         this.props.onLogin(this.state.server, this.state.email, this.state.password);
     }
-     
+    
     render() {
         return (
             <Dialog
