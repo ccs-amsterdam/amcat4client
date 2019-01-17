@@ -4,44 +4,62 @@ import Query from './query'
 import Result from './results'
 import Output from './output'
 import axios from 'axios';
+import querystring from 'querystring';
 
 export default class QueryScreen extends React.Component {
     state = {
         result: null,
         query: null,
+        page: null, // [WvA] it feels like this state doesn't really belong here. 
+        per_page: null,
+        sortBy: null,
+        sortDesc: false,
     };
 
     handleQueryChange = (query) => {
-        this.get_results(query)
+        this.get_results({query: query, page: null, per_page: null, sortBy: null, sortDesc: false})
     }
 
     handleChangePage = (e, page) => {
-        // TODO: actually change page
-        console.log(page)
+        this.get_results({page: page})
     }
+
     handleChangeRowsPerPage = (e) => {
-        // TODO: actually change rows per page
-        console.log(e.target.value);
+        this.get_results({per_page: e.target.value});
     }
     
+    handleSort = (column) => {
+        // TODO: disable sort on text columns (or better: ask server which columns are sortable)
+        if (column === this.state.sortBy) {
+            this.get_results({sortDesc: !this.state.sortDesc});
+        } else {
+            this.get_results({sortBy: column, sortDesc: false});
+        }
+    }
 
     /**
-     * Refresh results, optionally given a new query
-     * If new query is given, setState to that query when results are in. 
-     * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run
+     * Refresh results, optionally given new state
+     * If new state is given, setState to that query when results are in. 
+     * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run. I think.
      */
-    get_results(query=null) {
-        console.log(query)
-        var q=query!=null?query:this.state.query;
-        var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
+    get_results(new_state={}) {
         let url = this.props.user.host + "/projects/" + this.props.project + "/documents";
-        if (q) url = url + "?q=" + q;
+
+        // new state should be the old state plus any requested changes
+        new_state = Object.assign({}, this.state, new_state) 
+        // subset and rename query params from state, drop empty, create query string
+        const params = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
+        if (params.sort && new_state.sortDesc) params.sort = params.sort + ":desc";
+        Object.keys(params).forEach((key) => params[key] || delete params[key]);        
+        if (Object.keys(params).length) {
+            url = url + "?" + querystring.stringify(params);
+        }
+        
+        var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
         console.log(url);
         axios.get(url, config).then((response) => {
-            let state = {result: response.data}
-            if (query) state['query'] = query;
-            console.log(state);
-            this.setState(state);
+            new_state.result  = response.data;
+            this.setState(new_state);
         }).catch((error) => {
             console.log(error);
         });
@@ -64,7 +82,8 @@ export default class QueryScreen extends React.Component {
                 <div>
                     <Query user={this.props.user} onChange={this.handleQueryChange} />
                     <Output user={this.props.user} />
-                    <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} />
+                    <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
+                    onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc}/>
                 </div>
             );
         } else {

@@ -6,26 +6,43 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+
+
 
 function Results(props) {
     console.log(props.result)
     if (!props.result) return <p>(no results)</p>
     let data = props.result.results;
     let meta = props.result.meta;
+    let order = props.sortDesc?"desc":"asc";
     return (
         <Paper>
             <Table>
                 <colgroup>
-                    <col width="10%" />
                     <col width="20%" />
-                    <col width="50%" />
-                    <col width="20%" />
+                    <col width="40%" />
+                    <col width="40%" />
                 </colgroup>
                 <TableHead>
                     <TableRow>
-                        <TableCell>Date</TableCell>
-                        <TableCell>Title</TableCell>
-                        <TableCell>Url</TableCell>
+                        {["date", "title"].map((row) => (
+                            <TableCell
+                            key={row}
+                            sortDirection={props.sortBy === row ? order : false}
+                          >
+                           
+                              <TableSortLabel
+                                active={props.sortBy === row}
+                                direction={order}
+                                onClick={() => props.onSort(row)}
+                              >
+                                {row}
+                              </TableSortLabel>
+                          </TableCell>
+            
+
+                        ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
