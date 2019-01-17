@@ -15,6 +15,16 @@ export default class QueryScreen extends React.Component {
         this.get_results(query)
     }
 
+    handleChangePage = (e, page) => {
+        // TODO: actually change page
+        console.log(page)
+    }
+    handleChangeRowsPerPage = (e) => {
+        // TODO: actually change rows per page
+        console.log(e.target.value);
+    }
+    
+
     /**
      * Refresh results, optionally given a new query
      * If new query is given, setState to that query when results are in. 
@@ -54,7 +64,7 @@ export default class QueryScreen extends React.Component {
                 <div>
                     <Query user={this.props.user} onChange={this.handleQueryChange} />
                     <Output user={this.props.user} />
-                    <Result result={this.state.result} />
+                    <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} />
                 </div>
             );
         } else {

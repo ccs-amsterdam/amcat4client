@@ -5,11 +5,13 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-
+import TablePagination from '@material-ui/core/TablePagination';
 
 function Results(props) {
-
+    console.log(props.result)
     if (!props.result) return <p>(no results)</p>
+    let data = props.result.results;
+    let meta = props.result.meta;
     return (
         <Paper>
             <Table>
@@ -27,7 +29,7 @@ function Results(props) {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {props.result.map(row => {
+                    {data.map(row => {
                         return (
                             <TableRow key={row._id}>
                                 <TableCell>{row.date}</TableCell>
@@ -37,6 +39,21 @@ function Results(props) {
                     })}
                 </TableBody>
             </Table>
+            <TablePagination
+          rowsPerPageOptions={[10, 25, 50]}
+          component="div"
+          count={meta.total_count}
+          rowsPerPage={meta.per_page}
+          page={meta.page}
+          backIconButtonProps={{
+            'aria-label': 'Previous Page',
+          }}
+          nextIconButtonProps={{
+            'aria-label': 'Next Page',
+          }}
+          onChangePage={props.onChangePage}
+          onChangeRowsPerPage={props.onChangeRowsPerPage}
+        />
         </Paper>
     );
 }
