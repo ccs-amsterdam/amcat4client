@@ -8,69 +8,70 @@ import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 
-
+function clean(value, type) {
+    if (type === "text") {
+        if (value.length > 50) {
+            value = value.substr(0, 50) + "..."
+        }
+    }
+    return value;
+}
 
 function Results(props) {
     console.log(props.result)
     if (!props.result) return <p>(no results)</p>
+    if (!props.fields) return <p>(fetching field data...)</p>
     let data = props.result.results;
     let meta = props.result.meta;
-    let order = props.sortDesc?"desc":"asc";
+    let order = props.sortDesc ? "desc" : "asc";
     return (
         <Paper>
             <Table>
-                <colgroup>
-                    <col width="20%" />
-                    <col width="40%" />
-                    <col width="40%" />
-                </colgroup>
                 <TableHead>
                     <TableRow>
-                        {["date", "title"].map((row) => (
-                            <TableCell
-                            key={row}
-                            sortDirection={props.sortBy === row ? order : false}
-                          >
-                           
-                              <TableSortLabel
-                                active={props.sortBy === row}
-                                direction={order}
-                                onClick={() => props.onSort(row)}
-                              >
-                                {row}
-                              </TableSortLabel>
-                          </TableCell>
-            
+                        {
+                            Object.entries(props.fields).map(([field, type]) =>
+                                <TableCell
+                                    key={field}
+                                    sortDirection={props.sortBy === field ? order : false}
+                                >
 
-                        ))}
+                                    <TableSortLabel
+                                        active={props.sortBy === field}
+                                        direction={order}
+                                        onClick={() => props.onSort(field)}
+                                    >
+                                        {field}
+                                    </TableSortLabel>
+                                </TableCell>
+                            )
+                        }
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map(row => {
-                        return (
-                            <TableRow key={row._id}>
-                                <TableCell>{row.date}</TableCell>
-                                <TableCell>{row.title}</TableCell>
-                            </TableRow>
-                        );
-                    })}
+                    {data.map(row =>
+                        <TableRow key={row._id}>
+                            {Object.entries(props.fields).map(([field, type]) =>
+                                <TableCell key={field}>{clean(row[field], type)}</TableCell>)}
+                        </TableRow>)}
+
                 </TableBody>
             </Table>
             <TablePagination
-          rowsPerPageOptions={[10, 25, 50]}
-          component="div"
-          count={meta.total_count}
-          rowsPerPage={meta.per_page}
-          page={meta.page}
-          backIconButtonProps={{
-            'aria-label': 'Previous Page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'Next Page',
-          }}
-          onChangePage={props.onChangePage}
-          onChangeRowsPerPage={props.onChangeRowsPerPage}
-        />
+                rowsPerPageOptions={[10, 25, 50]}
+                component="div"
+                count={meta.total_count}
+                rowsPerPage={meta.per_page}
+                page={meta.page}
+                backIconButtonProps={{
+                    'aria-label': 'Previous Page',
+                }}
+                nextIconButtonProps={{
+                    'aria-label': 'Next Page',
+                }}
+                onChangePage={props.onChangePage}
+                onChangeRowsPerPage={props.onChangeRowsPerPage}
+            />
         </Paper>
     );
 }

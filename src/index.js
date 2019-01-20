@@ -17,12 +17,13 @@ export default class App extends React.Component {
     this.setState({project: new_project})
   }
   render() {
-
+    // Key is unique for user + project so if it changes the queryscreen needs to be refreshed
+    let key = this.state.user && this.state.project ? this.state.user.email + ":" + this.state.project : null;
     return (
       <div>
         <MainMenu user={this.state.user}  onUserChange={this.handleUserChange} 
                   project={this.state.project} onProjectChange={this.handleProjectChange} />
-        <QueryScreen user={this.state.user} project={this.state.project} />
+        <QueryScreen user={this.state.user} project={this.state.project} key={key} />
       </div>
 
     );

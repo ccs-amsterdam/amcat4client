@@ -10,11 +10,25 @@ export default class QueryScreen extends React.Component {
     state = {
         result: null,
         query: null,
+        fields: null,
         page: null, // [WvA] it feels like this state doesn't really belong here. 
         per_page: null,
         sortBy: null,
         sortDesc: false,
     };
+
+    componentDidMount = () => {
+        if (this.props.user && this.props.project) {
+            const url = this.props.user.host + "/projects/" + this.props.project + "/fields";
+            const config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
+
+            axios.get(url, config).then((response) => {
+                this.setState({fields :response.data});
+            }).catch((error) => {
+                console.log(error);
+            });
+        }
+    }
 
     handleQueryChange = (query) => {
         this.get_results({query: query, page: null, per_page: null, sortBy: null, sortDesc: false})
@@ -83,7 +97,7 @@ export default class QueryScreen extends React.Component {
                     <Query user={this.props.user} onChange={this.handleQueryChange} />
                     <Output user={this.props.user} />
                     <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
-                    onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc}/>
+                    onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} />
                 </div>
             );
         } else {
