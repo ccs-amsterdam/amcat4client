@@ -10,8 +10,9 @@ export default class QueryScreen extends React.Component {
     state = {
         result: null,
         query: null,
+        filters: null,
         fields: null,
-        page: null, // [WvA] it feels like this state doesn't really belong here. 
+        page: null, // [WvA] it feels like this state doesn't really belong here. Perhaps refactor into a 'paginatedresult' or something like that?
         per_page: null,
         sortBy: null,
         sortDesc: false,
@@ -30,8 +31,8 @@ export default class QueryScreen extends React.Component {
         }
     }
 
-    handleQueryChange = (query) => {
-        this.get_results({query: query, page: null, per_page: null, sortBy: null, sortDesc: false})
+    handleQueryChange = (query, filters) => {
+        this.get_results({query: query, filters: filters, page: null, per_page: null, sortBy: null, sortDesc: false})
     }
 
     handleChangePage = (e, page) => {
@@ -62,15 +63,21 @@ export default class QueryScreen extends React.Component {
         // new state should be the old state plus any requested changes
         new_state = Object.assign({}, this.state, new_state) 
         // subset and rename query params from state, drop empty, create query string
-        const params = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
+        let params = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
         if (params.sort && new_state.sortDesc) params.sort = params.sort + ":desc";
+        if (new_state.filters) {
+            for (let filter of new_state.filters) {
+                console.log(filter);
+                if (filter.fieldname && filter.value) params = Object.assign({}, params, {[filter.fieldname]: filter.value})
+            }
+        }
         Object.keys(params).forEach((key) => params[key] || delete params[key]);        
+        console.log(params)
         if (Object.keys(params).length) {
             url = url + "?" + querystring.stringify(params);
         }
         
         var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
-        console.log(url);
         axios.get(url, config).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
@@ -91,10 +98,10 @@ export default class QueryScreen extends React.Component {
     }
 
     render() {
-        if (this.props.user && this.props.project) {
+        if (this.props.user && this.props.project && this.state.fields) {
             return (
                 <div>
-                    <Query user={this.props.user} onChange={this.handleQueryChange} />
+                    <Query user={this.props.user} project={this.props.project} onChange={this.handleQueryChange} fields={this.state.fields} />
                     <Output user={this.props.user} />
                     <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
                     onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} />

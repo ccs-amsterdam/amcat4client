@@ -18,7 +18,6 @@ function clean(value, type) {
 }
 
 function Results(props) {
-    console.log(props.result)
     if (!props.result) return <p>(no results)</p>
     if (!props.fields) return <p>(fetching field data...)</p>
     let data = props.result.results;
