@@ -26,7 +26,7 @@ export default class Query extends React.Component {
     state = {
         autoquery: true,
         query: "",
-        fields: [],
+        filters: [],
         values: {}, // 'cached' {fieldname : [values]} 
     }
 
@@ -35,24 +35,32 @@ export default class Query extends React.Component {
     }
 
     addFilter = () => {
-        let new_field = { id: this.state.fields.length };
+        let new_filter = { id: this.state.filters.length };
         this.setState({
-            fields: [...this.state.fields, new_field]
+            filters: [...this.state.filters, new_filter]
         });
     }
 
     removeFilter = (fieldid) => {
-        let fields = this.state.fields.filter((field, id) => id !== fieldid);
-        this.setState({fields});
+        let filters = this.state.filters.filter((field, id) => id !== fieldid);
+        this.setState({filters});
     }
 
     doQuery = () => {
-        this.props.onChange(this.state.query, this.state.fields)
+        console.log(this.state.filters);
+        // convert filters from array to dict as required by query endpoint
+        let filters = {};
+        for (let f of this.state.filters) {
+            if (f.value) filters[f.fieldname] = {'value': f.value};
+            console.log(f);
+        }
+        console.log(filters);
+        this.props.onChange(this.state.query, filters)
     }
 
-    setFieldName = (field, name) => {
+    setFilterName = (field, name) => {
         const ftype = this.props.fields[name];
-        const f = { ...this.state.fields[field], fieldname: name }
+        const f = { ...this.state.filters[field], fieldname: name }
         if (ftype === "date") {
             f["value_from"] = '';
             f["value_to"] = '';
@@ -60,13 +68,13 @@ export default class Query extends React.Component {
             f["value"] = '';
         }
         // set mutated field in array position on fields array
-        let nf = [...this.state.fields];
+        let nf = [...this.state.filters];
         nf[field] = f;
 
-        this.setState({ fields: nf });
+        this.setState({ filters: nf });
 
+        // Get possible values for this field if needed
         if (ftype === "keyword" && !(field in this.state.values)) {
-            // Get possible values
             let url = this.props.user.host + "/projects/" + this.props.project + "/fields/" + name + "/values";
             let config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
             axios.get(url, config).then((response) => {
@@ -79,11 +87,11 @@ export default class Query extends React.Component {
         }
     }
 
-    setFieldValue = (field, value) => {
-        const f = Object.assign({}, this.state.fields[field], value);
-        let nf = [...this.state.fields];
+    setFilterValue = (field, value) => {
+        const f = Object.assign({}, this.state.filters[field], value);
+        let nf = [...this.state.filters];
         nf[field] = f;
-        this.setState({ fields: nf });
+        this.setState({ filters: nf });
     }
 
     render_field_picker = (field) => {
@@ -95,7 +103,7 @@ export default class Query extends React.Component {
                     label="From"
                     type="date"
                     value={field.value_from}
-                    onChange={(event) => this.setFieldValue(field.id, { value_from: event.target.value })}
+                    onChange={(event) => this.setFilterValue(field.id, { value_from: event.target.value })}
                     InputLabelProps={{ shrink: true, }}
                 />
                 <TextField
@@ -103,7 +111,7 @@ export default class Query extends React.Component {
                     label="To"
                     type="date"
                     value={field.value_to}
-                    onChange={(event) => this.setFieldValue(field.id, { value_to: event.target.value })}
+                    onChange={(event) => this.setFilterValue(field.id, { value_to: event.target.value })}
                     InputLabelProps={{ shrink: true, }}
                 />
             </div>
@@ -113,7 +121,7 @@ export default class Query extends React.Component {
             <InputLabel htmlFor="values">Value</InputLabel>
             <Select
                 value={field.value}
-                onChange={(event) => this.setFieldValue(field.id, { value: event.target.value})}
+                onChange={(event) => this.setFilterValue(field.id, { value: event.target.value})}
                 inputProps={{
                     name: 'values',
                     id: 'values',
@@ -125,7 +133,7 @@ export default class Query extends React.Component {
         } else {
             return <FormControl style={{ minWidth: 120 }}>
                 <InputLabel htmlFor="value">Value</InputLabel>
-                <Input id="value" value={field.value} onChange={(event) => this.setFieldValue(field.id, { value: event.target.value })} />
+                <Input id="value" value={field.value} onChange={(event) => this.setFilterValue(field.id, { value: event.target.value })} />
             </FormControl>
         }
     }
@@ -139,7 +147,7 @@ export default class Query extends React.Component {
                 <InputLabel htmlFor="fieldname">Field</InputLabel>
                 <Select
                     value={field.fieldname || ""}
-                    onChange={(event) => this.setFieldName(field.id, event.target.value)}
+                    onChange={(event) => this.setFilterName(field.id, event.target.value)}
                     inputProps={{
                         name: 'fieldname',
                         id: 'fieldname',
@@ -169,7 +177,7 @@ export default class Query extends React.Component {
                     }}
                 />
             </FormGroup>
-            {this.state.fields.map(this.render_field_select)}
+            {this.state.filters.map(this.render_field_select)}
             <FormGroup row>
                 <Button variant="contained" color="default" onClick={this.addFilter}>
                     Add Filter

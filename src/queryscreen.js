@@ -4,7 +4,6 @@ import Query from './query'
 import Result from './results'
 import Output from './output'
 import axios from 'axios';
-import querystring from 'querystring';
 
 export default class QueryScreen extends React.Component {
     state = {
@@ -24,7 +23,7 @@ export default class QueryScreen extends React.Component {
             const config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
 
             axios.get(url, config).then((response) => {
-                this.setState({fields :response.data});
+                this.get_results({fields :response.data});
             }).catch((error) => {
                 console.log(error);
             });
@@ -58,27 +57,20 @@ export default class QueryScreen extends React.Component {
      * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run. I think.
      */
     get_results(new_state={}) {
-        let url = this.props.user.host + "/projects/" + this.props.project + "/documents";
+        let url = this.props.user.host + "/projects/" + this.props.project + "/query";
 
         // new state should be the old state plus any requested changes
         new_state = Object.assign({}, this.state, new_state) 
         // subset and rename query params from state, drop empty, create query string
-        let params = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
-        if (params.sort && new_state.sortDesc) params.sort = params.sort + ":desc";
-        if (new_state.filters) {
-            for (let filter of new_state.filters) {
-                console.log(filter);
-                if (filter.fieldname && filter.value) params = Object.assign({}, params, {[filter.fieldname]: filter.value})
-            }
-        }
-        Object.keys(params).forEach((key) => params[key] || delete params[key]);        
-        console.log(params)
-        if (Object.keys(params).length) {
-            url = url + "?" + querystring.stringify(params);
-        }
+        let body = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
+        if (body.sort && new_state.sortDesc) body.sort = body.sort + ":desc";
+        if (new_state.filters) body.filters = new_state.filters;
+        // Drop empty keys on body
+        Object.keys(body).forEach((key) => body[key] || delete body[key]);        
         
         var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
-        axios.get(url, config).then((response) => {
+        console.log({url, config, body});
+        axios.post(url, body, config).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
         }).catch((error) => {
