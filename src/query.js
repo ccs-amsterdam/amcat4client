@@ -47,14 +47,17 @@ export default class Query extends React.Component {
     }
 
     doQuery = () => {
-        console.log(this.state.filters);
         // convert filters from array to dict as required by query endpoint
         let filters = {};
         for (let f of this.state.filters) {
             if (f.value) filters[f.fieldname] = {'value': f.value};
-            console.log(f);
+            else if (f.value_from || f.value_to) {
+                let range = {};
+                if (f.value_from) range.gte = f.value_from;
+                if (f.value_to) range.lte = f.value_to;
+                filters[f.fieldname] = {'range': range}
+            }
         }
-        console.log(filters);
         this.props.onChange(this.state.query, filters)
     }
 

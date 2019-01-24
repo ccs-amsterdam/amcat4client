@@ -31,7 +31,7 @@ export default class QueryScreen extends React.Component {
     }
 
     handleQueryChange = (query, filters) => {
-        this.get_results({query: query, filters: filters, page: null, per_page: null, sortBy: null, sortDesc: false})
+        this.get_results({query: query, filters: filters, page: null, per_page: null})
     }
 
     handleChangePage = (e, page) => {
