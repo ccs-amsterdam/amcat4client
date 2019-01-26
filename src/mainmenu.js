@@ -16,11 +16,10 @@ export default class MainMenu extends React.Component {
     refreshProjects = () => {
         // refresh projects
         var config = {headers: {'Authorization': "Bearer " + this.props.user.token}};
-        let url = this.props.user.host + "/projects/";
-        let self = this; // [WvA] Ugh! Is there no nicer way to do this?
+        let url = this.props.user.host + "/index/";
 
-        axios.get(url, config).then(function (response) {
-                self.setState({projects: response.data, projectPickerOpen: true});    
+        axios.get(url, config).then((response) => {
+                this.setState({projects: response.data, projectPickerOpen: true});    
             }).catch(function (error) {
                 console.log(error);
             });

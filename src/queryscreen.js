@@ -19,7 +19,7 @@ export default class QueryScreen extends React.Component {
 
     componentDidMount = () => {
         if (this.props.user && this.props.project) {
-            const url = this.props.user.host + "/projects/" + this.props.project + "/fields";
+            const url = this.props.user.host + "/index/" + this.props.project + "/fields";
             const config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
 
             axios.get(url, config).then((response) => {
@@ -57,7 +57,7 @@ export default class QueryScreen extends React.Component {
      * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run. I think.
      */
     get_results(new_state={}) {
-        let url = this.props.user.host + "/projects/" + this.props.project + "/query";
+        let url = this.props.user.host + "/index/" + this.props.project + "/query";
 
         // new state should be the old state plus any requested changes
         new_state = Object.assign({}, this.state, new_state) 

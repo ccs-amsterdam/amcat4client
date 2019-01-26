@@ -78,7 +78,7 @@ export default class Query extends React.Component {
 
         // Get possible values for this field if needed
         if (ftype === "keyword" && !(field in this.state.values)) {
-            let url = this.props.user.host + "/projects/" + this.props.project + "/fields/" + name + "/values";
+            let url = this.props.user.host + "/index/" + this.props.project + "/fields/" + name + "/values";
             let config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
             axios.get(url, config).then((response) => {
                 let values = { ...this.state.values, [name]: response.data }
