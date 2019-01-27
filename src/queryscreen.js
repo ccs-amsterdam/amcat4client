@@ -12,7 +12,7 @@ import * as api from './api';
 export default class QueryScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.outputOptions = {document: {}};  // [WvA] I don't think this needs to be state as it is a read-only copy of output state. Same might actually hold for query etc.
+        this.outputOptions = {document: {}, table: {}};  // [WvA] I don't think this needs to be state as it is a read-only copy of output state. Same might actually hold for query etc.
         this.query = {}
     }
 
