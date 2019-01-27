@@ -20,6 +20,10 @@ function clean(value, type) {
 function Results(props) {
     if (!props.result) return <p>(no results)</p>
     if (!props.fields) return <p>(fetching field data...)</p>
+    let result_fields = Object.keys(props.result.results[0])
+    let fields = {...props.fields};
+    Object.keys(fields).forEach((key) => result_fields.includes(key) || delete fields[key]);        
+
     let data = props.result.results;
     let meta = props.result.meta;
     let order = props.sortDesc ? "desc" : "asc";
@@ -29,7 +33,7 @@ function Results(props) {
                 <TableHead>
                     <TableRow>
                         {
-                            Object.entries(props.fields).map(([field, type]) =>
+                            Object.keys(fields).map((field) =>
                                 <TableCell
                                     key={field}
                                     sortDirection={props.sortBy === field ? order : false}
@@ -50,7 +54,7 @@ function Results(props) {
                 <TableBody>
                     {data.map(row =>
                         <TableRow key={row._id}>
-                            {Object.entries(props.fields).map(([field, type]) =>
+                            {Object.entries(fields).map(([field, type]) =>
                                 <TableCell key={field}>{clean(row[field], type)}</TableCell>)}
                         </TableRow>)}
 

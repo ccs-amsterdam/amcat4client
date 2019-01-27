@@ -9,7 +9,7 @@ import * as api from './api';
 export default class QueryScreen extends React.Component {
     constructor(props) {
         super(props);
-        this.outputOptions = {};
+        this.outputOptions = {document: {}};  // [WvA] I don't think this needs to be state as it is a read-only copy of output state. Same might actually hold for query etc.
     }
 
     state = {
@@ -69,9 +69,10 @@ export default class QueryScreen extends React.Component {
         let body = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
         if (body.sort && new_state.sortDesc) body.sort = body.sort + ":desc";
         if (new_state.filters) body.filters = new_state.filters;
+        if (this.outputOptions.document.fields) body.fields = this.outputOptions.document.fields;
         // Drop empty keys on body
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
-        
+        console.log(body);
         api.query(this.props.user, this.props.index, body).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
