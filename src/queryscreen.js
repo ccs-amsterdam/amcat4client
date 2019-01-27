@@ -3,7 +3,8 @@ import React from 'react';
 import Query from './query'
 import Result from './results'
 import Output from './output'
-import axios from 'axios';
+import * as api from './api';
+
 
 export default class QueryScreen extends React.Component {
     state = {
@@ -19,13 +20,8 @@ export default class QueryScreen extends React.Component {
 
     componentDidMount = () => {
         if (this.props.user && this.props.project) {
-            const url = this.props.user.host + "/index/" + this.props.project + "/fields";
-            const config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
-
-            axios.get(url, config).then((response) => {
+            api.getFields(this.props.user, this.props.project).then((response) => {
                 this.get_results({fields :response.data});
-            }).catch((error) => {
-                console.log(error);
             });
         }
     }
@@ -57,8 +53,6 @@ export default class QueryScreen extends React.Component {
      * [WvA] setState here and not in handleQueryChange to avoid problem where state is updated only after request is run. I think.
      */
     get_results(new_state={}) {
-        let url = this.props.user.host + "/index/" + this.props.project + "/query";
-
         // new state should be the old state plus any requested changes
         new_state = Object.assign({}, this.state, new_state) 
         // subset and rename query params from state, drop empty, create query string
@@ -68,13 +62,9 @@ export default class QueryScreen extends React.Component {
         // Drop empty keys on body
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
         
-        var config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
-        console.log({url, config, body});
-        axios.post(url, body, config).then((response) => {
+        api.query(this.props.user, this.props.project, body).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
-        }).catch((error) => {
-            console.log(error);
         });
     }
 

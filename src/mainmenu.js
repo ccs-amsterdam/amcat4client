@@ -1,8 +1,8 @@
 import React from 'react';
-import axios from 'axios';
 import LoginDialog from './login';
 import User from './user';
 import AmcatMenu from './menu';
+import * as api from './api';
 
 /**
  * Component that deals with user and project management
@@ -14,14 +14,8 @@ export default class MainMenu extends React.Component {
         projectPickerOpen: false,
     }
     refreshProjects = () => {
-        // refresh projects
-        var config = {headers: {'Authorization': "Bearer " + this.props.user.token}};
-        let url = this.props.user.host + "/index/";
-
-        axios.get(url, config).then((response) => {
+        api.getProjects(this.props.user).then((response) => {
                 this.setState({projects: response.data, projectPickerOpen: true});    
-            }).catch(function (error) {
-                console.log(error);
             });
     }
     openLogin = () => {
@@ -41,24 +35,15 @@ export default class MainMenu extends React.Component {
     handleChangeProject = (project) => {}
 
     handleLogin = (host, email, password) => {
-        let url = host + "/auth/token/";
-        let self = this; // [WvA] Ugh! Is there no nicer way to do this?
-        axios.get(url, {
-            auth: {
-                username: email,
-                password: password
-            }
-        }).then(function (response) {
+        api.login(host, email, password).then((response) => {
             let u = new User(host, email, response.data.token);
-            self.props.onUserChange(u);
-            self.refreshProjects()
-            self.setState({ loginDialogOpen: false });
-    
+            this.props.onUserChange(u);
+            this.refreshProjects()
+            this.setState({ loginDialogOpen: false });
         }).catch(function (error) {
-            console.log(error)
+            console.log(error);
             alert("Could not log in to server, sorry :-(");
         });
-
     };
 
     handleLogout = () => {

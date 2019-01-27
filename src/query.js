@@ -11,7 +11,7 @@ import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import axios from 'axios';
+import * as api from './api';
 
 export default class Query extends React.Component {
     static propTypes = {
@@ -78,15 +78,10 @@ export default class Query extends React.Component {
 
         // Get possible values for this field if needed
         if (ftype === "keyword" && !(field in this.state.values)) {
-            let url = this.props.user.host + "/index/" + this.props.project + "/fields/" + name + "/values";
-            let config = { headers: { 'Authorization': "Bearer " + this.props.user.token } };
-            axios.get(url, config).then((response) => {
+            api.getFieldValues(this.props.user, this.props.project, name).then((response) => {
                 let values = { ...this.state.values, [name]: response.data }
                 this.setState({ values })
-            }).catch((error) => {
-                console.log(error);
             });
-    
         }
     }
 
