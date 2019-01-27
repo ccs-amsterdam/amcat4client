@@ -3,6 +3,9 @@ import React from 'react';
 import Query from './query'
 import Result from './results'
 import Output from './output'
+import Button from '@material-ui/core/Button';
+import Divider from '@material-ui/core/Divider';
+
 import * as api from './api';
 
 
@@ -10,11 +13,11 @@ export default class QueryScreen extends React.Component {
     constructor(props) {
         super(props);
         this.outputOptions = {document: {}};  // [WvA] I don't think this needs to be state as it is a read-only copy of output state. Same might actually hold for query etc.
+        this.query = {}
     }
 
     state = {
         result: null,
-        query: null,
         filters: null,
         fields: null,
         page: null, // [WvA] it feels like this state doesn't really belong here. Perhaps refactor into a 'paginatedresult' or something like that?
@@ -35,10 +38,10 @@ export default class QueryScreen extends React.Component {
         Object.assign(this.outputOptions, this.outputOptions, options);
     }
 
-    handleQueryChange = (query, filters) => {
-        console.log(this.outputOptions);
-        this.get_results({query: query, filters: filters, page: null, per_page: null})
+    handleQueryChange = (query) => {
+        Object.assign(this.query, this.query, query);
     }
+
 
     handleChangePage = (e, page) => {
         this.get_results({page: page})
@@ -46,6 +49,10 @@ export default class QueryScreen extends React.Component {
 
     handleChangeRowsPerPage = (e) => {
         this.get_results({per_page: e.target.value});
+    }
+
+    doQuery = () => {
+        this.get_results({page: null, per_page: null})
     }
     
     handleSort = (column) => {
@@ -66,13 +73,14 @@ export default class QueryScreen extends React.Component {
         // new state should be the old state plus any requested changes
         new_state = Object.assign({}, this.state, new_state) 
         // subset and rename query params from state, drop empty, create query string
-        let body = (({ query, page, per_page, sortBy }) => ({ q:query, page, per_page, sort:sortBy }))(new_state);
+        let body = (({ page, per_page, sortBy }) => ({ page, per_page, sort:sortBy }))(new_state);
         if (body.sort && new_state.sortDesc) body.sort = body.sort + ":desc";
-        if (new_state.filters) body.filters = new_state.filters;
-        if (this.outputOptions.document.fields) body.fields = this.outputOptions.document.fields;
+        body.query_string = this.query.query_string
+        body.filters = this.query.filters
+        body.fields = this.outputOptions.document.fields;
         // Drop empty keys on body
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
-        console.log(body);
+        console.debug(body);
         api.query(this.props.user, this.props.index, body).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
@@ -94,14 +102,16 @@ export default class QueryScreen extends React.Component {
         if (this.props.user && this.props.index && this.state.fields) {
             return (
                 <div>
-                    <Query user={this.props.user} index={this.props.index} onChange={this.handleQueryChange} fields={this.state.fields} />
+                    <Query user={this.props.user} index={this.props.index} fields={this.state.fields} onChange={this.handleQueryChange} />
                     <Output user={this.props.user} index={this.props.index} fields={this.state.fields} onChange={this.handleOutputOptionsChange} />
+                <Button variant="contained" color="secondary" onClick={this.doQuery}>Query</Button>
+                <Divider variant="middle" style={{margin:".5em"}}/>
                     <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
                     onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} />
                 </div>
             );
         } else {
-            return <p>Please log in or select index</p>
+            return <p>Please log in and select index</p>
         }
     };
 }

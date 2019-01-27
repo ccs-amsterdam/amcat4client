@@ -20,10 +20,11 @@ function clean(value, type) {
 function Results(props) {
     if (!props.result) return <p>(no results)</p>
     if (!props.fields) return <p>(fetching field data...)</p>
-    let result_fields = Object.keys(props.result.results[0])
     let fields = {...props.fields};
-    Object.keys(fields).forEach((key) => result_fields.includes(key) || delete fields[key]);        
-
+    if (props.result.results.length > 0) {
+        let result_fields = Object.keys(props.result.results[0])
+        Object.keys(fields).forEach((key) => result_fields.includes(key) || delete fields[key]);        
+    }
     let data = props.result.results;
     let meta = props.result.meta;
     let order = props.sortDesc ? "desc" : "asc";

@@ -30,26 +30,29 @@ export default class Query extends React.Component {
         values: {}, // 'cached' {fieldname : [values]} 
     }
 
-    handleChange = name => event => {
-        this.setState({ [name]: event.target.value });
+    onQueryChange = event => {
+        let q=event.target.value;
+        this.setState( {query: q});
+        this.props.onChange({query_string: q});
     }
 
     addFilter = () => {
         let new_filter = { id: this.state.filters.length };
-        this.setState({
-            filters: [...this.state.filters, new_filter]
-        });
+        let filters = [...this.state.filters, new_filter];
+        this.setState({filters})
+        this.onFilterChange(filters);
     }
 
     removeFilter = (fieldid) => {
         let filters = this.state.filters.filter((field, id) => id !== fieldid);
         this.setState({filters});
+        this.onFilterChange(filters);
     }
 
-    doQuery = () => {
-        // convert filters from array to dict as required by query endpoint
+    onFilterChange(new_filters) {
+        // Communicate new filters to parent
         let filters = {};
-        for (let f of this.state.filters) {
+        for (let f of new_filters) {
             if (f.value) filters[f.fieldname] = {'value': f.value};
             else if (f.value_from || f.value_to) {
                 let range = {};
@@ -58,7 +61,7 @@ export default class Query extends React.Component {
                 filters[f.fieldname] = {'range': range}
             }
         }
-        this.props.onChange(this.state.query, filters)
+        this.props.onChange({filters})
     }
 
     setFilterName = (field, name) => {
@@ -75,6 +78,7 @@ export default class Query extends React.Component {
         nf[field] = f;
 
         this.setState({ filters: nf });
+        this.onFilterChange(nf);
 
         // Get possible values for this field if needed
         if (ftype === "keyword" && !(field in this.state.values)) {
@@ -90,6 +94,7 @@ export default class Query extends React.Component {
         let nf = [...this.state.filters];
         nf[field] = f;
         this.setState({ filters: nf });
+        this.onFilterChange(nf);
     }
 
     render_field_picker = (field) => {
@@ -169,7 +174,7 @@ export default class Query extends React.Component {
                     placeholder="Enter your query text"
                     fullWidth
                     margin="normal"
-                    onChange={this.handleChange('query')}
+                    onChange={this.onQueryChange}
                     InputLabelProps={{
                         shrink: true,
                     }}
@@ -179,9 +184,6 @@ export default class Query extends React.Component {
             <FormGroup row>
                 <Button variant="contained" color="default" onClick={this.addFilter}>
                     Add Filter
-                </Button> &nbsp; 
-                <Button variant="contained" color="secondary" onClick={this.doQuery}>
-                    Query
                 </Button>
             </FormGroup>
         </div>
