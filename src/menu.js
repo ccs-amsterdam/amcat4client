@@ -13,28 +13,28 @@ import Menu from '@material-ui/core/Menu';
 export default class AmCATMenu extends React.Component {
     render() {
         let toolbar;
-        const open = this.props.projectPickerOpen;
+        const open = this.props.indexPickerOpen;
         // [WvA] It seems findDOMNode is discouraged/deprecated, but how else can parent control open and still provide the anchor? 
         // See also https://github.com/mui-org/material-ui/issues/2866
-        const menuAnchor = open?ReactDOM.findDOMNode(this.refs.refProjectButton):null;
+        const menuAnchor = open?ReactDOM.findDOMNode(this.refs.refIndexButton):null;
         const user = this.props.user;
         if (user) {
-            let projectmenu = this.props.projects ? // [WvA] For some reason value is always 0 so provide value as function
-                this.props.projects.map((project, index) => <MenuItem key={index} value={project.name} onClick={() => this.props.onProjectPickerClose(project.name)}>{project.name}</MenuItem>) :
-                <MenuItem>(No projects)</MenuItem>;
+            let indexmenu = this.props.indices ? // [WvA] For some reason value is always 0 so provide value as function
+                this.props.indices.map((index, i) => <MenuItem key={i} value={index.name} onClick={() => this.props.onIndexPickerClose(index.name)}>{index.name}</MenuItem>) :
+                <MenuItem>(No indices)</MenuItem>;
 
             toolbar = <Toolbar>
                 <Typography variant="h6" color="inherit" style={{ flexGrow: 1 }}>
-                    AmCAT4: {user.host} (user: {user.email}) : {this.props.project}
+                    AmCAT4: {user.host} (user: {user.email}) : {this.props.index}
           </Typography>
 
                 <div>
                     <IconButton
                         aria-owns={open ? 'menu-appbar' : undefined}
                         aria-haspopup="true"
-                        onClick={this.props.onProjectPickerOpen}
+                        onClick={this.props.onIndexPickerOpen}
                         color="inherit"
-                        ref="refProjectButton"
+                        ref="refIndexButton"
                     >
                         <AccountCircle />
                     </IconButton>
@@ -42,9 +42,9 @@ export default class AmCATMenu extends React.Component {
                         id="menu-appbar"
                         anchorEl={menuAnchor}
                         open={open}
-                        onClose={() => this.props.onProjectPickerClose(null)}
+                        onClose={() => this.props.onIndexPickerClose(null)}
                     >
-                        {projectmenu}
+                        {indexmenu}
                     </Menu>
 
                 </div>

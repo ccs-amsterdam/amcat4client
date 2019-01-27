@@ -22,7 +22,7 @@ function _get(user, index, url) {
     return Axios.get(url, config).catch(console.log);
 }
 
-function getProjects(user) {
+function getIndices(user) {
     return _get(user, null, "/index/")
 }
 function getFields(user, index) {
@@ -40,4 +40,4 @@ function query(user, index, body) {
     return Axios.post(url, body, config).catch(console.log);
 }
 
-export { login, getProjects, query, getFields, getFieldValues };
+export { login, getIndices, query, getFields, getFieldValues };

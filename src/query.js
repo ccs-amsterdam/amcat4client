@@ -78,7 +78,7 @@ export default class Query extends React.Component {
 
         // Get possible values for this field if needed
         if (ftype === "keyword" && !(field in this.state.values)) {
-            api.getFieldValues(this.props.user, this.props.project, name).then((response) => {
+            api.getFieldValues(this.props.user, this.props.index, name).then((response) => {
                 let values = { ...this.state.values, [name]: response.data }
                 this.setState({ values })
             });

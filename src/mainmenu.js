@@ -5,40 +5,40 @@ import AmcatMenu from './menu';
 import * as api from './api';
 
 /**
- * Component that deals with user and project management
+ * Component that deals with user and index management
  */
 export default class MainMenu extends React.Component {
     state = {
         loginDialogOpen: false,
-        projects: [],
-        projectPickerOpen: false,
+        indices: [],
+        indexPickerOpen: false,
     }
-    refreshProjects = () => {
-        api.getProjects(this.props.user).then((response) => {
-                this.setState({projects: response.data, projectPickerOpen: true});    
+
+    refreshIndices = () => {
+        api.getIndices(this.props.user).then((response) => {
+                this.setState({indices: response.data, indexPickerOpen: true});    
             });
     }
+
     openLogin = () => {
         this.setState({loginDialogOpen: true});
     }
 
-    handleProjectPickerClose = (project) => {
-        if (project) this.props.onProjectChange(project);
-        this.setState({ projectPickerOpen: false});
+    handleIndexPickerClose = (index) => {
+        if (index) this.props.onIndexChange(index);
+        this.setState({ indexPickerOpen: false});
     }
 
-    handleProjectPickerOpen = () => {
-        this.refreshProjects()
-        this.setState({projectPickerOpen: true})
+    handleIndexPickerOpen = () => {
+        this.refreshIndices()
+        this.setState({indexPickerOpen: true})
     }
-
-    handleChangeProject = (project) => {}
 
     handleLogin = (host, email, password) => {
         api.login(host, email, password).then((response) => {
             let u = new User(host, email, response.data.token);
             this.props.onUserChange(u);
-            this.refreshProjects()
+            this.refreshIndices()
             this.setState({ loginDialogOpen: false });
         }).catch(function (error) {
             console.log(error);
@@ -53,8 +53,8 @@ export default class MainMenu extends React.Component {
     render() {
         return <div>
             <AmcatMenu user={this.props.user} onLogin={this.openLogin}  onLogout={this.handleLogout} 
-                       project={this.props.project} projectPickerOpen={this.state.projectPickerOpen} projects={this.state.projects}
-                       onProjectPickerClose={this.handleProjectPickerClose} onProjectPickerOpen={this.handleProjectPickerOpen}/>
+                       index={this.props.index} indexPickerOpen={this.state.indexPickerOpen} indices={this.state.indices}
+                       onIndexPickerClose={this.handleIndexPickerClose} onIndexPickerOpen={this.handleIndexPickerOpen}/>
             <LoginDialog open={this.state.loginDialogOpen} onLogin={this.handleLogin} />
         </div>;
     }

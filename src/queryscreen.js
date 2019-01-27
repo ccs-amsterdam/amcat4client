@@ -7,6 +7,11 @@ import * as api from './api';
 
 
 export default class QueryScreen extends React.Component {
+    constructor(props) {
+        super(props);
+        this.outputOptions = {};
+    }
+
     state = {
         result: null,
         query: null,
@@ -19,14 +24,19 @@ export default class QueryScreen extends React.Component {
     };
 
     componentDidMount = () => {
-        if (this.props.user && this.props.project) {
-            api.getFields(this.props.user, this.props.project).then((response) => {
+        if (this.props.user && this.props.index) {
+            api.getFields(this.props.user, this.props.index).then((response) => {
                 this.get_results({fields :response.data});
             });
         }
     }
 
+    handleOutputOptionsChange = (options) => {
+        Object.assign(this.outputOptions, this.outputOptions, options);
+    }
+
     handleQueryChange = (query, filters) => {
+        console.log(this.outputOptions);
         this.get_results({query: query, filters: filters, page: null, per_page: null})
     }
 
@@ -62,15 +72,15 @@ export default class QueryScreen extends React.Component {
         // Drop empty keys on body
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
         
-        api.query(this.props.user, this.props.project, body).then((response) => {
+        api.query(this.props.user, this.props.index, body).then((response) => {
             new_state.result  = response.data;
             this.setState(new_state);
         });
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.project !== prevProps.project) {
-            if (!(this.props.project && this.props.user)) {
+        if (this.props.index !== prevProps.index) {
+            if (!(this.props.index && this.props.user)) {
                 this.setState({ result: null });
             } else {
                 this.get_results()
@@ -80,17 +90,17 @@ export default class QueryScreen extends React.Component {
     }
 
     render() {
-        if (this.props.user && this.props.project && this.state.fields) {
+        if (this.props.user && this.props.index && this.state.fields) {
             return (
                 <div>
-                    <Query user={this.props.user} project={this.props.project} onChange={this.handleQueryChange} fields={this.state.fields} />
-                    <Output user={this.props.user} />
+                    <Query user={this.props.user} index={this.props.index} onChange={this.handleQueryChange} fields={this.state.fields} />
+                    <Output user={this.props.user} index={this.props.index} fields={this.state.fields} onChange={this.handleOutputOptionsChange} />
                     <Result result={this.state.result} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
                     onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} />
                 </div>
             );
         } else {
-            return <p>Please log in or select project</p>
+            return <p>Please log in or select index</p>
         }
     };
 }

@@ -7,23 +7,23 @@ import QueryScreen from './queryscreen'
 export default class App extends React.Component {
   state = {
     user: null, 
-    project: null,
+    index: null,
   };
 
   handleUserChange = (new_user) => {
-    this.setState({user: new_user, project: null})
+    this.setState({user: new_user, index: null})
   }
-  handleProjectChange = (new_project) => {
-    this.setState({project: new_project})
+  handleIndexChange = (new_index) => {
+    this.setState({index: new_index})
   }
   render() {
-    // Key is unique for user + project so if it changes the queryscreen needs to be refreshed
-    let key = this.state.user && this.state.project ? this.state.user.email + ":" + this.state.project : null;
+    // Key is unique for user + index so if it changes the queryscreen needs to be refreshed
+    let key = this.state.user && this.state.index ? this.state.user.email + ":" + this.state.index : null;
     return (
       <div>
         <MainMenu user={this.state.user}  onUserChange={this.handleUserChange} 
-                  project={this.state.project} onProjectChange={this.handleProjectChange} />
-        <QueryScreen user={this.state.user} project={this.state.project} key={key} />
+                  index={this.state.index} onIndexChange={this.handleIndexChange} />
+        <QueryScreen user={this.state.user} index={this.state.index} key={key} />
       </div>
 
     );
