@@ -40,4 +40,10 @@ function query(user, index, body) {
     return Axios.post(url, body, config).catch(console.log);
 }
 
-export { login, getIndices, query, getFields, getFieldValues };
+function aggregate(user, index, body) {
+    let url = user.host + "/index/" + index + "/aggregate";
+    var config = { headers: { 'Authorization': "Bearer " + user.token } };
+    return Axios.post(url, body, config).catch(console.log);
+}
+
+export { login, getIndices, query, getFields, getFieldValues, aggregate };

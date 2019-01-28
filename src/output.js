@@ -25,7 +25,7 @@ export default class Output extends React.Component {
     state = {
         selected_tab: "document",
         document_fields: [],
-        table_options: { row: { 'fieldname': 'date', 'interval': 'Day' }, column: {'interval': 'Day'} }
+        table_options: { row: { 'field': 'date', 'interval': 'day' }, column: {'interval': 'day'} }
     };
 
     onDocumentFieldsChange = (event) => {
@@ -76,7 +76,7 @@ export default class Output extends React.Component {
     tableOptions() {
         let rows = [{ key: 'row', label: 'Rows', nullable: false }, { key: 'column', label: 'Columns', nullable: true }].map(axis => {
             let field = this.state.table_options[axis.key];
-            let ftype = field.fieldname ? this.props.fields[field.fieldname] : '';
+            let ftype = field.field ? this.props.fields[field.field] : '';
             let intervalpicker = null;
             if (ftype === 'date') {
                 intervalpicker = <FormControl style={{ minWidth: 120 }}>
@@ -86,16 +86,16 @@ export default class Output extends React.Component {
                         onChange={(event) => this.setTableFieldOptions(axis.key, {interval: event.target.value})}
                         inputProps={{ name: axis.key + "-interval", id: axis.key + "-interval" }}
                     >
-                        {["Year", "Month", "Week", "Day"].map(interval => <MenuItem key={interval} value={interval}>{interval}</MenuItem>)}
+                        {["Year", "Month", "Week", "Day"].map(interval => <MenuItem key={interval} value={interval.toLowerCase()}>{interval}</MenuItem>)}
                     </Select>
                 </FormControl>
             } 
             return <FormGroup row key={axis.key}>
                 <FormControl style={{ minWidth: 120 }}>
-                    <InputLabel htmlFor="fieldname">{axis.label}</InputLabel>
+                    <InputLabel htmlFor={axis.key + "-fieldname"}>{axis.label}</InputLabel>
                     <Select
-                        value={field.fieldname || ""}
-                        onChange={(event) => this.setTableFieldOptions(axis.key, {fieldname: event.target.value})}
+                        value={field.field || ""}
+                        onChange={(event) => this.setTableFieldOptions(axis.key, {field: event.target.value})}
                         inputProps={{ name: axis.key + "-fieldname", id: axis.key + "-fieldname" }}
                     >
                         {axis.nullable && <MenuItem key="null" value=""></MenuItem>}
