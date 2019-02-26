@@ -106,7 +106,10 @@ export default class QueryScreen extends React.Component {
             if (this.state.fields[val.field] !== "date") val = {field: val.field}
             return val
         }
-        let body = {axes: [clean(this.outputOptions.table.row)], filters: this.query.filters}
+        let body = {axes: [clean(this.outputOptions.table.row)], 
+            filters: this.query.filters,
+            query_string: this.query.query_string
+        }
         if (this.outputOptions.table.column.field) body.axes.push(clean(this.outputOptions.table.column))
 
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
