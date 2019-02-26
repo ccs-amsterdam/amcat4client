@@ -103,12 +103,11 @@ export default class QueryScreen extends React.Component {
     get_results_documents(new_state) {
         let body = (({ page, per_page, sortBy }) => ({ page, per_page, sort:sortBy }))(new_state);
         if (body.sort && new_state.sortDesc) body.sort = body.sort + ":desc";
-        body.query_string = this.query.query_string
+        body.queries = this.query.queries
         body.filters = this.query.filters
         body.fields = this.outputOptions.document.fields;
         // Drop empty keys on body
         Object.keys(body).forEach((key) => body[key] || delete body[key]);        
-        console.debug(body);
         return {type: "list", data: api.query(this.props.user, this.props.index, body)}
     }
 
@@ -119,7 +118,7 @@ export default class QueryScreen extends React.Component {
         }
         let body = {axes: [clean(this.outputOptions.table.row)], 
             filters: this.query.filters,
-            query_string: this.query.query_string
+            queries: this.query.queries
         }
         if (this.outputOptions.table.column.field) body.axes.push(clean(this.outputOptions.table.column))
 

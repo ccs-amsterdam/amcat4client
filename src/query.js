@@ -31,16 +31,13 @@ export default class Query extends React.Component {
     }
 
 
-    onQueryChange = () =>  {
-
-         if (this.state.queries.length > 0) {
-            this.props.onChange({query_string: this.state.queries[0]['query_string']});  // TODO only passes first query. Need to change API first
-    } 
+    onQueryChange = (queries) =>  {
+        let qs = queries.map(x => x['query_string']).filter(x => x !== "");
+        this.props.onChange({queries: qs});  
     }
 
     onSingleQueryChange = (id, query_string) => {
         let nq = [...this.state.queries];
-        // console.log(nq)
         nq[id] = {query_string, id};
         this.setState({queries: nq})
         this.onQueryChange(nq);
@@ -55,7 +52,6 @@ export default class Query extends React.Component {
 
     removeQuery = (queryid) => {
         let queries = this.state.queries.filter((query, id) => id !== queryid);
-        //console.log(queries)
         this.setState({queries});
         this.onQueryChange(queries);
         }

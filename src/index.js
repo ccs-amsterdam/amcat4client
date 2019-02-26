@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MainMenu from './mainmenu.js'
 import QueryScreen from './queryscreen'
-import DocumentViewer from './documentviewer'
-
 
 export default class App extends React.Component {
   state = {
