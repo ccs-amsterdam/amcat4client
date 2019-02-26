@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 
 import * as api from './api';
+import { promised } from 'q';
 
 export default class QueryScreen extends React.Component {
     constructor(props) {
@@ -54,6 +55,7 @@ export default class QueryScreen extends React.Component {
     handleChangeRowsPerPage = (e) => {
         this.get_results({per_page: e.target.value});
     }
+
 
     handlePopupOpen = (row) => {
         api.getDocument(this.props.user, this.props.index, row).then(response => {
@@ -152,7 +154,7 @@ export default class QueryScreen extends React.Component {
                 <Button variant="contained" color="secondary" onClick={this.doQuery}>Query</Button>
                 <Divider variant="middle" style={{margin:".5em"}}/>
                 {result}    
-                <DocumentViewer article={this.state.popup_article} onClose={this.handlePopupClose} />
+                <DocumentViewer article={this.state.popup_article} fields={this.state.fields} onClose={this.handlePopupClose} />
                 </div>
             );
         } else {
