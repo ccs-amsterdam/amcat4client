@@ -25,21 +25,45 @@ export default class Query extends React.Component {
 
     state = {
         autoquery: true,
-        query: "",
+        queries: [{query_string:'', id:0}],
         filters: [],
         values: {}, // 'cached' {fieldname : [values]} 
     }
 
-    onQueryChange = event => {
-        let q=event.target.value;
-        this.setState( {query: q});
-        this.props.onChange({query_string: q});
+
+    onQueryChange = () =>  {
+
+         if (this.state.queries.length > 0) {
+            this.props.onChange({query_string: this.state.queries[0]['query_string']});  // TODO only passes first query. Need to change API first
+    } 
     }
+
+    onSingleQueryChange = (id, query_string) => {
+        let nq = [...this.state.queries];
+        // console.log(nq)
+        nq[id] = {query_string, id};
+        this.setState({queries: nq})
+        this.onQueryChange(nq);
+    }
+
+    addQuery = () => {
+        let new_query = { id: this.state.queries.length };
+        let queries = [...this.state.queries, new_query];
+        this.setState({queries})
+        this.onQueryChange(queries);
+    }
+
+    removeQuery = (queryid) => {
+        let queries = this.state.queries.filter((query, id) => id !== queryid);
+        //console.log(queries)
+        this.setState({queries});
+        this.onQueryChange(queries);
+        }
 
     addFilter = () => {
         let new_filter = { id: this.state.filters.length };
         let filters = [...this.state.filters, new_filter];
-        this.setState({filters})
+        this.setState({filters});
         this.onFilterChange(filters);
     }
 
@@ -164,22 +188,42 @@ export default class Query extends React.Component {
         </FormGroup>
     }
 
-    render() {
-        return <div>
-            <FormGroup row>
+    render_query_field = (query) => {
+        return <FormGroup row key = {query.id}>
+        {query.id > 0 && 
+           <IconButton aria-label="Delete" onClick={() => this.removeQuery(query.id)} >
+          <DeleteIcon fontSize="small"/>
+        </IconButton>}
                 <TextField
-                    id="query"
+                    id={String(query.id)}
                     label="Query"
                     style={{ margin: 8 }}
                     placeholder="Enter your query text"
                     fullWidth
                     margin="normal"
-                    onChange={this.onQueryChange}
+                    onChange={(e) => this.onSingleQueryChange(query.id, e.target.value)}
                     InputLabelProps={{
                         shrink: true,
                     }}
                 />
             </FormGroup>
+
+
+    }
+
+
+    render() {
+        return <div>
+            
+            {/*this.render_query_field(this.state.queries[0]) */}
+
+            {this.state.queries.map(this.render_query_field)}
+            <FormGroup row>
+                <Button variant="contained" color="default" onClick={this.addQuery}>
+                    Add Query
+                </Button>
+            </FormGroup>
+
             {this.state.filters.map(this.render_field_select)}
             <FormGroup row>
                 <Button variant="contained" color="default" onClick={this.addFilter}>
