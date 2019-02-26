@@ -3,12 +3,12 @@ import React from 'react';
 import Query from './query'
 import Result from './results'
 import ResultsTable from './results_table'
+import DocumentViewer from './documentviewer'
 import Output from './output'
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 
 import * as api from './api';
-
 
 export default class QueryScreen extends React.Component {
     constructor(props) {
@@ -27,6 +27,7 @@ export default class QueryScreen extends React.Component {
         per_page: null,
         sortBy: null,
         sortDesc: false,
+        popup_article: null,
     };
 
     componentDidMount = () => {
@@ -46,13 +47,23 @@ export default class QueryScreen extends React.Component {
         Object.assign(this.query, this.query, query);
     }
 
-
     handleChangePage = (e, page) => {
         this.get_results({page: page})
     }
 
     handleChangeRowsPerPage = (e) => {
         this.get_results({per_page: e.target.value});
+    }
+
+    handlePopupOpen = (row) => {
+        api.getDocument(this.props.user, this.props.index, row).then(response => {
+            console.log(response)
+            this.setState({popup_article: response.data})
+        })
+    }
+
+    handlePopupClose = () => {
+        this.setState({popup_article: null})
     }
 
     doQuery = () => {
@@ -129,7 +140,7 @@ export default class QueryScreen extends React.Component {
         if (this.props.user && this.props.index && this.state.fields) {
             let result = null;
             if (this.state.result.type === "list") result = <Result result={this.state.result.data} onChangePage={this.handleChangePage} onChangeRowsPerPage={this.handleChangeRowsPerPage} 
-            onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} />;
+            onSort={this.handleSort} sortBy={this.state.sortBy} sortDesc={this.state.sortDesc} fields={this.state.fields} onClickRow={this.handlePopupOpen} />;
             else if (this.state.result.type === "table") result = <ResultsTable options={this.outputOptions.table} result={this.state.result.data} fields={this.state.fields} />
 
             return (
@@ -139,6 +150,7 @@ export default class QueryScreen extends React.Component {
                 <Button variant="contained" color="secondary" onClick={this.doQuery}>Query</Button>
                 <Divider variant="middle" style={{margin:".5em"}}/>
                 {result}    
+                <DocumentViewer article={this.state.popup_article} onClose={this.handlePopupClose} />
                 </div>
             );
         } else {

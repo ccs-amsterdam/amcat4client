@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import MainMenu from './mainmenu.js'
 import QueryScreen from './queryscreen'
+import DocumentViewer from './documentviewer'
 
 
 export default class App extends React.Component {
@@ -30,3 +31,4 @@ export default class App extends React.Component {
   }
 }
 ReactDOM.render(<App />, document.querySelector('#root'));
+//ReactDOM.render(<DocumentViewer open={true} headline={"headline"} text={"text"}/>, document.querySelector('#root'));

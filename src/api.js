@@ -33,6 +33,10 @@ function getFieldValues(user, index, field) {
     return _get(user, index, "/fields/" + field + "/values");
 }
 
+function getDocument(user, index, doc_id) {
+    return _get(user, index, "/documents/" + doc_id)
+}
+
 
 function query(user, index, body) {
     let url = user.host + "/index/" + index + "/query";
@@ -46,4 +50,4 @@ function aggregate(user, index, body) {
     return Axios.post(url, body, config).catch(console.log);
 }
 
-export { login, getIndices, query, getFields, getFieldValues, aggregate };
+export { login, getIndices, query, getFields, getDocument, getFieldValues, aggregate };

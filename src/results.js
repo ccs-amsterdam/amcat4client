@@ -8,6 +8,7 @@ import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 
+
 function clean(value, type) {
     if (type === "text") {
         if (value.length > 50) {
@@ -54,7 +55,8 @@ function Results(props) {
                 </TableHead>
                 <TableBody>
                     {data.map(row =>
-                        <TableRow key={row._id}>
+                        //<TableRow key={row._id} onClick={(e) => console.log(row._id)}>
+                        <TableRow key={row._id} onClick={(e) => props.onClickRow(row._id)}>
                             {Object.entries(fields).map(([field, type]) =>
                                 <TableCell key={field}>{clean(row[field], type)}</TableCell>)}
                         </TableRow>)}
