@@ -1,26 +1,28 @@
-import React from "react";
-import { Grid } from "semantic-ui-react";
-
-import AmcatIndexSelector from "./AmcatIndexSelector";
-import ArticleTable from "./ArticleTable";
+import React, { useState, useEffect } from "react";
 import QueryForm from "./QueryForm";
+import { useSelector } from "react-redux";
 
 const Query = () => {
-  return (
-    <Grid style={{ marginTop: "3em" }}>
-      <Grid.Column floated="left" width={5}>
-        <AmcatIndexSelector type="table" />
-      </Grid.Column>
-      <Grid.Column width={10}>
-        <Grid.Row>
-          <QueryForm />
-        </Grid.Row>
-        <Grid.Row>
-          <ArticleTable />
-        </Grid.Row>
-      </Grid.Column>
-    </Grid>
-  );
+  const amcat = useSelector((state) => state.amcat);
+  const amcatIndex = useSelector((state) => state.amcatIndex);
+
+  const [amcatIndexFields, setAmcatIndexFields] = useState(null);
+  const [fieldValues, setFieldValues] = useState({});
+
+  useEffect(() => {}, [fieldValues]);
+
+  useEffect(() => {
+    if (amcatIndex && amcat) {
+      amcat.getFields(amcatIndex.name).then((res) => {
+        setAmcatIndexFields(res.data);
+      });
+    } else {
+      setAmcatIndexFields(null);
+    }
+  }, [amcat, amcatIndex]);
+
+  console.log(amcatIndexFields);
+  return <QueryForm />;
 };
 
 export default Query;

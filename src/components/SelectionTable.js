@@ -35,6 +35,7 @@ const SelectionTable = ({
   selectedRow,
   setSelectedRow,
   defaultSize = 15,
+  sizeSelector = false,
 }) => {
   const [activeRow, setActiveRow] = useState(
     selectedRow ? selectedRow.ROW_ID : null
@@ -70,29 +71,6 @@ const SelectionTable = ({
       setActiveRow(null);
     }
   }, [selectedRow]);
-
-  const GlobalFilter = ({
-    preGlobalFilteredRows,
-    globalFilter,
-    setGlobalFilter,
-  }) => {
-    const count = preGlobalFilteredRows && preGlobalFilteredRows.length;
-
-    return (
-      <span>
-        <input
-          value={globalFilter || ""}
-          onChange={(e) => {
-            setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-          }}
-          placeholder={`Search ${count} records...`}
-          style={{
-            border: "0",
-          }}
-        />
-      </span>
-    );
-  };
 
   const onRowSelect = (row) => {
     if (activeRow && activeRow === row.id) {
@@ -142,7 +120,6 @@ const SelectionTable = ({
   };
 
   if (data.length === 0) return null;
-
   return (
     <Segment style={{ border: "0" }}>
       <GlobalFilter
@@ -151,7 +128,15 @@ const SelectionTable = ({
         setGlobalFilter={setGlobalFilter}
       />
 
-      <Table striped fixed singleLine selectable {...getTableProps()}>
+      <Table
+        unstackable
+        striped
+        fixed
+        singleLine
+        selectable
+        compact
+        {...getTableProps()}
+      >
         <TableHeader>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
@@ -161,40 +146,63 @@ const SelectionTable = ({
         </TableHeader>
         <TableBody {...getTableBodyProps()}>{createBody(page)}</TableBody>
       </Table>
-      <Dropdown
-        text="show per page"
-        options={[10, 25, 50, 100, 500].map((n) => ({ value: n, text: n }))}
-        onChange={(e, d) => {
-          setPageSize(d.value);
-        }}
-      />
+
+      {sizeSelector ? (
+        <Dropdown
+          text="show per page"
+          options={[10, 25, 50, 100, 500].map((n) => ({ value: n, text: n }))}
+          onChange={(e, d) => {
+            setPageSize(d.value);
+          }}
+        />
+      ) : null}
+
       <div
         style={{
-          marginTop: "3em",
+          marginTop: "1em",
           display: "flex",
           justifyContent: "flex-end",
         }}
       >
-        <Pagination
-          style={{ border: "0" }}
-          size="mini"
-          firstItem={false}
-          lastItem={false}
-          nextItem={false}
-          prevItem={false}
-          boundaryRange={1}
-          ellipsisItem={{
-            content: <Icon name="ellipsis horizontal" />,
-            icon: true,
-          }}
-          activePage={pageIndex + 1}
-          totalPages={pageCount}
-          onPageChange={(event, data) => {
-            gotoPage(data.activePage - 1);
-          }}
-        />
+        {data.length > defaultSize ? (
+          <Pagination
+            style={{ border: "0" }}
+            size="mini"
+            firstItem={false}
+            lastItem={false}
+            nextItem={false}
+            prevItem={false}
+            boundaryRange={1}
+            ellipsisItem={{
+              content: <Icon name="ellipsis horizontal" />,
+              icon: true,
+            }}
+            activePage={pageIndex + 1}
+            totalPages={pageCount}
+            onPageChange={(event, data) => {
+              gotoPage(data.activePage - 1);
+            }}
+          />
+        ) : null}
       </div>
     </Segment>
+  );
+};
+
+const GlobalFilter = ({ globalFilter, setGlobalFilter }) => {
+  return (
+    <span>
+      <input
+        value={globalFilter || ""}
+        onChange={(e) => {
+          setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+        }}
+        placeholder={`Search index`}
+        style={{
+          border: "0",
+        }}
+      />
+    </span>
   );
 };
 

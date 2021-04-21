@@ -46,7 +46,7 @@ const LoginForm = ({ items }) => {
     >
       <Grid.Column style={{ maxWidth: 450 }}>
         <Header as="h2" color={color} textAlign="center">
-          <Image src="/amcat-logo.svg" /> Connect to an AmCAT server
+          <Image src="/amcat-logo.svg" /> Connect to AmCAT server
         </Header>
         <Form size="large">
           <Segment stacked>

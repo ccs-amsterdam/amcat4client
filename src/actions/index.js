@@ -25,17 +25,17 @@ export const setAmcatIndices = (indices) => {
   };
 };
 
-export const selectArticle = (article) => {
+export const selectDocument = (document) => {
   return {
-    type: "SELECT_ARTICLE",
-    payload: article,
+    type: "SELECT_DOCUMENT",
+    payload: document,
   };
 };
 
-export const setArticles = (articles) => {
+export const setDocuments = (documents) => {
   return {
-    type: "SET_ARTICLES",
-    payload: articles,
+    type: "SET_DOCUMENTS",
+    payload: documents,
   };
 };
 

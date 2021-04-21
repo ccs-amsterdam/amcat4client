@@ -5,7 +5,6 @@ import { selectAmcatIndex, setAmcatIndices } from "../actions";
 
 import SelectionTable from "./SelectionTable";
 import CreateAmcatIndex from "./CreateAmcatIndex";
-import DeleteAmcatIndex from "./DeleteAmcatIndex";
 
 const AmcatIndexSelector = ({ type = "table" }) => {
   const amcat = useSelector((state) => state.amcat);
@@ -30,9 +29,14 @@ const AmcatIndexSelector = ({ type = "table" }) => {
   if (type === "table") {
     const tableColumns = [
       {
-        Header: "Select Index",
+        Header: "Index",
         accessor: "name",
         headerClass: "thirteen wide",
+      },
+      {
+        Header: "Role",
+        accessor: "role",
+        headerClass: "five wide",
       },
     ];
 
@@ -40,14 +44,13 @@ const AmcatIndexSelector = ({ type = "table" }) => {
       <Container>
         <Button.Group widths="2">
           <CreateAmcatIndex />
-          <DeleteAmcatIndex />
         </Button.Group>
         <SelectionTable
           columns={tableColumns}
           data={amcatIndices ? amcatIndices : []}
           selectedRow={selectedAmcatIndex}
           setSelectedRow={setSelectedAmcatIndex}
-          defaultSize={15}
+          defaultSize={10}
         />
       </Container>
     );
@@ -71,8 +74,11 @@ const AmcatIndexSelector = ({ type = "table" }) => {
 
     return (
       <Dropdown
-        clearable
-        selection
+        search
+        text={amcatIndex ? "Index: " + amcatIndex.name : "Select index"}
+        fluid
+        button
+        floating
         options={asDropdownItems(amcatIndices)}
         value={amcatIndex ? amcatIndex.name : null}
         onChange={(e, d) => onDropdownSelect(d.value)}

@@ -8,14 +8,14 @@ import AmcatLogin from "./components/AmcatLogin";
 import AuthRoute from "./components/AuthRoute";
 
 // Main pages. Use below in items to include in header menu
+import Indices from "./components/Indices";
 import Query from "./components/Query";
-import Create from "./components/Create";
 
 // Change to add new components to the header
 // The first item will be the opening page after login
 const items = [
+  { label: "Indices", path: "/indices", Component: Indices },
   { label: "Query", path: "/query", Component: Query },
-  { label: "Create", path: "/create", Component: Create },
 ];
 
 const App = () => {
@@ -35,7 +35,7 @@ const App = () => {
     <BrowserRouter>
       <HeaderMenu items={items} />
       <Divider />
-      <Container style={{ marginTop: "3em" }}>
+      <Container style={{ marginTop: "4em" }}>
         <Switch>
           <Route exact path="/" render={() => <AmcatLogin items={items} />} />
           {createNavigation(items)}

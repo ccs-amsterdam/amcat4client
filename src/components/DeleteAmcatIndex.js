@@ -3,9 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectAmcatIndex, setAmcatIndices } from "../actions";
 import { Button, Header, Icon, Modal, Dimmer, Loader } from "semantic-ui-react";
 
-const DeleteAmcatIndex = () => {
+const DeleteAmcatIndex = ({ amcatIndex }) => {
   const amcat = useSelector((state) => state.amcat);
-  const amcatIndex = useSelector((state) => state.amcatIndex);
   const dispatch = useDispatch();
 
   const [status, setStatus] = useState("inactive");
@@ -32,14 +31,12 @@ const DeleteAmcatIndex = () => {
       });
   };
 
-  if (!amcatIndex) return null;
-
   return (
     <Modal
       closeIcon
       open={status !== "inactive"}
       trigger={
-        <Button name="logout">
+        <Button disabled={!amcatIndex} name="delete index">
           <Icon name="minus" /> Delete Index
         </Button>
       }
@@ -50,7 +47,10 @@ const DeleteAmcatIndex = () => {
         setStatus("awaiting input");
       }}
     >
-      <Header icon="trash" content={`Delete Index ${amcatIndex.name}`} />
+      <Header
+        icon="trash"
+        content={`Delete Index ${amcatIndex ? amcatIndex.name : null}`}
+      />
       <Modal.Content>
         <p>Do you really want to delete this Index?</p>
       </Modal.Content>
