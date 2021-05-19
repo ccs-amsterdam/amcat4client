@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { createAmcatSession } from "../actions";
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { createAmcatSession } from '../actions';
 
-import newAmcatSession from "../apis/amcat";
-import { useHistory } from "react-router-dom";
+import newAmcatSession from '../apis/amcat';
+import { useHistory } from 'react-router-dom';
 import {
   Button,
   Form,
@@ -12,28 +12,28 @@ import {
   Image,
   Message,
   Segment,
-} from "semantic-ui-react";
+} from 'semantic-ui-react';
 
-const color = "blue";
+const color = 'blue';
 
 const LoginForm = ({ items }) => {
   const dispatch = useDispatch();
 
-  const [host, setHost] = useState("http://127.0.0.1:5000");
-  const [email, setEmail] = useState("admin");
-  const [password, setPassword] = useState("admin");
-  const [status, setStatus] = useState("idle");
+  const [host, setHost] = useState('http://127.0.0.1:5000');
+  const [email, setEmail] = useState('admin');
+  const [password, setPassword] = useState('admin');
+  const [status, setStatus] = useState('idle');
   const history = useHistory();
 
   const submitForm = async () => {
-    setStatus("waiting");
+    setStatus('waiting');
     try {
       const amcat = await newAmcatSession(host, email, password);
       dispatch(createAmcatSession(amcat));
-      setStatus("success");
+      setStatus('success');
       history.push(items[0].path);
     } catch (e) {
-      setStatus("error");
+      setStatus('error');
     }
   };
 
@@ -41,7 +41,7 @@ const LoginForm = ({ items }) => {
     <Grid
       inverted
       textAlign="center"
-      style={{ height: "100vh" }}
+      style={{ height: '100vh' }}
       verticalAlign="middle"
     >
       <Grid.Column style={{ maxWidth: 450 }}>
@@ -50,36 +50,39 @@ const LoginForm = ({ items }) => {
         </Header>
         <Form size="large">
           <Segment stacked>
+            {/* host input field */}
             <Form.Input
               fluid
-              error={status === "error"}
+              error={status === 'error'}
               value={host}
               onChange={(e, { value }) => {
-                setStatus("idle");
+                setStatus('idle');
                 setHost(value);
               }}
               icon="home"
               iconPosition="left"
               placeholder="Host"
             />
+            {/* username input field  */}
             <Form.Input
               fluid
-              error={status === "error"}
+              error={status === 'error'}
               value={email}
               onChange={(e, { value }) => {
-                setStatus("idle");
+                setStatus('idle');
                 setEmail(value);
               }}
               icon="user"
               iconPosition="left"
               placeholder="Email adress"
             />
+            {/* password input field */}
             <Form.Input
               fluid
-              error={status === "error"}
+              error={status === 'error'}
               value={password}
               onChange={(e, { value }) => {
-                setStatus("idle");
+                setStatus('idle');
                 setPassword(value);
               }}
               icon="lock"
@@ -93,7 +96,7 @@ const LoginForm = ({ items }) => {
             </Button>
           </Segment>
         </Form>
-        <Message>Don't have an account? Too bad</Message>
+        <Message>Don't have an account? So Sad!</Message>
       </Grid.Column>
     </Grid>
   );

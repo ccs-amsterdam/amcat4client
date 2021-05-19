@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from 'react';
 import {
   Container,
   Header,
@@ -8,10 +8,10 @@ import {
   Form,
   Button,
   Icon,
-} from "semantic-ui-react";
-import { useSelector, useDispatch } from "react-redux";
-import { CSVReader } from "react-papaparse";
-import { setDocuments } from "../actions";
+} from 'semantic-ui-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { CSVReader } from 'react-papaparse';
+import { setDocuments } from '../actions';
 
 const UploadDocuments = ({ setActive }) => {
   const amcatIndex = useSelector((state) => state.amcatIndex);
@@ -20,10 +20,10 @@ const UploadDocuments = ({ setActive }) => {
 
   if (!amcatIndex) return null;
   return (
-    <Grid stackable style={{ marginTop: "4.3em" }}>
+    <Grid stackable style={{ marginTop: '4.3em' }}>
       <Grid.Row>
         <Grid.Column floated="right" width={4}>
-          {" "}
+          {' '}
           <CSVReader
             ref={fileRef}
             onFileLoad={(data) => setData(data)}
@@ -65,10 +65,10 @@ const SubmitForm = ({ data, amcatIndex, fileRef }) => {
         return { key: colname, value: colname, text: colname };
       })
     );
-    setTitleField(data[0].data.includes("title") ? "title" : null);
-    setTextField(data[0].data.includes("text") ? "text" : null);
+    setTitleField(data[0].data.includes('title') ? 'title' : null);
+    setTextField(data[0].data.includes('text') ? 'text' : null);
     setAnnotationsField(
-      data[0].data.includes("annotations") ? "annotations" : null
+      data[0].data.includes('annotations') ? 'annotations' : null
     );
   }, [data]);
 
@@ -79,17 +79,17 @@ const SubmitForm = ({ data, amcatIndex, fileRef }) => {
         (obj, value, i) => {
           let key = keys[i];
           if (key === titleField) {
-            obj["title"] = value;
+            obj['title'] = value;
           } else if (key === textField) {
-            obj["text"] = value;
+            obj['text'] = value;
           } else if (key === annotationsField) {
-            obj["annotations"] = value;
+            obj['annotations'] = value;
           } else {
-            obj["meta"][key] = value;
+            obj['meta'][key] = value;
           }
           return obj;
         },
-        { meta: {}, annotations: "" }
+        { meta: {}, annotations: '' }
       );
       datarow.meta = JSON.stringify(datarow.meta, null, 2);
       return datarow;
@@ -189,7 +189,7 @@ const PreviewTable = ({ data }) => {
   if (data.length <= 1) return null;
 
   return (
-    <Container style={{ marginTop: "2em" }}>
+    <Container style={{ marginTop: '2em' }}>
       <Table fixed singleLine basic="very">
         <Table.Header>
           <Table.Row>{createHeader(data)}</Table.Row>

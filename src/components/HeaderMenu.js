@@ -1,79 +1,107 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { deleteAmcatSession } from "../actions";
-import { Menu, Button, Header, Icon, Modal } from "semantic-ui-react";
-import { Link, withRouter, useLocation } from "react-router-dom";
+import React from 'react';
+import { connect } from 'react-redux';
+import { deleteAmcatSession } from '../actions';
+import { Menu, Button, Header, Icon, Modal } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import _ from 'lodash';
 
-const HeaderMenu = ({ items }) => {
-  const amcat = useSelector((state) => state.amcat);
-  const location = useLocation();
+class HeaderMenu extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+    };
+  }
 
-  const menuItems = items.map((item, index) => {
+  renderMenuItems() {
+    return this.props.items.map((item, index) => {
+      return (
+        <Menu.Item
+          key={'item-' + index}
+          index={index}
+          position={item.position}
+          as={Link}
+          to={item.path}
+          header={index === 0}
+          disabled={!this.props.amcat}
+          active={item.path === window.location.pathname}
+        >
+          {item.label}
+        </Menu.Item>
+      );
+    });
+  }
+
+  renderLogoutModal() {
+    if (!this.props.amcat) return null;
     return (
-      <Menu.Item
-        key={"item-" + index}
-        index={index}
-        as={Link}
-        to={item.path}
-        header={index === 0}
-        disabled={!amcat}
-        active={item.path === location.pathname}
+      <Modal
+        closeIcon
+        open={this.state.open}
+        trigger={<Menu.Item icon="power off" name="logout" />}
+        onClose={() => this.setState({ open: false })}
+        onOpen={() => this.setState({ open: true })}
       >
-        {item.label}
-      </Menu.Item>
+        <Header
+          icon="power off"
+          content={`Logout from ${this.props.amcat.host}`}
+        />
+        <Modal.Content>
+          <p>Do you really want to logout?</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            color="red"
+            onClick={() => {
+              this.setState({ open: false });
+            }}
+          >
+            <Icon name="remove" /> No
+          </Button>
+          <Button
+            color="green"
+            onClick={() => {
+              this.deleteAmcatSession();
+              this.setState({ open: false });
+            }}
+          >
+            <Icon name="checkmark" /> Yes
+          </Button>
+        </Modal.Actions>
+      </Modal>
     );
-  });
+  }
 
-  return (
-    <Menu color="blue" fixed="top" inverted>
-      {menuItems}
-      <Menu.Menu position="right">
-        <LogoutModal />
-      </Menu.Menu>
-    </Menu>
-  );
+  render() {
+    return (
+      <Menu color="blue" fixed="top" inverted>
+        <Menu.Menu position="left">
+          {_.filter(
+            this.renderMenuItems(),
+            (v) => v.props.position !== 'right'
+          )}
+        </Menu.Menu>
+        <Menu.Menu position="right">
+          {_.filter(
+            this.renderMenuItems(),
+            (v) => v.props.position === 'right'
+          )}
+          {this.renderLogoutModal()}
+        </Menu.Menu>
+      </Menu>
+    );
+  }
+}
+
+// const HeaderMenu = ({ items }) => {
+//   const [open, setOpen] = useState(false);
+// };
+
+const MapStateToProps = (state) => {
+  return {
+    amcat: state.amcat,
+  };
 };
 
-const LogoutModal = () => {
-  const amcat = useSelector((state) => state.amcat);
-  const dispatch = useDispatch();
-  const [open, setOpen] = useState(false);
-
-  if (!amcat) return null;
-
-  return (
-    <Modal
-      closeIcon
-      open={open}
-      trigger={<Menu.Item icon="power off" name="logout" />}
-      onClose={() => setOpen(false)}
-      onOpen={() => setOpen(true)}
-    >
-      <Header icon="power off" content={`Logout from ${amcat.host}`} />
-      <Modal.Content>
-        <p>Do you really want to logout?</p>
-      </Modal.Content>
-      <Modal.Actions>
-        <Button
-          color="red"
-          onClick={() => {
-            setOpen(false);
-          }}
-        >
-          <Icon name="remove" /> No
-        </Button>
-        <Button
-          color="green"
-          onClick={() => {
-            dispatch(deleteAmcatSession());
-            setOpen(false);
-          }}
-        >
-          <Icon name="checkmark" /> Yes
-        </Button>
-      </Modal.Actions>
-    </Modal>
-  );
-};
-
-export default withRouter(HeaderMenu);
+// withRouter will pass updated match, location, and history props to the wrapped component whenever it renders
+export default connect(MapStateToProps, { deleteAmcatSession })(HeaderMenu);

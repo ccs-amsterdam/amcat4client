@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { Segment, Form, Grid, Modal, Button, Icon } from "semantic-ui-react";
-import { useSelector, useDispatch } from "react-redux";
-import { setDocuments } from "../actions";
-import AmcatIndexSelector from "./AmcatIndexSelector";
-import DocumentTable from "./DocumentTable";
-import SemanticDatepicker from "react-semantic-ui-datepickers";
+import React, { useState } from 'react';
+import { Segment, Form, Grid, Modal, Button, Icon } from 'semantic-ui-react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setDocuments } from '../actions';
+import AmcatIndexSelector from './AmcatIndexSelector';
+import DocumentTable from './DocumentTable';
+import SemanticDatepicker from 'react-semantic-ui-datepickers';
 
 const QueryForm = () => {
   const amcat = useSelector((state) => state.amcat);
   const amcatIndex = useSelector((state) => state.amcatIndex);
   const dispatch = useDispatch();
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
 
   const onSubmit = () => {
-    const fields = ["date", "title", "url"];
+    const fields = ['date', 'title', 'url'];
 
     amcat
-      .getQuery(amcatIndex.name, query, fields, "2m", 100, {})
+      .getQuery(amcatIndex.name, query, fields, '2m', 100, {})
       .then((res) => {
         dispatch(setDocuments(res.data.results));
       })
@@ -29,7 +29,7 @@ const QueryForm = () => {
   return (
     <Grid>
       <Grid.Column floated="left" width={6}>
-        <Segment style={{ border: "0" }}>
+        <Segment style={{ border: '0' }}>
           <AmcatIndexSelector type="dropdown" />
           <Form>
             <Button primary type="submit" onClick={onSubmit}>
@@ -41,8 +41,8 @@ const QueryForm = () => {
       </Grid.Column>
       <Grid.Column width={10}>
         <Grid.Row>
-          <Segment style={{ border: "0" }}>
-            <Form style={{ marginBottom: "2em" }}>
+          <Segment style={{ border: '0' }}>
+            <Form style={{ marginBottom: '2em' }}>
               <Form.Group>
                 <Form.TextArea
                   width={16}
@@ -73,33 +73,33 @@ const FilterForms = function ({ fields, fieldValues, setFieldValues }) {
   if (!fields) return null;
 
   return Object.keys(fields).map((key) => {
-    if (fields[key] === "text") {
+    if (fields[key] === 'text') {
       return (
         <Form.TextArea
           key={key}
-          value={fieldValues[key] ? fieldValues[key] : ""}
+          value={fieldValues[key] ? fieldValues[key] : ''}
           onChange={(e, d) => onSubmit(key, d.value)}
           label={key}
         />
       );
     }
-    if (fields[key] === "date") {
+    if (fields[key] === 'date') {
       return (
         <SemanticDatepicker
           key={key}
           type="range"
-          label={"from"}
-          value={fieldValues[key] ? fieldValues[key] : ""}
+          label={'from'}
+          value={fieldValues[key] ? fieldValues[key] : ''}
           onChange={(e, d) => onSubmit(key, d.value)}
         />
       );
     }
-    if (fields[key] === "keyword") {
+    if (fields[key] === 'keyword') {
       return (
         <Form.Field key={key}>
           <label>{key}</label>
           <input
-            value={fieldValues[key] ? fieldValues[key] : ""}
+            value={fieldValues[key] ? fieldValues[key] : ''}
             onChange={(e) => onSubmit(key, e.target.value)}
           />
         </Form.Field>
@@ -120,9 +120,9 @@ const QueryHelp = () => {
       trigger={
         <span
           style={{
-            cursor: "pointer",
-            color: "blue",
-            float: "right",
+            cursor: 'pointer',
+            color: 'blue',
+            float: 'right',
           }}
         >
           Query help

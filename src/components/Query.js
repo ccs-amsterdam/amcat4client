@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import QueryForm from "./QueryForm";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from 'react';
+import QueryForm from './QueryForm';
+import { useSelector } from 'react-redux';
 
 const Query = () => {
   const amcat = useSelector((state) => state.amcat);

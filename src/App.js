@@ -1,21 +1,33 @@
-import React from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-import HeaderMenu from "./components/HeaderMenu";
-import { Divider, Container } from "semantic-ui-react";
+import React from 'react';
+import { Router, Route, Switch } from 'react-router-dom';
+import HeaderMenu from './components/HeaderMenu';
+import { Divider, Container } from 'semantic-ui-react';
+import history from './history';
 
 // login and authenticated route
-import AmcatLogin from "./components/AmcatLogin";
-import AuthRoute from "./components/AuthRoute";
+import AmcatLogin from './components/AmcatLogin';
+import AuthRoute from './components/AuthRoute';
 
 // Main pages. Use below in items to include in header menu
-import Indices from "./components/Indices";
-import Query from "./components/Query";
+import Home from './components/Home';
+import IndexDetail from './components/AmcatIndexDetails';
+import Admin from './components/Admin';
+import Indices from './components/Indices';
+import Query from './components/Query';
 
 // Change to add new components to the header
 // The first item will be the opening page after login
 const items = [
-  { label: "Indices", path: "/indices", Component: Indices },
-  { label: "Query", path: "/query", Component: Query },
+  { label: 'Home', path: '/home', Component: Home },
+  { label: 'Documents', path: '/indexDetail', Component: IndexDetail },
+  { label: 'Query', path: '/query', Component: Query },
+  {
+    label: 'User Management',
+    path: '/userManagement',
+    position: 'right',
+    Component: Admin,
+  },
+  { label: 'Indices', path: '/indices', position: 'right', Component: Indices },
 ];
 
 const App = () => {
@@ -32,16 +44,17 @@ const App = () => {
   };
 
   return (
-    <BrowserRouter>
+    <Router history={history}>
+      {/* rendering the headerMenu items */}
       <HeaderMenu items={items} />
       <Divider />
-      <Container style={{ marginTop: "4em" }}>
+      <Container style={{ marginTop: '4em' }}>
         <Switch>
           <Route exact path="/" render={() => <AmcatLogin items={items} />} />
           {createNavigation(items)}
         </Switch>
       </Container>
-    </BrowserRouter>
+    </Router>
   );
 };
 
