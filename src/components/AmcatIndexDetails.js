@@ -1,23 +1,28 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import { Container, Header, Message } from 'semantic-ui-react';
 
-const AmcatIndexDetails = () => {
-  //const amcat = useSelector((state) => state.amcat);
-  const amcatIndex = useSelector((state) => state.amcatIndex);
+class AmcatIndexDetails extends React.Component {
+  render() {
+    if (!this.props.amcatIndex) return null;
+    return (
+      <Container>
+        <>
+          <Header textAlign="center">{this.props.amcatIndex.name}</Header>
+          <Message
+            header="I am an index"
+            content="And here should be some stuff that you can do with an index"
+          />
+        </>
+      </Container>
+    );
+  }
+}
 
-  if (!amcatIndex) return null;
-  return (
-    <Container>
-      <>
-        <Header textAlign="center">{amcatIndex.name}</Header>
-        <Message
-          header="I am an index"
-          content="And here should be some stuff that you can do with an index"
-        />
-      </>
-    </Container>
-  );
+const mapStateToProps = (state) => {
+  return {
+    amcatIndex: state.amcatIndex,
+  };
 };
 
-export default AmcatIndexDetails;
+export default connect(mapStateToProps, {})(AmcatIndexDetails);

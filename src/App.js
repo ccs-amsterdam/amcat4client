@@ -19,15 +19,20 @@ import Query from './components/Query';
 // The first item will be the opening page after login
 const items = [
   { label: 'Home', path: '/home', Component: Home },
-  { label: 'Documents', path: '/indexDetail', Component: IndexDetail },
-  { label: 'Query', path: '/query', Component: Query },
+  { label: 'Run Queries', path: '/query', Component: Query },
+  { label: 'Browse Documents', path: '/indexDetail', Component: IndexDetail },
   {
-    label: 'User Management',
+    label: 'Manage Users and Access',
     path: '/userManagement',
     position: 'right',
     Component: Admin,
   },
-  { label: 'Indices', path: '/indices', position: 'right', Component: Indices },
+  {
+    label: 'Select Indices',
+    path: '/indices',
+    position: 'right',
+    Component: Indices,
+  },
 ];
 
 const App = () => {

@@ -61,7 +61,7 @@ class HeaderMenu extends React.Component {
           <Button
             color="green"
             onClick={() => {
-              this.deleteAmcatSession();
+              this.props.deleteAmcatSession();
               this.setState({ open: false });
             }}
           >

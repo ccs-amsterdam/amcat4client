@@ -1,50 +1,49 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { selectAmcatIndex, setAmcatIndices } from "../actions";
-import { Button, Header, Icon, Modal, Dimmer, Loader } from "semantic-ui-react";
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAmcatIndex, setAmcatIndices } from '../actions';
+import { Button, Header, Icon, Modal, Dimmer, Loader } from 'semantic-ui-react';
 
 const DeleteAmcatIndex = ({ amcatIndex }) => {
   const amcat = useSelector((state) => state.amcat);
   const dispatch = useDispatch();
 
-  const [status, setStatus] = useState("inactive");
+  const [status, setStatus] = useState('inactive');
 
   const onSubmit = (event) => {
-    setStatus("pending");
+    setStatus('pending');
     amcat
       .deleteIndex(amcatIndex.name)
       .then((res) => {
         // maybe check for 201 before celebrating
-
         if (amcat) {
           amcat.getIndices().then((res) => {
             dispatch(selectAmcatIndex(null));
             dispatch(setAmcatIndices(res.data));
           });
         }
-        setStatus("inactive");
+        setStatus('inactive');
       })
       .catch((e) => {
         console.log(e.message);
         console.log(e);
-        setStatus("error");
+        setStatus('error');
       });
   };
 
   return (
     <Modal
       closeIcon
-      open={status !== "inactive"}
+      open={status !== 'inactive'}
       trigger={
         <Button disabled={!amcatIndex} name="delete index">
           <Icon name="minus" /> Delete Index
         </Button>
       }
       onClose={() => {
-        setStatus("inactive");
+        setStatus('inactive');
       }}
       onOpen={() => {
-        setStatus("awaiting input");
+        setStatus('awaiting input');
       }}
     >
       <Header
@@ -55,22 +54,22 @@ const DeleteAmcatIndex = ({ amcatIndex }) => {
         <p>Do you really want to delete this Index?</p>
       </Modal.Content>
       <Modal.Actions>
-        {status === "error" ? (
+        {status === 'error' ? (
           <div>
             Could not delete index for a reason not yet covered in the error
             handling...
           </div>
         ) : null}
-        {status === "pending" ? (
+        {status === 'pending' ? (
           <Dimmer active inverted>
             <Loader content="Creating Index" />
           </Dimmer>
         ) : (
           <>
-            <Button color="red" onClick={onSubmit}>
+            <Button color="green" onClick={() => setStatus('inactive')}>
               <Icon name="remove" /> No
             </Button>
-            <Button color="green" onClick={onSubmit}>
+            <Button color="red" onClick={onSubmit}>
               <Icon name="checkmark" /> Yes
             </Button>
           </>

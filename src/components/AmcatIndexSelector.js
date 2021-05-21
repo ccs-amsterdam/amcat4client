@@ -1,45 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Button, Container, Dropdown } from "semantic-ui-react";
-import { selectAmcatIndex, setAmcatIndices } from "../actions";
+import React from 'react';
+import { connect } from 'react-redux';
+import { Button, Container, Dropdown } from 'semantic-ui-react';
+import { selectAmcatIndex, setAmcatIndices } from '../actions';
 
-import SelectionTable from "./SelectionTable";
-import CreateAmcatIndex from "./CreateAmcatIndex";
+import SelectionTable from './SelectionTable';
+import CreateAmcatIndex from './CreateAmcatIndex';
 
-const AmcatIndexSelector = ({ type = "table" }) => {
-  const amcat = useSelector((state) => state.amcat);
-  const amcatIndices = useSelector((state) => state.amcatIndices);
-  const amcatIndex = useSelector((state) => state.amcatIndex);
-  const dispatch = useDispatch();
+const tableColumns = [
+  {
+    Header: 'Index',
+    accessor: 'name',
+    headerClass: 'thirteen wide',
+  },
+  {
+    Header: 'Role',
+    accessor: 'role',
+    headerClass: 'five wide',
+  },
+];
 
-  const [selectedAmcatIndex, setSelectedAmcatIndex] = useState(amcatIndex);
+class AmcatIndexSelector extends React.Component {
+  constructor(props) {
+    super(props);
+    this.type = this.props.type ? this.props.type : 'table';
+    this.state = {
+      selectedAmcatIndex: this.props.amcatIndex,
+    };
+  }
 
-  useEffect(() => {
-    dispatch(selectAmcatIndex(selectedAmcatIndex));
-  }, [selectedAmcatIndex, dispatch]);
+  componentDidMount() {
+    this.props.amcat.getIndices().then((res) => {
+      this.props.setAmcatIndices(res.data);
+    });
+  }
 
-  useEffect(() => {
-    if (amcat && amcatIndices === null) {
-      amcat.getIndices().then((res) => {
-        dispatch(setAmcatIndices(res.data));
-      });
-    }
-  }, [amcat, amcatIndices, dispatch]);
-
-  if (type === "table") {
-    const tableColumns = [
-      {
-        Header: "Index",
-        accessor: "name",
-        headerClass: "thirteen wide",
-      },
-      {
-        Header: "Role",
-        accessor: "role",
-        headerClass: "five wide",
-      },
-    ];
-
+  renderTable() {
     return (
       <Container>
         <Button.Group widths="2">
@@ -47,46 +42,72 @@ const AmcatIndexSelector = ({ type = "table" }) => {
         </Button.Group>
         <SelectionTable
           columns={tableColumns}
-          data={amcatIndices ? amcatIndices : []}
-          selectedRow={selectedAmcatIndex}
-          setSelectedRow={setSelectedAmcatIndex}
+          data={this.props.amcatIndices ? this.props.amcatIndices : []}
+          selectedRow={this.state.selectedAmcatIndex}
+          // setSelectedRow={setSelectedAmcatIndex}
+          setSelectedRow={(index) => this.props.selectAmcatIndex(index)}
           defaultSize={10}
         />
       </Container>
     );
   }
 
-  if (type === "dropdown") {
-    const asDropdownItems = (indices) => {
-      return indices.map((index) => {
-        return { key: index.name, text: index.name, value: index.name };
+  renderDropDownItems = (indices) => {
+    return indices.map((index) => {
+      return { key: index.name, text: index.name, value: index.name };
+    });
+  };
+
+  onDropdownSelect = (value) => {
+    if (value && this.props.amcatIndices !== null) {
+      const i = this.props.amcatIndices.findIndex((row) => row.name === value);
+
+      this.props.selectAmcatIndex({
+        ...this.props.amcatIndices[i],
+        ROW_ID: i.toString(),
       });
-    };
+    } else this.props.selectAmcatIndex(null);
+  };
 
-    const onDropdownSelect = (value) => {
-      if (value && amcatIndices !== null) {
-        const i = amcatIndices.findIndex((row) => row.name === value);
-        setSelectedAmcatIndex({ ...amcatIndices[i], ROW_ID: i.toString() });
-      } else {
-        setSelectedAmcatIndex(null);
-      }
-    };
-
+  renderDropDown() {
     return (
-      <Dropdown
-        search
-        text={amcatIndex ? "Index: " + amcatIndex.name : "Select index"}
-        fluid
-        button
-        floating
-        options={asDropdownItems(amcatIndices)}
-        value={amcatIndex ? amcatIndex.name : null}
-        onChange={(e, d) => onDropdownSelect(d.value)}
-      />
+      <React.Fragment>
+        <div className="content">
+          <h5>{this.props.amcatIndex ? 'Current Index: ' : 'Select Index'}</h5>
+        </div>
+        <Dropdown
+          search
+          fluid
+          button
+          floating
+          options={this.renderDropDownItems(this.props.amcatIndices)}
+          value={this.props.amcatIndex ? this.props.amcatIndex.name : null}
+          onChange={(e, d) => this.onDropdownSelect(d.value)}
+        />
+      </React.Fragment>
     );
   }
 
-  return null;
+  render() {
+    switch (this.type) {
+      case 'table':
+        return this.renderTable();
+      case 'dropdown':
+        return this.renderDropDown();
+      default:
+        return null;
+    }
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    amcat: state.amcat,
+    amcatIndex: state.amcatIndex,
+    amcatIndices: state.amcatIndices,
+  };
 };
 
-export default AmcatIndexSelector;
+export default connect(mapStateToProps, { selectAmcatIndex, setAmcatIndices })(
+  AmcatIndexSelector
+);

@@ -1,28 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import QueryForm from './QueryForm';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
-const Query = () => {
-  const amcat = useSelector((state) => state.amcat);
-  const amcatIndex = useSelector((state) => state.amcatIndex);
+class Query extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      amcatIndexFields: null,
+      fieldValues: {},
+    };
+  }
 
-  const [amcatIndexFields, setAmcatIndexFields] = useState(null);
-  const [fieldValues, setFieldValues] = useState({});
+  render() {
+    return <QueryForm />;
+  }
+}
 
-  useEffect(() => {}, [fieldValues]);
-
-  useEffect(() => {
-    if (amcatIndex && amcat) {
-      amcat.getFields(amcatIndex.name).then((res) => {
-        setAmcatIndexFields(res.data);
-      });
-    } else {
-      setAmcatIndexFields(null);
-    }
-  }, [amcat, amcatIndex]);
-
-  console.log(amcatIndexFields);
-  return <QueryForm />;
+const mapStateToProps = (state) => {
+  return {
+    amcat: state.amcat,
+    amcatIndex: state.amcatIndex,
+  };
 };
 
-export default Query;
+export default connect(mapStateToProps, {})(Query);
