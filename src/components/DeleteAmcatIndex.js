@@ -1,82 +1,116 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { connect } from 'react-redux';
+
 import { selectAmcatIndex, setAmcatIndices } from '../actions';
+
 import { Button, Header, Icon, Modal, Dimmer, Loader } from 'semantic-ui-react';
 
-const DeleteAmcatIndex = ({ amcatIndex }) => {
-  const amcat = useSelector((state) => state.amcat);
-  const dispatch = useDispatch();
+class DeleteAmcatIndex extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modalStatus: 'inactive',
+    };
+  }
 
-  const [status, setStatus] = useState('inactive');
+  onSubmit = (event) => {
+    this.setState({
+      modalStatus: 'pending',
+    });
 
-  const onSubmit = (event) => {
-    setStatus('pending');
-    amcat
-      .deleteIndex(amcatIndex.name)
+    this.props.amcat
+      .deleteIndex(this.props.amcatIndex.name)
       .then((res) => {
         // maybe check for 201 before celebrating
-        if (amcat) {
-          amcat.getIndices().then((res) => {
-            dispatch(selectAmcatIndex(null));
-            dispatch(setAmcatIndices(res.data));
+        if (this.props.amcat) {
+          this.props.amcat.getIndices().then((res) => {
+            this.props.selectAmcatIndex(null);
+            this.props.setAmcatIndices(res.data);
           });
         }
-        setStatus('inactive');
+        this.setState({
+          modalStatus: 'inactive',
+        });
       })
       .catch((e) => {
         console.log(e.message);
         console.log(e);
-        setStatus('error');
+        this.setState({
+          modalStatus: 'error',
+        });
       });
   };
 
-  return (
-    <Modal
-      closeIcon
-      open={status !== 'inactive'}
-      trigger={
-        <Button disabled={!amcatIndex} name="delete index">
-          <Icon name="minus" /> Delete Index
-        </Button>
-      }
-      onClose={() => {
-        setStatus('inactive');
-      }}
-      onOpen={() => {
-        setStatus('awaiting input');
-      }}
-    >
-      <Header
-        icon="trash"
-        content={`Delete Index ${amcatIndex ? amcatIndex.name : null}`}
-      />
-      <Modal.Content>
-        <p>Do you really want to delete this Index?</p>
-      </Modal.Content>
-      <Modal.Actions>
-        {status === 'error' ? (
-          <div>
-            Could not delete index for a reason not yet covered in the error
-            handling...
-          </div>
-        ) : null}
-        {status === 'pending' ? (
-          <Dimmer active inverted>
-            <Loader content="Creating Index" />
-          </Dimmer>
-        ) : (
-          <>
-            <Button color="green" onClick={() => setStatus('inactive')}>
-              <Icon name="remove" /> No
-            </Button>
-            <Button color="red" onClick={onSubmit}>
-              <Icon name="checkmark" /> Yes
-            </Button>
-          </>
-        )}
-      </Modal.Actions>
-    </Modal>
-  );
+  render() {
+    return (
+      <Modal
+        closeIcon
+        open={this.state.modalStatus !== 'inactive'}
+        trigger={
+          <Button disabled={!this.props.amcatIndex} name="delete index">
+            <Icon name="minus" /> Delete Index
+          </Button>
+        }
+        onClose={() => {
+          this.setState({
+            modalStatus: 'inactive',
+          });
+        }}
+        onOpen={() => {
+          this.setState({
+            modalStatus: 'awaiting input',
+          });
+        }}
+      >
+        <Header
+          icon="trash"
+          content={`Delete Index ${
+            this.props.amcatIndex ? this.props.amcatIndex.name : null
+          }`}
+        />
+        <Modal.Content>
+          <p>Do you really want to delete this Index?</p>
+        </Modal.Content>
+        <Modal.Actions>
+          {this.state.modalStatus === 'error' ? (
+            <div>
+              Could not delete index for a reason not yet covered in the error
+              handling...
+            </div>
+          ) : null}
+          {this.state.modalStatus === 'pending' ? (
+            <Dimmer active inverted>
+              <Loader content="Creating Index" />
+            </Dimmer>
+          ) : (
+            <>
+              <Button
+                color="green"
+                onClick={() =>
+                  this.setState({
+                    modalStatus: 'inactive',
+                  })
+                }
+              >
+                <Icon name="remove" /> No
+              </Button>
+              <Button color="red" onClick={this.onSubmit}>
+                <Icon name="checkmark" /> Yes
+              </Button>
+            </>
+          )}
+        </Modal.Actions>
+      </Modal>
+    );
+  }
+}
+
+const mapStateToProps = (state) => {
+  return {
+    amcat: state.amcat,
+  };
 };
 
-export default DeleteAmcatIndex;
+export default connect(mapStateToProps, { selectAmcatIndex, setAmcatIndices })(
+  DeleteAmcatIndex
+);

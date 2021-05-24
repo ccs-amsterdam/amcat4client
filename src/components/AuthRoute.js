@@ -19,19 +19,6 @@ class AuthRoute extends React.Component {
   }
 }
 
-// const AuthRoute = ({ Component, ...componentProps }) => {
-//   // the trick for passing on componentProps is basically
-//   // redundant now that we use Redux, but leaving it intact just in case
-//   const amcat = useSelector((state) => state.amcat);
-//   if (!amcat) return <Redirect to="/" />;
-//   return (
-//     <Route
-//       {...componentProps}
-//       render={(props) => <Component {...componentProps} {...props} />}
-//     />
-//   );
-// };
-
 const mapStateToProps = (state, ownProps) => {
   return {
     amcat: state.amcat,

@@ -44,7 +44,6 @@ class AmcatIndexSelector extends React.Component {
           columns={tableColumns}
           data={this.props.amcatIndices ? this.props.amcatIndices : []}
           selectedRow={this.state.selectedAmcatIndex}
-          // setSelectedRow={setSelectedAmcatIndex}
           setSelectedRow={(index) => this.props.selectAmcatIndex(index)}
           defaultSize={10}
         />

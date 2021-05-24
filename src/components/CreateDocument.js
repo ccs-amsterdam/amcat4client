@@ -1,108 +1,66 @@
-import React, { useState, useEffect } from "react";
-import { Form, Button } from "semantic-ui-react";
-import { useSelector } from "react-redux";
+import React from 'react';
+import { connect } from 'react-redux';
 
-import SemanticDatepicker from "react-semantic-ui-datepickers";
-import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
+import DocumentForms from './DocumentForms';
+import { setIndexFields, setFieldValues } from '../actions';
 
-const CreateDocument = () => {
-  const amcat = useSelector((state) => state.amcat);
-  const amcatIndex = useSelector((state) => state.amcatIndex);
+import { Form, Button } from 'semantic-ui-react';
 
-  const [amcatIndexFields, setAmcatIndexFields] = useState(null);
-  const [fieldValues, setFieldValues] = useState({});
-
-  useEffect(() => {}, [fieldValues]);
-
-  useEffect(() => {
-    if (amcatIndex && amcat) {
-      amcat.getFields(amcatIndex.name).then((res) => {
-        setAmcatIndexFields(res.data);
+class CreateDocument extends React.Component {
+  componentDidMount() {
+    if (this.props.amcatIndex && this.props.amcat) {
+      this.props.amcat.getFields(this.props.amcatIndex.name).then((res) => {
+        this.props.setIndexFields(res.data);
       });
     } else {
-      setAmcatIndexFields(null);
+      this.props.setIndexFields(null);
     }
-  }, [amcat, amcatIndex]);
+  }
 
-  const onCreate = () => {
-    let submitData = { ...fieldValues };
+  onCreate = () => {
+    let submitData = { ...this.props.fieldValues };
 
     for (const key of Object.keys(submitData)) {
-      if (key === "date" || /_date$/.test(key)) {
+      if (key === 'date' || /_date$/.test(key)) {
         submitData[key] = submitData[key].toISOString();
       }
     }
 
-    amcat
-      .createDocuments(amcatIndex.name, [submitData])
+    this.props.amcat
+      .createDocuments(this.props.amcatIndex.name, [submitData])
       .then((res) => {
         // maybe check for 201 before celebrating
-        setFieldValues({});
+        console.log(res);
+        this.props.setFieldValues({});
       })
       .catch((e) => {
         console.log(e);
       });
   };
 
-  return (
-    <Form>
-      <DocumentForms
-        fields={amcatIndexFields}
-        fieldValues={fieldValues}
-        setFieldValues={setFieldValues}
-      />
-      {!amcatIndex ? null : (
-        <Button primary onClick={onCreate}>
-          Create document
-        </Button>
-      )}
-    </Form>
-  );
-};
+  render() {
+    return (
+      <Form>
+        <DocumentForms />
+        {!this.props.amcatIndex ? null : (
+          <Button primary onClick={this.onCreate}>
+            Create document
+          </Button>
+        )}
+      </Form>
+    );
+  }
+}
 
-const DocumentForms = function ({ fields, fieldValues, setFieldValues }) {
-  const onSubmit = (key, value) => {
-    const newFieldValues = { ...fieldValues };
-    newFieldValues[key] = value;
-    setFieldValues(newFieldValues);
+const mapStateToProps = (state) => {
+  return {
+    amcat: state.amcat,
+    amcatIndex: state.amcatIndex,
+    indexFields: state.indexFields,
+    fieldValues: state.fieldValues,
   };
-
-  if (!fields) return null;
-
-  return Object.keys(fields).map((key) => {
-    if (fields[key] === "text") {
-      return (
-        <Form.TextArea
-          key={key}
-          value={fieldValues[key] ? fieldValues[key] : ""}
-          onChange={(e, d) => onSubmit(key, d.value)}
-          label={key}
-        />
-      );
-    }
-    if (fields[key] === "date") {
-      return (
-        <SemanticDatepicker
-          key={key}
-          label={key}
-          value={fieldValues[key] ? fieldValues[key] : ""}
-          onChange={(e, d) => onSubmit(key, d.value)}
-        />
-      );
-    }
-    if (fields[key] === "keyword") {
-      return (
-        <Form.Field key={key}>
-          <label>{key}</label>
-          <input
-            value={fieldValues[key] ? fieldValues[key] : ""}
-            onChange={(e) => onSubmit(key, e.target.value)}
-          />
-        </Form.Field>
-      );
-    }
-    return null;
-  });
 };
 
-export default CreateDocument;
+export default connect(mapStateToProps, { setIndexFields, setFieldValues })(
+  CreateDocument
+);

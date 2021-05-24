@@ -40,7 +40,25 @@ const documents = (state = [], action) => {
 
 const document = (state = [], action) => {
   switch (action.type) {
-    case 'SELECT_DOCUMENTS':
+    case 'SELECT_ROW':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
+const indexFields = (state = {}, action) => {
+  switch (action.type) {
+    case 'SET_INDEX_FIELDS':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
+const fieldValues = (state = {}, action) => {
+  switch (action.type) {
+    case 'SET_FIELD_VALUES':
       return action.payload;
     default:
       return state;
@@ -53,6 +71,8 @@ const rootReducer = combineReducers({
   amcatIndices,
   document,
   documents,
+  indexFields,
+  fieldValues,
 });
 
 export default rootReducer;

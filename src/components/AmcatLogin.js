@@ -59,6 +59,64 @@ class AmcatLogin extends React.Component {
       });
   };
 
+  renderLoginForm() {
+    return (
+      <Form size="large">
+        <Segment stacked>
+          <Form.Input
+            fluid
+            error={this.state.status === 'error'}
+            value={this.state.host}
+            onChange={(e, { value }) => {
+              this.setState({
+                loginStatus: 'idle',
+                host: value,
+              });
+            }}
+            icon="home"
+            iconPosition="left"
+            placeholder="Host"
+          />
+
+          <Form.Input
+            fluid
+            error={this.state.status === 'error'}
+            value={this.state.email}
+            onChange={(e, { value }) => {
+              this.setState({
+                loginStatus: 'idle',
+                email: value,
+              });
+            }}
+            icon="user"
+            iconPosition="left"
+            placeholder="Email adress"
+          />
+
+          <Form.Input
+            fluid
+            error={this.state.status === 'error'}
+            value={this.state.password}
+            onChange={(e, { value }) => {
+              this.setState({
+                loginStatus: 'idle',
+                password: value,
+              });
+            }}
+            icon="lock"
+            iconPosition="left"
+            placeholder="Password"
+            type="password"
+          />
+
+          <Button onClick={this.submitForm} color={color} fluid size="large">
+            Login
+          </Button>
+        </Segment>
+      </Form>
+    );
+  }
+
   render() {
     return (
       <Grid
@@ -71,65 +129,7 @@ class AmcatLogin extends React.Component {
           <Header as="h2" color={color} textAlign="center">
             <Image src="/amcat-logo.svg" /> Connect to AmCAT server
           </Header>
-          <Form size="large">
-            <Segment stacked>
-              {/* host input field */}
-              <Form.Input
-                fluid
-                error={this.state.status === 'error'}
-                value={this.state.host}
-                onChange={(e, { value }) => {
-                  this.setState({
-                    loginStatus: 'idle',
-                    host: value,
-                  });
-                }}
-                icon="home"
-                iconPosition="left"
-                placeholder="Host"
-              />
-              {/* username input field  */}
-              <Form.Input
-                fluid
-                error={this.state.status === 'error'}
-                value={this.state.email}
-                onChange={(e, { value }) => {
-                  this.setState({
-                    loginStatus: 'idle',
-                    email: value,
-                  });
-                }}
-                icon="user"
-                iconPosition="left"
-                placeholder="Email adress"
-              />
-              {/* password input field */}
-              <Form.Input
-                fluid
-                error={this.state.status === 'error'}
-                value={this.state.password}
-                onChange={(e, { value }) => {
-                  this.setState({
-                    loginStatus: 'idle',
-                    password: value,
-                  });
-                }}
-                icon="lock"
-                iconPosition="left"
-                placeholder="Password"
-                type="password"
-              />
-
-              <Button
-                onClick={this.submitForm}
-                color={color}
-                fluid
-                size="large"
-              >
-                Login
-              </Button>
-            </Segment>
-          </Form>
+          {this.renderLoginForm()}
           <Message>Don't have an account? So Sad!</Message>
         </Grid.Column>
       </Grid>

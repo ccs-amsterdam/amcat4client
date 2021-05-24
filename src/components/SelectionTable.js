@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   useTable,
   useSortBy,
   usePagination,
   useGlobalFilter,
-} from "react-table";
+} from 'react-table';
 import {
   Segment,
   Table,
@@ -16,7 +16,7 @@ import {
   Pagination,
   Dropdown,
   Icon,
-} from "semantic-ui-react";
+} from 'semantic-ui-react';
 
 // Uses react-table with semantic ui. The columns and data arguments are lists of objects
 // The 'columns' argument specifies column names (Header) and the names of the keys to get from data.
@@ -56,7 +56,7 @@ const SelectionTable = ({
     {
       columns,
       data,
-      initialState: { pageSize: defaultSize, globalFilter: "" },
+      initialState: { pageSize: defaultSize, globalFilter: '' },
     },
 
     useGlobalFilter,
@@ -77,7 +77,12 @@ const SelectionTable = ({
       setSelectedRow(null);
       setActiveRow(null);
     } else {
-      setSelectedRow({ ...row.values, ROW_ID: row.id });
+      console.log(row);
+      setSelectedRow({
+        ...row.values,
+        ROW_ID: row.id,
+        ORG_ID: row.original._id,
+      });
       setActiveRow(row.id);
     }
   };
@@ -89,9 +94,9 @@ const SelectionTable = ({
           className={column.headerClass}
           {...column.getHeaderProps(column.getSortByToggleProps())}
         >
-          {column.render("Header")}
+          {column.render('Header')}
           <span>
-            {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
+            {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
           </span>
         </TableHeaderCell>
       );
@@ -110,7 +115,7 @@ const SelectionTable = ({
           {row.cells.map((cell) => {
             return (
               <TableCell {...cell.getCellProps()}>
-                {cell.render("Cell")}
+                {cell.render('Cell')}
               </TableCell>
             );
           })}
@@ -121,7 +126,7 @@ const SelectionTable = ({
 
   if (data.length === 0) return null;
   return (
-    <Segment style={{ border: "0" }}>
+    <Segment style={{ border: '0' }}>
       <GlobalFilter
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={globalFilter}
@@ -159,14 +164,14 @@ const SelectionTable = ({
 
       <div
         style={{
-          marginTop: "1em",
-          display: "flex",
-          justifyContent: "flex-end",
+          marginTop: '1em',
+          display: 'flex',
+          justifyContent: 'flex-end',
         }}
       >
         {data.length > defaultSize ? (
           <Pagination
-            style={{ border: "0" }}
+            style={{ border: '0' }}
             size="mini"
             firstItem={false}
             lastItem={false}
@@ -193,13 +198,13 @@ const GlobalFilter = ({ globalFilter, setGlobalFilter }) => {
   return (
     <span>
       <input
-        value={globalFilter || ""}
+        value={globalFilter || ''}
         onChange={(e) => {
           setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
         }}
         placeholder={`Search index`}
         style={{
-          border: "0",
+          border: '0',
         }}
       />
     </span>

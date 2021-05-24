@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { connect } from 'react-redux';
+
 import SelectionTable from './SelectionTable';
 import { selectDocument } from '../actions';
 
@@ -9,29 +10,30 @@ const documentTableColumns = [
   { Header: 'Title', accessor: 'title', headerClass: 'eight wide' },
 ];
 
-const DocumentTable = () => {
-  const amcatIndex = useSelector((state) => state.amcatIndex);
-  const document = useSelector((state) => state.document);
-  const documents = useSelector((state) => state.documents);
-  const dispatch = useDispatch();
+class DocumentTable extends React.Component {
+  render() {
+    if (!this.props.amcatIndex) return null;
 
-  const [selectedRow, setSelectedRow] = useState(document);
+    return (
+      <SelectionTable
+        columns={documentTableColumns}
+        data={this.props.documents}
+        selectedRow={this.props.document}
+        setSelectedRow={(row) => {
+          this.props.selectDocument(row);
+        }}
+        defaultSize={15}
+      />
+    );
+  }
+}
 
-  useEffect(() => {
-    dispatch(selectDocument(selectedRow));
-  }, [selectedRow, dispatch]);
-
-  if (!amcatIndex) return null;
-
-  return (
-    <SelectionTable
-      columns={documentTableColumns}
-      data={documents}
-      selectedRow={selectedRow}
-      setSelectedRow={setSelectedRow}
-      defaultSize={15}
-    />
-  );
+const mapStateToProps = (state) => {
+  return {
+    amcatIndex: state.amcatIndex,
+    documents: state.documents,
+    document: state.document,
+  };
 };
 
-export default DocumentTable;
+export default connect(mapStateToProps, { selectDocument })(DocumentTable);

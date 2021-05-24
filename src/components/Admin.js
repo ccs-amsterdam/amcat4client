@@ -1,5 +1,4 @@
 import React from 'react';
-import { RECORD_SEP } from 'react-papaparse';
 import { connect } from 'react-redux';
 
 import { Container, Header, Message } from 'semantic-ui-react';

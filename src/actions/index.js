@@ -27,7 +27,7 @@ export const setAmcatIndices = (indices) => {
 
 export const selectDocument = (document) => {
   return {
-    type: 'SELECT_DOCUMENT',
+    type: 'SELECT_ROW',
     payload: document,
   };
 };
@@ -77,5 +77,19 @@ export const appendCodeHistory = (code, n = 5) => {
   return {
     type: 'APPEND_CODE_HISTORY',
     payload: { code: code, n: n },
+  };
+};
+
+export const setIndexFields = (fields) => {
+  return {
+    type: 'SET_INDEX_FIELDS',
+    payload: fields,
+  };
+};
+
+export const setFieldValues = (fieldValues) => {
+  return {
+    type: 'SET_INDEX_FIELDS',
+    payload: fieldValues,
   };
 };
