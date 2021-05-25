@@ -14,13 +14,19 @@ import IndexDetail from './components/AmcatIndexDetails';
 import Admin from './components/Admin';
 import Indices from './components/Indices';
 import Query from './components/Query';
+import DocumentDetail from './components/DocumentDetail';
 
 // Change to add new components to the header
 // The first item will be the opening page after login
 const items = [
   { label: 'Home', path: '/home', Component: Home },
   { label: 'Run Queries', path: '/query', Component: Query },
-  { label: 'Browse Documents', path: '/indexDetail', Component: IndexDetail },
+  { label: 'Browse Index', path: '/indexDetail', Component: IndexDetail },
+  {
+    label: 'Browse Documents',
+    path: '/browseDocument',
+    Component: DocumentDetail,
+  },
   {
     label: 'Manage Users and Access',
     path: '/userManagement',

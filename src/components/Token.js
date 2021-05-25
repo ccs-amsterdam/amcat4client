@@ -1,7 +1,7 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import "./style.css";
-import CodeSelector from "./CodeSelector";
+import React from 'react';
+import { useSelector } from 'react-redux';
+import './style.css';
+import CodeSelector from './CodeSelector';
 
 const Token = ({ token }) => {
   return (
@@ -40,7 +40,7 @@ const FancyToken = React.memo(({ token }) => {
     if (codematch) {
       return codematch.color;
     } else {
-      return "lightgrey";
+      return 'lightgrey';
     }
   };
   let tokenCodes = Object.keys(annotations);
@@ -49,7 +49,7 @@ const FancyToken = React.memo(({ token }) => {
     color = getColor(tokenCodes[0], codes);
   } else {
     let colors = tokenCodes.map((code) => getColor(code, codes));
-    color = `linear-gradient(${colors.join(", ")})`;
+    color = `linear-gradient(${colors.join(', ')})`;
   }
 
   // Set specific classes for nice css to show the start/end of codes
@@ -66,11 +66,11 @@ const FancyToken = React.memo(({ token }) => {
     (code) => code.span[1] === code.index
   );
 
-  let tokenClass = "TextCodeBubble";
-  if (allLeft) tokenClass = tokenClass + " allLeft";
-  if (anyLeft & !allLeft) tokenClass = tokenClass + " anyLeft";
-  if (allRight) tokenClass = tokenClass + " allRight";
-  if (anyRight & !allRight) tokenClass = tokenClass + " anyRight";
+  let tokenClass = 'TextCodeBubble';
+  if (allLeft) tokenClass = tokenClass + ' allLeft';
+  if (anyLeft & !allLeft) tokenClass = tokenClass + ' anyLeft';
+  if (allRight) tokenClass = tokenClass + ' allRight';
+  if (anyRight & !allRight) tokenClass = tokenClass + ' anyRight';
 
   return (
     <>

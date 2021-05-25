@@ -39,6 +39,13 @@ export const setDocuments = (documents) => {
   };
 };
 
+export const uploadDocuments = (documents) => {
+  return {
+    type: 'UPLOAD_DOCUMENTS',
+    payload: documents,
+  };
+};
+
 export const setTokenIndices = (tokenIndices) => {
   return {
     type: 'SET_TOKEN_INDICES',
@@ -89,7 +96,7 @@ export const setIndexFields = (fields) => {
 
 export const setFieldValues = (fieldValues) => {
   return {
-    type: 'SET_INDEX_FIELDS',
+    type: 'SET_FIELD_VALUES',
     payload: fieldValues,
   };
 };

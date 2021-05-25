@@ -1,11 +1,11 @@
-import React from "react";
-import { Container } from "semantic-ui-react";
-import { useDispatch } from "react-redux";
-import { toggleAnnotations } from "../actions";
-import Token from "./Token";
+import React from 'react';
+import { Container } from 'semantic-ui-react';
+import { useDispatch } from 'react-redux';
+import { toggleAnnotations } from '../actions';
+import Token from './Token';
 
-import nlp from "compromise";
-import paragraphs from "compromise-paragraphs";
+import nlp from 'compromise';
+import paragraphs from 'compromise-paragraphs';
 nlp.extend(paragraphs);
 
 // const getTokenizedLength = (tokenized) => {
@@ -45,7 +45,7 @@ const Tokens = ({ text, importSpanAnnotations = [] }) => {
     };
     return (
       // uses span behaving like p, because p is not allowed due to nested div (for Label)
-      <span style={{ marginTop: "1em", display: "inline-block" }} key={par_i}>
+      <span style={{ marginTop: '1em', display: 'inline-block' }} key={par_i}>
         {par_i === 0 ? <h2>{mapSentences(par)}</h2> : mapSentences(par)}
       </span>
     );

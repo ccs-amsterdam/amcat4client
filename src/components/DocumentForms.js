@@ -9,6 +9,7 @@ import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 class DocumentForms extends React.Component {
   onSubmit(key, value) {
+    console.log(key, value);
     const newFieldValues = { ...this.props.fieldValues };
     newFieldValues[key] = value;
     this.props.setFieldValues(newFieldValues);
@@ -16,9 +17,22 @@ class DocumentForms extends React.Component {
 
   render() {
     if (!this.props.fields) return null;
-
     return Object.keys(this.props.fields).map((key) => {
-      if (this.props.fields[key] === 'text') {
+      if (this.props.fields[key] === 'date') {
+        return (
+          <SemanticDatepicker
+            key={key}
+            label={key}
+            value={
+              this.props.fieldValues[key] ? this.props.fieldValues[key] : ''
+            }
+            onChange={(e, d) => {
+              console.log(e, d);
+              this.onSubmit(d.label, d.value);
+            }}
+          />
+        );
+      } else if (this.props.fields[key] === 'text') {
         return (
           <Form.TextArea
             key={key}
@@ -29,30 +43,19 @@ class DocumentForms extends React.Component {
             label={key}
           />
         );
-      } else if (this.props.fields[key] === 'date') {
+      } else if (this.props.fields[key] === 'keyword') {
         return (
-          <SemanticDatepicker
+          <Form.TextArea
             key={key}
-            label={key}
             value={
               this.props.fieldValues[key] ? this.props.fieldValues[key] : ''
             }
             onChange={(e, d) => this.onSubmit(key, d.value)}
+            label={key}
           />
         );
-      } else if (this.props.fields[key] === 'keyword') {
-        return (
-          <Form.Field key={key}>
-            <label>{key}</label>
-            <input
-              value={
-                this.props.fieldValues[key] ? this.props.fieldValues[key] : ''
-              }
-              onChange={(e) => this.onSubmit(key, e.target.value)}
-            />
-          </Form.Field>
-        );
-      } else return null;
+      }
+      return null;
     });
   }
 }

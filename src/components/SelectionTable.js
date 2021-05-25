@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { selectDocument } from '../actions';
 import {
   useTable,
   useSortBy,
   usePagination,
   useGlobalFilter,
 } from 'react-table';
+import history from '../history';
+
 import {
   Segment,
   Table,
@@ -40,6 +45,8 @@ const SelectionTable = ({
   const [activeRow, setActiveRow] = useState(
     selectedRow ? selectedRow.ROW_ID : null
   );
+  const dispatch = useDispatch();
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -67,17 +74,18 @@ const SelectionTable = ({
   useEffect(() => {
     if (selectedRow) {
       setActiveRow(selectedRow.ROW_ID);
+      dispatch(selectDocument(selectedRow));
     } else {
       setActiveRow(null);
+      dispatch(selectDocument(null));
     }
-  }, [selectedRow]);
+  }, [selectedRow, dispatch]);
 
   const onRowSelect = (row) => {
     if (activeRow && activeRow === row.id) {
       setSelectedRow(null);
       setActiveRow(null);
     } else {
-      console.log(row);
       setSelectedRow({
         ...row.values,
         ROW_ID: row.id,
@@ -106,16 +114,33 @@ const SelectionTable = ({
   const createBody = (page) => {
     return page.map((row, i) => {
       prepareRow(row);
+
       return (
         <TableRow
-          active={activeRow ? activeRow === row.id : false}
+          active={row.id === activeRow}
           onClick={() => onRowSelect(row)}
           {...row.getRowProps()}
         >
           {row.cells.map((cell) => {
             return (
-              <TableCell {...cell.getCellProps()}>
+              <TableCell
+                {...cell.getCellProps()}
+                style={{
+                  color: `${row.id === activeRow ? '#0E6EB8' : ''}`,
+                }}
+              >
                 {cell.render('Cell')}
+                {row.id === activeRow && cell.column.Header === 'Title' ? (
+                  <button
+                    className="ui primary button float left"
+                    style={{ marginLeft: '45px' }}
+                    onClick={() => history.push('/browseDocument')}
+                  >
+                    Browse!
+                  </button>
+                ) : (
+                  ''
+                )}
               </TableCell>
             );
           })}

@@ -47,6 +47,15 @@ const document = (state = [], action) => {
   }
 };
 
+const uploadDocuments = (state = [], action) => {
+  switch (action.type) {
+    case 'UPLOAD_DOCUMENTS':
+      return [...action.payload];
+    default:
+      return state;
+  }
+};
+
 const indexFields = (state = {}, action) => {
   switch (action.type) {
     case 'SET_INDEX_FIELDS':
@@ -59,7 +68,7 @@ const indexFields = (state = {}, action) => {
 const fieldValues = (state = {}, action) => {
   switch (action.type) {
     case 'SET_FIELD_VALUES':
-      return action.payload;
+      return { ...action.payload };
     default:
       return state;
   }
@@ -71,6 +80,7 @@ const rootReducer = combineReducers({
   amcatIndices,
   document,
   documents,
+  uploadDocuments,
   indexFields,
   fieldValues,
 });
