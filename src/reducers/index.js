@@ -38,10 +38,10 @@ const documents = (state = [], action) => {
   }
 };
 
-const document = (state = [], action) => {
+const document = (state = {}, action) => {
   switch (action.type) {
     case 'SELECT_ROW':
-      return action.payload;
+      return { ...state, ...action.payload };
     default:
       return state;
   }

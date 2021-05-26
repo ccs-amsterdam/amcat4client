@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { selectDocument } from '../actions';
 import {
   useTable,
   useSortBy,
@@ -74,10 +73,8 @@ const SelectionTable = ({
   useEffect(() => {
     if (selectedRow) {
       setActiveRow(selectedRow.ROW_ID);
-      dispatch(selectDocument(selectedRow));
     } else {
       setActiveRow(null);
-      dispatch(selectDocument(null));
     }
   }, [selectedRow, dispatch]);
 
@@ -134,7 +131,10 @@ const SelectionTable = ({
                   <button
                     className="ui primary button float left"
                     style={{ marginLeft: '45px' }}
-                    onClick={() => history.push('/browseDocument')}
+                    onClick={(e) => {
+                      history.push('/browseDocument');
+                      e.stopPropagation();
+                    }}
                   >
                     Browse!
                   </button>
