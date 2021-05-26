@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import { selectDocument } from '../actions';
 
-import { Container, Divider, Header, Label, Grid } from 'semantic-ui-react';
+import { Container, Header, Label, Grid } from 'semantic-ui-react';
 
 const DocumentDetail = () => {
   const amcat = useSelector((state) => state.amcat);

@@ -38,6 +38,7 @@ class Amcat {
     params['per_page'] = per_page;
     if (fields) params['fields'] = fields.join(',');
     if (q) params['q'] = q;
+
     return this.api.get(`/index/${index}/query`, { params });
   }
 

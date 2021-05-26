@@ -5,11 +5,9 @@ import { setDocuments } from '../actions';
 import AmcatIndexSelector from './AmcatIndexSelector';
 import DocumentTable from './DocumentTable';
 import QueryHelp from './QueryHelp';
+import FilterForms from './FilterForms';
 
-import SemanticDatepicker from 'react-semantic-ui-datepickers';
 import { Segment, Form, Grid, Button, Icon } from 'semantic-ui-react';
-
-const fields = ['date', 'title', 'url'];
 
 class QueryForm extends React.Component {
   constructor(props) {
@@ -17,6 +15,7 @@ class QueryForm extends React.Component {
     this.state = {
       query: null,
     };
+    this.fields = Object.keys(this.props.fields);
   }
 
   runQuery = () => {
@@ -24,7 +23,7 @@ class QueryForm extends React.Component {
       .getQuery(
         this.props.amcatIndex.name,
         this.state.query,
-        fields,
+        this.fields,
         '2m',
         100,
         {}
@@ -82,7 +81,10 @@ class QueryForm extends React.Component {
     return (
       <Grid>
         <Grid.Column floated="left" width={6}>
-          {this.renderIndexSelector()}
+          <Grid.Row>{this.renderIndexSelector()}</Grid.Row>
+          <Grid.Row>
+            <FilterForms />
+          </Grid.Row>
         </Grid.Column>
         <Grid.Column width={10}>
           <Grid.Row>{this.renderQueryWindow()}</Grid.Row>
@@ -93,56 +95,11 @@ class QueryForm extends React.Component {
   }
 }
 
-const FilterForms = function ({ fields, fieldValues, setFieldValues }) {
-  const onSubmit = (key, value) => {
-    const newFieldValues = { ...fieldValues };
-    newFieldValues[key] = value;
-    setFieldValues(newFieldValues);
-  };
-
-  if (!fields) return null;
-
-  return Object.keys(fields).map((key) => {
-    if (fields[key] === 'text') {
-      return (
-        <Form.TextArea
-          key={key}
-          value={fieldValues[key] ? fieldValues[key] : ''}
-          onChange={(e, d) => onSubmit(key, d.value)}
-          label={key}
-        />
-      );
-    }
-    if (fields[key] === 'date') {
-      return (
-        <SemanticDatepicker
-          key={key}
-          type="range"
-          label={'from'}
-          value={fieldValues[key] ? fieldValues[key] : ''}
-          onChange={(e, d) => onSubmit(key, d.value)}
-        />
-      );
-    }
-    if (fields[key] === 'keyword') {
-      return (
-        <Form.Field key={key}>
-          <label>{key}</label>
-          <input
-            value={fieldValues[key] ? fieldValues[key] : ''}
-            onChange={(e) => onSubmit(key, e.target.value)}
-          />
-        </Form.Field>
-      );
-    }
-    return null;
-  });
-};
-
 const mapStateToProps = (state) => {
   return {
     amcat: state.amcat,
     amcatIndex: state.amcatIndex,
+    fields: state.indexFields,
   };
 };
 
