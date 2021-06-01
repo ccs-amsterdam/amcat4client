@@ -38,7 +38,7 @@ const SelectionTable = ({
   data,
   selectedRow,
   setSelectedRow,
-  defaultSize = 15,
+  defaultSize = 20,
   sizeSelector = false,
 }) => {
   const [activeRow, setActiveRow] = useState(
@@ -149,13 +149,14 @@ const SelectionTable = ({
     });
   };
 
-  if (data.length === 0) return null;
+  if (data.length === 0) return <Segment>No Documents Found</Segment>;
   return (
     <Segment style={{ border: '0' }}>
       <GlobalFilter
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        numDocs={data.length}
       />
 
       <Table
@@ -219,20 +220,29 @@ const SelectionTable = ({
   );
 };
 
-const GlobalFilter = ({ globalFilter, setGlobalFilter }) => {
+const GlobalFilter = ({ globalFilter, setGlobalFilter, numDocs }) => {
   return (
-    <span>
-      <input
-        value={globalFilter || ''}
-        onChange={(e) => {
-          setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-        }}
-        placeholder={`Search index`}
-        style={{
-          border: '0',
-        }}
-      />
-    </span>
+    <div>
+      <div style={{ width: '95%' }}>
+        <span style={{ float: 'left' }}>
+          <input
+            value={globalFilter || ''}
+            onChange={(e) => {
+              setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+            }}
+            placeholder={`Click to search results!`}
+            style={{
+              width: '100%',
+              border: '0',
+              height: '21px',
+            }}
+          />
+        </span>
+        <span
+          style={{ float: 'right', height: '30px' }}
+        >{`${numDocs} item(s) found`}</span>
+      </div>
+    </div>
   );
 };
 

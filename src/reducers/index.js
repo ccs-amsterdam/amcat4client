@@ -74,6 +74,15 @@ const fieldValues = (state = {}, action) => {
   }
 };
 
+const queryString = (state = '', action) => {
+  switch (action.type) {
+    case 'SET_QUERY_STRING':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 const rootReducer = combineReducers({
   amcat,
   amcatIndex,
@@ -83,6 +92,7 @@ const rootReducer = combineReducers({
   uploadDocuments,
   indexFields,
   fieldValues,
+  queryString,
 });
 
 export default rootReducer;

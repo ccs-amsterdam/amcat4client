@@ -33,13 +33,41 @@ class Amcat {
   getDocument(index, doc_id) {
     return this.api.get(`/index/${index}/documents/${doc_id}`);
   }
-  getQuery(index, q, fields, scroll = '2m', per_page = 100, params = {}) {
+  getQuery(
+    index,
+    q,
+    fields,
+    scroll = '2m',
+    per_page = 100,
+    params = {},
+    filters = {}
+  ) {
     params['scroll'] = scroll; // for scrolling, update with id obtained from results.meta.scroll_id
     params['per_page'] = per_page;
     if (fields) params['fields'] = fields.join(',');
     if (q) params['q'] = q;
-
+    if (filters) params = { ...params, ...filters };
     return this.api.get(`/index/${index}/query`, { params });
+  }
+
+  postQuery(
+    index,
+    q,
+    fields,
+    scroll = '2m',
+    per_page = 100,
+    params = {},
+    filters = {}
+  ) {
+    params['scroll'] = scroll;
+    params['per_page'] = per_page;
+    if (fields) params['fields'] = fields.join(',');
+    if (q) params['q'] = q;
+    if (filters) params['filters'] = { ...filters };
+
+    console.log(`/index/${index}/query`, { ...params });
+
+    return this.api.post(`/index/${index}/query`, { ...params });
   }
 
   // POST

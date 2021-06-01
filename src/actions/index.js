@@ -100,3 +100,10 @@ export const setFieldValues = (fieldValues) => {
     payload: fieldValues,
   };
 };
+
+export const setQueryString = (query) => {
+  return {
+    type: 'SET_QUERY_STRING',
+    payload: query,
+  };
+};

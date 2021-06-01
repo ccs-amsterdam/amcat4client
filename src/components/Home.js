@@ -17,12 +17,14 @@ class Home extends React.Component {
       {
         title: 'Role over Index:',
         path: '/userManagement',
-        prop: this.props.amcatIndex.role,
+        prop: `Current Role over Index: ${this.props.amcatIndex.role}`,
       },
       {
         title: 'Last Query:',
         path: '/query',
-        prop: 'ToDo',
+        prop: this.props.queryString
+          ? this.props.queryString
+          : 'No Previous Queries',
       },
       {
         title: 'Remaining Tasks:',
@@ -53,22 +55,22 @@ class Home extends React.Component {
       {
         title: 'Select and index:',
         path: '/indices',
-        btnText: 'Go!',
+        btnText: 'Manage Indices!',
       },
       {
         title: 'Upload documents:',
-        path: '/userManagement',
-        btnText: 'Go!',
+        path: '/indices',
+        btnText: 'Manage Documents!',
       },
       {
         title: 'Run queries:',
         path: '/query',
-        btnText: 'Go!',
+        btnText: 'Run Queries on Index!',
       },
       {
         title: 'Manage users and their access:',
         path: '/userManagement',
-        btnText: 'Go!',
+        btnText: 'Manage User Access!',
       },
     ];
 
@@ -210,6 +212,7 @@ const mapStateToProps = (state) => {
     user: state.amcat.email,
     host: state.amcat.host,
     amcatIndex: state.amcatIndex,
+    queryString: state.queryString,
   };
 };
 

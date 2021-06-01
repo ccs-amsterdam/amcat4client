@@ -9,7 +9,6 @@ import 'react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css';
 
 class DocumentForms extends React.Component {
   onSubmit(key, value) {
-    console.log(key, value);
     const newFieldValues = { ...this.props.fieldValues };
     newFieldValues[key] = value;
     this.props.setFieldValues(newFieldValues);
@@ -27,7 +26,6 @@ class DocumentForms extends React.Component {
               this.props.fieldValues[key] ? this.props.fieldValues[key] : ''
             }
             onChange={(e, d) => {
-              console.log(e, d);
               this.onSubmit(d.label, d.value);
             }}
           />

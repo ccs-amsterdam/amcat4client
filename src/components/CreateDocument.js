@@ -30,7 +30,7 @@ class CreateDocument extends React.Component {
       .createDocuments(this.props.amcatIndex.name, [submitData])
       .then((res) => {
         // maybe check for 201 before celebrating
-        console.log(res);
+
         this.props.setFieldValues({});
       })
       .catch((e) => {

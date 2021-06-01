@@ -71,8 +71,10 @@ class AmcatIndexSelector extends React.Component {
   renderDropDown() {
     return (
       <React.Fragment>
-        <div className="content">
-          <h5>{this.props.amcatIndex ? 'Current Index: ' : 'Select Index'}</h5>
+        <div className="ui content" style={{ marginTop: '5px' }}>
+          <h4 style={{ marginBottom: '10px' }}>
+            {this.props.amcatIndex ? 'Current Index: ' : 'Select Index'}
+          </h4>
         </div>
         <Dropdown
           search

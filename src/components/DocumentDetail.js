@@ -13,10 +13,12 @@ const DocumentDetail = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    amcat.getDocument(amcatIndex.name, document.ORG_ID).then((res) => {
-      dispatch(selectDocument(res.data));
-    });
-  }, [amcat, amcatIndex.name, dispatch, document.ORG_ID]);
+    if (amcat && amcatIndex && document.ORG_ID) {
+      amcat.getDocument(amcatIndex.name, document.ORG_ID).then((res) => {
+        dispatch(selectDocument(res.data));
+      });
+    }
+  }, [amcat, amcatIndex, dispatch, document.ORG_ID]);
 
   if (!amcat && !amcatIndex && !document) return null;
   return (

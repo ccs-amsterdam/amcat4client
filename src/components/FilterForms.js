@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import _ from 'lodash';
 
 import { setIndexFields, setFieldValues } from '../actions';
 
-import { Button, Form, Segment } from 'semantic-ui-react';
+import { Button, Form } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 
-const FilterForms = function (props) {
+const FilterForms = function () {
   const amcat = useSelector((state) => state.amcat);
   const amcatIndex = useSelector((state) => state.amcatIndex);
   const fields = useSelector((state) => state.indexFields);
@@ -24,10 +25,39 @@ const FilterForms = function (props) {
   }, [amcat, amcatIndex, dispatch]);
 
   const onSubmit = (key, value) => {
-    const newFieldValues = { ...fieldValues };
-    console.log(newFieldValues);
+    let newFieldValues = { ...fieldValues };
     newFieldValues[key] = value;
+    if (value === '') {
+      console.log('ommitting');
+      newFieldValues = _.omit(newFieldValues, key);
+    }
     dispatch(setFieldValues(newFieldValues));
+  };
+
+  const dateFilter = (key, value) => {
+    let newFieldValues = { ...fieldValues };
+
+    // this is for the POST method
+    if (!newFieldValues.date) {
+      newFieldValues['date'] = {};
+      newFieldValues.date[key] = extractDateFormat(value);
+    } else if (value === null) {
+      newFieldValues.date = _.omit(newFieldValues.date, key);
+      if (_.isEmpty(newFieldValues.date)) {
+        newFieldValues = _.omit(newFieldValues, 'date');
+      }
+    } else {
+      newFieldValues.date[key] = extractDateFormat(value);
+    }
+    dispatch(setFieldValues(newFieldValues));
+  };
+
+  const extractDateFormat = (date) => {
+    if (!date) return '';
+    const month = ('0' + (date.getMonth() + 1)).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+    const year = date.getUTCFullYear();
+    return year + '-' + month + '-' + day;
   };
 
   const renderFields = () => {
@@ -38,25 +68,48 @@ const FilterForms = function (props) {
             key={key}
             value={fieldValues[key] ? fieldValues[key] : ''}
             onChange={(e, d) => onSubmit(key, d.value)}
-            label={key}
+            label={key.charAt(0).toUpperCase() + key.slice(1)}
           />
         );
       }
       if (fields[key] === 'date') {
         return (
-          <SemanticDatepicker
-            key={key}
-            type="range"
-            label={'from'}
-            value={fieldValues[key] ? fieldValues[key] : ''}
-            onChange={(e, d) => onSubmit(key, d.value)}
-          />
+          <React.Fragment>
+            <Form.Field>
+              <SemanticDatepicker
+                key="gte"
+                type="basic"
+                label="Start Date"
+                locale={navigator.locale}
+                format="YYYY-MM-DD"
+                onChange={(e, d) => {
+                  e.stopPropagation();
+
+                  dateFilter('gte', d.value);
+                }}
+              />
+            </Form.Field>
+            <Form.Field>
+              <SemanticDatepicker
+                key="lte"
+                type="basic"
+                label="End Date"
+                locale={navigator.locale}
+                format="YYYY-MM-DD"
+                onChange={(e, d) => {
+                  e.stopPropagation();
+
+                  dateFilter('lte', d.value);
+                }}
+              />
+            </Form.Field>
+          </React.Fragment>
         );
       }
       if (fields[key] === 'keyword') {
         return (
           <Form.Field key={key}>
-            <label>{key}</label>
+            <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
             <input
               value={fieldValues[key] ? fieldValues[key] : ''}
               onChange={(e) => onSubmit(key, e.target.value)}
@@ -71,19 +124,18 @@ const FilterForms = function (props) {
   if (!fields) return null;
   else
     return (
-      <Segment>
+      <React.Fragment>
         <Form>{renderFields()}</Form>
         <br />
         <Button.Group widths={2}>
           <Button
-            className="ui primary button"
+            className="ui red button"
             onClick={() => dispatch(setFieldValues(null))}
           >
-            {' '}
             Reset Filters
           </Button>
         </Button.Group>
-      </Segment>
+      </React.Fragment>
     );
 };
 
