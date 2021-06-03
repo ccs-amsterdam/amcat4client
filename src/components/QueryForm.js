@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import TextareaAutosize from 'react-textarea-autosize';
 import _ from 'lodash';
 
-import history from '../history';
+import TimeSeriesPlot from './TimeSeriesPlot';
 import { setDocuments, setQueryString } from '../actions';
 
 import AmcatIndexSelector from './AmcatIndexSelector';
@@ -35,7 +35,8 @@ class QueryForm extends React.Component {
     Object.entries(this.props.filters).map((filter) => {
       if (filter[0] === 'date') {
         for (const [rangeIndicator, value] of Object.entries(filter[1])) {
-          if (value === null) {
+          if (value === null || value === '') {
+            console.log('here');
             dateFilter.range = _.omit(dateFilter.range, rangeIndicator);
           } else dateFilter.range[rangeIndicator] = value;
         }
@@ -43,8 +44,8 @@ class QueryForm extends React.Component {
       } else {
         obj[filter[0]] = { value: filter[1] };
       }
+      return obj;
     });
-
     return obj;
   }
 
@@ -56,7 +57,8 @@ class QueryForm extends React.Component {
           .postQuery(
             this.props.amcatIndex.name,
             this.props.queryString,
-            this.fields,
+            // this.fields,
+            '',
             '2m',
             100,
             {},
@@ -160,6 +162,10 @@ class QueryForm extends React.Component {
     return <DocumentTable />;
   }
 
+  renderTimeSeriesPlot() {
+    return <TimeSeriesPlot />;
+  }
+
   render() {
     return (
       <Grid>
@@ -175,6 +181,9 @@ class QueryForm extends React.Component {
             </div>
           </Grid.Row>
           <Grid.Row>{this.renderDocumentTable()}</Grid.Row>
+          <Grid.Row>
+            {this.props.documents.length > 1 && this.renderTimeSeriesPlot()}
+          </Grid.Row>
         </Grid.Column>
       </Grid>
     );
@@ -188,6 +197,7 @@ const mapStateToProps = (state) => {
     fields: state.indexFields,
     filters: state.fieldValues,
     queryString: state.queryString,
+    documents: state.documents,
   };
 };
 

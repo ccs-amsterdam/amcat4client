@@ -65,8 +65,6 @@ class Amcat {
     if (q) params['q'] = q;
     if (filters) params['filters'] = { ...filters };
 
-    console.log(`/index/${index}/query`, { ...params });
-
     return this.api.post(`/index/${index}/query`, { ...params });
   }
 

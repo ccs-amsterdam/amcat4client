@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { setIndexFields, setFieldValues } from '../actions';
 
-import { Button, Form } from 'semantic-ui-react';
+import { Button, Form, Container } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
 
 const FilterForms = function () {
@@ -74,8 +74,8 @@ const FilterForms = function () {
       }
       if (fields[key] === 'date') {
         return (
-          <React.Fragment>
-            <Form.Field>
+          <Container key="date_filter">
+            <Form.Field key={key + '_gte'}>
               <SemanticDatepicker
                 key="gte"
                 type="basic"
@@ -89,7 +89,7 @@ const FilterForms = function () {
                 }}
               />
             </Form.Field>
-            <Form.Field>
+            <Form.Field key={key + '_lte'}>
               <SemanticDatepicker
                 key="lte"
                 type="basic"
@@ -103,7 +103,7 @@ const FilterForms = function () {
                 }}
               />
             </Form.Field>
-          </React.Fragment>
+          </Container>
         );
       }
       if (fields[key] === 'keyword') {
@@ -124,8 +124,8 @@ const FilterForms = function () {
   if (!fields) return null;
   else
     return (
-      <React.Fragment>
-        <Form>{renderFields()}</Form>
+      <Container>
+        <Container>{renderFields()}</Container>
         <br />
         <Button.Group widths={2}>
           <Button
@@ -135,7 +135,7 @@ const FilterForms = function () {
             Reset Filters
           </Button>
         </Button.Group>
-      </React.Fragment>
+      </Container>
     );
 };
 

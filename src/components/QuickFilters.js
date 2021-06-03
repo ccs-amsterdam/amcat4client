@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import _ from 'lodash';
 
@@ -15,7 +15,7 @@ const dateOptions = {
 const QuickFilters = ({ runQuery }) => {
   const documents = useSelector((state) => state.documents);
   const fieldValues = useSelector((state) => state.fieldValues);
-  const [queryMethod, setQueryMethod] = useState('GET');
+
   const dispatch = useDispatch();
 
   const onSubmit = (key, value) => {
@@ -28,7 +28,6 @@ const QuickFilters = ({ runQuery }) => {
   };
 
   const dateFilter = (key, value) => {
-    setQueryMethod('POST');
     let newFieldValues = { ...fieldValues };
 
     // this is for the POST method
@@ -39,7 +38,6 @@ const QuickFilters = ({ runQuery }) => {
       newFieldValues.date = _.omit(newFieldValues.date, key);
       if (_.isEmpty(newFieldValues.date)) {
         newFieldValues = _.omit(newFieldValues, 'date');
-        setQueryMethod('GET');
       }
     } else {
       newFieldValues.date[key] = extractDateFormat(value);
@@ -121,7 +119,7 @@ const QuickFilters = ({ runQuery }) => {
           float="right"
           primary
           onClick={() => {
-            runQuery(queryMethod);
+            runQuery('POST');
           }}
         >
           Apply Filters
