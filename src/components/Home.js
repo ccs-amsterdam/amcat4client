@@ -4,7 +4,6 @@ import { Segment, Grid, Container } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 import history from '../history';
-import Modal from './modal';
 
 class Home extends React.Component {
   renderCurrentSetting() {
@@ -12,12 +11,16 @@ class Home extends React.Component {
       {
         title: 'Current Index:',
         path: '/indices',
-        prop: this.props.amcatIndex.name,
+        prop: this.props.amcatIndex
+          ? this.props.amcatIndex.name
+          : 'No Index Selected!',
       },
       {
         title: 'Role over Index:',
-        path: '/userManagement',
-        prop: `Current Role over Index: ${this.props.amcatIndex.role}`,
+        path: this.props.amcatIndex ? '/userManagement' : '/indices',
+        prop: this.props.amcatIndex
+          ? `Current Role over Index: ${this.props.amcatIndex.role}`
+          : 'No Index Selected',
       },
       {
         title: 'Last Query:',
@@ -69,8 +72,10 @@ class Home extends React.Component {
       },
       {
         title: 'Manage users and their access:',
-        path: '/userManagement',
-        btnText: 'Manage User Access!',
+        path: this.props.amcatIndex ? '/userManagement' : '/indices',
+        btnText: this.props.amcatIndex
+          ? 'Manage User Access!'
+          : 'No Index Selected',
       },
     ];
 
@@ -140,20 +145,6 @@ class Home extends React.Component {
     );
   }
 
-  renderModal() {
-    if (!this.props.amcatIndex) {
-      return (
-        <Modal
-          title="You have not selected an index yet!"
-          content="Please take me to the select index page!"
-          actions={this.renderActions()}
-          // onDismiss={() => history.push('/')}
-        />
-      );
-    }
-    return null;
-  }
-
   renderHome() {
     return (
       <Container>
@@ -198,12 +189,7 @@ class Home extends React.Component {
   }
 
   render() {
-    return (
-      <div>
-        {this.renderModal()}
-        {this.props.amcatIndex && this.renderHome()}
-      </div>
-    );
+    return <div>{this.renderHome()}</div>;
   }
 }
 

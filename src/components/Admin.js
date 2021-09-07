@@ -35,9 +35,10 @@ class Admin extends React.Component {
   }
 
   componentDidMount() {
-    this.props.amcat.getUsers().then((e) => {
-      this.props.setAllUsers(e.data);
-    });
+    this.props.amcatIndex.role === 'ADMIN' &&
+      this.props.amcat.getUsers().then((e) => {
+        this.props.setAllUsers(e.data);
+      });
   }
 
   renderCurrentSetting() {
@@ -128,39 +129,45 @@ class Admin extends React.Component {
   }
 
   renderAdminFuncs() {
+    if (this.props.amcatIndex.role !== 'ADMIN') {
+      return null;
+    }
     return (
-      <Table compact celled>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell width={4}>User</Table.HeaderCell>
-            <Table.HeaderCell width={3}>Index</Table.HeaderCell>
-            <Table.HeaderCell width={3}>Role over Index</Table.HeaderCell>
-            <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
+      <React.Fragment>
+        <h3 style={{ marginTop: '50px' }}>Administrative Tasks:</h3>
+        <Table compact celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell width={4}>User</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Index</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Role over Index</Table.HeaderCell>
+              <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
 
-        <Table.Body>{this.renderTableCells()}</Table.Body>
+          <Table.Body>{this.renderTableCells()}</Table.Body>
 
-        <Table.Footer fullWidth>
-          <Table.Row>
-            <Table.HeaderCell />
-            <Table.HeaderCell colSpan="4">
-              <Button
-                floated="right"
-                icon
-                labelPosition="left"
-                primary
-                size="small"
-                onClick={() => {
-                  this.setState({ open: true });
-                }}
-              >
-                <Icon name="user" /> Add New User
-              </Button>
-            </Table.HeaderCell>
-          </Table.Row>
-        </Table.Footer>
-      </Table>
+          <Table.Footer fullWidth>
+            <Table.Row>
+              <Table.HeaderCell />
+              <Table.HeaderCell colSpan="4">
+                <Button
+                  floated="right"
+                  icon
+                  labelPosition="left"
+                  primary
+                  size="small"
+                  onClick={() => {
+                    this.setState({ open: true });
+                  }}
+                >
+                  <Icon name="user" /> Add New User
+                </Button>
+              </Table.HeaderCell>
+            </Table.Row>
+          </Table.Footer>
+        </Table>
+      </React.Fragment>
     );
   }
 
@@ -334,19 +341,22 @@ class Admin extends React.Component {
           <Button
             color="green"
             onClick={() => {
+              let selUser = this.state.selectedUser;
               this.props.amcat
                 .modifyUser(
-                  this.state.selectedUser.oldUser,
-                  this.state.selectedUser.user,
-                  this.state.selectedUser.password,
-                  this.state.selectedUser.index,
-                  this.state.selectedUser.role
+                  selUser.oldUser,
+                  selUser.user,
+                  selUser.password,
+                  selUser.index,
+                  selUser.role
                 )
                 .then((e) => {
-                  this.props.allUsers.push({
-                    index_name: this.state.selectedUser.index,
-                    role: this.state.selectedUser.role,
-                    user: this.state.selectedUser.user,
+                  this.props.allUsers.forEach(function (obj) {
+                    if (obj.user === selUser.oldUser) {
+                      obj.user = selUser.user ? selUser.user : selUser.oldUser;
+                      obj.index_name = selUser.index;
+                      obj.role = selUser.role;
+                    }
                   });
                   this.props.setAllUsers(this.props.allUsers);
                   this.setState({ openEditModal: false });
@@ -375,7 +385,6 @@ class Admin extends React.Component {
         </Grid.Row>
         <Grid.Row>
           <Grid.Column width={16} floated="left">
-            <h3 style={{ marginTop: '50px' }}>Administrative Tasks:</h3>
             {this.renderAdminFuncs()}
             {this.renderAddUserModal()}
             {this.renderUserEditModal()}
