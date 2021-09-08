@@ -83,6 +83,15 @@ const queryString = (state = '', action) => {
   }
 };
 
+const latestQueries = (state = [], action) => {
+  switch (action.type) {
+    case 'SET_LATEST_QUERIES':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
 const allUsers = (state = [], action) => {
   switch (action.type) {
     case 'SET_ALL_USERS':
@@ -102,6 +111,7 @@ const rootReducer = combineReducers({
   indexFields,
   fieldValues,
   queryString,
+  latestQueries,
   allUsers,
 });
 

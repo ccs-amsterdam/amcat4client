@@ -48,6 +48,7 @@ class Amcat {
     if (fields) params['fields'] = fields.join(',');
     if (q) params['q'] = q;
     if (filters) params = { ...params, ...filters };
+    console.log(`/index/${index}/query`, { ...params });
     return this.api.get(`/index/${index}/query`, { params });
   }
 

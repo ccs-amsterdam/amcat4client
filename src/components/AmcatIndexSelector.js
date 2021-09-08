@@ -8,7 +8,7 @@ import CreateAmcatIndex from './CreateAmcatIndex';
 
 const tableColumns = [
   {
-    Header: 'Index',
+    Header: 'Project',
     accessor: 'name',
     headerClass: 'thirteen wide',
   },
@@ -73,7 +73,7 @@ class AmcatIndexSelector extends React.Component {
       <React.Fragment>
         <div className="ui content" style={{ marginTop: '5px' }}>
           <h4 style={{ marginBottom: '10px' }}>
-            {this.props.amcatIndex ? 'Current Index: ' : 'Select Index'}
+            {this.props.amcatIndex ? 'Current Project: ' : 'Select Project'}
           </h4>
         </div>
         <Dropdown

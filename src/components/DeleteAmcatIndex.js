@@ -47,8 +47,8 @@ class DeleteAmcatIndex extends React.Component {
         closeIcon
         open={this.state.modalStatus !== 'inactive'}
         trigger={
-          <Button disabled={!this.props.amcatIndex} name="delete index">
-            <Icon name="minus" /> Delete Index
+          <Button disabled={!this.props.amcatIndex} name="Delete Project">
+            <Icon name="minus" /> Delete Project
           </Button>
         }
         onClose={() => {
@@ -64,12 +64,12 @@ class DeleteAmcatIndex extends React.Component {
       >
         <Header
           icon="trash"
-          content={`Delete Index ${
+          content={`Delete Project ${
             this.props.amcatIndex ? this.props.amcatIndex.name : null
           }`}
         />
         <Modal.Content>
-          <p>Do you really want to delete this Index?</p>
+          <p>Do you really want to delete this project?</p>
         </Modal.Content>
         <Modal.Actions>
           {this.state.modalStatus === 'error' ? (
@@ -80,7 +80,7 @@ class DeleteAmcatIndex extends React.Component {
           ) : null}
           {this.state.modalStatus === 'pending' ? (
             <Dimmer active inverted>
-              <Loader content="Creating Index" />
+              <Loader content="Creating Project" />
             </Dimmer>
           ) : (
             <>

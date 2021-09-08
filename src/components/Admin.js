@@ -44,17 +44,17 @@ class Admin extends React.Component {
   renderCurrentSetting() {
     const currentSetting = [
       {
-        title: 'Current Role:',
+        title: 'Current User:',
         path: '#',
         prop: this.props.user,
       },
       {
-        title: 'Current Index:',
+        title: 'Current Project:',
         path: '/indices',
         prop: this.props.amcatIndex.name,
       },
       {
-        title: 'Role over Index:',
+        title: 'Role in Project:',
         path: '/userManagement',
         prop: `${this.props.amcatIndex.role}`,
       },
@@ -62,7 +62,7 @@ class Admin extends React.Component {
 
     return currentSetting.map((setting) => {
       return (
-        <Item>
+        <Item key={setting.title}>
           <Item.Content>
             {setting.title}
             <Button
@@ -139,8 +139,8 @@ class Admin extends React.Component {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell width={4}>User</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Index</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Role over Index</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Project</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Role in Project</Table.HeaderCell>
               <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -300,7 +300,7 @@ class Admin extends React.Component {
           />
 
           <Input
-            label="Index"
+            label="Project"
             placeholder={this.state.selectedUser.index}
             style={{ marginRight: '1rem' }}
             onChange={(e) => {

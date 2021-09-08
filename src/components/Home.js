@@ -1,26 +1,37 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Segment, Grid, Container } from 'semantic-ui-react';
-import { Link } from 'react-router-dom';
+import {
+  Segment,
+  Grid,
+  Container,
+  Form,
+  Button,
+  Icon,
+  Item,
+} from 'semantic-ui-react';
 
+import Modal from './modal';
 import history from '../history';
+import TextareaAutosize from 'react-textarea-autosize';
+import QueryHelp from './QueryHelp';
+import { setDocuments, setQueryString } from '../actions';
 
 class Home extends React.Component {
   renderCurrentSetting() {
     const currentSetting = [
       {
-        title: 'Current Index:',
+        title: 'Current Project:',
         path: '/indices',
         prop: this.props.amcatIndex
           ? this.props.amcatIndex.name
-          : 'No Index Selected!',
+          : 'No Project Selected!',
       },
       {
-        title: 'Role over Index:',
+        title: 'Role in Project:',
         path: this.props.amcatIndex ? '/userManagement' : '/indices',
         prop: this.props.amcatIndex
-          ? `Current Role over Index: ${this.props.amcatIndex.role}`
-          : 'No Index Selected',
+          ? `${this.props.amcatIndex.role}`
+          : 'No Project Selected',
       },
       {
         title: 'Last Query:',
@@ -38,17 +49,22 @@ class Home extends React.Component {
 
     return currentSetting.map((setting) => {
       return (
-        <div
-          key={setting.title}
-          className="item"
-          onMouseEnter={(e) => (e.target.style.background = '#DCDCDC')}
-          onMouseLeave={(e) => (e.target.style.background = 'white')}
-        >
-          {setting.title}
-          <div className="ui green horizontal label large">
-            <Link to={setting.path}>{setting.prop}</Link>
-          </div>
-        </div>
+        <Item key={setting.title}>
+          <Item.Content>
+            {setting.title}
+            <Button
+              size="small"
+              positive
+              floated="right"
+              onClick={() => {
+                history.push(setting.path);
+              }}
+            >
+              {setting.prop}
+              <Icon name="right chevron" />
+            </Button>
+          </Item.Content>
+        </Item>
       );
     });
   }
@@ -56,42 +72,47 @@ class Home extends React.Component {
   renderCoreFunctionalities() {
     const corefuncs = [
       {
-        title: 'Select and index:',
+        title: 'Select Project:',
         path: '/indices',
-        btnText: 'Manage Indices!',
+        btnText: 'Manage Project!',
       },
       {
-        title: 'Upload documents:',
+        title: 'Upload Documents:',
         path: '/indices',
         btnText: 'Manage Documents!',
       },
       {
-        title: 'Run queries:',
+        title: 'Run Queries:',
         path: '/query',
-        btnText: 'Run Queries on Index!',
+        btnText: 'Run Queries',
       },
       {
-        title: 'Manage users and their access:',
+        title: 'User Management',
         path: this.props.amcatIndex ? '/userManagement' : '/indices',
         btnText: this.props.amcatIndex
           ? 'Manage User Access!'
-          : 'No Index Selected',
+          : 'No Project Selected',
       },
     ];
 
     return corefuncs.map((funcs) => {
       return (
-        <div
-          className="item"
-          key={funcs.title}
-          onMouseEnter={(e) => (e.target.style.background = '#DCDCDC')}
-          onMouseLeave={(e) => (e.target.style.background = 'white')}
-        >
-          {funcs.title}
-          <div className="ui blue left pointing horizontal label">
-            <Link to={funcs.path}>{funcs.btnText}</Link>
-          </div>
-        </div>
+        <Item key={funcs.title}>
+          <Item.Content>
+            {funcs.title}
+            <Button
+              size="small"
+              primary
+              floated="right"
+              onClick={() => {
+                history.push(funcs.path);
+              }}
+            >
+              {funcs.btnText}
+              <Icon name="right chevron" />
+            </Button>
+          </Item.Content>
+        </Item>
       );
     });
   }
@@ -117,17 +138,21 @@ class Home extends React.Component {
 
     return Plugins.map((plugIn) => {
       return (
-        <div
-          className="item"
-          key={plugIn.title}
-          onMouseEnter={(e) => (e.target.style.background = '#DCDCDC')}
-          onMouseLeave={(e) => (e.target.style.background = 'white')}
-        >
-          {plugIn.title}
-          <div className="ui blue left pointing horizontal label">
-            <Link to={plugIn.path}>{plugIn.btnText}</Link>
-          </div>
-        </div>
+        <Item key={plugIn.title}>
+          <Item.Content>
+            {plugIn.title}
+            <Button
+              size="small"
+              floated="right"
+              onClick={() => {
+                history.push(plugIn.path);
+              }}
+            >
+              {plugIn.btnText}
+              <Icon name="right chevron" />
+            </Button>
+          </Item.Content>
+        </Item>
       );
     });
   }
@@ -145,41 +170,97 @@ class Home extends React.Component {
     );
   }
 
+  renderQueryWindow() {
+    return (
+      <Grid>
+        <Grid.Column width={16} style={{ marginBottom: '50px' }}>
+          <h2>Quick Start:</h2>
+          <Form style={{ marginBottom: '2em' }}>
+            <TextareaAutosize
+              width={16}
+              value={this.props.queryString ? this.props.queryString : ''}
+              style={{ height: 20 }}
+              placeholder={`Run a Query on ${
+                this.props.amcatIndex ? this.props.amcatIndex.name : '...'
+              }`}
+              onChange={(e) => this.props.setQueryString(e.target.value)}
+            />
+          </Form>
+
+          <Form>
+            <Button.Group widths="2">
+              <Button primary type="submit" onClick={() => this.runQuery()}>
+                <Icon name="search" />
+                Execute Query
+              </Button>
+            </Button.Group>
+          </Form>
+          <QueryHelp />
+          <br />
+        </Grid.Column>
+      </Grid>
+    );
+  }
+
+  runQuery() {
+    this.props.amcat
+      .postQuery(
+        this.props.amcatIndex.name,
+        this.props.queryString,
+        // this.fields,
+        '',
+        '2m',
+        100,
+        {},
+        {}
+      )
+      .then((res) => {
+        this.props.setDocuments(res.data.results);
+        history.push('/query');
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+
+  renderAmcatLogo() {
+    return (
+      <React.Fragment>
+        <img
+          className="ui centered medium image"
+          src="/media/AmCATLogo.png"
+          alt="AmCAT Logo"
+        />
+        <div
+          className="ui one column stackable center aligned page grid"
+          style={{ marginTop: '15px', marginBottom: '30px' }}
+        ></div>
+      </React.Fragment>
+    );
+  }
+
   renderHome() {
     return (
       <Container>
+        <h2>Hello {this.props.user}</h2>
         <Grid>
           <Grid.Column floated="left" width={16}>
             <Grid.Row>
-              <img
-                className="ui centered large image"
-                src="/media/AmCATLogo.png"
-                alt="AmCAT Logo"
-              />
-              <div
-                className="ui one column stackable center aligned page grid"
-                style={{ marginTop: '8px' }}
-              >
-                <h2>Welcome to AmCAT 4.0 (AKA AmKitten)</h2>
-              </div>
-              <Segment style={{ border: '0' }}>
+              <Segment style={{ border: '1' }}>
                 <div className="content">
-                  <h2>Hello {this.props.user}</h2>
                   <h4>Here are your current settings:</h4>
                 </div>
-                <div className="ui fluid vertical menu center">
-                  {this.renderCurrentSetting()}
-                </div>
+                <Item.Group divided>{this.renderCurrentSetting()}</Item.Group>
               </Segment>
-              <Segment style={{ border: '0' }}>
+              <Segment style={{ border: '1' }}>
                 <h4>Core Funcionalities</h4>
-                <div className="ui fluid vertical menu center">
+                <Item.Group divided>
                   {this.renderCoreFunctionalities()}
-                </div>
+                </Item.Group>
+              </Segment>
+              <Segment style={{ border: '1' }}>
                 <h4>AmCAT Plugins</h4>
-                <div className="ui fluid vertical menu center">
-                  {this.renderAmcatPlugins()}
-                </div>
+                <Item.Group divided>{this.renderAmcatPlugins()}</Item.Group>
               </Segment>
             </Grid.Row>
           </Grid.Column>
@@ -188,13 +269,46 @@ class Home extends React.Component {
     );
   }
 
+  renderModal() {
+    if (!this.props.amcatIndex) {
+      return (
+        <Modal
+          title="You have not selected an project yet!"
+          content="Please take me to the select project page!"
+          actions={this.renderActions()}
+        />
+      );
+    }
+    return null;
+  }
+
   render() {
-    return <div>{this.renderHome()}</div>;
+    return (
+      <Grid>
+        <Grid.Row>
+          <Grid.Column width={16} floated="left">
+            {this.renderAmcatLogo()}
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column width={16} floated="left">
+            {this.renderQueryWindow()}
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column width={16} floated="left">
+            {this.renderModal()}
+            {this.props.amcatIndex && this.renderHome()}
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+    );
   }
 }
 
 const mapStateToProps = (state) => {
   return {
+    amcat: state.amcat,
     user: state.amcat.email,
     host: state.amcat.host,
     amcatIndex: state.amcatIndex,
@@ -202,4 +316,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, {})(Home);
+export default connect(mapStateToProps, { setDocuments, setQueryString })(Home);

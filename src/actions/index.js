@@ -108,6 +108,13 @@ export const setQueryString = (query) => {
   };
 };
 
+export const setLatestQueries = (query) => {
+  return {
+    type: 'SET_LATEST_QUERIES',
+    payload: query,
+  };
+};
+
 export const setAllUsers = (users) => {
   return {
     type: 'SET_ALL_USERS',

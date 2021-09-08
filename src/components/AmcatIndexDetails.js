@@ -10,7 +10,7 @@ class AmcatIndexDetails extends React.Component {
         <>
           <Header textAlign="center">{this.props.amcatIndex.name}</Header>
           <Message
-            header="I am an index"
+            header="I am an Project"
             content="And here should be some stuff that you can do with an index"
           />
         </>

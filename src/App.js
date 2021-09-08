@@ -21,7 +21,7 @@ import DocumentDetail from './components/DocumentDetail';
 const items = [
   { label: 'Home', path: '/home', Component: Home },
   {
-    label: 'Manage Indices',
+    label: 'Manage Projects',
     path: '/indices',
     position: 'left',
     Component: Indices,

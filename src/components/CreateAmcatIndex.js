@@ -44,7 +44,7 @@ class CreateAmcatIndex extends React.Component {
       this.props.amcatIndices.some((o) => o.name === this.state.newIndexName)
     ) {
       this.setState({
-        nameError: 'This Index name already exists',
+        nameError: 'This project name already exists',
       });
       return;
     }
@@ -101,7 +101,7 @@ class CreateAmcatIndex extends React.Component {
         trigger={
           <Button primary>
             <Icon name="plus" />
-            Create new index
+            Create New Project
           </Button>
         }
         onSubmit={(e) => this.onSubmit(e)}
@@ -120,7 +120,7 @@ class CreateAmcatIndex extends React.Component {
         }}
         size="tiny"
       >
-        <Header icon="pencil" content="Create new index" as="h2" />
+        <Header icon="pencil" content="Create New Project" as="h2" />
         <Modal.Content>
           <Form.Group>
             <Form.Input
@@ -167,7 +167,7 @@ class CreateAmcatIndex extends React.Component {
           ) : null}
           {this.state.modalStatus === 'pending' ? (
             <Dimmer active inverted>
-              <Loader content="Creating Index" />
+              <Loader content="Creating Project" />
             </Dimmer>
           ) : (
             <Button type="submit" color="green" icon="save" content="Create" />

@@ -4,13 +4,8 @@ import _ from 'lodash';
 
 import { setFieldValues } from '../actions';
 
-import { Button, Dropdown } from 'semantic-ui-react';
+import { Button, Dropdown, Grid } from 'semantic-ui-react';
 import SemanticDatepicker from 'react-semantic-ui-datepickers';
-
-const dateOptions = {
-  gte: 'Start Date',
-  lte: 'End Date',
-};
 
 const QuickFilters = ({ runQuery }) => {
   const documents = useSelector((state) => state.documents);
@@ -43,13 +38,6 @@ const QuickFilters = ({ runQuery }) => {
       newFieldValues.date[key] = extractDateFormat(value);
     }
     dispatch(setFieldValues(newFieldValues));
-
-    // this is for using GET while setting date filters (not advised)
-    // const dateKey = 'date__' + key;
-    // if (value === null) {
-    //   newFieldValues = _.omit(newFieldValues, dateKey);
-    // } else newFieldValues[dateKey] = extractDateFormat(value);
-    // dispatch(setFieldValues(newFieldValues));
   };
 
   const renderDatePicker = (option) => {
@@ -63,29 +51,43 @@ const QuickFilters = ({ runQuery }) => {
             e.stopPropagation();
           }}
           onChange={(e, d) => {
-            dateFilter(option[0], d.value);
+            dateFilter(option, d.value);
           }}
         />
       </Dropdown.Menu>
     );
   };
 
-  const renderQuickFilters = () => {
-    return Object.entries(dateOptions).map((option) => {
-      return (
-        <Dropdown
-          key={option[0]}
-          text={option[1]}
-          icon="filter"
-          floating
-          labeled
-          button
-          className="icon"
-        >
-          {renderDatePicker(option)}
-        </Dropdown>
-      );
-    });
+  const renderStartDateFilter = () => {
+    return (
+      <Dropdown
+        key="gte"
+        text="Start"
+        icon="filter"
+        floating
+        labeled
+        button
+        className="icon"
+      >
+        {renderDatePicker('gte')}
+      </Dropdown>
+    );
+  };
+
+  const renderEndDateFilter = () => {
+    return (
+      <Dropdown
+        key="lte"
+        text="End"
+        icon="filter"
+        floating
+        labeled
+        button
+        className="icon"
+      >
+        {renderDatePicker('lte')}
+      </Dropdown>
+    );
   };
 
   const getTitleOptions = (number) => {
@@ -101,40 +103,46 @@ const QuickFilters = ({ runQuery }) => {
   };
 
   return (
-    <React.Fragment>
-      {renderQuickFilters()}
-      <Dropdown
-        text="Filter Title"
-        icon="filter"
-        floating
-        labeled
-        button
-        className="icon"
-        scrolling
-        options={getTitleOptions(documents.length)}
-        onChange={(e) => onSubmit('title', e.target.textContent)}
-      />
-      <Button.Group widths={1}>
-        <Button
-          float="right"
-          primary
-          onClick={() => {
-            runQuery('POST');
-          }}
-        >
-          Apply Filters
-        </Button>
-        <Button
-          float="right"
-          color="red"
-          onClick={() => {
-            dispatch(setFieldValues(null));
-          }}
-        >
-          Reset Filters
-        </Button>
-      </Button.Group>
-    </React.Fragment>
+    <Grid>
+      <Grid.Column width={2}>{renderStartDateFilter()}</Grid.Column>
+      <Grid.Column width={2}>{renderEndDateFilter()}</Grid.Column>
+      <Grid.Column width={3}>
+        <Dropdown
+          text="Filter by Title"
+          icon="filter"
+          floating
+          labeled
+          button
+          fluid
+          className="icon"
+          scrolling
+          options={getTitleOptions(documents.length)}
+          onChange={(e) => onSubmit('title', e.target.textContent)}
+        />
+      </Grid.Column>
+      <Grid.Column width={9}>
+        <Button.Group widths={2}>
+          <Button
+            float="right"
+            primary
+            onClick={() => {
+              runQuery('POST');
+            }}
+          >
+            Apply Filters
+          </Button>
+          <Button
+            float="right"
+            color="red"
+            onClick={() => {
+              dispatch(setFieldValues(null));
+            }}
+          >
+            Reset Filters
+          </Button>
+        </Button.Group>
+      </Grid.Column>
+    </Grid>
   );
 };
 

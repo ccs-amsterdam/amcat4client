@@ -124,8 +124,8 @@ const FilterForms = function () {
   if (!fields) return null;
   else
     return (
-      <Container>
-        <Container>{renderFields()}</Container>
+      <React.Fragment>
+        <Form>{renderFields()}</Form>
         <br />
         <Button.Group widths={2}>
           <Button
@@ -135,7 +135,7 @@ const FilterForms = function () {
             Reset Filters
           </Button>
         </Button.Group>
-      </Container>
+      </React.Fragment>
     );
 };
 

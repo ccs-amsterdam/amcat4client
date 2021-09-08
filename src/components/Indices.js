@@ -14,13 +14,13 @@ class Indices extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeItem: 'Index Details',
+      activeItem: 'Project Details',
     };
   }
 
   renderSwitch(activeItem) {
     switch (activeItem) {
-      case 'Index Details':
+      case 'Project Details':
         return <AmcatIndexDetails />;
       case 'Upload Documents':
         return <UploadDocuments />;
@@ -54,7 +54,7 @@ class Indices extends React.Component {
           <Segment style={{ border: 0 }}>
             <Menu pointing secondary>
               <Menu.Item
-                name="Index Details"
+                name="Project Details"
                 active={this.state.activeItem === 'details'}
                 onClick={(e, d) =>
                   this.setState({
