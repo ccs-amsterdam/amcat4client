@@ -28,9 +28,9 @@ const FilterForms = function () {
     let newFieldValues = { ...fieldValues };
     newFieldValues[key] = value;
     if (value === '') {
-      console.log('ommitting');
       newFieldValues = _.omit(newFieldValues, key);
     }
+
     dispatch(setFieldValues(newFieldValues));
   };
 
@@ -67,7 +67,10 @@ const FilterForms = function () {
           <Form.TextArea
             key={key}
             value={fieldValues[key] ? fieldValues[key] : ''}
-            onChange={(e, d) => onSubmit(key, d.value)}
+            onChange={(e, d) => {
+              e.stopPropagation();
+              onSubmit(key, d.value);
+            }}
             label={key.charAt(0).toUpperCase() + key.slice(1)}
           />
         );
@@ -83,8 +86,7 @@ const FilterForms = function () {
                 locale={navigator.locale}
                 format="YYYY-MM-DD"
                 onChange={(e, d) => {
-                  e.stopPropagation();
-
+                  e && e.stopPropagation();
                   dateFilter('gte', d.value);
                 }}
               />
@@ -97,8 +99,7 @@ const FilterForms = function () {
                 locale={navigator.locale}
                 format="YYYY-MM-DD"
                 onChange={(e, d) => {
-                  e.stopPropagation();
-
+                  e && e.stopPropagation();
                   dateFilter('lte', d.value);
                 }}
               />
@@ -112,7 +113,10 @@ const FilterForms = function () {
             <label>{key.charAt(0).toUpperCase() + key.slice(1)}</label>
             <input
               value={fieldValues[key] ? fieldValues[key] : ''}
-              onChange={(e) => onSubmit(key, e.target.value)}
+              onChange={(e) => {
+                e.stopPropagation();
+                onSubmit(key, e.target.value);
+              }}
             />
           </Form.Field>
         );
@@ -130,7 +134,9 @@ const FilterForms = function () {
         <Button.Group widths={2}>
           <Button
             className="ui red button"
-            onClick={() => dispatch(setFieldValues(null))}
+            onSubmit={(e, d) => {
+              dispatch(setFieldValues(null));
+            }}
           >
             Reset Filters
           </Button>

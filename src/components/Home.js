@@ -14,7 +14,7 @@ import Modal from './modal';
 import history from '../history';
 import TextareaAutosize from 'react-textarea-autosize';
 import QueryHelp from './QueryHelp';
-import { setDocuments, setQueryString } from '../actions';
+import { setDocuments, setQueryString, setLatestQueries } from '../actions';
 
 class Home extends React.Component {
   renderCurrentSetting() {
@@ -216,11 +216,20 @@ class Home extends React.Component {
       )
       .then((res) => {
         this.props.setDocuments(res.data.results);
+        this.addToQueryStrings(this.props.queryString);
         history.push('/query');
       })
       .catch((e) => {
         console.log(e);
       });
+  }
+
+  addToQueryStrings(query) {
+    let queryStrings = [...this.props.latestQueries];
+    if (!queryStrings.includes(query)) {
+      queryStrings.unshift(query);
+    }
+    this.props.setLatestQueries(queryStrings);
   }
 
   renderAmcatLogo() {
@@ -313,7 +322,12 @@ const mapStateToProps = (state) => {
     host: state.amcat.host,
     amcatIndex: state.amcatIndex,
     queryString: state.queryString,
+    latestQueries: state.latestQueries,
   };
 };
 
-export default connect(mapStateToProps, { setDocuments, setQueryString })(Home);
+export default connect(mapStateToProps, {
+  setDocuments,
+  setQueryString,
+  setLatestQueries,
+})(Home);

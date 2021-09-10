@@ -98,11 +98,15 @@ class QueryForm extends React.Component {
   };
 
   addToQueryStrings(query) {
-    let queryStrings = [...this.props.latestQueries];
-    if (!queryStrings.includes(query)) {
-      queryStrings.unshift(query);
+    let testQuery = { queryString: query, filters: this.props.filters };
+    let latestQueries = [...this.props.latestQueries];
+    if (_.some(latestQueries, testQuery)) {
+      _.remove(latestQueries, testQuery);
+      latestQueries.unshift(testQuery);
+    } else {
+      latestQueries = [testQuery, ...latestQueries];
     }
-    this.props.setLatestQueries(queryStrings);
+    this.props.setLatestQueries(latestQueries);
   }
 
   renderIndexSelector() {
@@ -179,21 +183,22 @@ class QueryForm extends React.Component {
       <React.Fragment>
         <h4>Latest Queries:</h4>
         <Button.Group vertical widths={2}>
-          {this.props.latestQueries.map((queryString, idx) => {
-            if (queryString.length < 2 || idx > 4) return null;
+          {this.props.latestQueries.map((query, idx) => {
+            if (query.queryString.length < 2 || idx > 4) return null;
             return (
               <Button
-                key={queryString}
+                key={query.queryString}
                 fluid
                 style={{ marginBottom: '0.5em' }}
                 onClick={async () => {
-                  await this.props.setQueryString(queryString);
+                  await this.props.setQueryString(query.queryString);
                   this.runQuery();
                 }}
               >
-                {queryString.length > 20
-                  ? queryString.slice(0, 17) + '...'
-                  : queryString}
+                <Icon name="filter" />
+                {query.queryString.length > 20
+                  ? query.queryString.slice(0, 17) + '...'
+                  : query.queryString}
               </Button>
             );
           })}

@@ -279,7 +279,6 @@ const SelectionTable = ({
             style={{ marginRight: '30px' }}
             onClick={(e) => {
               prepareDocumentsCVS(documents);
-              console.log(this.props);
               e.stopPropagation();
             }}
           >
