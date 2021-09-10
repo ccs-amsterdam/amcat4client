@@ -46,6 +46,7 @@ class AmcatIndexSelector extends React.Component {
           selectedRow={this.state.selectedAmcatIndex}
           setSelectedRow={(index) => this.props.selectAmcatIndex(index)}
           defaultSize={10}
+          downloadArticleSet={false}
         />
       </Container>
     );

@@ -56,7 +56,6 @@ const App = () => {
 
   return (
     <Router history={history}>
-      {/* rendering the headerMenu items */}
       <HeaderMenu items={items} />
       <Divider />
       <Container style={{ marginTop: '4em' }}>

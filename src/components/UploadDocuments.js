@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { CSVReader } from 'react-papaparse';
-
 import { uploadDocuments } from '../actions';
 import PreviewTable from './PreviewTable';
 import SubmitForm from './submitForm';

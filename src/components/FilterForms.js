@@ -125,7 +125,7 @@ const FilterForms = function () {
   else
     return (
       <React.Fragment>
-        <Form>{renderFields()}</Form>
+        {renderFields()}
         <br />
         <Button.Group widths={2}>
           <Button

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { CSVDownload } from 'react-csv';
+import { selectDocument } from '../actions';
 
 import {
   useTable,
@@ -20,6 +22,7 @@ import {
   Pagination,
   Dropdown,
   Icon,
+  Button,
 } from 'semantic-ui-react';
 
 // Uses react-table with semantic ui. The columns and data arguments are lists of objects
@@ -40,11 +43,19 @@ const SelectionTable = ({
   setSelectedRow,
   defaultSize = 20,
   sizeSelector = false,
+  downloadArticleSet = true,
 }) => {
   const [activeRow, setActiveRow] = useState(
     selectedRow ? selectedRow.ROW_ID : null
   );
+
   const dispatch = useDispatch();
+  const amcat = useSelector((state) => state.amcat);
+  const amcatIndex = useSelector((state) => state.amcatIndex);
+  const document = useSelector((state) => state.document);
+  const [csvDoc, setcsvDoc] = useState(null);
+  const documents = useSelector((state) => state.documents);
+  const [csvDocs, setcsvDocs] = useState(null);
 
   const {
     getTableProps,
@@ -78,6 +89,14 @@ const SelectionTable = ({
     }
   }, [selectedRow, dispatch]);
 
+  useEffect(() => {
+    if (amcat && amcatIndex && document.ORG_ID) {
+      amcat.getDocument(amcatIndex.name, document.ORG_ID).then((res) => {
+        dispatch(selectDocument(res.data));
+      });
+    }
+  }, [amcat, amcatIndex, dispatch, document.ORG_ID]);
+
   const onRowSelect = (row) => {
     if (activeRow && activeRow === row.id) {
       setSelectedRow(null);
@@ -90,6 +109,48 @@ const SelectionTable = ({
       });
       setActiveRow(row.id);
     }
+  };
+
+  const convertToCSV = (arr, multiple = false) => {
+    let array = [];
+    if (multiple) {
+      array = [arr];
+    } else array = [Object.keys(arr)].concat(arr);
+
+    return array
+      .map((it, idx) => {
+        if (idx === 3) {
+          return Object.values(it).toString();
+        } else
+          return Object.entries(it).map((item) => {
+            if (multiple)
+              return ('"' + item[1].replace(/"/g, "'") + '"').replace(
+                /\n/g,
+                ''
+              );
+            else return ('"' + item[1] + '"').replace(/\n/g, '');
+          });
+      })
+      .join('\n');
+  };
+
+  const prepareDocumentCVS = (document) => {
+    setcsvDoc(convertToCSV(document));
+    setTimeout(() => {
+      setcsvDoc(null);
+    }, 100);
+  };
+
+  const prepareDocumentsCVS = (documents) => {
+    const res = [];
+    res.push(Object.values(Object.keys(documents[0])).toString());
+    documents.forEach((doc) => {
+      res.push([convertToCSV(doc, true)]);
+    });
+    setcsvDocs(res.join('\n'));
+    setTimeout(() => {
+      setcsvDocs(null);
+    }, 100);
   };
 
   const createHeader = (headerGroup) => {
@@ -128,16 +189,33 @@ const SelectionTable = ({
               >
                 {cell.render('Cell')}
                 {row.id === activeRow && cell.column.Header === 'Title' ? (
-                  <button
-                    className="ui primary button float left"
-                    style={{ marginLeft: '45px' }}
-                    onClick={(e) => {
-                      history.push('/browseDocument');
-                      e.stopPropagation();
-                    }}
-                  >
-                    Browse!
-                  </button>
+                  <Button.Group floated="right" style={{ marginRight: '20px' }}>
+                    <button
+                      className="ui primary button float left"
+                      onClick={(e) => {
+                        history.push('/browseDocument');
+                        e.stopPropagation();
+                      }}
+                    >
+                      Browse!
+                    </button>
+                    <Button
+                      className="ui primary button float left"
+                      onClick={(e) => {
+                        prepareDocumentCVS(document);
+                        e.stopPropagation();
+                      }}
+                    >
+                      Download
+                    </Button>
+                    {csvDoc != null ? (
+                      <CSVDownload
+                        data={csvDoc}
+                        target="_blank"
+                        filename={'articleSet.csv'}
+                      />
+                    ) : null}
+                  </Button.Group>
                 ) : (
                   ''
                 )}
@@ -195,6 +273,27 @@ const SelectionTable = ({
           justifyContent: 'flex-end',
         }}
       >
+        {downloadArticleSet === true ? (
+          <Button
+            className="ui primary button float left fluid"
+            style={{ marginRight: '30px' }}
+            onClick={(e) => {
+              prepareDocumentsCVS(documents);
+              console.log(this.props);
+              e.stopPropagation();
+            }}
+          >
+            Download Article Set
+          </Button>
+        ) : null}
+
+        {csvDocs != null ? (
+          <CSVDownload
+            data={csvDocs}
+            target="_blank"
+            filename={'articleSet.csv'}
+          />
+        ) : null}
         {data.length > defaultSize ? (
           <Pagination
             style={{ border: '0' }}

@@ -99,7 +99,9 @@ class QueryForm extends React.Component {
 
   addToQueryStrings(query) {
     let queryStrings = [...this.props.latestQueries];
-    queryStrings.unshift(query);
+    if (!queryStrings.includes(query)) {
+      queryStrings.unshift(query);
+    }
     this.props.setLatestQueries(queryStrings);
   }
 
@@ -124,6 +126,7 @@ class QueryForm extends React.Component {
                 onChange={(e) => this.props.setQueryString(e.target.value)}
               />
             </Form>
+
             <Form style={{ marginBottom: '2em' }}>{this.renderFilters()}</Form>
             <Form>
               <Button.Group widths="2">
@@ -180,6 +183,7 @@ class QueryForm extends React.Component {
             if (queryString.length < 2 || idx > 4) return null;
             return (
               <Button
+                key={queryString}
                 fluid
                 style={{ marginBottom: '0.5em' }}
                 onClick={async () => {
