@@ -4,7 +4,12 @@ import TextareaAutosize from 'react-textarea-autosize';
 import _ from 'lodash';
 
 import TimeSeriesPlot from './TimeSeriesPlot';
-import { setDocuments, setQueryString, setLatestQueries } from '../actions';
+import {
+  setDocuments,
+  setQueryString,
+  setLatestQueries,
+  setFieldValues,
+} from '../actions';
 
 import AmcatIndexSelector from './AmcatIndexSelector';
 import DocumentTable from './DocumentTable';
@@ -21,7 +26,6 @@ class QueryForm extends React.Component {
       queryMethod: 'POST',
       accordionActive: false,
     };
-    this.fields = Object.keys(this.props.fields);
   }
 
   prepareFilters() {
@@ -57,8 +61,7 @@ class QueryForm extends React.Component {
           .postQuery(
             this.props.amcatIndex.name,
             this.props.queryString,
-            // this.fields,
-            '',
+            Object.keys(this.props.fields),
             '2m',
             100,
             {},
@@ -78,7 +81,7 @@ class QueryForm extends React.Component {
           .getQuery(
             this.props.amcatIndex.name,
             this.props.queryString,
-            this.fields,
+            Object.keys(this.props.fields),
             '2m',
             100,
             {},
@@ -98,9 +101,21 @@ class QueryForm extends React.Component {
   };
 
   addToQueryStrings(query) {
-    let testQuery = { queryString: query, filters: this.props.filters };
+    let testQuery = {
+      queryString: query,
+      filters: this.props.filters,
+      key: this.props.filters
+        ? this.props.filters.date
+          ? query +
+            '-' +
+            Object.values(this.props.filters.date).join('-') +
+            '-' +
+            Object.values(this.props.filters).join('-')
+          : query + '-' + Object.values(this.props.filters).join('-')
+        : query + '-' + Object.values(this.props.filters).join('-'),
+    };
     let latestQueries = [...this.props.latestQueries];
-    if (_.some(latestQueries, testQuery)) {
+    if (_.some(latestQueries, ['key', testQuery.key])) {
       _.remove(latestQueries, testQuery);
       latestQueries.unshift(testQuery);
     } else {
@@ -187,18 +202,21 @@ class QueryForm extends React.Component {
             if (query.queryString.length < 2 || idx > 4) return null;
             return (
               <Button
-                key={query.queryString}
+                key={query.queryString + Object.values(query.filters).join(',')}
                 fluid
                 style={{ marginBottom: '0.5em' }}
                 onClick={async () => {
                   await this.props.setQueryString(query.queryString);
+                  await this.props.setFieldValues(query.filters);
                   this.runQuery();
                 }}
               >
-                <Icon name="filter" />
-                {query.queryString.length > 20
-                  ? query.queryString.slice(0, 17) + '...'
-                  : query.queryString}
+                {Object.keys(query.filters).length > 0 && (
+                  <Icon name="filter" />
+                )}
+                {query.key.length > 20
+                  ? query.key.slice(0, 17) + '...'
+                  : query.key}
               </Button>
             );
           })}
@@ -260,4 +278,5 @@ export default connect(mapStateToProps, {
   setDocuments,
   setQueryString,
   setLatestQueries,
+  setFieldValues,
 })(QueryForm);

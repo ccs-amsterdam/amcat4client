@@ -45,6 +45,7 @@ class Amcat {
   ) {
     params['scroll'] = scroll; // for scrolling, update with id obtained from results.meta.scroll_id
     params['per_page'] = per_page;
+    console.log(fields.join(','));
     if (fields) params['fields'] = fields.join(',');
     if (q) params['q'] = q;
     if (filters) params = { ...params, ...filters };
