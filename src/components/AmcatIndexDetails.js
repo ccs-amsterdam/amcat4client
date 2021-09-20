@@ -8,10 +8,9 @@ class AmcatIndexDetails extends React.Component {
     return (
       <Container>
         <>
-          <Header textAlign="center">{this.props.amcatIndex.name}</Header>
+          <Header textAlign="left">{this.props.amcatIndex.name}</Header>
           <Message
-            header="I am an Project"
-            content="And here should be some stuff that you can do with an index"
+            content={`You are seeing this project from the host: ${this.props.amcat.host} as the user: ${this.props.amcat.email}`}
           />
         </>
       </Container>
@@ -21,6 +20,7 @@ class AmcatIndexDetails extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
+    amcat: state.amcat,
     amcatIndex: state.amcatIndex,
   };
 };

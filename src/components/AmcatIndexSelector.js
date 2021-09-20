@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Container, Dropdown } from 'semantic-ui-react';
-import { selectAmcatIndex, setAmcatIndices } from '../actions';
+import { selectAmcatIndex, setAmcatIndices, uploadDocuments } from '../actions';
 
 import SelectionTable from './SelectionTable';
 import CreateAmcatIndex from './CreateAmcatIndex';
@@ -44,7 +44,10 @@ class AmcatIndexSelector extends React.Component {
           columns={tableColumns}
           data={this.props.amcatIndices ? this.props.amcatIndices : []}
           selectedRow={this.state.selectedAmcatIndex}
-          setSelectedRow={(index) => this.props.selectAmcatIndex(index)}
+          setSelectedRow={(index) => {
+            this.props.selectAmcatIndex(index);
+            this.props.uploadDocuments([]);
+          }}
           defaultSize={10}
           downloadArticleSet={false}
         />
@@ -110,6 +113,8 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, { selectAmcatIndex, setAmcatIndices })(
-  AmcatIndexSelector
-);
+export default connect(mapStateToProps, {
+  selectAmcatIndex,
+  setAmcatIndices,
+  uploadDocuments,
+})(AmcatIndexSelector);
