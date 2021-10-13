@@ -19,23 +19,23 @@ import DocumentDetail from './components/DocumentDetail';
 // Change to add new components to the header
 // The first item will be the opening page after login
 const items = [
-  { label: 'Home', path: '/home', Component: Home },
+  { label: 'Home', path: './home', Component: Home },
   {
     label: 'Manage Projects',
-    path: '/indices',
+    path: './indices',
     position: 'left',
     Component: Indices,
   },
-  { label: 'Run Queries', path: '/query', Component: Query },
+  { label: 'Run Queries', path: './query', Component: Query },
   // { label: 'Browse Index', path: '/indexDetail', Component: IndexDetail },
   {
     label: 'Browse Document',
-    path: '/browseDocument',
+    path: './browseDocument',
     Component: DocumentDetail,
   },
   {
     label: 'Manage Users and Access',
-    path: '/userManagement',
+    path: './userManagement',
     position: 'right',
     Component: Admin,
   },

@@ -28,7 +28,7 @@ class Home extends React.Component {
       },
       {
         title: 'Role in Project:',
-        path: this.props.amcatIndex ? '/userManagement' : '/indices',
+        path: this.props.amcatIndex ? './userManagement' : '/indices',
         prop: this.props.amcatIndex
           ? `${this.props.amcatIndex.role}`
           : 'No Project Selected',
@@ -88,7 +88,7 @@ class Home extends React.Component {
       },
       {
         title: 'User Management',
-        path: this.props.amcatIndex ? '/userManagement' : '/indices',
+        path: this.props.amcatIndex ? './userManagement' : './indices',
         btnText: this.props.amcatIndex
           ? 'Manage User Access!'
           : 'No Project Selected',

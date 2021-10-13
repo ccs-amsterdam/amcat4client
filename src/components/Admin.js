@@ -50,12 +50,12 @@ class Admin extends React.Component {
       },
       {
         title: 'Current Project:',
-        path: '/indices',
+        path: './indices',
         prop: this.props.amcatIndex.name,
       },
       {
         title: 'Role in Project:',
-        path: '/userManagement',
+        path: './userManagement',
         prop: `${this.props.amcatIndex.role}`,
       },
     ];
