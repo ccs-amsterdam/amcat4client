@@ -21,21 +21,21 @@ class Home extends React.Component {
     const currentSetting = [
       {
         title: 'Current Project:',
-        path: '/indices',
+        path: './indices',
         prop: this.props.amcatIndex
           ? this.props.amcatIndex.name
           : 'No Project Selected!',
       },
       {
         title: 'Role in Project:',
-        path: this.props.amcatIndex ? './userManagement' : '/indices',
+        path: this.props.amcatIndex ? './userManagement' : './indices',
         prop: this.props.amcatIndex
           ? `${this.props.amcatIndex.role}`
           : 'No Project Selected',
       },
       {
         title: 'Last Query:',
-        path: '/query',
+        path: './query',
         prop: this.props.queryString
           ? this.props.queryString
           : 'No Previous Queries',
@@ -73,17 +73,17 @@ class Home extends React.Component {
     const corefuncs = [
       {
         title: 'Select Project:',
-        path: '/indices',
+        path: './indices',
         btnText: 'Manage Project!',
       },
       {
         title: 'Upload Documents:',
-        path: '/indices',
+        path: './indices',
         btnText: 'Manage Documents!',
       },
       {
         title: 'Run Queries:',
-        path: '/query',
+        path: './query',
         btnText: 'Run Queries',
       },
       {
