@@ -5,7 +5,7 @@ import { Divider, Container } from 'semantic-ui-react';
 import history from './history';
 
 // login and authenticated route
-import AmcatLogin from './components/AmcatLogin';
+import LoginScreen from './components/LoginScreen';
 import AuthRoute from './components/AuthRoute';
 
 // Main pages. Use below in items to include in header menu
@@ -61,7 +61,7 @@ const App = () => {
       <Divider />
       <Container style={{ marginTop: '4em' }}>
         <Switch>
-          <Route exact path="/" render={() => <AmcatLogin items={items} />} />
+          <Route exact path="/" render={() => <LoginScreen items={items} />} />
           {createNavigation(items)}
         </Switch>
       </Container>
