@@ -8,7 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "amcat4api": "^0.1.3",
     "array-move": "^3.0.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "lodash": "^4.17.21",
     "plotly.js": "^1.58.4",
     "react": "^17.0.1",
