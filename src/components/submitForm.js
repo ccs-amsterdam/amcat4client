@@ -28,9 +28,6 @@ const SubmitForm = ({ data, amcatIndex, fileRef }) => {
     setDateField(data[0].data.includes('date') ? 'date' : null);
     setTitleField(data[0].data.includes('title') ? 'title' : null);
     setTextField(data[0].data.includes('text') ? 'text' : null);
-    setAnnotationsField(
-      data[0].data.includes('annotations') ? 'annotations' : null
-    );
   }, [data]);
 
   const csvToJson = (data, titleField, textField, annotationsField) => {
@@ -45,8 +42,6 @@ const SubmitForm = ({ data, amcatIndex, fileRef }) => {
             obj['title'] = value;
           } else if (key === textField) {
             obj['text'] = value;
-          } else if (key === annotationsField) {
-            obj['annotations'] = value;
           } else {
             obj['meta'][key] = value;
           }
