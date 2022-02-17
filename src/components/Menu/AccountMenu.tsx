@@ -9,6 +9,7 @@ import {
   setIndex,
   setLogin,
 } from "./LoginSlice";
+import { addIndexToHistory, selectIndexHistory } from "./RecentIndicesSlice";
 
 export default function AccountMenu() {
   const [loginOpen, setLoginOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function AccountMenu() {
 
   const user = useAppSelector(selectAmcatUser);
   const index = useAppSelector(selectIndex);
+  const history = useAppSelector(selectIndexHistory);
 
   const dispatch = useAppDispatch();
 
@@ -28,21 +30,33 @@ export default function AccountMenu() {
   const handleSelectIndex = (index: AmcatIndex) => {
     setIndexOpen(false);
     dispatch(setIndex(index));
+    dispatch(addIndexToHistory(index));
   };
+
   return (
     <>
       {user != null ? (
         <Dropdown item text="Account">
           <Dropdown.Menu>
             <Menu.Item disabled>
-              Loggin in as <br />
+              Signed in as <br />
               <b>{user.email}</b>
             </Menu.Item>
-            <Menu.Item onClick={() => dispatch(logout())}>Log out</Menu.Item>
+            <Menu.Item onClick={() => dispatch(logout())}>Sign out</Menu.Item>
+            {history.length == 0 ? null : (
+              <>
+                <Dropdown.Divider />
+                {history.map((ix, i) => (
+                  <Menu.Item key={i}>
+                    {ix.index} ({ix.email}@{ix.host.replace(/https?:\/\//, "")})
+                  </Menu.Item>
+                ))}
+              </>
+            )}
           </Dropdown.Menu>
         </Dropdown>
       ) : (
-        <Menu.Item onClick={() => setLoginOpen(true)}>Login</Menu.Item>
+        <Menu.Item onClick={() => setLoginOpen(true)}>Sign in</Menu.Item>
       )}
       <Modal open={loginOpen} onClose={() => setLoginOpen(false)}>
         <Modal.Content>
