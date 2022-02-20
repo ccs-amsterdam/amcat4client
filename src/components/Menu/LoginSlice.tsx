@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { AmcatUser } from "amcat4react";
+import { Amcat, AmcatUser } from "amcat4react";
 import { AmcatIndex } from "amcat4react";
 
 const STORE_KEY = "amcat4client_login";
@@ -8,7 +8,8 @@ const STORE_KEY = "amcat4client_login";
 function read_localstorage(): Partial<AmcatIndex> {
   const x = localStorage.getItem(STORE_KEY);
   if (x == null) return {};
-  return JSON.parse(x);
+  const index = JSON.parse(x);
+  return index;
 }
 function write_localstorage(index: Partial<AmcatIndex>) {
   localStorage.setItem(STORE_KEY, JSON.stringify(index));

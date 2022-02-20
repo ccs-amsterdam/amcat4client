@@ -33,6 +33,23 @@ export default function AccountMenu() {
     dispatch(addIndexToHistory(index));
   };
 
+  useEffect(() => {
+    // On starting the app, try to refresh the token and update or log out as needed
+    // WvA Is this the best way of doing this? i.e. with a []-dependent useEffect?
+    if (user?.host && user?.email && user?.token) {
+      Amcat.refreshToken(user)
+        .then((d) => {
+          if (index?.index)
+            dispatch(setIndex({ ...index, token: d.data.token }));
+          else dispatch(setLogin({ ...user, token: d.data.token }));
+        })
+        .catch((e) => {
+          console.error("Error on refreshing token, logging out");
+          dispatch(logout());
+        });
+    }
+  }, []);
+
   return (
     <>
       {user != null ? (

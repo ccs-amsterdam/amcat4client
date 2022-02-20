@@ -7,10 +7,12 @@ export default function Summary() {
   const index = useAppSelector(selectIndex);
   const query = useAppSelector(selectQuery);
   if (index == null) return null;
-  const options = {
+  const options: AggregationOptions = {
     display: "linechart",
     axes: [{ field: "date", interval: "week" }],
   };
+  if (query?.queries && query.queries.length > 1)
+    options.axes.push({ field: "_query" });
   return (
     <>
       <AggregateResult

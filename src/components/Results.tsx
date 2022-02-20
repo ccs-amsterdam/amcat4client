@@ -26,7 +26,7 @@ export default function Results() {
 
   return (
     <>
-      <Menu attached="top" tabular style={{ marginBottom: "1em" }}>
+      <Menu pointing secondary style={{ marginBottom: "1em" }}>
         {items.map((name, i) => (
           <Menu.Item
             key={i}
