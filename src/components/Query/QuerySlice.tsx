@@ -1,7 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { Amcat, AmcatQuery, AmcatUser } from "amcat4react";
-import { AmcatIndex } from "amcat4react";
+import { AmcatQuery } from "amcat4react";
 
 const initialState: AmcatQuery = {};
 

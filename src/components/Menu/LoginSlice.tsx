@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { Amcat, AmcatUser } from "amcat4react";
+import { AmcatUser } from "amcat4react";
 import { AmcatIndex } from "amcat4react";
 
 const STORE_KEY = "amcat4client_login";

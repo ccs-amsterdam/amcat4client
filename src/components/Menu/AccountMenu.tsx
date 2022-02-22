@@ -60,7 +60,7 @@ export default function AccountMenu() {
               <b>{user.email}</b>
             </Menu.Item>
             <Menu.Item onClick={() => dispatch(logout())}>Sign out</Menu.Item>
-            {history.length == 0 ? null : (
+            {history.length === 0 ? null : (
               <>
                 <Dropdown.Divider />
                 {history.map((ix, i) => (
@@ -121,7 +121,7 @@ export function useIndexList(user?: AmcatUser): Index[] | undefined {
 
 function IndexPicker({ user, value, onChange }: IndexPickerProps) {
   const indices = useIndexList(user);
-  if (indices == null || indices.length == 0) return null;
+  if (indices == null || indices.length === 0) return null;
   const options = indices.map((ix, i) => ({
     key: ix.name,
     value: ix.name,
