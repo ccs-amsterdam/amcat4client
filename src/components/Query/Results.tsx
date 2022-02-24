@@ -1,9 +1,9 @@
 import { AggregatePane, Articles } from "amcat4react";
 import { useState } from "react";
 import { Menu } from "semantic-ui-react";
-import { useAppSelector } from "./app/hooks";
-import { selectIndex } from "./Menu/LoginSlice";
-import { selectQuery } from "./Query/QuerySlice";
+import { useAppSelector } from "../app/hooks";
+import { selectIndex } from "../Menu/LoginSlice";
+import { selectQuery } from "./QuerySlice";
 import Summary from "./Summary";
 
 export default function Results() {

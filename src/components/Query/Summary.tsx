@@ -7,9 +7,9 @@ import {
 } from "amcat4react";
 import { useEffect, useState } from "react";
 import { Grid, Header } from "semantic-ui-react";
-import { useAppSelector } from "./app/hooks";
-import { selectIndex } from "./Menu/LoginSlice";
-import { selectQuery } from "./Query/QuerySlice";
+import { useAppSelector } from "../app/hooks";
+import { selectIndex } from "../Menu/LoginSlice";
+import { selectQuery } from "./QuerySlice";
 
 type Metric = { n: number; min_date: string; max_date: string };
 
