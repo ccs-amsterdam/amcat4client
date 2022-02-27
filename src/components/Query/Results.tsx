@@ -3,8 +3,10 @@ import { useState } from "react";
 import { Menu } from "semantic-ui-react";
 import { useAppSelector } from "../app/hooks";
 import { selectIndex } from "../Menu/LoginSlice";
+import Aggregation from "../Aggregate/AggregateResultOptions";
 import { selectQuery } from "./QuerySlice";
 import Summary from "./Summary";
+import AggregateResultPanel from "../Aggregate/AggregateResultPanel";
 
 export default function Results() {
   const index = useAppSelector(selectIndex);
@@ -20,7 +22,7 @@ export default function Results() {
       case "Articles":
         return <Articles index={index} query={query} />;
       case "Graph/Table":
-        return <AggregatePane index={index} query={query} />;
+        return <AggregateResultPanel />;
     }
   };
 

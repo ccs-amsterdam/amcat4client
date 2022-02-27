@@ -54,7 +54,7 @@ export default function Summary() {
     options.axes?.push({ field: "_query" });
 
   return (
-    <Grid textAlign="left">
+    <Grid textAlign="left" stackable reversed="mobile">
       <Grid.Column width={10}>
         <Articles
           index={index}

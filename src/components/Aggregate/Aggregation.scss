@@ -1,0 +1,17 @@
+.aggregateoptionsrow {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1em;
+  margin-bottom: 0.5em;
+}
+
+.aggregateoptions .label {
+  flex: 0 0 10em;
+}
+.aggregateoptions .option {
+  flex: 0 0 auto;
+}
+
+.aggregateoptions .option button {
+  width: 10em;
+}
