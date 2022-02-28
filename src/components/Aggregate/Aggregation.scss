@@ -1,7 +1,11 @@
+$gap: 0.5em;
+$mobile: 480px;
+
 .aggregateoptionsrow {
   display: flex;
   justify-content: flex-start;
-  gap: 1em;
+  align-items: center;
+  gap: $gap;
   margin-bottom: 0.5em;
 }
 
@@ -9,9 +13,34 @@
   flex: 0 0 10em;
 }
 .aggregateoptions .option {
-  flex: 0 0 auto;
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: $gap;
+}
+.aggregateoptions .option .dropdown {
+  flex: 1;
 }
 
 .aggregateoptions .option button {
   width: 10em;
+}
+
+@media screen and (max-width: $mobile) {
+  .aggregateoptionsrow {
+    flex-direction: column;
+  }
+  .aggregateoptions .option {
+    flex-direction: column;
+  }
+  .aggregateoptions .option .buttons {
+    flex-direction: column;
+  }
+  .aggregateoptions .option .buttons .or {
+    display: none;
+  }
+  .aggregateoptions .label {
+    flex: 0 0 auto;
+  }
 }
