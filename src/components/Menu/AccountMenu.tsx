@@ -53,7 +53,7 @@ export default function AccountMenu() {
   return (
     <>
       {user != null ? (
-        <Dropdown item text="Account">
+        <Dropdown item text={`${user.email}@${new URL(user.host).hostname}`}>
           <Dropdown.Menu>
             <Menu.Item disabled>
               Signed in as <br />

@@ -11,7 +11,7 @@ export default function IndexMenu() {
 
   if (user == null) return null;
   return (
-    <Dropdown item text="Index">
+    <Dropdown item text={index?.index}>
       <Dropdown.Menu>
         <Menu.Item disabled>
           {index == null ? (

@@ -1,11 +1,17 @@
-import { AggregationAxis, AggregationInterval, Amcat } from "amcat4react";
+import {
+  AggregationAxis,
+  AggregationInterval,
+  Amcat,
+  AggregationMetric,
+} from "amcat4react";
 import { getField } from "amcat4react/dist/Amcat";
-import { DisplayOption } from "amcat4react/dist/interfaces";
+import { DisplayOption, MetricFunction } from "amcat4react/dist/interfaces";
 import React, { useState } from "react";
-import { Button, Dropdown, Icon } from "semantic-ui-react";
+import { Button, Dropdown, Form, Icon } from "semantic-ui-react";
 import { SemanticICONS } from "semantic-ui-react/dist/commonjs/generic";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { selectIndex } from "../Menu/LoginSlice";
+import { selectQuery } from "../Query/QuerySlice";
 import { selectOptions, setAggregationOptions } from "./AggregateSlice";
 import "./Aggregation.scss";
 
@@ -20,6 +26,16 @@ const DISPLAY: {
   { value: "barchart", text: "Bar Chart", icon: "chart bar" },
   { value: "list", text: "List", icon: "list layout" },
 ];
+
+const aggregation_labels = {
+  list: ["Group results by", "And then by", "Maximum number of rows"],
+  linechart: [
+    "Horizontal (X) axis",
+    "Multiple lines",
+    "Maximum number of lines",
+  ],
+  barchart: ["Create bars for", "Cluster bars by", "Maximum number of bars"],
+};
 
 export default function AggregateResultOptions() {
   const reduxOptions = useAppSelector(selectOptions) || {};
@@ -37,7 +53,7 @@ export default function AggregateResultOptions() {
   function submit() {
     if (options != null) dispatch(setAggregationOptions(options));
   }
-
+  const labels = aggregation_labels[options.display];
   const displayoptions = DISPLAY.map((d, i) => (
     <React.Fragment key={d.value}>
       {i === 0 ? null : <Button.Or key={"or_" + d.value} />}
@@ -63,7 +79,21 @@ export default function AggregateResultOptions() {
         </div>
       </div>
       <div className="aggregateoptionsrow">
-        <div className="label">Primary axis</div>
+        <div className="label">Aggregation</div>
+        <div className="option">
+          <MetricPicker
+            value={options.metrics?.[0]}
+            onChange={(newval) =>
+              setOptions({
+                ...options,
+                metrics: newval == null ? undefined : [newval],
+              })
+            }
+          />
+        </div>
+      </div>
+      <div className="aggregateoptionsrow">
+        <div className="label">{labels[0]}</div>
         <div className="option">
           <AxisPicker
             value={options.axes?.[0]}
@@ -72,7 +102,7 @@ export default function AggregateResultOptions() {
         </div>
       </div>
       <div className="aggregateoptionsrow">
-        <div className="label">Secondary axis</div>
+        <div className="label">{labels[1]}</div>
         <div className="option">
           <AxisPicker
             value={options.axes?.[1]}
@@ -89,6 +119,67 @@ export default function AggregateResultOptions() {
   );
 }
 
+interface MetricPickerProps {
+  value?: AggregationMetric;
+  onChange: (value?: AggregationMetric) => void;
+}
+function MetricPicker({ value, onChange }: MetricPickerProps) {
+  const index = useAppSelector(selectIndex);
+  const fields = Amcat.useFields(index);
+  if (fields == null) return null;
+  const metricFieldOptions = fields
+    .filter((f) => ["date", "double", "long"].includes(f.type))
+    .map((f) => ({
+      key: f.name,
+      text: f.name,
+      value: f.name,
+      icon: f.type === "date" ? "calendar outline" : "sort numeric down",
+    }));
+
+  const metricFunctionOptions = ["avg", "min", "max", "sum"].map((f) => ({
+    key: f,
+    text: f,
+    value: f,
+  }));
+  metricFunctionOptions.unshift({
+    key: "_total",
+    text: "Total count",
+    value: "_total",
+  });
+  function setFunction(newval: string) {
+    if (newval == "_total") return onChange(undefined);
+    const result = { ...value, function: newval as MetricFunction };
+    result.field ??= metricFieldOptions[0].value;
+    onChange(result as AggregationMetric);
+  }
+  function setField(newval: string) {
+    if (value != null) onChange({ ...value, field: newval });
+  }
+  return (
+    <>
+      <Dropdown
+        placeholder="Aggregation function"
+        selection
+        options={metricFunctionOptions}
+        label="Aggregation"
+        value={value?.function || "_total"}
+        onChange={(_e, { value }) => setFunction(value as string)}
+      />
+      {value?.function == null ? null : (
+        <>
+          <div className="midlabel">Field</div>
+          <Dropdown
+            placeholder="Aggregation field"
+            selection
+            options={metricFieldOptions}
+            value={value?.field}
+            onChange={(_e, { value }) => setField(value as string)}
+          />
+        </>
+      )}
+    </>
+  );
+}
 interface AxisPickerProps {
   value?: AggregationAxis;
   onChange: (value?: AggregationAxis) => void;
@@ -96,6 +187,7 @@ interface AxisPickerProps {
 }
 function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
   const index = useAppSelector(selectIndex);
+  const query = useAppSelector(selectQuery);
   const fields = Amcat.useFields(index);
   const axes = useAppSelector(selectOptions).axes || [];
 
@@ -112,13 +204,21 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
       key: f.name,
       icon: Amcat.getFieldTypeIcon(f.type),
     }));
-
+  console.log(JSON.stringify(query));
+  if (query.queries && query.queries.length > 1) {
+    fieldoptions.unshift({
+      text: "By query",
+      value: "_query",
+      key: "_query",
+      icon: "text cursor",
+    });
+  }
   function setField(field: string) {
     if (field == null) {
       onChange(undefined);
     } else {
       const result: AggregationAxis = { ...value, field: field };
-      const ftype = getField(fields, field).type;
+      const ftype = field == "_query" ? "_query" : getField(fields, field).type;
       result.field = field;
       if (ftype !== "date") delete result.interval;
       else if (result.interval == null) result.interval = "day";
@@ -146,7 +246,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
       />
       {!intervaloptions ? null : (
         <React.Fragment>
-          interval:{" "}
+          <div className="midlabel">Interval:</div>
           <Dropdown
             selection
             options={intervaloptions}

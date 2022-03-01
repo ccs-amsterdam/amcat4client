@@ -23,6 +23,9 @@ $mobile: 480px;
   flex: 1;
 }
 
+.aggregateoptions .option .midlabel {
+  flex-basis: 5em;
+}
 .aggregateoptions .option button {
   width: 10em;
 }
@@ -40,6 +43,19 @@ $mobile: 480px;
   .aggregateoptions .option .buttons .or {
     display: none;
   }
+  // swap horizontal attach look for vertical
+  .aggregateoptions .buttons .button {
+    border-radius: 0px !important;
+  }
+  .aggregateoptions .buttons .button:first-child {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+  }
+  .aggregateoptions .buttons .button:last-child {
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+  }
+
   .aggregateoptions .label {
     flex: 0 0 auto;
   }
