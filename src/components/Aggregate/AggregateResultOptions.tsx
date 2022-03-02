@@ -45,6 +45,7 @@ export default function AggregateResultOptions() {
     setOptions({ ...options, display: value });
   }
   function setAxis(i: number, newval?: AggregationAxis) {
+    console.log(newval);
     const axes = options.axes == null ? [] : [...options.axes];
     if (newval == null) axes.splice(i, 1);
     else axes[i] = newval;
@@ -204,7 +205,6 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
       key: f.name,
       icon: Amcat.getFieldTypeIcon(f.type),
     }));
-  console.log(JSON.stringify(query));
   if (query.queries && query.queries.length > 1) {
     fieldoptions.unshift({
       text: "By query",
@@ -214,7 +214,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
     });
   }
   function setField(field: string) {
-    if (field == null) {
+    if (field == null || field === "") {
       onChange(undefined);
     } else {
       const result: AggregationAxis = { ...value, field: field };
