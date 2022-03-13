@@ -25,10 +25,12 @@ const DISPLAY: {
   { value: "linechart", text: "Line Graph", icon: "line graph" },
   { value: "barchart", text: "Bar Chart", icon: "chart bar" },
   { value: "list", text: "List", icon: "list layout" },
+  { value: "table", text: "Table", icon: "table" },
 ];
 
 const aggregation_labels = {
   list: ["Group results by", "And then by", "Maximum number of rows"],
+  table: ["Rows", "Columns", "(not used)"],
   linechart: [
     "Horizontal (X) axis",
     "Multiple lines",
