@@ -9,5 +9,16 @@ export default function AggregateResultConnector() {
   const options = useAppSelector(selectOptions);
   const index = useAppSelector(selectIndex);
   if (index == null) return null;
-  return <AggregateResult index={index} options={options} query={query} />;
+  return (
+    <div
+      style={{
+        width: "100%",
+        maxHeight: "800px",
+        overflowX: "auto",
+        overflowY: "auto",
+      }}
+    >
+      <AggregateResult index={index} options={options} query={query} />
+    </div>
+  );
 }
