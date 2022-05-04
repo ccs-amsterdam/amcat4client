@@ -15,7 +15,7 @@ import { selectQuery } from "../Query/QuerySlice";
 import { selectOptions, setAggregationOptions } from "./AggregateSlice";
 import "./Aggregation.scss";
 
-const INTERVALS = ["day", "week", "month", "quarter", "year"];
+const INTERVALS = ["day", "week", "month", "quarter", "year", "daypart", "dayofweek"];
 
 const DISPLAY: {
   value: DisplayOption;
