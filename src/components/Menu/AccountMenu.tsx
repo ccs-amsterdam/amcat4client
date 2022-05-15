@@ -40,8 +40,8 @@ export default function AccountMenu() {
       Amcat.refreshToken(user)
         .then((d) => {
           if (index?.index)
-            dispatch(setIndex({ ...index, token: d.data.token }));
-          else dispatch(setLogin({ ...user, token: d.data.token }));
+            dispatch(setIndex({ ...index, token: d.data.access_token }));
+          else dispatch(setLogin({ ...user, token: d.data.access_token }));
         })
         .catch((e) => {
           console.error("Error on refreshing token, logging out");
