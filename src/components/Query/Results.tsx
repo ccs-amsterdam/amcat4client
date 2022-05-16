@@ -1,12 +1,11 @@
-import { AggregatePane, Articles, LocationPane } from "amcat4react";
+import { Articles, LocationPane } from "amcat4react";
 import { useState } from "react";
 import { Menu } from "semantic-ui-react";
+import AggregateResultPanel from "../Aggregate/AggregateResultPanel";
 import { useAppSelector } from "../app/hooks";
 import { selectIndex } from "../Menu/LoginSlice";
-import Aggregation from "../Aggregate/AggregateResultOptions";
 import { selectQuery } from "./QuerySlice";
 import Summary from "./Summary";
-import AggregateResultPanel from "../Aggregate/AggregateResultPanel";
 
 export default function Results() {
   const index = useAppSelector(selectIndex);
