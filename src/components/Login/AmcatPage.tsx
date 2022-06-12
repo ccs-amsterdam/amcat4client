@@ -29,6 +29,7 @@ export default function AmcatPage() {
   useEffect(() => {
     if (loading) return;
     if (host == null) {
+      console.log("logging out");
       if (user != null) dispatch(logout);
     } else if (user?.host !== host) {
       const u = getUserFromHistory(host);

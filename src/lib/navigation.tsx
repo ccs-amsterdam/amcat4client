@@ -1,11 +1,11 @@
-import { AmcatIndex, AmcatUser } from "amcat4react";
+import { AmcatIndex } from "amcat4react";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "../components/app/hooks";
 import { selectAmcatUser } from "../components/Menu/LoginSlice";
 
-export function link_index(u: AmcatUser, ix: string) {
-  return `${link_host(u.host)}/${ix}`;
+export function link_index(ix: AmcatIndex) {
+  return `${link_host(ix.host)}/${ix.index}`;
 }
 
 export function link_host(host: string) {
@@ -13,7 +13,7 @@ export function link_host(host: string) {
 }
 
 export function link_doc(ix: AmcatIndex, docid: string) {
-  return `${link_index(ix, ix.index)}/doc/${docid}`;
+  return `${link_index(ix)}/doc/${docid}`;
 }
 
 export function useIndex(): AmcatIndex | undefined {

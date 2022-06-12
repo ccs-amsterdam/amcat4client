@@ -1,27 +1,28 @@
-import { useState } from "react";
+import { AmcatUser, LoginForm } from "amcat4react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Header, Input, List } from "semantic-ui-react";
+import { Header, List } from "semantic-ui-react";
 import { getUsersFromHistory } from "../../lib/login";
+import { link_host } from "../../lib/navigation";
+import { useAppDispatch } from "../app/hooks";
+import { setLogin } from "../Menu/LoginSlice";
 
 export default function LoginPage() {
-  const [hostname, setHostname] = useState("");
   const history = getUsersFromHistory();
   let navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const link = (host: string) =>
     `/x/${encodeURIComponent(host.replace(/^https:\/\//, ""))}`;
-
+  const handleLogin = (u: AmcatUser) => {
+    dispatch(setLogin(u));
+    navigate(link_host(u.host));
+  };
   return (
     <>
       <Header>Welcome to AmCAT</Header>
       <Header as="h3">Login to an AmCAT server:</Header>
-      <Form onSubmit={() => navigate(link(hostname))}>
-        <Input
-          value={hostname}
-          onChange={(e) => setHostname(e.target.value)}
-          placeholder="https://server.example.com"
-        ></Input>
-      </Form>
+      <LoginForm onLogin={handleLogin} />
+
       {history.length === 0 ? null : (
         <>
           <Header as="h3">Recent logins:</Header>

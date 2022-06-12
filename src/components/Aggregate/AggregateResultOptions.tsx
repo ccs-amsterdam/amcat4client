@@ -9,8 +9,8 @@ import { DisplayOption, MetricFunction } from "amcat4react/dist/interfaces";
 import React, { useState } from "react";
 import { Button, Dropdown, Icon } from "semantic-ui-react";
 import { SemanticICONS } from "semantic-ui-react/dist/commonjs/generic";
+import { useIndex } from "../../lib/navigation";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { selectIndex } from "../Menu/LoginSlice";
 import { selectQuery } from "../Query/QuerySlice";
 import { selectOptions, setAggregationOptions } from "./AggregateSlice";
 import "./Aggregation.scss";
@@ -135,7 +135,7 @@ interface MetricPickerProps {
   onChange: (value?: AggregationMetric) => void;
 }
 function MetricPicker({ value, onChange }: MetricPickerProps) {
-  const index = useAppSelector(selectIndex);
+  const index = useIndex();
   const fields = Amcat.useFields(index);
   if (fields == null) return null;
   const metricFieldOptions = fields
@@ -197,7 +197,7 @@ interface AxisPickerProps {
   clearable?: boolean;
 }
 function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
-  const index = useAppSelector(selectIndex);
+  const index = useIndex();
   const query = useAppSelector(selectQuery);
   const fields = Amcat.useFields(index);
   const axes = useAppSelector(selectOptions).axes || [];

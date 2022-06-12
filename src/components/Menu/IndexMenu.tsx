@@ -1,18 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import { Dropdown, Menu } from "semantic-ui-react";
-import { useIndex } from "../../lib/navigation";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { useIndexList } from "./AccountMenu";
-import { selectAmcatUser, setIndexName } from "./LoginSlice";
+import { useIndexList } from "../../lib/login";
+import { link_index, useIndex } from "../../lib/navigation";
+import { useAppSelector } from "../app/hooks";
+import { selectAmcatUser } from "./LoginSlice";
 
 export default function IndexMenu() {
   const user = useAppSelector(selectAmcatUser);
   const index = useIndex();
   const indices = useIndexList(user);
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   if (user == null) return null;
   return (
-    <Dropdown item text={index?.index}>
+    <Dropdown item text={`⛃ ${index?.index || "(select index)"}`}>
       <Dropdown.Menu>
         <Menu.Item disabled>
           {index == null ? (
@@ -30,7 +31,9 @@ export default function IndexMenu() {
           : indices.map((index, i) => (
               <Menu.Item
                 key={i}
-                onClick={() => dispatch(setIndexName(index.name))}
+                onClick={() =>
+                  navigate(link_index({ index: index.name, ...user }))
+                }
               >
                 {index.name}
               </Menu.Item>

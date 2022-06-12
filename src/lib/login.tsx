@@ -1,4 +1,6 @@
-import { AmcatUser } from "amcat4react";
+import { Amcat, AmcatIndex, AmcatUser } from "amcat4react";
+import Axios from "axios";
+import { useEffect, useState } from "react";
 
 interface HistoryUser extends AmcatUser {
   last_used: Date;
@@ -24,4 +26,34 @@ export function addUserToHistory(user: AmcatUser) {
   const users = getUsersFromHistory().filter((u) => u.host !== user.host);
   const history = [{ ...user, last_used: new Date().toISOString() }, ...users];
   localStorage.setItem(STORE_KEY, JSON.stringify(history));
+}
+
+export interface Index {
+  name: string;
+  role: string;
+}
+export function useIndexList(user?: AmcatUser): Index[] | undefined {
+  const [indices, setIndices] = useState<Index[]>();
+  useEffect(() => {
+    if (user == null) return;
+    Amcat.getIndices(user)
+      .then((data) => setIndices(data.data))
+      .catch((error) => {
+        console.error(error);
+        setIndices(undefined);
+      });
+  }, [user, setIndices]);
+  return indices;
+}
+
+// TODO: these belong in amcat4react but easier to test here. I think.
+function api(index: AmcatIndex) {
+  return Axios.create({
+    baseURL: `${index.host}/index/${index.index}`,
+    headers: { Authorization: `Bearer ${index.token}` },
+  });
+}
+export function setField(index: AmcatIndex, field: string, type: any) {
+  const body = { [field]: type };
+  return api(index).post(`fields`, body);
 }
