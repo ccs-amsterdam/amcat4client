@@ -1,13 +1,13 @@
 import {
   AggregationAxis,
   AggregationInterval,
-  Amcat,
   AggregationMetric,
+  Amcat,
 } from "amcat4react";
 import { getField } from "amcat4react/dist/Amcat";
 import { DisplayOption, MetricFunction } from "amcat4react/dist/interfaces";
 import React, { useState } from "react";
-import { Button, Dropdown, Form, Icon } from "semantic-ui-react";
+import { Button, Dropdown, Icon } from "semantic-ui-react";
 import { SemanticICONS } from "semantic-ui-react/dist/commonjs/generic";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import { selectIndex } from "../Menu/LoginSlice";
@@ -15,7 +15,15 @@ import { selectQuery } from "../Query/QuerySlice";
 import { selectOptions, setAggregationOptions } from "./AggregateSlice";
 import "./Aggregation.scss";
 
-const INTERVALS = ["day", "week", "month", "quarter", "year", "daypart", "dayofweek"];
+const INTERVALS = [
+  "day",
+  "week",
+  "month",
+  "quarter",
+  "year",
+  "daypart",
+  "dayofweek",
+];
 
 const DISPLAY: {
   value: DisplayOption;
@@ -150,7 +158,7 @@ function MetricPicker({ value, onChange }: MetricPickerProps) {
     value: "_total",
   });
   function setFunction(newval: string) {
-    if (newval == "_total") return onChange(undefined);
+    if (newval === "_total") return onChange(undefined);
     const result = { ...value, function: newval as MetricFunction };
     result.field ??= metricFieldOptions[0].value;
     onChange(result as AggregationMetric);
@@ -220,7 +228,8 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
       onChange(undefined);
     } else {
       const result: AggregationAxis = { ...value, field: field };
-      const ftype = field == "_query" ? "_query" : getField(fields, field).type;
+      const ftype =
+        field === "_query" ? "_query" : getField(fields, field).type;
       result.field = field;
       if (ftype !== "date") delete result.interval;
       else if (result.interval == null) result.interval = "day";

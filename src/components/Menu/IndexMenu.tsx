@@ -1,11 +1,12 @@
 import { Dropdown, Menu } from "semantic-ui-react";
+import { useIndex } from "../../lib/navigation";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { selectAmcatUser, selectIndex, setIndexName } from "./LoginSlice";
 import { useIndexList } from "./AccountMenu";
+import { selectAmcatUser, setIndexName } from "./LoginSlice";
 
 export default function IndexMenu() {
   const user = useAppSelector(selectAmcatUser);
-  const index = useAppSelector(selectIndex);
+  const index = useIndex();
   const indices = useIndexList(user);
   const dispatch = useAppDispatch();
 

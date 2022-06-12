@@ -7,14 +7,14 @@ import {
 } from "amcat4react";
 import { useEffect, useState } from "react";
 import { Grid, Header } from "semantic-ui-react";
+import { useIndex } from "../../lib/navigation";
 import { useAppSelector } from "../app/hooks";
-import { selectIndex } from "../Menu/LoginSlice";
 import { selectQuery } from "./QuerySlice";
 
 type Metric = { n: number; min_date: string; max_date: string };
 
 export default function Summary() {
-  const index = useAppSelector(selectIndex);
+  const index = useIndex();
   const query = useAppSelector(selectQuery);
   const [metrics, setMetrics] = useState<Metric>();
   useEffect(() => {
