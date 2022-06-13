@@ -3,20 +3,24 @@ import {
   AggregationInterval,
   AggregationOptions,
   Amcat,
+  ArticleModal,
   Articles,
 } from "amcat4react";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Grid, Header } from "semantic-ui-react";
-import { useIndex } from "../../lib/navigation";
+import { link_doc, useIndex } from "../../lib/navigation";
 import { useAppSelector } from "../app/hooks";
 import { selectQuery } from "./QuerySlice";
 
 type Metric = { n: number; min_date: string; max_date: string };
 
 export default function Summary() {
+  const [id, setId] = useState<string>();
   const index = useIndex();
   const query = useAppSelector(selectQuery);
   const [metrics, setMetrics] = useState<Metric>();
+  const path = useLocation().pathname;
   useEffect(() => {
     if (index == null) return;
     Amcat.postAggregate(index, query, {
@@ -62,7 +66,17 @@ export default function Summary() {
           asSnippets
           allColumns={false}
           perPage={10}
+          onClick={(row) => setId(row._id)}
         />
+        {id == null ? null : (
+          <ArticleModal
+            index={index}
+            query={query}
+            id={id}
+            link={window.location.href.replace(path, link_doc(index, id))}
+            changeArticle={(x) => setId(x as any)}
+          />
+        )}
       </Grid.Column>
       <Grid.Column width={6}>
         {metrics == null ? null : (
