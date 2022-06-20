@@ -56,7 +56,6 @@ export default function Summary() {
   };
   if (query?.queries && query.queries.length > 1)
     options.axes?.push({ field: "_query" });
-
   return (
     <Grid textAlign="left" stackable reversed="mobile">
       <Grid.Column width={10}>
@@ -81,8 +80,8 @@ export default function Summary() {
       <Grid.Column width={6}>
         {metrics == null ? null : (
           <Header size="small">
-            {metrics.n} Documents from {metrics.min_date.substring(0, 10)} -{" "}
-            {metrics.max_date.substring(0, 10)}
+            {metrics.n} Documents from {metrics.min_date?.substring(0, 10)} -{" "}
+            {metrics.max_date?.substring(0, 10)}
           </Header>
         )}
         <AggregateResult
