@@ -32,6 +32,7 @@ export default function Summary() {
       axes: [],
     })
       .then((d) => {
+        console.log(d);
         setMetrics(d.data.data[0]);
       })
       .catch((e) => {
@@ -66,6 +67,7 @@ export default function Summary() {
           allColumns={false}
           perPage={10}
           onClick={(row) => setId(row._id)}
+          sort={[{ date: { order: "desc" } }]}
         />
         {id == null ? null : (
           <ArticleModal
