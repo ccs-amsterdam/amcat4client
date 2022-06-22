@@ -23,6 +23,10 @@ const INTERVALS = [
   "year",
   "daypart",
   "dayofweek",
+  "monthnr",
+  "yearnr",
+  "dayofmonth",
+  "weeknr",
 ];
 
 const DISPLAY: {
@@ -203,7 +207,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
   const axes = useAppSelector(selectOptions).axes || [];
 
   const fieldoptions = fields
-    .filter((f) => ["date", "keyword"].includes(f.type))
+    .filter((f) => ["date", "keyword", "tag"].includes(f.type))
     .filter(
       // don't include 'other' field
       (f) =>
