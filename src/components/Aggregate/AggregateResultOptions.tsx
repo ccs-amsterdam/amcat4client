@@ -208,11 +208,6 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
 
   const fieldoptions = fields
     .filter((f) => ["date", "keyword", "tag"].includes(f.type))
-    .filter(
-      // don't include 'other' field
-      (f) =>
-        f.name === value?.field || !axes.map((x) => x.field).includes(f.name)
-    )
     .map((f) => ({
       text: f.name,
       value: f.name,
