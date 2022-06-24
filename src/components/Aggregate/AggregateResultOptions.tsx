@@ -204,8 +204,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
   const index = useIndex();
   const query = useAppSelector(selectQuery);
   const fields = Amcat.useFields(index);
-  const axes = useAppSelector(selectOptions).axes || [];
-
+  
   const fieldoptions = fields
     .filter((f) => ["date", "keyword", "tag"].includes(f.type))
     .map((f) => ({
@@ -214,7 +213,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
       key: f.name,
       icon: Amcat.getFieldTypeIcon(f.type),
     }));
-  if (query.queries && query.queries.length > 1) {
+  if (query.queries) {
     fieldoptions.unshift({
       text: "By query",
       value: "_query",
