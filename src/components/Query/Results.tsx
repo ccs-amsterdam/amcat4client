@@ -1,4 +1,5 @@
 import { ArticleModal, Articles, LocationPane } from "amcat4react";
+import { useFields } from "amcat4react/dist/Amcat";
 import { ArticlesProps } from "amcat4react/dist/Articles/Articles";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -8,14 +9,21 @@ import AggregateResultPanel from "../Aggregate/AggregateResultPanel";
 import { useAppSelector } from "../app/hooks";
 import { selectQuery } from "./QuerySlice";
 import Summary from "./Summary";
+import TagsPane from "./TagsPane";
 
 export default function Results() {
   const index = useIndex();
   const query = useAppSelector(selectQuery);
-  const items = ["Summary", "Articles", "Graph/Table", "Location"];
+  let items = ["Summary", "Articles", "Graph/Table", "Tags"];
   const [selected, setSelected] = useState<string>(items[0]);
+  const fields = useFields(index);
   if (index == null) return null;
-
+  if (
+    fields != null &&
+    fields.filter((f) => f.type == "geo_point").length > 0
+  ) {
+    items.push("Location");
+  }
   const get_content = (what: string) => {
     switch (what) {
       case "Summary":
@@ -26,6 +34,8 @@ export default function Results() {
         return <AggregateResultPanel />;
       case "Location":
         return <LocationPane index={index} query={query} />;
+      case "Tags":
+        return <TagsPane index={index} query={query} />;
     }
   };
 
