@@ -20,7 +20,7 @@ export default function Results() {
   if (index == null) return null;
   if (
     fields != null &&
-    fields.filter((f) => f.type == "geo_point").length > 0
+    fields.filter((f) => f.type === "geo_point").length > 0
   ) {
     items.push("Location");
   }

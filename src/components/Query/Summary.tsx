@@ -13,7 +13,7 @@ import { link_doc, useIndex } from "../../lib/navigation";
 import { useAppSelector } from "../app/hooks";
 import { selectQuery } from "./QuerySlice";
 
-type Metric = { n: number; min_date: string; max_date: string };
+export type Metric = { n: number; min_date: string; max_date: string };
 
 export default function Summary() {
   const [id, setId] = useState<string>();

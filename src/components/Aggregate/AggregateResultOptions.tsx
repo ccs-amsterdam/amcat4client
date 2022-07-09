@@ -72,7 +72,6 @@ export default function AggregateResultOptions() {
   const displayoptions = DISPLAY.map((d, i) => (
     <React.Fragment key={d.value}>
       {i === 0 ? null : <Button.Or key={"or_" + d.value} />}
-
       <Button
         key={d.value}
         active={d.value === options.display}
@@ -204,7 +203,7 @@ function AxisPicker({ value, onChange, clearable = false }: AxisPickerProps) {
   const index = useIndex();
   const query = useAppSelector(selectQuery);
   const fields = Amcat.useFields(index);
-  
+
   const fieldoptions = fields
     .filter((f) => ["date", "keyword", "tag"].includes(f.type))
     .map((f) => ({
