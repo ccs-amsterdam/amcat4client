@@ -1,14 +1,11 @@
 import { Amcat, AmcatIndex, AmcatQuery } from "amcat4react";
 import { useFields } from "amcat4react/dist/Amcat";
-import { fieldOptions } from "amcat4react/dist/Query/SimpleQueryForm";
 import { useEffect, useState } from "react";
 import {
   Button,
   Confirm,
-  Divider,
-  Dropdown,
   Form,
-  Header,
+  Icon,
   Input,
   Label,
   Table,
@@ -54,30 +51,46 @@ interface TagDetailsProps extends TagsPaneProps {
   field: string;
 }
 
+function retrieveData(
+  index: AmcatIndex,
+  query: AmcatQuery,
+  field: string,
+  setUsage: (usage: Tag[]) => void,
+  setMetrics: (metrics: Metric) => void
+) {
+  console.log("Retrieving usage");
+  Amcat.postAggregate(index, query, {
+    axes: [{ field: field }],
+    limit: 20,
+  }).then((d) => {
+    console.log(d.data);
+    setUsage(d.data.data);
+  });
+  Amcat.postAggregate(index, query, {
+    metrics: [
+      { field: "date", function: "min" },
+      { field: "date", function: "max" },
+    ],
+    axes: [],
+  }).then((d) => {
+    console.log(d);
+    setMetrics(d.data.data[0]);
+  });
+}
+
 function TagDetails({ index, query, field }: TagDetailsProps) {
   const [metrics, setMetrics] = useState<Metric>();
   const [usage, setUsage] = useState<Tag[]>();
 
   useEffect(() => {
-    Amcat.postAggregate(index, query, {
-      axes: [{ field: field }],
-      limit: 20,
-      display: "list",
-    }).then((d) => {
-      setUsage(d.data.data);
-    });
-    Amcat.postAggregate(index, query, {
-      display: "linechart",
-      metrics: [
-        { field: "date", function: "min" },
-        { field: "date", function: "max" },
-      ],
-      axes: [],
-    }).then((d) => {
-      console.log(d);
-      setMetrics(d.data.data[0]);
-    });
+    retrieveData(index, query, field, setUsage, setMetrics);
   }, [index, query, field, setMetrics, setUsage]);
+
+  function doRefresh() {
+    Amcat.refreshIndex(index).then(() => {
+      retrieveData(index, query, field, setUsage, setMetrics);
+    });
+  }
   if (metrics == null || usage == null) return <div>Loading data...</div>;
   return (
     <>
@@ -88,6 +101,7 @@ function TagDetails({ index, query, field }: TagDetailsProps) {
         index={index}
         metrics={metrics}
         usage={usage}
+        onChange={doRefresh}
       />
       <TagTable
         field={field}
@@ -95,6 +109,7 @@ function TagDetails({ index, query, field }: TagDetailsProps) {
         index={index}
         metrics={metrics}
         usage={usage}
+        onChange={doRefresh}
       />
     </>
   );
@@ -103,13 +118,21 @@ function TagDetails({ index, query, field }: TagDetailsProps) {
 interface TagTableProps extends TagDetailsProps {
   metrics: Metric;
   usage: Tag[];
+  onChange?: () => void;
 }
 
 interface Tag {
   [field: string]: string | number;
   n: number;
 }
-function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
+function TagTable({
+  index,
+  query,
+  field,
+  metrics,
+  usage,
+  onChange,
+}: TagTableProps) {
   const [confirm, setConfirm] = useState<Tag | undefined>();
   const dispatch = useAppDispatch();
 
@@ -121,7 +144,10 @@ function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
       field,
       confirm[field] as string,
       query
-    ).finally(() => setConfirm(undefined));
+    ).finally(() => {
+      setConfirm(undefined);
+      if (onChange != null) onChange();
+    });
   }
 
   function doFilter(tag: Tag) {
@@ -151,7 +177,7 @@ function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
           <Table.Row>
             <Table.HeaderCell>
               {usage.length} Tag{usage.length > 1 ? "s" : ""} in {metrics.n}{" "}
-              document{metrics.n > 1 ? "s" : ""}
+              selected document{metrics.n > 1 ? "s" : ""}
             </Table.HeaderCell>
             <Table.HeaderCell></Table.HeaderCell>
             <Table.HeaderCell></Table.HeaderCell>
@@ -159,8 +185,8 @@ function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {usage.map((tag) => (
-            <Table.Row>
+          {usage.map((tag, i) => (
+            <Table.Row key={i}>
               <Table.Cell collapsing>
                 <Label>{tag[field]}</Label>
               </Table.Cell>
@@ -182,7 +208,7 @@ function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
                   icon="minus"
                   onClick={() => setConfirm(tag)}
                 >
-                  Remove tag
+                  Remove from selection
                 </Button>
               </Table.Cell>
             </Table.Row>
@@ -204,7 +230,14 @@ function TagTable({ index, query, field, metrics, usage }: TagTableProps) {
   );
 }
 
-function AddToTag({ index, query, field, metrics, usage }: TagTableProps) {
+function AddToTag({
+  index,
+  query,
+  field,
+  metrics,
+  usage,
+  onChange,
+}: TagTableProps) {
   const [tagname, setTagName] = useState("");
   const existing = usage.map((tag, i) => ({
     key: i,
@@ -212,8 +245,9 @@ function AddToTag({ index, query, field, metrics, usage }: TagTableProps) {
     text: tag[field],
   }));
   function submit() {
-    Amcat.updateTags(index, "add", field, tagname, query);
-    // TODO: refresh
+    Amcat.updateTags(index, "add", field, tagname, query).then(() => {
+      if (onChange != null) onChange();
+    });
     // TODO: existing tags, need to retrieve all values from DB somehow, probably instead of metrics
   }
 
@@ -234,7 +268,8 @@ function AddToTag({ index, query, field, metrics, usage }: TagTableProps) {
             onChange={(_, d) => setTagName(d.value as string)}
           />
           &nbsp;&nbsp;
-          <Button type="submit" icon="add" positive onClick={submit}>
+          <Button type="submit" positive onClick={submit}>
+            <Icon name="add" />
             Add documents
           </Button>
         </Form.Group>

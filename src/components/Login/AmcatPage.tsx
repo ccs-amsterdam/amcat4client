@@ -61,7 +61,7 @@ export default function AmcatPage() {
           });
       }
     }
-  }, [host, user]);
+  }, [host, user, dispatch, loading]);
 
   const handleLogin = (u: AmcatUser) => dispatch(setLogin(u));
 

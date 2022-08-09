@@ -68,7 +68,7 @@ export default function AggregateResultOptions() {
   function submit() {
     if (options != null) dispatch(setAggregationOptions(options));
   }
-  const labels = aggregation_labels[options.display];
+  const labels = aggregation_labels[options.display || "list"];
   const displayoptions = DISPLAY.map((d, i) => (
     <React.Fragment key={d.value}>
       {i === 0 ? null : <Button.Or key={"or_" + d.value} />}
