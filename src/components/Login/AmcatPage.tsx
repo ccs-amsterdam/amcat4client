@@ -1,10 +1,11 @@
 import { AmcatUser, LoginForm } from "amcat4react";
 import { refreshToken } from "amcat4react/dist/Amcat";
-import { useEffect, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 import { Outlet, useParams } from "react-router-dom";
 import { Container, Header } from "semantic-ui-react";
 import { getUserFromHistory } from "../../lib/login";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { AppDispatch } from "../app/store";
 import { logout, selectAmcatUser, setLogin } from "../Menu/LoginSlice";
 import TopMenu from "../Menu/TopMenu";
 import LoginPage from "./LoginPage";
@@ -18,7 +19,6 @@ export default function AmcatPage() {
   /* If the location has changed, check if we can log the user in,
      otherwise reset user and open login screen for this location. 
      If no location is given, show selection of recent locations */
-
   const host =
     params.host == null
       ? undefined
@@ -26,7 +26,44 @@ export default function AmcatPage() {
       ? params.host
       : "https://" + params.host;
 
-  useEffect(() => {
+  useEffect(tryLogin(loading, host, user, dispatch, setLoading), [
+    host,
+    user,
+    dispatch,
+    loading,
+  ]);
+
+  const handleLogin = (u: AmcatUser) => dispatch(setLogin(u));
+
+  let content;
+  if (host == null) {
+    content = <LoginPage />;
+  } else if (loading) {
+    content = <div>Logging in...</div>;
+  } else if (user == null)
+    content = (
+      <Container>
+        <Header>Log on to {host}</Header>
+        <LoginForm fix_host={host} onLogin={handleLogin} />
+      </Container>
+    );
+  else content = <Outlet />;
+  return (
+    <>
+      <TopMenu />
+      <Container style={{ paddingTop: "55px" }}>{content}</Container>
+    </>
+  );
+}
+
+export function tryLogin(
+  loading: boolean,
+  host: string | undefined,
+  user: AmcatUser | undefined,
+  dispatch: AppDispatch,
+  setLoading: (loading: boolean) => void
+) {
+  return () => {
     if (loading) return;
     if (host == null) {
       console.log("logging out");
@@ -61,27 +98,5 @@ export default function AmcatPage() {
           });
       }
     }
-  }, [host, user, dispatch, loading]);
-
-  const handleLogin = (u: AmcatUser) => dispatch(setLogin(u));
-
-  let content;
-  if (host == null) {
-    content = <LoginPage />;
-  } else if (loading) {
-    content = <div>Logging in...</div>;
-  } else if (user == null)
-    content = (
-      <Container>
-        <Header>Log on to {host}</Header>
-        <LoginForm fix_host={host} onLogin={handleLogin} />
-      </Container>
-    );
-  else content = <Outlet />;
-  return (
-    <>
-      <TopMenu />
-      <Container style={{ paddingTop: "55px" }}>{content}</Container>
-    </>
-  );
+  };
 }
