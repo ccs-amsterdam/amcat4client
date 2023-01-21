@@ -1,0 +1,310 @@
+:root {
+  --primary: #38c7b9;
+  --secondary: #008080;
+  --background: white;
+  --color: black;
+
+  --gap: 0.5em;
+  --rounding: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #008080;
+    --secondary: #38c7b9;
+    --background: black;
+    --color: white;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  font-size: 62.5%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--color);
+  background: var(--background);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.Container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1400px;
+  margin: auto;
+  padding: 2%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+.FlexContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Move the following to something like styled components at some point */
+
+/* article style */
+
+.annotated {
+  padding: 0.1rem 0rem;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.annotated.left {
+  padding-left: 0.5rem;
+  border-left: 1px solid;
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+
+.annotated.right {
+  padding-right: 0.5rem;
+  border-right: 1px solid;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.paragraph {
+  padding-bottom: "2em";
+}
+
+.paragraph::after {
+  content: "\a";
+  white-space: pre;
+  padding-bottom: "2em";
+}
+
+.snippets .content {
+  cursor: pointer;
+}
+
+.snippets h4 {
+  color: var(--secondary);
+  margin-bottom: 0.2rem;
+}
+
+.snippets .snippet {
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+
+.snippets .description {
+  margin-top: 0.2rem;
+}
+
+.snippets .item:hover {
+  background-color: #fafafa;
+}
+
+/* pagination table */
+
+.highlight {
+  background: #9cd5f685;
+  border-radius: 3px;
+}
+
+.sortableHeader span {
+  cursor: pointer;
+}
+
+/* filter css */
+
+.a4filter {
+  padding-bottom: 1em !important;
+}
+
+.a4filter .row {
+  padding: 0 !important;
+}
+.a4filter .column {
+  padding: 0 !important;
+}
+
+.a4filter .fieldpicker {
+  text-align: center !important;
+}
+
+.a4filter .valuepicker {
+  background-color: #eee !important;
+}
+.a4filter .valuepicker:hover {
+  background-color: #ddd !important;
+}
+
+.a4filter .row:not(:last-child) {
+  border-bottom: 1px solid #eee;
+  padding-left: 1px !important;
+  padding-right: 1px !important;
+}
+
+.a4filter .row .fieldpicker {
+  border-radius: 0 !important;
+}
+
+.a4filter .row .valuepicker {
+  border-radius: 0 !important;
+}
+
+.a4filter .row:first-child .fieldpicker {
+  border-top-left-radius: 24px !important;
+}
+.a4filter .row:first-child .newfield {
+  border-top-right-radius: 24px !important;
+}
+.a4filter .row:first-child .valuepicker {
+  border-top-right-radius: 24px !important;
+}
+
+.a4filter .row:last-child .fieldpicker {
+  border-bottom-left-radius: 24px !important;
+  border-bottom-right-radius: 24px !important;
+}
+
+.a4filter .row:last-child {
+  padding-bottom: 1em !important;
+}
+
+.a4filter .valuepicker .text {
+  width: 100%;
+  color: rgba(0, 0, 0, 0.6);
+}
+.a4filter .valuepicker {
+  border: 0px !important;
+}
+
+/* Query form */
+
+.singlequeryform {
+  width: 100%;
+  display: flex;
+  gap: var(--gap);
+}
+
+.singlequeryform .querystring {
+  flex: 1;
+}
+.addfiltertext {
+  padding-left: 0.5em;
+}
+
+@media screen and (min-width: 480px) {
+  .singlequeryform .addfiltertext {
+    display: none;
+    width: 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .singlequeryform {
+    flex-direction: column;
+  }
+}
+.singlequeryform input {
+  border-radius: var(--rounding) !important;
+}
+
+.chevron {
+  color: var(--secondary);
+  padding: 0;
+  z-index: 99;
+}
+.chevron:hover {
+  cursor: pointer;
+}
+
+/* upload */
+
+.ui.dropdown .menu {
+  max-height: 250px !important;
+}
+
+/* Aggregation */
+
+.aggregateoptionsrow {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--gap);
+  margin-bottom: 0.5em;
+}
+
+.aggregateoptions .label {
+  flex: 0 0 10em;
+}
+.aggregateoptions .option {
+  flex: 1 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--gap);
+}
+.aggregateoptions .option .dropdown {
+  flex: 1;
+}
+
+.aggregateoptions .option .midlabel {
+  flex-basis: 5em;
+}
+.aggregateoptions .option button {
+  width: 10em;
+}
+
+@media screen and (max-width: 480px) {
+  .aggregateoptionsrow {
+    flex-direction: column;
+  }
+  .aggregateoptions .option {
+    flex-direction: column;
+  }
+  .aggregateoptions .option .buttons {
+    flex-direction: column;
+  }
+  .aggregateoptions .option .buttons .or {
+    display: none;
+  }
+  // swap horizontal attach look for vertical
+  .aggregateoptions .buttons .button {
+    border-radius: 0px !important;
+  }
+  .aggregateoptions .buttons .button:first-child {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+  }
+  .aggregateoptions .buttons .button:last-child {
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+  }
+
+  .aggregateoptions .label {
+    flex: 0 0 auto;
+  }
+}

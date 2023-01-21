@@ -1,31 +1,17 @@
-# Amcat 4 Client
+# Amcat 4 client
 
-React front-end for communicating with an AmCAT4 server.
-
-# Installation
+NextJS client for Amcat4
 
 ## Development
 
-```
-git clone git@github.com:ccs-amsterdam/amcat4client
-cd amcat4client
-npm install
-npm start
+```bash
+npm run dev
 ```
 
-## Build
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Clone as above, then run:
+Next doesn't check typescript in dev mode, so remember to build every now and then to see if you're still cool with the TS gods.
 
 ```
 npm run build
-```
-
-## Attaching to a specific host
-
-To attach this client to a specific host, use:
-
-```
-REACT_APP_FIXED_HOST=https://host.example.com/path npm start
-REACT_APP_FIXED_HOST=https://host.example.com/path npm run build
 ```

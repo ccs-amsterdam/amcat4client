@@ -1,58 +1,39 @@
 {
-  "name": "amcat4client",
+  "name": "nextcat",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@reduxjs/toolkit": "^1.7.2",
-    "@semantic-ui-react/css-patch": "^1.0.0",
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.0",
-    "@types/node": "^16.11.24",
-    "@types/react": "^17.0.39",
-    "@types/react-dom": "^17.0.11",
-    "amcat4react": "^0.1.82",
-    "react": "^17.0.2",
-    "react-cookies": "^0.1.1",
-    "react-dom": "^17.0.2",
-    "react-redux": "^7.2.6",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
-    "redux": "^4.1.2",
-    "redux-typescript": "^1.2.1",
-    "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^2.0.4",
-    "typescript": "^4.5.5",
-    "web-vitals": "^2.1.4"
-  },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "postinstall": "semantic-ui-css-patch"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@next/font": "13.1.1",
+    "@types/cookies": "^0.7.7",
+    "@types/node": "18.11.18",
+    "@types/react": "18.0.26",
+    "@types/react-dom": "18.0.10",
+    "axios": "^1.2.2",
+    "cookies": "^0.8.0",
+    "eslint": "8.31.0",
+    "eslint-config-next": "13.1.1",
+    "fomantic-ui-css": "^2.9.0",
+    "middlecat-react": "^0.1.48",
+    "next": "13.1.1",
+    "randomcolor": "^0.6.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-papaparse": "^4.1.0",
+    "react-query": "^3.39.2",
+    "react-semantic-ui-datepickers": "^2.17.2",
+    "recharts": "^2.2.0",
+    "semantic-ui-react": "^2.1.4",
+    "styled-components": "^5.3.6",
+    "typescript": "4.9.4"
   },
   "devDependencies": {
-    "ts-loader": "^9.2.6",
-    "typescript": "^4.5.5"
+    "@types/styled-components": "^5.1.26",
+    "babel-plugin-styled-components": "^2.0.7"
   }
 }
