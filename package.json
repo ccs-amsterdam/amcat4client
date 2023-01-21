@@ -19,7 +19,7 @@
     "eslint": "8.31.0",
     "eslint-config-next": "13.1.1",
     "fomantic-ui-css": "^2.9.0",
-    "middlecat-react": "^0.1.48",
+    "middlecat-react": "^0.2.0",
     "next": "13.1.1",
     "randomcolor": "^0.6.2",
     "react": "18.2.0",
