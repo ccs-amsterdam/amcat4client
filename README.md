@@ -4,6 +4,14 @@ NextJS client for Amcat4
 
 ## Development
 
+First install stuff.
+
+```
+npm i
+```
+
+Run locally for development.
+
 ```bash
 npm run dev
 ```
