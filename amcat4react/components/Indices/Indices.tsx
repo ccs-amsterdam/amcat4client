@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useAmcatIndices, Response, AmcatUser } from "../../../amcat4react";
+import CreateIndex from "./CreateIndex";
 
 const StyleWrapper = styled.div`
   box-sizing: border-box;
@@ -51,12 +52,10 @@ export default function Indices({ user, onSelect }: Props) {
 
   return (
     <StyleWrapper>
+      <CreateIndex user={user} onCreate={() => indices.refetch} />
       <h2>
-        {user.resource.replace(/^https:\/\//, "")}
-        <br />
-        <span>Select index</span>
+        {indices.data.length > 0 ? "Select index" : "No indices available"}
       </h2>
-
       <ul>
         {indices.data.map((i) => (
           <li key={i.name} onClick={() => onSelect(i.name)}>

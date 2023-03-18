@@ -60,12 +60,13 @@ export default function Home() {
             ) : null}
           </div>
           <div className="AuthForm">
+            {user?null:
             <AuthForm
               resourceFixed={login_host || undefined}
               resourceSuggestion={
                 login_host ? undefined : "http://localhost:5000"
               }
-            />
+            />}
           </div>
           <div className="Indices">
             <Indices user={user} onSelect={onSelectIndex} />
