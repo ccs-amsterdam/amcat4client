@@ -47,6 +47,7 @@ interface Props {
 export default function CreateIndices({ user, onCreate }: Props) {
   const [open, setOpen] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [nameError, setNameError] = React.useState(false);
   const [namePopupOpen, setNamePopupOpen] = React.useState(false);
   const [indexname, setIndexname] = React.useState("");
   const [guestrole, setGuestrole] = React.useState("none");
@@ -55,7 +56,6 @@ export default function CreateIndices({ user, onCreate }: Props) {
   const createIndexQuery = useQuery(
     ["create-index"],
     async () => {
-      console.log(indexname);
       await createIndex(user, indexname, guestrole.toUpperCase());
     },
     {
@@ -64,7 +64,16 @@ export default function CreateIndices({ user, onCreate }: Props) {
         setOpen(false);
         onCreate();
       },
-      onError: (err: any) => setError(err.message),
+      onError: (err: any) => {
+        const detail = err.response.data.detail;
+        if (detail.message == "resource_already_exists_exception") {
+          setNameError(true);
+          setError("An index with this name already exists");
+        } else {
+          setNameError(false);
+          setError(err.message);
+        }
+      },
       retry: false,
     }
   );
@@ -88,8 +97,9 @@ export default function CreateIndices({ user, onCreate }: Props) {
   };
 
   const handleSubmit = () => {
+    setError("");
+    setNameError(false);
     createIndexQuery.refetch();
-    console.log(createIndexQuery);
   };
 
   return (
@@ -102,7 +112,7 @@ export default function CreateIndices({ user, onCreate }: Props) {
       <Modal.Header>Create new Index</Modal.Header>
       <Modal.Content>
         <Form error={error.length > 0}>
-          <Form.Field>
+          <Form.Field error={nameError}>
             <label>
               Index name
               <Popup
@@ -153,7 +163,7 @@ export default function CreateIndices({ user, onCreate }: Props) {
               onChange={(event, data) => setGuestrole(data.value as string)}
             />
           </Form.Field>
-          <Message error header="Error" content={error} />
+          <Message error content={error} />
         </Form>
       </Modal.Content>
       <Modal.Actions>
