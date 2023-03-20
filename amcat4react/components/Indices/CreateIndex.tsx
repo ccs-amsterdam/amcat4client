@@ -1,14 +1,6 @@
 import React, { ChangeEvent } from "react";
 import { useQuery, UseQueryResult } from "react-query";
-import {
-  Button,
-  Form,
-  Icon,
-  Input,
-  Message,
-  Modal,
-  Popup,
-} from "semantic-ui-react";
+import { Button, Form, Icon, Input, Message, Modal, Popup, TextArea } from "semantic-ui-react";
 import { createIndex } from "../../Amcat";
 import { AmcatUser } from "../../interfaces";
 
@@ -49,14 +41,17 @@ export default function CreateIndices({ user, onCreate }: Props) {
   const [error, setError] = React.useState("");
   const [nameError, setNameError] = React.useState(false);
   const [namePopupOpen, setNamePopupOpen] = React.useState(false);
-  const [indexname, setIndexname] = React.useState("");
+  const [indexid, setIndexid] = React.useState("");
   const [guestrole, setGuestrole] = React.useState("none");
+  const [indexname, setIndexname] = React.useState("");
+  const [indexdescription, setIndexdescription] = React.useState("");
+
   const [canCreate, setCanCreate] = React.useState(false);
 
   const createIndexQuery = useQuery(
     ["create-index"],
     async () => {
-      await createIndex(user, indexname, guestrole.toUpperCase());
+      await createIndex(user, indexid, guestrole.toUpperCase(), indexname, indexdescription);
     },
     {
       enabled: false,
@@ -78,13 +73,13 @@ export default function CreateIndices({ user, onCreate }: Props) {
     }
   );
 
-  const indexnameChange = (e: ChangeEvent<HTMLInputElement>, data: any) => {
+  const indexidChange = (e: ChangeEvent<HTMLInputElement>, data: any) => {
     // Enforce index naming rules
     const original = data.value;
     let val = original.toLowerCase();
     val = val.replace(/^[_+-]/g, "");
     val = val.replace(/[\\/*?"|,#:<>]/g, "");
-    setIndexname(val);
+    setIndexid(val);
     // Open naming rule hints if changed, enable submit as appropriate
     if (val != original) setNamePopupOpen(true);
     setCanCreate(val.length > 0);
@@ -107,12 +102,12 @@ export default function CreateIndices({ user, onCreate }: Props) {
       onClose={() => setOpen(false)}
       onOpen={() => setOpen(true)}
       open={open}
-      trigger={<Button>Create Index</Button>}
+      trigger={<Button positive>Create New Index</Button>}
     >
       <Modal.Header>Create new Index</Modal.Header>
       <Modal.Content>
         <Form error={error.length > 0}>
-          <Form.Field error={nameError}>
+          <Form.Field error={nameError} required>
             <label>
               Index name
               <Popup
@@ -131,28 +126,21 @@ export default function CreateIndices({ user, onCreate }: Props) {
                 <br />- Cannot include any of: \ / * ? " | , # : &lt; &gt;
               </Popup>
             </label>
-            <Input
-              placeholder="Index name"
-              value={indexname}
-              onChange={indexnameChange}
-            />
+            <Input placeholder="Index name" value={indexid} onChange={indexidChange} />
           </Form.Field>
           <Form.Field>
             <label>
               Guest role
               <Popup wide="very" trigger={<Icon name="info circle" />}>
-                Role for users that are not explicitly added to the project.
-                Values: <br />
+                Role for users that are not explicitly added to the project. Values: <br />
                 - None: Only authorized users can access this project <br />
-                - Metareader: Unauthorized users can see metadata and conduct
-                queries, but not access the full text of documents
+                - Metareader: Unauthorized users can see metadata and conduct queries, but not access the full text of
+                documents
                 <br />
                 - Reader: Unauthorized users can see all data in the project
                 <br />
-                - Writer: Unauthorized users can add or change data in the
-                project <br />
-                - Admin: Unauthorized users have full admin rights on the
-                project
+                - Writer: Unauthorized users can add or change data in the project <br />
+                - Admin: Unauthorized users have full admin rights on the project
                 <br />
               </Popup>
             </label>
@@ -163,6 +151,27 @@ export default function CreateIndices({ user, onCreate }: Props) {
               onChange={(event, data) => setGuestrole(data.value as string)}
             />
           </Form.Field>
+          <Form.Field>
+            <label>
+              Display Name
+              <Popup wide="very" trigger={<Icon name="info circle" />}>
+                An optional name for the index that will be displayed to users
+              </Popup>
+              <Input value={indexname} onChange={(_e, { value }) => setIndexname(value)}></Input>
+            </label>
+          </Form.Field>
+          <Form.Field>
+            <label>
+              Description
+              <Popup wide="very" trigger={<Icon name="info circle" />}>
+                An optional description for the index that can be displayed to users
+              </Popup>
+              <TextArea
+                value={indexdescription}
+                onChange={(_e, { value }) => setIndexdescription(value as string)}
+              ></TextArea>
+            </label>
+          </Form.Field>
           <Message error content={error} />
         </Form>
       </Modal.Content>
@@ -170,11 +179,7 @@ export default function CreateIndices({ user, onCreate }: Props) {
         <Button negative onClick={() => setOpen(false)}>
           Cancel
         </Button>
-        <Button
-          positive
-          onClick={handleSubmit}
-          disabled={!canCreate || createIndexQuery.isLoading}
-        >
+        <Button positive onClick={handleSubmit} disabled={!canCreate || createIndexQuery.isLoading}>
           Create Index
         </Button>
       </Modal.Actions>

@@ -10,9 +10,11 @@ export function getIndex(user: AmcatUser, index: string) {
 }
 
 /** Create an index */
-export function createIndex(user: AmcatUser, name: string, guestRole = "NONE") {
-  const body: any = { name: name };
+export function createIndex(user: AmcatUser, id: string, guestRole = "NONE", name?: string, description?: string) {
+  const body: any = { id: id };
   if (guestRole !== "NONE") body.guest_role = guestRole;
+  if (name && name.length > 0) body.name = name;
+  if (description && description.length > 0) body.description = description;
   return user.api.post(`/index/`, body);
 }
 
@@ -21,12 +23,7 @@ export async function getIndices(user: AmcatUser) {
   return user.api.get(`/index/`);
 }
 
-export function createDocuments(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  documents: AmcatDocument[],
-  columns = {}
-) {
+export function createDocuments(user: AmcatUser, index: AmcatIndexName, documents: AmcatDocument[], columns = {}) {
   // documentList should be an array of objects with at least the fields title, date and text
   return user.api.post(`index/${index}/documents`, { documents, columns });
 }
@@ -38,12 +35,7 @@ export function deleteIndex(user: AmcatUser, index: AmcatIndexName) {
 }
 
 /** POST an AmcatQuery and fetch the resulting articles */
-export function postQuery(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  query: AmcatQuery,
-  params: any
-) {
+export function postQuery(user: AmcatUser, index: AmcatIndexName, query: AmcatQuery, params: any) {
   return user.api.post(`index/${index}/query`, { ...query, ...params });
 }
 
@@ -53,22 +45,14 @@ export function getFields(user: AmcatUser, index: AmcatIndexName) {
 }
 
 /** Add fields to this index */
-export function addFields(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  fields: AmcatField[]
-) {
+export function addFields(user: AmcatUser, index: AmcatIndexName, fields: AmcatField[]) {
   const body = Object.fromEntries(fields.map((f) => [f.name, f.type]));
   return user.api.post(`index/${index}/fields`, body);
 }
 
 /** Get the values for a field
  */
-export function getFieldValues(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string
-) {
+export function getFieldValues(user: AmcatUser, index: AmcatIndexName, field: string) {
   return user.api.get(`index/${index}/fields/${field}/values`);
 }
 
@@ -79,12 +63,7 @@ export function getFieldValues(
  * @param setData Callback function that will be called with the data after a succesful call
  * @param setError Callback function that will be called with an error message on failure
  */
-export function postAggregate(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  query: AmcatQuery,
-  options: AggregationOptions
-) {
+export function postAggregate(user: AmcatUser, index: AmcatIndexName, query: AmcatQuery, options: AggregationOptions) {
   const params: any = { ...query };
   if (options?.axes) params["axes"] = options.axes;
   if (options?.metrics) params["aggregations"] = options.metrics;
@@ -110,10 +89,7 @@ export function useFieldsWithRefresh(
   user: AmcatUser | undefined,
   index: AmcatIndexName | undefined
 ): [fields: AmcatField[], refresh: () => void] {
-  function _getSetFields(
-    index: AmcatIndexName | undefined,
-    setFields: (fields: AmcatField[]) => void
-  ): void {
+  function _getSetFields(index: AmcatIndexName | undefined, setFields: (fields: AmcatField[]) => void): void {
     if (user == null || index == null) setFields([]);
     else
       getFields(user, index)
@@ -137,10 +113,7 @@ export function useFieldsWithRefresh(
  * @param index Login information for this index
  * @returns a list of field objects
  */
-export function useFields(
-  user: AmcatUser,
-  index: AmcatIndexName | undefined
-): AmcatField[] {
+export function useFields(user: AmcatUser, index: AmcatIndexName | undefined): AmcatField[] {
   return useFieldsWithRefresh(user, index)[0];
 }
 
@@ -150,11 +123,7 @@ export function useFields(
  * @returns a list of values (strings)
  */
 
-export function useFieldValues(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string
-): string[] {
+export function useFieldValues(user: AmcatUser, index: AmcatIndexName, field: string): string[] {
   const [values, setValues] = useState<string[]>([]);
 
   useEffect(() => {
@@ -168,10 +137,7 @@ export function useFieldValues(
   return values;
 }
 
-export function getField(
-  fields: AmcatField[],
-  fieldname: string
-): AmcatField | undefined {
+export function getField(fields: AmcatField[], fieldname: string): AmcatField | undefined {
   const i = fields.map((f) => f.name).indexOf(fieldname);
   if (i === -1) return undefined;
   return fields[i];
@@ -217,12 +183,7 @@ export function updateTags(
   });
 }
 
-export function setField(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string,
-  type: any
-) {
+export function setField(user: AmcatUser, index: AmcatIndexName, field: string, type: any) {
   const body = { [field]: type };
   return user.api.post(`index/${index}/fields`, body);
 }

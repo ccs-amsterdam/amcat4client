@@ -73,17 +73,7 @@ export interface AmcatFilter extends DateFilter {
 
 export interface AmcatField {
   name: string;
-  type:
-    | "long"
-    | "double"
-    | "object"
-    | "keyword"
-    | "date"
-    | "tag"
-    | "text"
-    | "url"
-    | "geo_point"
-    | "id";
+  type: "long" | "double" | "object" | "keyword" | "date" | "tag" | "text" | "url" | "geo_point" | "id";
   meta?: { [field: string]: string };
 }
 
@@ -126,7 +116,10 @@ export interface AggregateVisualizerProps {
 
 export type AmcatIndexName = string;
 export interface AmcatIndex {
-  name: AmcatIndexName;
+  id: AmcatIndexName;
+  name: string;
+  description?: string;
+  guest_role?: string;
 }
 
 export interface AmcatDocument {
@@ -157,7 +150,4 @@ export interface LocationOptions {
   height?: number | string;
 }
 
-export type SortSpec =
-  | string
-  | string[]
-  | { [field: string]: { order?: "asc" | "desc" } }[];
+export type SortSpec = string | string[] | { [field: string]: { order?: "asc" | "desc" } }[];
