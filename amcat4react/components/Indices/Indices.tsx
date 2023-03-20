@@ -17,7 +17,7 @@ export default function Indices({ user, onSelect }: Props) {
 
   return (
     <>
-      <CreateIndex user={user} onCreate={() => indices.refetch} />
+      <CreateIndex user={user} onCreate={() => indices.refetch()} />
       <h2>{indices.data.length > 0 ? "Select index" : "No indices available"}</h2>
 
       <Card.Group>
