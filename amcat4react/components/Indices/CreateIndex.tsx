@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { useQuery, UseQueryResult } from "react-query";
+import { useQuery } from "react-query";
 import { Button, Form, Icon, Input, Message, Modal, Popup, TextArea } from "semantic-ui-react";
 import { createIndex } from "../../Amcat";
 import { AmcatUser } from "../../interfaces";
@@ -65,8 +65,9 @@ export default function CreateIndices({ user, onCreate }: Props) {
           setNameError(true);
           setError("An index with this name already exists");
         } else {
+          console.log(err);
           setNameError(false);
-          setError(err.message);
+          setError(`[${err.response.status}:${err.response.statusText}] ${err?.response?.data?.detail || err.message}`);
         }
       },
       retry: false,

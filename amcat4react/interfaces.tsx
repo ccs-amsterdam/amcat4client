@@ -1,6 +1,17 @@
 import { MiddlecatUser } from "middlecat-react";
 import { ReactNode } from "react";
 
+export interface AmcatServerConfig {
+  authorization: "allow_guests" | "no_auth" | "allow_authenticated_guests" | "authorized_users_only";
+  [key: string]: any;
+}
+export const AmcatRoles = ["METAREADER", "READER", "WRITER", "ADMIN"] as const;
+export type AmcatRole = typeof AmcatRoles[number];
+
+export interface AmcatUserInfo {
+  global_role: AmcatRole;
+}
+
 export interface AmcatUser extends MiddlecatUser {}
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
