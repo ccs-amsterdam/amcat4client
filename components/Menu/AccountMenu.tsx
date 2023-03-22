@@ -1,9 +1,10 @@
+import { useRouter } from "next/router";
 import { Dropdown, Menu } from "semantic-ui-react";
-import useUser from "../../hooks/useUser";
+import { useMiddlecatContext } from "../../amcat4react";
 
 export default function AccountMenu() {
-  const user = useUser();
-
+  const router = useRouter();
+  const { user } = useMiddlecatContext();
   return (
     <>
       {user != null ? (
@@ -13,9 +14,7 @@ export default function AccountMenu() {
               Signed in as <br />
               <b>{user.email}</b>
             </Menu.Item>
-            <Menu.Item onClick={() => user.killSession(true)}>
-              Sign out
-            </Menu.Item>
+            <Menu.Item onClick={() => router.push("/logout")}>Sign out</Menu.Item>
           </Dropdown.Menu>
         </Dropdown>
       ) : null}

@@ -2,6 +2,8 @@ import Head from "next/head";
 import { useMiddlecatContext, Indices } from "../amcat4react";
 import { useRouter } from "next/router";
 import styled from "styled-components";
+import { useContext } from "react";
+import { MiddlecatContext } from "../amcat4react/context/middlecat";
 
 const StyleWrapper = styled.div`
   display: grid;
@@ -35,7 +37,6 @@ export default function Home() {
     if (!user) return;
     router.push(`/h/${encodeURIComponent(user.resource)}/i/${index}/query`);
   }
-
   if (user && login_redirect) {
     router.push(login_redirect);
     return null;
@@ -54,19 +55,18 @@ export default function Home() {
           <div className="LoginRedirect">
             {login_redirect ? (
               <p>
-                To open <span>{decodeURIComponent(login_redirect)}</span> you
-                first need to login to <span>{login_host}</span>
+                To open <span>{decodeURIComponent(login_redirect)}</span> you first need to login to{" "}
+                <span>{login_host}</span>
               </p>
             ) : null}
           </div>
           <div className="AuthForm">
-            {user?null:
-            <AuthForm
-              resourceFixed={login_host || undefined}
-              resourceSuggestion={
-                login_host ? undefined : "http://localhost:5000"
-              }
-            />}
+            {user ? null : (
+              <AuthForm
+                resourceFixed={login_host || undefined}
+                resourceSuggestion={login_host ? undefined : "http://localhost:5000"}
+              />
+            )}
           </div>
           <div className="Indices">
             <Indices user={user} onSelect={onSelectIndex} />
