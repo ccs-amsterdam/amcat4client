@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 
 export interface AmcatServerConfig {
   authorization: "allow_guests" | "no_auth" | "allow_authenticated_guests" | "authorized_users_only";
+  resource: string;
   [key: string]: any;
 }
 export const AmcatRoles = ["METAREADER", "READER", "WRITER", "ADMIN"] as const;

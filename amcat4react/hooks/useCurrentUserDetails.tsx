@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { useQuery, UseQueryResult } from "react-query";
 import { getCurrentUserDetails } from "../Amcat";
 import { AmcatRole, AmcatRoles, AmcatUser, AmcatUserInfo } from "../interfaces";
@@ -12,7 +13,15 @@ export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUse
       const res = await getCurrentUserDetails(user);
       return { ...res.data, global_role: res.data.global_role.toUpperCase() };
     },
-    { enabled: user != null, staleTime: 60000 }
+    {
+      enabled: user != null,
+      staleTime: 600000,
+      retry: (_, e: AxiosError) => {
+        // Don't retry on 404, this just means the user is not known
+        console.log(e.response?.status);
+        return e.response?.status != 404;
+      },
+    }
   );
 }
 

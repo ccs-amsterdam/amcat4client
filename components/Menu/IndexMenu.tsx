@@ -1,39 +1,38 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Dropdown, Menu } from "semantic-ui-react";
+import { AmcatIndex } from "../../amcat4react";
 import useIndices from "../../amcat4react/hooks/useAmcatIndices";
-import { link_index } from "../../functions/links";
+import { link_host, link_index, link_query } from "../../functions/links";
 import useUser from "../../hooks/useUser";
+
+function getIndexName(id: string, indices: AmcatIndex[]) {
+  const index = indices.find((ix) => ix.id === id);
+  return index == null ? id : index.name;
+}
 
 export default function IndexMenu({}) {
   const user = useUser();
   const router = useRouter();
   const index = router.query.i as string;
   const indices = useIndices(user);
+  const indexName = indices.data == null ? index : getIndexName(index, indices.data);
 
   if (user == null) return null;
   return (
-    <Dropdown item text={`⛃ ${index || "(select index)"}`}>
+    <Dropdown item text={`⛃ ${indexName || "(select index)"}`}>
       <Dropdown.Menu>
-        <Menu.Item disabled>
-          {index == null ? (
-            <>No index selected</>
-          ) : (
-            <>
-              Current index: <br />
-              <b>{index}</b>
-            </>
-          )}
+        <Menu.Item>
+          <Link style={{ color: "var(--secondary)" }} href={link_host(user.resource)}>
+            Index overview
+          </Link>
         </Menu.Item>
         <Dropdown.Divider />
         {indices.data == null
           ? null
           : indices.data.map((index, i) => (
               <Menu.Item key={i}>
-                <Link
-                  style={{ color: "var(--secondary)" }}
-                  href={`${link_index(user.resource, index?.name)}/query`}
-                >
+                <Link style={{ color: "var(--secondary)" }} href={link_query(user.resource, index?.id)}>
                   {index.name}
                 </Link>
               </Menu.Item>

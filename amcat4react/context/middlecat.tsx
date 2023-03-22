@@ -49,9 +49,7 @@ export function MiddlecatWrapper({
   const { user, loading, AuthForm } = useMiddlecat(useMiddlecatProps);
 
   return (
-    <MiddlecatContext.Provider value={{ user, loading, AuthForm, loginRoute }}>
-      {children}
-    </MiddlecatContext.Provider>
+    <MiddlecatContext.Provider value={{ user, loading, AuthForm, loginRoute }}>{children}</MiddlecatContext.Provider>
   );
 }
 
@@ -68,12 +66,10 @@ export function useMiddlecatContext(host?: string) {
       if (redirect) window.location.href = redirect;
       return;
     }
-
+    console.log({ loginRoute, url });
     if (loginRoute != null && url.pathname !== loginRoute) {
       // if not logged in, and not yet on loginRoute, redirect
-      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(
-        url.pathname
-      )}`;
+      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(url.pathname)}`;
     }
   });
 
