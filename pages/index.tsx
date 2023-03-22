@@ -3,6 +3,8 @@ import { useMiddlecatContext, Indices } from "../amcat4react";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { encodeHostname, link_host } from "../functions/links";
+import { useContext } from "react";
+import { MiddlecatContext } from "../amcat4react/context/middlecat";
 
 const StyleWrapper = styled.div`
   display: grid;
@@ -30,11 +32,10 @@ export default function Home() {
 
   const { user, AuthForm } = useMiddlecatContext();
 
-  if (user && login_redirect) {
-    router.push(login_redirect);
+  if (user) {
+    router.push(login_redirect ? login_redirect : link_host(user.resource));
     return null;
   }
-  if (user) router.push(link_host(user.resource));
 
   return (
     <>

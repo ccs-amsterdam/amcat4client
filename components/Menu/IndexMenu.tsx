@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Dropdown, Menu } from "semantic-ui-react";
-import { AmcatIndex } from "../../amcat4react";
+import { AmcatIndex, useMiddlecatContext } from "../../amcat4react";
 import useIndices from "../../amcat4react/hooks/useAmcatIndices";
 import { link_host, link_index, link_query } from "../../functions/links";
-import useUser from "../../hooks/useUser";
 
 function getIndexName(id: string, indices: AmcatIndex[]) {
   const index = indices.find((ix) => ix.id === id);
@@ -12,7 +11,7 @@ function getIndexName(id: string, indices: AmcatIndex[]) {
 }
 
 export default function IndexMenu({}) {
-  const user = useUser();
+  const { user } = useMiddlecatContext();
   const router = useRouter();
   const index = router.query.i as string;
   const indices = useIndices(user);

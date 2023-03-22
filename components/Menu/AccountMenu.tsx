@@ -1,13 +1,14 @@
+import { useRouter } from "next/router";
 import { Dropdown, Menu, Image } from "semantic-ui-react";
+import { useMiddlecatContext } from "../../amcat4react";
 import { useHasGlobalRole } from "../../amcat4react/hooks/useCurrentUserDetails";
 import { link_host } from "../../functions/links";
-import useUser from "../../hooks/useUser";
 
 export default function AccountMenu() {
-  const user = useUser();
+  const router = useRouter();
+  const { user } = useMiddlecatContext();
   const is_admin = useHasGlobalRole(user, "ADMIN");
 
-  //text={`${user.name}@${new URL(user.resource).hostname}`}
   return (
     <>
       {user != null ? (
@@ -28,7 +29,7 @@ export default function AccountMenu() {
               Signed in as <br />
               <b>{user.email || "guest"}</b>
             </Menu.Item>
-            <Menu.Item onClick={() => user.killSession(true)}>Sign out</Menu.Item>
+            <Menu.Item onClick={() => router.push("/logout")}>Sign out</Menu.Item>
           </Dropdown.Menu>
         </Dropdown>
       ) : null}

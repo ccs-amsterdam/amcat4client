@@ -15,7 +15,7 @@ interface ContextProps {
   loginRoute: string | null;
 }
 
-const MiddlecatContext = createContext<ContextProps>({
+export const MiddlecatContext = createContext<ContextProps>({
   user: undefined,
   loading: false,
   AuthForm: null,
@@ -53,35 +53,6 @@ export function MiddlecatWrapper({
   );
 }
 
-export function useMiddlecatContext(host?: string) {
-  let { user, loading, AuthForm, loginRoute } = useContext(MiddlecatContext);
-
-  useEffect(() => {
-    if (loading) return;
-    const url = new URL(window.location.href);
-
-    if (user) {
-      // if logged in, see if there is a login_redirect to go to
-      const redirect = url.searchParams.get("login_redirect");
-      if (redirect) window.location.href = redirect;
-      return;
-    }
-    console.log({ loginRoute, url });
-    if (loginRoute != null && url.pathname !== loginRoute) {
-      // if not logged in, and not yet on loginRoute, redirect
-      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(url.pathname)}`;
-    }
-  });
-
-  // If opening a url with a specific host, and the host does
-  // not match the host of the current middleCat session, kill
-  // the session so that the user can log in with the correct host
-  if (user && host) {
-    if (user.resource !== host) {
-      user.killSession(false);
-      user = undefined;
-    }
-  }
-
-  return { user, loading, AuthForm };
+export function useMiddlecatContext() {
+  return useContext(MiddlecatContext);
 }
