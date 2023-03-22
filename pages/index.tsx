@@ -30,12 +30,6 @@ export default function Home() {
 
   const { user, AuthForm } = useMiddlecatContext();
 
-  function onSelectIndex(index: string) {
-    console.log(index);
-    if (!user) return;
-    router.push(`/h/${encodeHostname(user.resource)}/i/${index}/query`);
-  }
-
   if (user && login_redirect) {
     router.push(login_redirect);
     return null;

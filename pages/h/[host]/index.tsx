@@ -3,10 +3,11 @@ import { Indices, useAmcatIndices, useMiddlecatContext } from "../../../amcat4re
 import CreateIndex from "../../../amcat4react/components/Indices/CreateIndex";
 import { useHasGlobalRole } from "../../../amcat4react/hooks/useCurrentUserDetails";
 import { link_query } from "../../../functions/links";
+import useUser from "../../../hooks/useUser";
 
 export default function IndexSelection() {
   const router = useRouter();
-  const { user } = useMiddlecatContext();
+  const user = useUser();
   const is_writer = useHasGlobalRole(user, "WRITER");
   const indices = useAmcatIndices(user);
 

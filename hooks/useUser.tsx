@@ -4,6 +4,7 @@ import { AmcatUser, useMiddlecatContext } from "../amcat4react";
 export default function useUser(): AmcatUser | undefined {
   const router = useRouter();
   const host = decodeHostname(router.query.host as string);
+  console.log({ host, query: router.query });
   const { user } = useMiddlecatContext(host);
   return user;
 }
