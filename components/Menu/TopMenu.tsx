@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Menu } from "semantic-ui-react";
 import styled from "styled-components";
 import { useMiddlecatContext } from "../../amcat4react";
-import { link_index } from "../../functions/links";
+import { encodeHostname, link_index } from "../../functions/links";
 
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
@@ -45,7 +45,8 @@ export default function TopMenu() {
   // not match the host of the current middleCat session, kill
   // the session so that the user can log in with the correct host
   if (user && host) {
-    if (user.resource !== host) {
+    const resource = encodeHostname(user.resource)
+    if (resource !== host) {
       user.killSession(true);
     }
   }
