@@ -1,10 +1,8 @@
 import Head from "next/head";
-import { useMiddlecatContext, Indices } from "../amcat4react";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { encodeHostname, link_host } from "../functions/links";
-import { useContext } from "react";
-import { MiddlecatContext } from "../amcat4react/context/middlecat";
+import { useMiddlecatContext } from "../amcat4react";
+import { link_host } from "../functions/links";
 
 const StyleWrapper = styled.div`
   display: grid;

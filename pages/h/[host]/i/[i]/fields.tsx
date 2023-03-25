@@ -1,8 +1,7 @@
-import { Amcat, AmcatField } from "../../../../../amcat4react";
+import { Amcat, AmcatField, useMiddlecatContext } from "../../../../../amcat4react";
 import { useState } from "react";
 import { Checkbox, Form, Header, Icon, Table } from "semantic-ui-react";
 import { useRouter } from "next/router";
-import useUser from "../../../../../hooks/useUser";
 
 const FIELDS = [
   "date",
@@ -18,7 +17,7 @@ const FIELDS = [
 ];
 
 export default function Fields() {
-  const user = useUser();
+  const {user} = useMiddlecatContext()
   const router = useRouter();
   const index = router.query.i as string;
 

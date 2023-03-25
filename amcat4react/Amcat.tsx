@@ -2,7 +2,7 @@ import Axios, { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { SemanticICONS } from "semantic-ui-react";
 import { AggregationOptions, AmcatDocument, AmcatField, AmcatFilters } from ".";
-import { AmcatUser, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUserInfo } from "./interfaces";
+import { AmcatUser, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUserInfo, AmcatIndex } from "./interfaces";
 
 /** Get user details */
 export function getCurrentUserDetails(user: AmcatUser) {
@@ -16,7 +16,7 @@ export function getServerConfig(user: AmcatUser) {
 
 /** Get index details / check if an index exists */
 export function getIndex(user: AmcatUser, index: string) {
-  return user.api.get(`/index/${index}`);
+  return user.api.get(`/index/${index}`) as Promise<AxiosResponse<AmcatIndex>>;
 }
 
 /** Create an index */
