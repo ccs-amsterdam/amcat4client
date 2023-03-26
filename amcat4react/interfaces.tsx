@@ -6,7 +6,7 @@ export interface AmcatServerConfig {
   resource: string;
   [key: string]: any;
 }
-export const AmcatRoles = ["METAREADER", "READER", "WRITER", "ADMIN"] as const;
+export const AmcatRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
 export type AmcatRole = typeof AmcatRoles[number];
 
 export interface AmcatUserInfo {
@@ -14,6 +14,10 @@ export interface AmcatUserInfo {
   global_role: AmcatRole;
 }
 
+export interface AmcatIndexUserInfo {
+  email: string;
+  role: AmcatRole;
+}
 export interface AmcatUser extends MiddlecatUser {}
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
@@ -132,7 +136,8 @@ export interface AmcatIndex {
   id: AmcatIndexName;
   name: string;
   description?: string;
-  guest_role?: string;
+  guest_role?: AmcatRole;
+  user_role?: AmcatRole;
 }
 
 export interface AmcatDocument {

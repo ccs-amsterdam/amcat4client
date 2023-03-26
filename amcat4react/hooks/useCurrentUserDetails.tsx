@@ -25,12 +25,18 @@ export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUse
   );
 }
 
-export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {
+export function useMyGlobalRole(user: AmcatUser | undefined) {
   const currentUserQuery = useCurrentUserDetails(user);
-  const serverconfig = useServerConfig(user);
-  if (serverconfig.isSuccess && serverconfig.data.authorization === "no_auth") return true;
   if (!currentUserQuery.isSuccess || currentUserQuery.data == null) return undefined;
-  const actual_role_index = AmcatRoles.indexOf(currentUserQuery.data.global_role);
+  return currentUserQuery.data.global_role;
+}
+
+export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {
+  const serverconfig = useServerConfig(user);
+  const actual_role = useMyGlobalRole(user);
+  if (serverconfig.isSuccess && serverconfig.data.authorization === "no_auth") return true;
+  if (actual_role == null) return undefined;
+  const actual_role_index = AmcatRoles.indexOf(actual_role);
   const required_role_index = AmcatRoles.indexOf(role);
   return actual_role_index >= required_role_index;
 }

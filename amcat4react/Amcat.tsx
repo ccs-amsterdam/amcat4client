@@ -2,7 +2,15 @@ import { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { SemanticICONS } from "semantic-ui-react";
 import { AggregationOptions, AmcatDocument, AmcatField, AmcatFilters } from ".";
-import { AmcatIndex, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUser, AmcatUserInfo } from "./interfaces";
+import {
+  AmcatIndex,
+  AmcatIndexName,
+  AmcatIndexUserInfo,
+  AmcatQuery,
+  AmcatServerConfig,
+  AmcatUser,
+  AmcatUserInfo,
+} from "./interfaces";
 
 export function errorToString(error: AxiosError) {
   const d = error.response?.data as any;
@@ -61,6 +69,11 @@ export function createIndex(user: AmcatUser, index: AmcatIndex) {
   if (body.guest_role === "NONE") delete body.guest_role;
   if (!body.description || body.description.length > 0) delete body.description;
   return user.api.post(`/index/`, body);
+}
+
+/** List users on an index */
+export async function getIndexUsers(user: AmcatUser, index: string) {
+  return user.api.get(`/index/${index}/users`) as Promise<AxiosResponse<AmcatIndexUserInfo[]>>;
 }
 
 /** Get the list of indices on this server */

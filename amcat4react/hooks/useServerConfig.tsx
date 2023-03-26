@@ -4,7 +4,7 @@ import { AmcatServerConfig, AmcatUser } from "../interfaces";
 
 export function useServerConfig(user?: AmcatUser): UseQueryResult<AmcatServerConfig> {
   return useQuery(
-    ["serverconfig", user],
+    ["serverconfig", user?.email],
     async () => {
       if (user == null) return null;
       const res = await getServerConfig(user);
