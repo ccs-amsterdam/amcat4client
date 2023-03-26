@@ -10,6 +10,7 @@ export const AmcatRoles = ["METAREADER", "READER", "WRITER", "ADMIN"] as const;
 export type AmcatRole = typeof AmcatRoles[number];
 
 export interface AmcatUserInfo {
+  email: string;
   global_role: AmcatRole;
 }
 

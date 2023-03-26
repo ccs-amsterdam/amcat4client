@@ -19,6 +19,27 @@ export function getCurrentUserDetails(user: AmcatUser) {
   return user.api.get(`/users/me`) as Promise<AxiosResponse<AmcatUserInfo>>;
 }
 
+/** List global users */
+export function listGlobalUsers(user: AmcatUser) {
+  return user.api.get("/users") as Promise<AxiosResponse<AmcatUserInfo[]>>;
+}
+
+/** Delete a global user */
+export function deleteGlobalUser(user: AmcatUser, email: string) {
+  return user.api.delete(`/users/${email}`);
+}
+
+/** Add a global user */
+export function addGlobalUser(user: AmcatUser, to_add: AmcatUserInfo) {
+  return user.api.post(`/users/`, to_add);
+}
+
+/**Change a global user */
+export function changeGlobalUser(user: AmcatUser, to_change: AmcatUserInfo) {
+  const { email, ...body } = to_change;
+  return user.api.put(`/users/${email}`, body);
+}
+
 /** Get server config */
 export function getServerConfig(user: AmcatUser) {
   return user.api.get(`/config`) as Promise<AxiosResponse<AmcatServerConfig>>;
