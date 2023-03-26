@@ -1,8 +1,18 @@
-import Axios, { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { SemanticICONS } from "semantic-ui-react";
 import { AggregationOptions, AmcatDocument, AmcatField, AmcatFilters } from ".";
-import { AmcatUser, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUserInfo, AmcatIndex } from "./interfaces";
+import { AmcatIndex, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUser, AmcatUserInfo } from "./interfaces";
+
+export function errorToString(error: AxiosError) {
+  const d = error.response?.data as any;
+  const prefix = error.response == null ? "" : `[${error.response?.status}:${error.response?.statusText}] `;
+  return `${prefix}${d?.detail || error.message}`;
+}
+
+export function refreshIndex(user: AmcatUser, index: string) {
+  return user.api.get(`index/${index}/refresh`);
+}
 
 /** Get user details */
 export function getCurrentUserDetails(user: AmcatUser) {
@@ -19,12 +29,16 @@ export function getIndex(user: AmcatUser, index: string) {
   return user.api.get(`/index/${index}`) as Promise<AxiosResponse<AmcatIndex>>;
 }
 
+/** Change index details */
+export function changeIndex(user: AmcatUser, index: AmcatIndex) {
+  return user.api.put(`/index/${index.id}`, index);
+}
+
 /** Create an index */
-export function createIndex(user: AmcatUser, id: string, guestRole = "NONE", name?: string, description?: string) {
-  const body: any = { id: id };
-  if (guestRole !== "NONE") body.guest_role = guestRole;
-  if (name && name.length > 0) body.name = name;
-  if (description && description.length > 0) body.description = description;
+export function createIndex(user: AmcatUser, index: AmcatIndex) {
+  const body = { ...index };
+  if (body.guest_role === "NONE") delete body.guest_role;
+  if (!body.description || body.description.length > 0) delete body.description;
   return user.api.post(`/index/`, body);
 }
 

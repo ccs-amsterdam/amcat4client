@@ -6,12 +6,12 @@ interface Props {
   onSelect: (index: string) => void;
 }
 
-export default function Indices({ user, onSelect }: Props) {
-  const indices = useAmcatIndices(user);
+export default function Indices({ onSelect }: Props) {
+  const indices = useAmcatIndices();
   if (indices.isLoading) return <Response.LoadingScreen />;
   if (indices.isError) return <Response.ErrorScreen />;
 
-  if (user == null || indices.data == null) return null;
+  if (indices.data == null) return null;
   return (
     <Card.Group>
       {indices.data.map((i) => (

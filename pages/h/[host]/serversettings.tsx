@@ -1,8 +1,8 @@
+import { useMiddlecatContext } from "../../../amcat4react";
 import { useServerConfig } from "../../../amcat4react/hooks/useServerConfig";
-import useUser from "../../../hooks/useUser";
 
 export default function ServerSettings() {
-  const user = useUser();
+  const { user } = useMiddlecatContext();
   const server = useServerConfig(user);
   console.log(server);
   if (user == null || !server.isSuccess || !server.data) return;

@@ -30,9 +30,13 @@ export default function Home() {
 
   const { user, AuthForm } = useMiddlecatContext();
 
-  if (user) {
-    router.push(login_redirect ? login_redirect : link_host(user.resource));
+  if (user && login_redirect) {
+    console.log(login_redirect);
+    router.push(login_redirect);
     return null;
+  }
+  if (user) {
+    router.push(link_host(user.resource));
   }
 
   return (
@@ -54,10 +58,12 @@ export default function Home() {
             ) : null}
           </div>
           <div className="AuthForm">
-            <AuthForm
-              resourceFixed={login_host || undefined}
-              resourceSuggestion={login_host ? undefined : "http://localhost:5000"}
-            />
+            {user ? null : (
+              <AuthForm
+                resourceFixed={login_host || undefined}
+                resourceSuggestion={login_host ? undefined : "http://localhost:5000"}
+              />
+            )}
           </div>
         </StyleWrapper>
       </main>
