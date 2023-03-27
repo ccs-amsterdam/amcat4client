@@ -11,7 +11,7 @@ export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUse
       if (user == null) return null;
       if (user.email === "") return {};
       const res = await getCurrentUserDetails(user);
-      return { ...res.data, global_role: res.data.global_role.toUpperCase() };
+      return { ...res.data, role: res.data.role.toUpperCase() };
     },
     {
       enabled: user != null,
@@ -28,7 +28,7 @@ export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUse
 export function useMyGlobalRole(user: AmcatUser | undefined) {
   const currentUserQuery = useCurrentUserDetails(user);
   if (!currentUserQuery.isSuccess || currentUserQuery.data == null) return undefined;
-  return currentUserQuery.data.global_role;
+  return currentUserQuery.data.role;
 }
 
 export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {

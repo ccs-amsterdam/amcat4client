@@ -21,9 +21,9 @@ export default function UserForm({ user, onChange, disableEmail }: Props) {
       <Form.Field>
         <label>Server role</label>
         <Form.Dropdown
-          value={user?.global_role}
+          value={user?.role}
           options={ROLES}
-          onChange={(_, { value }) => user && onChange({ ...user, global_role: value as AmcatRole })}
+          onChange={(_, { value }) => user && onChange({ ...user, role: value as AmcatRole })}
         />
       </Form.Field>{" "}
     </Form>

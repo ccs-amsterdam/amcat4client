@@ -11,13 +11,9 @@ export type AmcatRole = typeof AmcatRoles[number];
 
 export interface AmcatUserInfo {
   email: string;
-  global_role: AmcatRole;
-}
-
-export interface AmcatIndexUserInfo {
-  email: string;
   role: AmcatRole;
 }
+
 export interface AmcatUser extends MiddlecatUser {}
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";

@@ -7,7 +7,7 @@ import ModalForm from "../../../amcat4react/components/User/ModalForm";
 import UserForm from "../../../amcat4react/components/User/UserForm";
 import { useServerConfig } from "../../../amcat4react/hooks/useServerConfig";
 
-const NEW_USER = { global_role: "READER", email: "" } as AmcatUserInfo;
+const NEW_USER = { role: "READER", email: "" } as AmcatUserInfo;
 
 export default function ServerSettings() {
   const { user } = useMiddlecatContext();
@@ -42,7 +42,7 @@ export default function ServerSettings() {
           <Table.Row>
             <Table.HeaderCell width={1} />
             <Table.HeaderCell content="Email" />
-            <Table.HeaderCell content="Global role" />
+            <Table.HeaderCell content="Role" />
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -55,7 +55,7 @@ export default function ServerSettings() {
                 </ButtonGroup>
               </Table.Cell>
               <Table.Cell content={u.email} />
-              <Table.Cell content={u.global_role} />
+              <Table.Cell content={u.role} />
             </Table.Row>
           ))}
         </Table.Body>
