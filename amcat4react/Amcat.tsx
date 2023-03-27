@@ -68,6 +68,18 @@ export async function getIndexUsers(user: AmcatUser, index: string) {
   return user.api.get(`/index/${index}/users`) as Promise<AxiosResponse<AmcatUserInfo[]>>;
 }
 
+export async function deleteIndexUser(user: AmcatUser, index: string, to_delete: string) {
+  return user.api.delete(`/index/${index}/users/${to_delete}`) as Promise<AxiosResponse>;
+}
+
+export async function addIndexUser(user: AmcatUser, index: string, to_add: AmcatUserInfo) {
+  return user.api.post(`/index/${index}/users`, to_add) as Promise<AxiosResponse>;
+}
+
+export function changeIndexUser(user: AmcatUser, index: string, to_change: AmcatUserInfo) {
+  const { email, ...body } = to_change;
+  return user.api.put(`/index/${index}/users/${email}`, body);
+}
 /** Get the list of indices on this server */
 export async function getIndices(user: AmcatUser) {
   return user.api.get(`/index/`);
