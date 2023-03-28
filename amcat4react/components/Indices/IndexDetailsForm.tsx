@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { Form, Icon, Input, Message, Popup, TextArea } from "semantic-ui-react";
-import { AmcatIndex } from "../../interfaces";
+import { AmcatIndex, AmcatRole } from "../../interfaces";
 
 interface Props {
   index?: AmcatIndex;
@@ -104,7 +104,7 @@ export default function IndexDetailsForm({ index, onChange, error, nameError, di
           selection
           options={GUESTROLES}
           value={index.guest_role == null ? "NONE" : index.guest_role}
-          onChange={(_, { value }) => onChange && onChange({ ...index, guest_role: value as string })}
+          onChange={(_, { value }) => onChange && onChange({ ...index, guest_role: value as AmcatRole })}
         />
       </Form.Field>
       <Form.Field>
