@@ -1,32 +1,91 @@
-import Axios, { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { SemanticICONS } from "semantic-ui-react";
 import { AggregationOptions, AmcatDocument, AmcatField, AmcatFilters } from ".";
-import { AmcatUser, AmcatIndexName, AmcatQuery } from "./interfaces";
+import { AmcatIndex, AmcatIndexName, AmcatQuery, AmcatServerConfig, AmcatUser, AmcatUserInfo } from "./interfaces";
+
+export function errorToString(error: AxiosError) {
+  const d = error.response?.data as any;
+  const prefix = error.response == null ? "" : `[${error.response?.status}:${error.response?.statusText}] `;
+  return `${prefix}${d?.detail || error.message}`;
+}
+
+export function refreshIndex(user: AmcatUser, index: string) {
+  return user.api.get(`index/${index}/refresh`);
+}
+
+/** Get user details */
+export function getCurrentUserDetails(user: AmcatUser) {
+  return user.api.get(`/users/me`) as Promise<AxiosResponse<AmcatUserInfo>>;
+}
+
+/** List global users */
+export function listGlobalUsers(user: AmcatUser) {
+  return user.api.get("/users") as Promise<AxiosResponse<AmcatUserInfo[]>>;
+}
+
+/** Delete a global user */
+export function deleteGlobalUser(user: AmcatUser, email: string) {
+  return user.api.delete(`/users/${email}`);
+}
+
+/** Add a global user */
+export function addGlobalUser(user: AmcatUser, to_add: AmcatUserInfo) {
+  return user.api.post(`/users/`, to_add);
+}
+
+/**Change a global user */
+export function changeGlobalUser(user: AmcatUser, to_change: AmcatUserInfo) {
+  const { email, ...body } = to_change;
+  return user.api.put(`/users/${email}`, body);
+}
+
+/** Get server config */
+export function getServerConfig(user: AmcatUser) {
+  return user.api.get(`/config`) as Promise<AxiosResponse<AmcatServerConfig>>;
+}
 
 /** Get index details / check if an index exists */
 export function getIndex(user: AmcatUser, index: string) {
-  return user.api.get(`/index/${index}`);
+  return user.api.get(`/index/${index}`) as Promise<AxiosResponse<AmcatIndex>>;
+}
+
+/** Change index details */
+export function changeIndex(user: AmcatUser, index: AmcatIndex) {
+  return user.api.put(`/index/${index.id}`, index);
 }
 
 /** Create an index */
-export function createIndex(user: AmcatUser, name: string, guestRole = "NONE") {
-  const body: any = { name: name };
-  if (guestRole !== "NONE") body.guest_role = guestRole;
+export function createIndex(user: AmcatUser, index: AmcatIndex) {
+  const body = { ...index };
+  if (body.guest_role === "NONE") delete body.guest_role;
+  if (!body.description || body.description.length > 0) delete body.description;
   return user.api.post(`/index/`, body);
 }
 
+/** List users on an index */
+export async function getIndexUsers(user: AmcatUser, index: string) {
+  return user.api.get(`/index/${index}/users`) as Promise<AxiosResponse<AmcatUserInfo[]>>;
+}
+
+export async function deleteIndexUser(user: AmcatUser, index: string, to_delete: string) {
+  return user.api.delete(`/index/${index}/users/${to_delete}`) as Promise<AxiosResponse>;
+}
+
+export async function addIndexUser(user: AmcatUser, index: string, to_add: AmcatUserInfo) {
+  return user.api.post(`/index/${index}/users`, to_add) as Promise<AxiosResponse>;
+}
+
+export function changeIndexUser(user: AmcatUser, index: string, to_change: AmcatUserInfo) {
+  const { email, ...body } = to_change;
+  return user.api.put(`/index/${index}/users/${email}`, body);
+}
 /** Get the list of indices on this server */
 export async function getIndices(user: AmcatUser) {
   return user.api.get(`/index/`);
 }
 
-export function createDocuments(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  documents: AmcatDocument[],
-  columns = {}
-) {
+export function createDocuments(user: AmcatUser, index: AmcatIndexName, documents: AmcatDocument[], columns = {}) {
   // documentList should be an array of objects with at least the fields title, date and text
   return user.api.post(`index/${index}/documents`, { documents, columns });
 }
@@ -38,12 +97,7 @@ export function deleteIndex(user: AmcatUser, index: AmcatIndexName) {
 }
 
 /** POST an AmcatQuery and fetch the resulting articles */
-export function postQuery(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  query: AmcatQuery,
-  params: any
-) {
+export function postQuery(user: AmcatUser, index: AmcatIndexName, query: AmcatQuery, params: any) {
   return user.api.post(`index/${index}/query`, { ...query, ...params });
 }
 
@@ -53,22 +107,14 @@ export function getFields(user: AmcatUser, index: AmcatIndexName) {
 }
 
 /** Add fields to this index */
-export function addFields(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  fields: AmcatField[]
-) {
+export function addFields(user: AmcatUser, index: AmcatIndexName, fields: AmcatField[]) {
   const body = Object.fromEntries(fields.map((f) => [f.name, f.type]));
   return user.api.post(`index/${index}/fields`, body);
 }
 
 /** Get the values for a field
  */
-export function getFieldValues(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string
-) {
+export function getFieldValues(user: AmcatUser, index: AmcatIndexName, field: string) {
   return user.api.get(`index/${index}/fields/${field}/values`);
 }
 
@@ -79,12 +125,7 @@ export function getFieldValues(
  * @param setData Callback function that will be called with the data after a succesful call
  * @param setError Callback function that will be called with an error message on failure
  */
-export function postAggregate(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  query: AmcatQuery,
-  options: AggregationOptions
-) {
+export function postAggregate(user: AmcatUser, index: AmcatIndexName, query: AmcatQuery, options: AggregationOptions) {
   const params: any = { ...query };
   if (options?.axes) params["axes"] = options.axes;
   if (options?.metrics) params["aggregations"] = options.metrics;
@@ -110,10 +151,7 @@ export function useFieldsWithRefresh(
   user: AmcatUser | undefined,
   index: AmcatIndexName | undefined
 ): [fields: AmcatField[], refresh: () => void] {
-  function _getSetFields(
-    index: AmcatIndexName | undefined,
-    setFields: (fields: AmcatField[]) => void
-  ): void {
+  function _getSetFields(index: AmcatIndexName | undefined, setFields: (fields: AmcatField[]) => void): void {
     if (user == null || index == null) setFields([]);
     else
       getFields(user, index)
@@ -137,10 +175,7 @@ export function useFieldsWithRefresh(
  * @param index Login information for this index
  * @returns a list of field objects
  */
-export function useFields(
-  user: AmcatUser,
-  index: AmcatIndexName | undefined
-): AmcatField[] {
+export function useFields(user: AmcatUser, index: AmcatIndexName | undefined): AmcatField[] {
   return useFieldsWithRefresh(user, index)[0];
 }
 
@@ -150,11 +185,7 @@ export function useFields(
  * @returns a list of values (strings)
  */
 
-export function useFieldValues(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string
-): string[] {
+export function useFieldValues(user: AmcatUser, index: AmcatIndexName, field: string): string[] {
   const [values, setValues] = useState<string[]>([]);
 
   useEffect(() => {
@@ -168,10 +199,7 @@ export function useFieldValues(
   return values;
 }
 
-export function getField(
-  fields: AmcatField[],
-  fieldname: string
-): AmcatField | undefined {
+export function getField(fields: AmcatField[], fieldname: string): AmcatField | undefined {
   const i = fields.map((f) => f.name).indexOf(fieldname);
   if (i === -1) return undefined;
   return fields[i];
@@ -217,12 +245,7 @@ export function updateTags(
   });
 }
 
-export function setField(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  field: string,
-  type: any
-) {
+export function setField(user: AmcatUser, index: AmcatIndexName, field: string, type: any) {
   const body = { [field]: type };
   return user.api.post(`index/${index}/fields`, body);
 }

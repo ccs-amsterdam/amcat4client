@@ -1,6 +1,19 @@
 import { MiddlecatUser } from "middlecat-react";
 import { ReactNode } from "react";
 
+export interface AmcatServerConfig {
+  authorization: "allow_guests" | "no_auth" | "allow_authenticated_guests" | "authorized_users_only";
+  resource: string;
+  [key: string]: any;
+}
+export const AmcatRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
+export type AmcatRole = typeof AmcatRoles[number];
+
+export interface AmcatUserInfo {
+  email: string;
+  role: AmcatRole;
+}
+
 export interface AmcatUser extends MiddlecatUser {}
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
@@ -73,17 +86,7 @@ export interface AmcatFilter extends DateFilter {
 
 export interface AmcatField {
   name: string;
-  type:
-    | "long"
-    | "double"
-    | "object"
-    | "keyword"
-    | "date"
-    | "tag"
-    | "text"
-    | "url"
-    | "geo_point"
-    | "id";
+  type: "long" | "double" | "object" | "keyword" | "date" | "tag" | "text" | "url" | "geo_point" | "id";
   meta?: { [field: string]: string };
 }
 
@@ -126,7 +129,11 @@ export interface AggregateVisualizerProps {
 
 export type AmcatIndexName = string;
 export interface AmcatIndex {
-  name: AmcatIndexName;
+  id: AmcatIndexName;
+  name: string;
+  description?: string;
+  guest_role?: AmcatRole;
+  user_role?: AmcatRole;
 }
 
 export interface AmcatDocument {
@@ -157,7 +164,4 @@ export interface LocationOptions {
   height?: number | string;
 }
 
-export type SortSpec =
-  | string
-  | string[]
-  | { [field: string]: { order?: "asc" | "desc" } }[];
+export type SortSpec = string | string[] | { [field: string]: { order?: "asc" | "desc" } }[];

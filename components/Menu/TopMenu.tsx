@@ -1,12 +1,16 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Menu } from "semantic-ui-react";
+import Link from "next/link";
+
 import styled from "styled-components";
 import { useMiddlecatContext } from "../../amcat4react";
-import { link_index } from "../../functions/links";
+import { encodeHostname, link_index } from "../../functions/links";
 
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
+import { useHasGlobalRole } from "../../amcat4react/hooks/useCurrentUserDetails";
+import { useHasIndexRole } from "../../amcat4react/hooks/useIndexDetails";
 
 const StyledMenu = styled(Menu)`
   border-radius: 0 !important;
@@ -22,6 +26,7 @@ export default function TopMenu() {
   const router = useRouter();
   const host = router.query.host;
   const index = router.query.i as string;
+  const isAdmin = useHasIndexRole(index, "ADMIN");
 
   // Check if we need to login or logout
   useEffect(() => {
@@ -45,26 +50,48 @@ export default function TopMenu() {
   // not match the host of the current middleCat session, kill
   // the session so that the user can log in with the correct host
   if (user && host) {
-    if (user.resource !== host) {
+    const resource = encodeHostname(user.resource);
+    if (resource !== host) {
       user.killSession(true);
     }
   }
-
+  const index_href = user && link_index(user.resource, index);
   return (
     <StyledMenu inverted>
       <Menu.Menu position="left">
         {user == null || index == null ? null : (
           <>
             <Menu.Item
-              onClick={() => router.push(`${link_index(user.resource, index)}/query`)}
+              href={`${index_href}/query`}
+              active={router.pathname === "/h/[host]/i/[i]/query"}
               content="Query"
               icon="search"
+              as={Link}
             />
-            <Menu.Item icon="tags" content="Tags" />
+            {!isAdmin ? null : (
+              <Menu.Item
+                icon="settings"
+                content="Settings"
+                href={`${index_href}/settings`}
+                as={Link}
+                active={router.pathname === "/h/[host]/i/[i]/settings"}
+              />
+            )}
+            {!isAdmin ? null : (
+              <Menu.Item
+                icon="users"
+                content="Users"
+                href={`${index_href}/users`}
+                as={Link}
+                active={router.pathname === "/h/[host]/i/[i]/users"}
+              />
+            )}
             <Menu.Item
+              href={`${index_href}/fields`}
               icon="columns"
+              as={Link}
               content="Fields"
-              onClick={() => router.push(`${link_index(user.resource, index)}/fields`)}
+              active={router.pathname === "/h/[host]/i/[i]/fields"}
             />
           </>
         )}

@@ -1,68 +1,27 @@
-import styled from "styled-components";
-import { useAmcatIndices, Response, AmcatUser } from "../../../amcat4react";
-import CreateIndex from "./CreateIndex";
-
-const StyleWrapper = styled.div`
-  box-sizing: border-box;
-  font-size: 1.2em;
-  margin: auto;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  padding: 2rem 0rem;
-
-  h2 {
-    color: var(--secondary);
-    & span {
-      font-size: 0.8em;
-    }
-  }
-
-  .IndexButtons {
-    display: flex;
-    flex-direction: column;
-  }
-
-  ul {
-    font-size: 1.5rem;
-    list-style: none;
-
-    & li {
-      cursor: pointer;
-      padding: 0.3rem;
-      border-radius: 5px;
-    }
-    & li:hover {
-      background: var(--primary);
-    }
-  }
-`;
+import { Card } from "semantic-ui-react";
+import { AmcatUser, Response, useAmcatIndices } from "../../../amcat4react";
 
 interface Props {
   user: AmcatUser | undefined;
   onSelect: (index: string) => void;
 }
 
-export default function Indices({ user, onSelect }: Props) {
-  const indices = useAmcatIndices(user);
+export default function Indices({ onSelect }: Props) {
+  const indices = useAmcatIndices();
   if (indices.isLoading) return <Response.LoadingScreen />;
   if (indices.isError) return <Response.ErrorScreen />;
 
-  if (user == null || indices.data == null) return null;
-
+  if (indices.data == null) return null;
   return (
-    <StyleWrapper>
-      <CreateIndex user={user} onCreate={() => indices.refetch} />
-      <h2>
-        {indices.data.length > 0 ? "Select index" : "No indices available"}
-      </h2>
-      <ul>
-        {indices.data.map((i) => (
-          <li key={i.name} onClick={() => onSelect(i.name)}>
-            {i.name}
-          </li>
-        ))}
-      </ul>
-    </StyleWrapper>
+    <Card.Group>
+      {indices.data.map((i) => (
+        <Card key={i.id} onClick={() => onSelect(i.id)}>
+          <Card.Content>
+            <Card.Header>{i.name || i.id}</Card.Header>
+            <Card.Description>{i.description}</Card.Description>
+          </Card.Content>
+        </Card>
+      ))}
+    </Card.Group>
   );
 }
