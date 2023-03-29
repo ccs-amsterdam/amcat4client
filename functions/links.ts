@@ -11,15 +11,26 @@ export function link_query(host: string, index: AmcatIndexName) {
 export function link_host(host: string) {
   const fixed_host = process.env.REACT_APP_FIXED_HOST;
 
-  return fixed_host ? `/h/${encodeHostname(fixed_host)}` : `/h/${encodeHostname(host)}`;
+  return fixed_host ? `/h/${abbreviateHostname(fixed_host)}` : `/h/${abbreviateHostname(host)}`;
 }
 
 export function link_doc(host: string, index: AmcatIndexName, doc: string) {
   return `${link_index(host, index)}/doc/${doc}`;
 }
 
-export function encodeHostname(host: string) {
+/** Convert from https://host:port/path to host:post%2Fpath */
+export function abbreviateHostname(host: string) {
+  if (!/^https?:\/\//.test(host)) throw new Error(`Cannot abbreviate hostname ${host}, already abbreviated?`)
   const hostname = new URL(host).hostname;
   host = host.replace(hostname == "localhost" ? "http://" : "https://", "");
   return encodeURIComponent(host).replaceAll("%3A", ":");
+}
+
+/** Convert from host:post%2Fpath to https://host:port/path */
+export function expandHostname(host: string) {
+  let result = decodeURIComponent(host)
+
+  if (!/^https?:\/\//.test(result))
+    result = (/^localhost[:\/]/.test(result)?"http://":"https://") + result
+  return result
 }

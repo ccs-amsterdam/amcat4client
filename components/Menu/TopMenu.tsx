@@ -5,11 +5,14 @@ import Link from "next/link";
 
 import styled from "styled-components";
 import { useMiddlecatContext } from "../../amcat4react";
-import { encodeHostname, link_index } from "../../functions/links";
+import {
+  abbreviateHostname,
+  expandHostname,
+  link_index,
+} from "../../functions/links";
 
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
-import { useHasGlobalRole } from "../../amcat4react/hooks/useCurrentUserDetails";
 import { useHasIndexRole } from "../../amcat4react/hooks/useIndexDetails";
 
 const StyledMenu = styled(Menu)`
@@ -42,7 +45,9 @@ export default function TopMenu() {
 
     if (loginRoute != null && url.pathname !== loginRoute) {
       // if not logged in, and not yet on loginRoute, redirect
-      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(url.pathname)}`;
+      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(
+        url.pathname
+      )}`;
     }
   });
 
@@ -50,8 +55,8 @@ export default function TopMenu() {
   // not match the host of the current middleCat session, kill
   // the session so that the user can log in with the correct host
   if (user && host) {
-    const resource = encodeHostname(user.resource);
-    if (resource !== host) {
+    const requested_host = expandHostname(host as string);
+    if (user.resource !== requested_host) {
       user.killSession(true);
     }
   }

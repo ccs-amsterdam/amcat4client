@@ -52,7 +52,7 @@ export default function Home() {
           <div className="LoginRedirect">
             {login_redirect ? (
               <p>
-                To open <span>{decodeURIComponent(login_redirect)}</span> you first need to login to{" "}
+                To open <span>{login_redirect}</span> you first need to login to{" "}
                 <span>{login_host}</span>
               </p>
             ) : null}
@@ -61,7 +61,9 @@ export default function Home() {
             {user ? null : (
               <AuthForm
                 resourceFixed={login_host || undefined}
-                resourceSuggestion={login_host ? undefined : "http://localhost:5000"}
+                resourceSuggestion={
+                  login_host ? undefined : "http://localhost:5000"
+                }
               />
             )}
           </div>
