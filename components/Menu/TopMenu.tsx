@@ -5,11 +5,7 @@ import Link from "next/link";
 
 import styled from "styled-components";
 import { useMiddlecatContext } from "../../amcat4react";
-import {
-  abbreviateHostname,
-  expandHostname,
-  link_index,
-} from "../../functions/links";
+import { abbreviateHostname, expandHostname, link_index } from "../../functions/links";
 
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
@@ -45,9 +41,7 @@ export default function TopMenu() {
 
     if (loginRoute != null && url.pathname !== loginRoute) {
       // if not logged in, and not yet on loginRoute, redirect
-      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(
-        url.pathname
-      )}`;
+      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(url.pathname)}`;
     }
   });
 
@@ -62,7 +56,7 @@ export default function TopMenu() {
   }
   const index_href = user && link_index(user.resource, index);
   return (
-    <StyledMenu inverted>
+    <StyledMenu inverted stackable>
       <Menu.Menu position="left">
         {user == null || index == null ? null : (
           <>

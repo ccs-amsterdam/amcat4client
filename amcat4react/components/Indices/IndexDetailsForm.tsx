@@ -123,7 +123,7 @@ export default function IndexDetailsForm({ index, onChange, error, nameError, di
             An optional description for the index that can be displayed to users
           </Popup>
           <TextArea
-            value={index.description}
+            value={index.description || ""}
             onChange={(_, { value }) => onChange && onChange({ ...index, description: value as string })}
           ></TextArea>
         </label>
