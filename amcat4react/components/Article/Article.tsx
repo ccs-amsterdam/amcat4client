@@ -1,20 +1,9 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { Grid, Icon, Label, Popup, Table } from "semantic-ui-react";
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { Grid, Icon, Label, Message, Popup, Table } from "semantic-ui-react";
 import { addFilter, postQuery, useFields } from "../../Amcat";
-import {
-  AmcatUser,
-  AmcatDocument,
-  AmcatField,
-  AmcatIndexName,
-  AmcatQuery,
-} from "../../interfaces";
+import { AmcatUser, AmcatDocument, AmcatField, AmcatIndexName, AmcatQuery } from "../../interfaces";
 import prepareArticle from "./prepareArticle";
+import { useMyIndexrole } from "../../hooks/useIndexDetails";
 
 export interface ArticleProps {
   user: AmcatUser;
@@ -28,16 +17,10 @@ export interface ArticleProps {
 }
 
 export default React.memo(Article);
-function Article({
-  user,
-  index,
-  id,
-  query,
-  changeArticle,
-  link,
-}: ArticleProps) {
+function Article({ user, index, id, query, changeArticle, link }: ArticleProps) {
   const fields = useFields(user, index);
   const [article, setArticle] = useState<AmcatDocument | null>(null);
+  const myrole = useMyIndexrole(index);
 
   useEffect(() => {
     if (!id) return;
@@ -50,15 +33,10 @@ function Article({
   return (
     <Grid stackable>
       <Grid.Column width={6}>
-        <Meta
-          article={article}
-          fields={fields}
-          setArticle={changeArticle}
-          link={link}
-        />
+        <Meta article={article} fields={fields} setArticle={changeArticle} link={link} />
       </Grid.Column>
       <Grid.Column width={10}>
-        <Body article={article} fields={fields} />
+        <Body article={article} fields={fields} canviewtext={myrole !== "METAREADER"} />
       </Grid.Column>
     </Grid>
   );
@@ -86,6 +64,7 @@ function fetchArticle(
 interface BodyProps {
   article: AmcatDocument;
   fields: AmcatField[];
+  canviewtext: boolean;
 }
 
 // now static, but designed so that we can make it dynamic later
@@ -95,20 +74,13 @@ const fieldLayout = {
   default: {},
 };
 
-const Body = ({ article, fields }: BodyProps) => {
+const Body = ({ article, fields, canviewtext }: BodyProps) => {
   article = useMemo(() => prepareArticle(article), [article]);
 
   // Add title, all other 'text' fields, and finally text
-  const texts = [
-    <TextField key={-1} article={article} field="title" layout={fieldLayout} />,
-  ];
+  const texts = [<TextField key={-1} article={article} field="title" layout={fieldLayout} canviewtext={true} />];
   fields
-    .filter(
-      (f) =>
-        f.type === "text" &&
-        !["title", "text"].includes(f.name) &&
-        article[f.name]
-    )
+    .filter((f) => f.type === "text" && !["title", "text"].includes(f.name) && article[f.name])
     .forEach((f, i) => {
       texts.push(
         <TextField
@@ -116,6 +88,7 @@ const Body = ({ article, fields }: BodyProps) => {
           article={article}
           field={f.name}
           layout={fieldLayout}
+          canviewtext={canviewtext}
           label={true}
         />
       );
@@ -128,6 +101,7 @@ const Body = ({ article, fields }: BodyProps) => {
       field="text"
       layout={fieldLayout}
       label={texts.length > 1}
+      canviewtext={canviewtext}
     />
   );
   return <>{texts}</>;
@@ -137,15 +111,21 @@ interface TextFieldProps {
   article: AmcatDocument;
   field: string;
   layout: any;
+  canviewtext: boolean;
   label?: boolean;
 }
 
-function TextField({ article, field, layout, label }: TextFieldProps) {
-  const paragraphs = Array.isArray(article[field])
-    ? article[field]
-    : [article[field]];
+function TextField({ article, field, layout, label, canviewtext }: TextFieldProps) {
+  const paragraphs = Array.isArray(article[field]) ? article[field] : [article[field]];
 
   const fieldLayout = layout[field] || layout.default;
+
+  const content = paragraphs.map((p: any, i: number) => (
+    <span key={`${field}_${i}`} style={fieldLayout}>
+      {p}
+    </span>
+  ));
+
   return (
     <div key={field} style={{ paddingBottom: "1em" }}>
       {!label ? null : (
@@ -160,11 +140,14 @@ function TextField({ article, field, layout, label }: TextFieldProps) {
           {field}
         </span>
       )}
-      {paragraphs.map((p: any, i: number) => (
-        <span key={`${field}_${i}`} style={fieldLayout}>
-          {p}
-        </span>
-      ))}
+      {canviewtext ? (
+        content
+      ) : (
+        <Message warning>
+          Text fields cannot be displayed because you have insufficient access to this index. Please contact the index
+          admin to request access.
+        </Message>
+      )}
     </div>
   );
 }
@@ -178,10 +161,7 @@ interface MetaProps {
 
 const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
   const metaFields = fields.filter(
-    (f) =>
-      f.type !== "text" &&
-      !["title", "text"].includes(f.name) &&
-      f.meta?.amcat4_display_meta !== "0"
+    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.meta?.amcat4_display_meta !== "0"
   );
   const rows = () => {
     return metaFields.map((field) => {
@@ -202,8 +182,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
 
   const abbreviate = function (text: string | number) {
     const t = text.toString();
-    if (t.length > 10)
-      return `${t.substring(0, 4)}...${t.substring(t.length - 4)}`;
+    if (t.length > 10) return `${t.substring(0, 4)}...${t.substring(t.length - 4)}`;
     return t;
   };
 
@@ -257,11 +236,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
  * @param {*} field
  * @returns
  */
-export const formatMetaValue = (
-  article: AmcatDocument,
-  field: AmcatField,
-  setArticle?: (id: string) => void
-) => {
+export const formatMetaValue = (article: AmcatDocument, field: AmcatField, setArticle?: (id: string) => void) => {
   const value = article[field.name];
   if (value == null) return null;
   switch (field.type) {
@@ -269,8 +244,7 @@ export const formatMetaValue = (
       // Only remove 'T' for now. But not sure why that's a great idea
       return value.replace("T", " ").substring(0, 19);
     case "id":
-      if (setArticle)
-        return <Icon link name="linkify" onClick={() => setArticle(value)} />;
+      if (setArticle) return <Icon link name="linkify" onClick={() => setArticle(value)} />;
     case "url":
       return <a href={value}>{value}</a>;
     case "tag":
