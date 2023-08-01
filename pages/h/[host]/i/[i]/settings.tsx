@@ -2,15 +2,21 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { Button, Message } from "semantic-ui-react";
-import { AmcatIndex, useMiddlecatContext } from "../../../../../amcat4react";
-import { changeIndex, errorToString, getIndex } from "../../../../../amcat4react/Amcat";
+import { AmcatIndex, useMiddlecat } from "../../../../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
+
+import {
+  changeIndex,
+  errorToString,
+  getIndex,
+} from "../../../../../amcat4react/Amcat";
 import IndexDetailsForm from "../../../../../amcat4react/components/Indices/IndexDetailsForm";
 import { QueryKey } from "../../../../../amcat4react/hooks/useAmcatIndices";
 
 type State = "unchanged" | "modified" | "success" | "error" | "loading";
 
 export default function IndexSettings() {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const router = useRouter();
   const queryclient = useQueryClient();
   const id = router.query.i as string;
@@ -18,12 +24,17 @@ export default function IndexSettings() {
   const [error, setError] = useState<string | undefined>(undefined);
   const [state, setState] = useState<State>("unchanged");
 
-  const indexresults = useQuery(["index", id], async () => user && (await getIndex(user, id)).data, {
-    enabled: user != null && id != null,
-    staleTime: 600000,
-    onSuccess: setIndex,
-  });
-  if (indexresults.isSuccess && indexresults.data != null && index == null) setIndex(indexresults.data);
+  const indexresults = useQuery(
+    ["index", id],
+    async () => user && (await getIndex(user, id)).data,
+    {
+      enabled: user != null && id != null,
+      staleTime: 600000,
+      onSuccess: setIndex,
+    }
+  );
+  if (indexresults.isSuccess && indexresults.data != null && index == null)
+    setIndex(indexresults.data);
   if (!user || !index) return null;
 
   const handleSubmit = () => {
@@ -48,7 +59,12 @@ export default function IndexSettings() {
   };
   return (
     <>
-      <IndexDetailsForm disable_id index={index} onChange={handleChange} error={error} />
+      <IndexDetailsForm
+        disable_id
+        index={index}
+        onChange={handleChange}
+        error={error}
+      />
       <Button
         loading={state === "loading"}
         disabled={state !== "modified"}

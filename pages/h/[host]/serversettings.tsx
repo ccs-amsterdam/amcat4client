@@ -1,8 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { Button, ButtonGroup, Confirm, Table } from "semantic-ui-react";
-import { AmcatUserInfo, useMiddlecatContext } from "../../../amcat4react";
-import { addGlobalUser, changeGlobalUser, deleteGlobalUser, listGlobalUsers } from "../../../amcat4react/Amcat";
+import { AmcatUserInfo } from "../../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
+
+import {
+  addGlobalUser,
+  changeGlobalUser,
+  deleteGlobalUser,
+  listGlobalUsers,
+} from "../../../amcat4react/Amcat";
 import ModalForm from "../../../amcat4react/components/User/ModalForm";
 import UserForm from "../../../amcat4react/components/User/UserForm";
 import { useServerConfig } from "../../../amcat4react/hooks/useServerConfig";
@@ -10,15 +17,21 @@ import { useServerConfig } from "../../../amcat4react/hooks/useServerConfig";
 const NEW_USER = { role: "READER", email: "" } as AmcatUserInfo;
 
 export default function ServerSettings() {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const server = useServerConfig(user);
-  const [deleteUserOpen, setDeleteUserOpen] = useState<AmcatUserInfo | undefined>(undefined);
+  const [deleteUserOpen, setDeleteUserOpen] = useState<
+    AmcatUserInfo | undefined
+  >(undefined);
   const [newUser, setNewUser] = useState<AmcatUserInfo | undefined>();
   const [editUser, setEditUser] = useState<AmcatUserInfo | undefined>();
-  const users = useQuery(["global-users"], async () => user && (await listGlobalUsers(user)).data, {
-    enabled: user != null,
-    staleTime: 60000,
-  });
+  const users = useQuery(
+    ["global-users"],
+    async () => user && (await listGlobalUsers(user)).data,
+    {
+      enabled: user != null,
+      staleTime: 60000,
+    }
+  );
   if (user == null || !server.data || !users.data) return;
 
   const doDeleteUser = () => {
@@ -50,8 +63,18 @@ export default function ServerSettings() {
             <Table.Row key={u.email}>
               <Table.Cell>
                 <ButtonGroup>
-                  <Button icon="trash" basic color="red" onClick={() => setDeleteUserOpen(u)} />
-                  <Button icon="pencil" basic color="blue" onClick={() => setEditUser(u)} />
+                  <Button
+                    icon="trash"
+                    basic
+                    color="red"
+                    onClick={() => setDeleteUserOpen(u)}
+                  />
+                  <Button
+                    icon="pencil"
+                    basic
+                    color="blue"
+                    onClick={() => setEditUser(u)}
+                  />
                 </ButtonGroup>
               </Table.Cell>
               <Table.Cell content={u.email} />
@@ -74,7 +97,11 @@ export default function ServerSettings() {
         onClose={() => setEditUser(undefined)}
         onSubmit={() => editUser && changeGlobalUser(user, editUser)}
         onSuccess={() => users.refetch()}
-        submitDisabled={editUser?.email == null || editUser.email.length === 0 || !/\S+@\S+\.\S+/.test(editUser.email)}
+        submitDisabled={
+          editUser?.email == null ||
+          editUser.email.length === 0 ||
+          !/\S+@\S+\.\S+/.test(editUser.email)
+        }
       >
         <UserForm user={editUser} onChange={setEditUser} disableEmail />
       </ModalForm>
@@ -84,7 +111,11 @@ export default function ServerSettings() {
         onSubmit={() => newUser && addGlobalUser(user, newUser)}
         onSuccess={() => users.refetch()}
         onClose={() => setNewUser(undefined)}
-        submitDisabled={newUser?.email == null || newUser.email.length === 0 || !/\S+@\S+\.\S+/.test(newUser.email)}
+        submitDisabled={
+          newUser?.email == null ||
+          newUser.email.length === 0 ||
+          !/\S+@\S+\.\S+/.test(newUser.email)
+        }
       >
         <UserForm user={newUser} onChange={setNewUser} />
       </ModalForm>

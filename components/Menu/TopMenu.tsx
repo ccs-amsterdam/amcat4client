@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Dropdown, Menu } from "semantic-ui-react";
 
 import styled from "styled-components";
-import { useMiddlecatContext } from "../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
 import { expandHostname, link_index } from "../../functions/links";
 
 import { useHasIndexRole } from "../../amcat4react/hooks/useIndexDetails";
@@ -21,30 +21,34 @@ const StyledMenu = styled(Menu)`
 `;
 
 export default function TopMenu() {
-  const { loading, user, loginRoute } = useMiddlecatContext();
+  const { loading, user } = useMiddlecat();
   const router = useRouter();
   const host = router.query.host;
   const index = router.query.i as string;
   const isAdmin = useHasIndexRole(index, "ADMIN");
   const isSmallDevice = useBetterMediaQuery("(max-width: 1024px)");
 
-  // Check if we need to login or logout
-  useEffect(() => {
-    if (loading || !host) return;
+  console.log(user);
 
-    const url = new URL(window.location.href);
-    if (user) {
-      // if logged in, see if there is a login_redirect to go to
-      const redirect = url.searchParams.get("login_redirect");
-      if (redirect) window.location.href = redirect;
-      return;
-    }
+  // // Check if we need to login or logout
+  // useEffect(() => {
+  //   if (loading || !host) return;
 
-    if (loginRoute != null && url.pathname !== loginRoute) {
-      // if not logged in, and not yet on loginRoute, redirect
-      window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(url.pathname)}`;
-    }
-  });
+  //   const url = new URL(window.location.href);
+  //   if (user) {
+  //     // if logged in, see if there is a login_redirect to go to
+  //     const redirect = url.searchParams.get("login_redirect");
+  //     if (redirect) window.location.href = redirect;
+  //     return;
+  //   }
+
+  //   if (loginRoute != null && url.pathname !== loginRoute) {
+  //     // if not logged in, and not yet on loginRoute, redirect
+  //     window.location.href = `${loginRoute}?login_host=${host}&login_redirect=${encodeURIComponent(
+  //       url.pathname
+  //     )}`;
+  //   }
+  // });
 
   // If opening a url with a specific host, and the host does
   // not match the host of the current middleCat session, kill

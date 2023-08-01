@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useMiddlecatContext } from "../amcat4react";
+import { useMiddlecat } from "middlecat-react";
 
 export default function LogoutPage() {
   const router = useRouter();
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
 
   useEffect(() => {
     console.log(user);

@@ -1,8 +1,9 @@
 import { useRouter } from "next/router";
-import { Article, useMiddlecatContext } from "../../../../../../amcat4react";
+import { Article } from "../../../../../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
 
 export default function DocPage() {
-  const {user} = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const router = useRouter();
   const index = router.query.i as string;
   const docid = router.query.doc as string;

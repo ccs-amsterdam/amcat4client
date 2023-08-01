@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Dropdown, Menu } from "semantic-ui-react";
-import { AmcatIndex, useAmcatIndices, useMiddlecatContext } from "../../amcat4react";
+import { AmcatIndex, useAmcatIndices } from "../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
+
 import { useMyIndexrole } from "../../amcat4react/hooks/useIndexDetails";
 import { link_host, link_query } from "../../functions/links";
 
@@ -15,22 +17,32 @@ interface IndexMenuProps {
 }
 
 export default function IndexMenu({ as_items }: IndexMenuProps) {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const router = useRouter();
   const index = router.query.i as string;
   const myrole = useMyIndexrole(index);
   const indices = useAmcatIndices();
-  const indexName = indices.data == null ? index : getIndexName(index, indices.data);
+  const indexName =
+    indices.data == null ? index : getIndexName(index, indices.data);
   if (user == null) return null;
   const menu_items = (
     <>
       <Menu.Item disabled content={`Your role: ${myrole || "guest"}`} />
-      <Menu.Item as={Link} href={link_host(user.resource)} content="Index overview" />
+      <Menu.Item
+        as={Link}
+        href={link_host(user.resource)}
+        content="Index overview"
+      />
       <Dropdown.Divider />
       {indices.data == null
         ? null
         : indices.data.map((index) => (
-            <Menu.Item key={index.id} as={Link} href={link_query(user.resource, index.id)} content={index.name} />
+            <Menu.Item
+              key={index.id}
+              as={Link}
+              href={link_query(user.resource, index.id)}
+              content={index.name}
+            />
           ))}
     </>
   );

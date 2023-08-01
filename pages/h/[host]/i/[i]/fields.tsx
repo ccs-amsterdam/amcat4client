@@ -1,4 +1,6 @@
-import { Amcat, AmcatField, useMiddlecatContext } from "../../../../../amcat4react";
+import { Amcat, AmcatField } from "../../../../../amcat4react";
+import { useMiddlecat } from "middlecat-react";
+
 import { useState } from "react";
 import { Checkbox, Form, Header, Icon, Table } from "semantic-ui-react";
 import { useRouter } from "next/router";
@@ -17,7 +19,7 @@ const FIELDS = [
 ];
 
 export default function Fields() {
-  const {user} = useMiddlecatContext()
+  const { user } = useMiddlecat();
   const router = useRouter();
   const index = router.query.i as string;
 

@@ -1,7 +1,10 @@
 import { useRouter } from "next/router";
 import { Dropdown, Menu, Image } from "semantic-ui-react";
-import { useMiddlecatContext } from "../../amcat4react";
-import { useHasGlobalRole, useMyGlobalRole } from "../../amcat4react/hooks/useCurrentUserDetails";
+import { useMiddlecat } from "middlecat-react";
+import {
+  useHasGlobalRole,
+  useMyGlobalRole,
+} from "../../amcat4react/hooks/useCurrentUserDetails";
 import { titleCase } from "../../functions/lib";
 import { link_host } from "../../functions/links";
 
@@ -11,7 +14,7 @@ interface IndexMenuProps {
 
 export default function AccountMenu({ as_items }: IndexMenuProps) {
   const router = useRouter();
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const is_admin = useHasGlobalRole(user, "ADMIN");
   const my_role = useMyGlobalRole(user);
 
@@ -20,7 +23,9 @@ export default function AccountMenu({ as_items }: IndexMenuProps) {
   const menu_items = (
     <>
       {!is_admin ? null : (
-        <Menu.Item href={`${link_host(user.resource)}/serversettings`}>Server settings & users</Menu.Item>
+        <Menu.Item href={`${link_host(user.resource)}/serversettings`}>
+          Server settings & users
+        </Menu.Item>
       )}
       <Menu.Item disabled>
         Signed in as <br />
@@ -40,7 +45,10 @@ export default function AccountMenu({ as_items }: IndexMenuProps) {
             <Image
               alt={user.email}
               avatar
-              src={user.image || "https://upload.wikimedia.org/wikipedia/commons/6/63/Man_Silhouette2.jpg"}
+              src={
+                user.image ||
+                "https://upload.wikimedia.org/wikipedia/commons/6/63/Man_Silhouette2.jpg"
+              }
             />
           }
         >

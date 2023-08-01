@@ -1,12 +1,12 @@
 import { useQuery } from "react-query";
 import { getIndex } from "../Amcat";
-import { useMiddlecatContext } from "../context/middlecat";
 import { AmcatRole, AmcatRoles } from "../interfaces";
 import { useHasGlobalRole } from "./useCurrentUserDetails";
 import { useServerConfig } from "./useServerConfig";
+import { useMiddlecat } from "middlecat-react";
 
 export function useIndexDetailsQuery(index: string) {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   return useQuery(
     ["indexdetails", index],
     async () => user && (await getIndex(user, index)).data,
@@ -25,7 +25,7 @@ export function useMyIndexrole(index: string) {
 }
 
 export function useHasIndexRole(index: string, role: AmcatRole) {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
   const serverconfig = useServerConfig(user);
   const index_role = useMyIndexrole(index);
   const is_global_admin = useHasGlobalRole(user, "ADMIN");

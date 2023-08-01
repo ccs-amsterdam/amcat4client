@@ -9,7 +9,7 @@ import QueryForm from "./components/Query/QueryForm";
 import SimpleQueryForm from "./components/Query/SimpleQueryForm";
 import MultilineQueryForm from "./components/Query/MultilineQueryForm";
 
-import { MiddlecatWrapper, useMiddlecatContext } from "./context/middlecat";
+// import { MiddlecatWrapper, useMiddlecatContext } from "./context/middlecat";
 
 import useAmcatIndices from "./hooks/useAmcatIndices";
 
@@ -33,8 +33,8 @@ export {
   SimpleQueryForm,
   MultilineQueryForm,
   useAmcatIndices,
-  MiddlecatWrapper,
-  useMiddlecatContext,
+  // MiddlecatWrapper,
+  // useMiddlecatContext,
   Amcat,
   Response,
 };

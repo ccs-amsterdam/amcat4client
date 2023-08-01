@@ -1,12 +1,13 @@
 import { useQuery, UseQueryResult } from "react-query";
 import { getIndices } from "../Amcat";
-import { useMiddlecatContext } from "../context/middlecat";
 import { AmcatIndex } from "../interfaces";
+import { useMiddlecat } from "middlecat-react";
 
 export const QueryKey = ["indices"];
 
 export default function useAmcatIndices(): UseQueryResult<AmcatIndex[]> {
-  const { user } = useMiddlecatContext();
+  const { user } = useMiddlecat();
+
   return useQuery(
     QueryKey,
     async () => {

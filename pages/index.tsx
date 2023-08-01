@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import styled from "styled-components";
-import { useMiddlecatContext } from "../amcat4react";
+import { useMiddlecat, AuthForm } from "middlecat-react";
 import { link_host } from "../functions/links";
 
 const StyleWrapper = styled.div`
@@ -28,7 +28,7 @@ export default function Home() {
   const login_host = router.query.login_host as string;
   const login_redirect = router.query.login_redirect as string;
 
-  const { user, AuthForm } = useMiddlecatContext();
+  const { user } = useMiddlecat();
 
   if (user && login_redirect) {
     console.log(login_redirect);
@@ -60,7 +60,6 @@ export default function Home() {
           <div className="AuthForm">
             {user ? null : (
               <AuthForm
-                resourceFixed={login_host || undefined}
                 resourceSuggestion={
                   login_host ? undefined : "http://localhost:5000"
                 }
