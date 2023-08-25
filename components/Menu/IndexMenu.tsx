@@ -25,6 +25,8 @@ export default function IndexMenu({ as_items }: IndexMenuProps) {
   const indexName =
     indices.data == null ? index : getIndexName(index, indices.data);
   if (user == null) return null;
+
+  console.log(indices.data);
   const menu_items = (
     <>
       <Menu.Item disabled content={`Your role: ${myrole || "guest"}`} />
@@ -33,10 +35,10 @@ export default function IndexMenu({ as_items }: IndexMenuProps) {
         href={link_host(user.resource)}
         content="Index overview"
       />
-      <Dropdown.Divider />
-      {indices.data == null
-        ? null
-        : indices.data.map((index) => (
+      {indices.data?.length && (
+        <>
+          <Dropdown.Divider />
+          {indices.data.map((index) => (
             <Menu.Item
               key={index.id}
               as={Link}
@@ -44,6 +46,8 @@ export default function IndexMenu({ as_items }: IndexMenuProps) {
               content={index.name}
             />
           ))}
+        </>
+      )}
     </>
   );
 

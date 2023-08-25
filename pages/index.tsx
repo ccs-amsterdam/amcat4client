@@ -25,16 +25,8 @@ const StyleWrapper = styled.div`
 
 export default function Home() {
   const router = useRouter();
-  const login_host = router.query.login_host as string;
-  const login_redirect = router.query.login_redirect as string;
-
   const { user } = useMiddlecat();
 
-  if (user && login_redirect) {
-    console.log(login_redirect);
-    router.push(login_redirect);
-    return null;
-  }
   if (user) {
     router.push(link_host(user.resource));
   }
@@ -49,21 +41,9 @@ export default function Home() {
       </Head>
       <main>
         <StyleWrapper>
-          <div className="LoginRedirect">
-            {login_redirect ? (
-              <p>
-                To open <span>{login_redirect}</span> you first need to login to{" "}
-                <span>{login_host}</span>
-              </p>
-            ) : null}
-          </div>
           <div className="AuthForm">
             {user ? null : (
-              <AuthForm
-                resourceSuggestion={
-                  login_host ? undefined : "http://localhost:5000"
-                }
-              />
+              <AuthForm resourceSuggestion={"http://localhost:5000"} />
             )}
           </div>
         </StyleWrapper>

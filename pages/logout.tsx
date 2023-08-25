@@ -7,7 +7,6 @@ export default function LogoutPage() {
   const { user } = useMiddlecat();
 
   useEffect(() => {
-    console.log(user);
     if (user) user.killSession(true).then(() => router.push("/"));
   }, [user, router]);
 

@@ -12,8 +12,6 @@ export default function IndexSelection() {
   const indices = useAmcatIndices();
   const is_writer = useHasGlobalRole(user, "WRITER");
 
-  console.log(user);
-
   function onSelectIndex(index: string) {
     if (!user) return;
     router.push(link_query(user.resource, index));

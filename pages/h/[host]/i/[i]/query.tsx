@@ -1,10 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import {
-  QueryForm,
-  AmcatQuery,
-  useMiddlecat,
-} from "../../../../../amcat4react";
+import { QueryForm, AmcatQuery } from "../../../../../amcat4react";
 import Results from "../../../../../components/Query/Results";
 import { useMiddlecat } from "middlecat-react";
 

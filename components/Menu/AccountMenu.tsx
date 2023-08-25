@@ -1,12 +1,14 @@
 import { useRouter } from "next/router";
-import { Dropdown, Menu, Image } from "semantic-ui-react";
+import { Dropdown, DropdownDivider, Image } from "semantic-ui-react";
 import { useMiddlecat } from "middlecat-react";
 import {
   useHasGlobalRole,
   useMyGlobalRole,
 } from "../../amcat4react/hooks/useCurrentUserDetails";
 import { titleCase } from "../../functions/lib";
-import { link_host } from "../../functions/links";
+import { expandHostname, link_host } from "../../functions/links";
+import { Loading } from "../../amcat4react/styled/Style";
+import { useEffect } from "react";
 
 interface IndexMenuProps {
   as_items?: boolean;
@@ -14,45 +16,98 @@ interface IndexMenuProps {
 
 export default function AccountMenu({ as_items }: IndexMenuProps) {
   const router = useRouter();
-  const { user } = useMiddlecat();
+  const { user, signIn, signOut, loading } = useMiddlecat();
   const is_admin = useHasGlobalRole(user, "ADMIN");
   const my_role = useMyGlobalRole(user);
 
-  if (user == null) return null;
-
-  const menu_items = (
-    <>
-      {!is_admin ? null : (
-        <Menu.Item href={`${link_host(user.resource)}/serversettings`}>
-          Server settings & users
-        </Menu.Item>
-      )}
-      <Menu.Item disabled>
-        Signed in as <br />
-        <b>{user.email || "guest"}</b> <br />
-        Global role: {titleCase(my_role)}
-      </Menu.Item>
-      <Menu.Item onClick={() => router.push("/logout")}>Sign out</Menu.Item>
-    </>
+  const profileImage = (
+    <Image
+      alt={user?.email || ""}
+      avatar
+      style={{ fontSize: "1rem", border: "1px solid var(--color)" }}
+      src={
+        user?.image ||
+        "https://upload.wikimedia.org/wikipedia/commons/6/63/Man_Silhouette2.jpg"
+      }
+    />
   );
-  if (as_items) return menu_items;
+
+  function settings() {
+    if (!is_admin) return null;
+    if (!user?.resource) return null;
+    return (
+      <Dropdown.Item href={`${link_host(user?.resource)}/serversettings`}>
+        Server settings & users
+      </Dropdown.Item>
+    );
+  }
+
+  function userOrSignin(image?: boolean) {
+    if (user?.authenticated)
+      return (
+        <>
+          <Dropdown.Header>
+            <div
+              style={{
+                display: "flex",
+                gap: "0.6rem",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ fontSize: "1.1rem", marginBottom: "0.5rem" }}>
+                {user?.name}
+              </div>
+              <div style={{ width: "2rem", paddingBottom: "0.5rem" }}>
+                {image && profileImage}
+              </div>
+            </div>
+            {my_role ? <div>Global role: {titleCase(my_role)}</div> : null}
+          </Dropdown.Header>
+          <DropdownDivider />
+        </>
+      );
+
+    return (
+      <Dropdown.Item onClick={() => user?.resource && signIn(user?.resource)}>
+        Sign in
+      </Dropdown.Item>
+    );
+  }
+
+  function signout() {
+    return (
+      <Dropdown.Item
+        onClick={() => signOut(false).then(() => router.push("/logout"))}
+      >
+        Sign out
+      </Dropdown.Item>
+    );
+  }
+
+  if (as_items)
+    return (
+      <>
+        {userOrSignin(true)}
+        {settings()}
+        {signout()}
+      </>
+    );
+
   return (
     <>
       {user != null ? (
-        <Dropdown
-          item
-          trigger={
-            <Image
-              alt={user.email}
-              avatar
-              src={
-                user.image ||
-                "https://upload.wikimedia.org/wikipedia/commons/6/63/Man_Silhouette2.jpg"
-              }
-            />
-          }
-        >
-          <Dropdown.Menu>{menu_items}</Dropdown.Menu>
+        <Dropdown item trigger={profileImage}>
+          <Dropdown.Menu
+            style={{
+              width: "max-content",
+              minWidth: "10rem",
+              maxWidth: "90vw",
+            }}
+          >
+            {userOrSignin()}
+            {settings()}
+            {signout()}
+          </Dropdown.Menu>
         </Dropdown>
       ) : null}
     </>

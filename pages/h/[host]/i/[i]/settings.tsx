@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { Button, Message } from "semantic-ui-react";
-import { AmcatIndex, useMiddlecat } from "../../../../../amcat4react";
+import { AmcatIndex } from "../../../../../amcat4react";
 import { useMiddlecat } from "middlecat-react";
 
 import {

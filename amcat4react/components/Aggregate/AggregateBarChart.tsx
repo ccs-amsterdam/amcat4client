@@ -44,7 +44,7 @@ export default function AggregateBarChart({
   if (limit && sorted.length > limit) sorted = sorted.slice(0, limit);
   if (height == null) height = Math.max(250, sorted.length * 30);
   if (width == null) width = "100%";
-  console.log({ primary, d });
+
   return (
     <ResponsiveContainer width={width} height={height}>
       <BarChart data={sorted} layout="vertical">

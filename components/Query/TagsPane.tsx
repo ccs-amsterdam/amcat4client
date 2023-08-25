@@ -31,7 +31,6 @@ export default function TagsPane({
   const def = tags.length === 0 ? "" : tags.includes("tag") ? "tag" : tags[0];
   const [selectedField, setSelectedField] = useState(def);
 
-  console.log(fields);
   if (fields == null || tags.length === 0) return null;
   if (selectedField === "" && def !== "") setSelectedField(def);
   const tagFieldOptions = tags.map((f) => ({ value: f, key: f, text: f }));

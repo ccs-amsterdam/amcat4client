@@ -1,12 +1,14 @@
 import styled from "styled-components";
 
-export const Loading = styled.div`
+export const Loading = styled.div<{ size?: number }>`
   margin: auto;
   border: 10px solid #f3f3f3;
   border-top: 10px solid #3498db;
   border-radius: 50%;
-  width: 80px;
-  height: 80px;
+  ${(p) => `
+    width: ${p.size || 80}px;
+    height: ${p.size || 80}px;
+  `}
   animation: spin 1s linear infinite;
 `;
 

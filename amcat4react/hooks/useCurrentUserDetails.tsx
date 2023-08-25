@@ -4,7 +4,9 @@ import { getCurrentUserDetails } from "../Amcat";
 import { AmcatRole, AmcatRoles, AmcatUser, AmcatUserInfo } from "../interfaces";
 import { useServerConfig } from "./useServerConfig";
 
-export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUserInfo> {
+export function useCurrentUserDetails(
+  user?: AmcatUser
+): UseQueryResult<AmcatUserInfo> {
   return useQuery(
     ["users", user],
     async () => {
@@ -27,14 +29,16 @@ export function useCurrentUserDetails(user?: AmcatUser): UseQueryResult<AmcatUse
 
 export function useMyGlobalRole(user: AmcatUser | undefined) {
   const currentUserQuery = useCurrentUserDetails(user);
-  if (!currentUserQuery.isSuccess || currentUserQuery.data == null) return undefined;
+  if (!currentUserQuery.isSuccess || currentUserQuery.data == null)
+    return undefined;
   return currentUserQuery.data.role;
 }
 
 export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {
   const serverconfig = useServerConfig(user);
   const actual_role = useMyGlobalRole(user);
-  if (serverconfig.isSuccess && serverconfig.data.authorization === "no_auth") return true;
+  if (serverconfig.isSuccess && serverconfig.data.authorization === "no_auth")
+    return true;
   if (actual_role == null) return undefined;
   const actual_role_index = AmcatRoles.indexOf(actual_role);
   const required_role_index = AmcatRoles.indexOf(role);

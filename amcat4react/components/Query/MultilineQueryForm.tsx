@@ -81,13 +81,11 @@ export default function MultilineQueryForm({
   function deleteFilter(name: string) {
     const f = { ...value.filters };
     delete f[name];
-    console.log(f);
     onSubmit({ ...value, filters: f });
   }
 
   function handleKeyDown(event: any) {
     if (event.key === "Enter" && event.ctrlKey) {
-      console.log({ q, queries: queryFromString(q) });
       onSubmit({ ...value, queries: queryFromString(q) });
     }
   }
