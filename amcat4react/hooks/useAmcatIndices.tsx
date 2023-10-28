@@ -7,7 +7,6 @@ export const QueryKey = ["indices"];
 
 export default function useAmcatIndices(): UseQueryResult<AmcatIndex[]> {
   const { user } = useMiddlecat();
-
   return useQuery(
     QueryKey,
     async () => {

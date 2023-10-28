@@ -22,29 +22,18 @@ export default function IndexMenu({ as_items }: IndexMenuProps) {
   const index = router.query.i as string;
   const myrole = useMyIndexrole(index);
   const indices = useAmcatIndices();
-  const indexName =
-    indices.data == null ? index : getIndexName(index, indices.data);
+  const indexName = indices.data == null ? index : getIndexName(index, indices.data);
   if (user == null) return null;
 
-  console.log(indices.data);
   const menu_items = (
     <>
       <Menu.Item disabled content={`Your role: ${myrole || "guest"}`} />
-      <Menu.Item
-        as={Link}
-        href={link_host(user.resource)}
-        content="Index overview"
-      />
+      <Menu.Item as={Link} href={link_host(user.resource)} content="Index overview" />
       {indices.data?.length && (
         <>
           <Dropdown.Divider />
           {indices.data.map((index) => (
-            <Menu.Item
-              key={index.id}
-              as={Link}
-              href={link_query(user.resource, index.id)}
-              content={index.name}
-            />
+            <Menu.Item key={index.id} as={Link} href={link_query(user.resource, index.id)} content={index.name} />
           ))}
         </>
       )}
