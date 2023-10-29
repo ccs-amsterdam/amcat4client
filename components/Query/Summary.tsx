@@ -98,6 +98,7 @@ function AutoAggregateResults({ user, index, query }: AutoAggregateProps) {
     options = {
       display: "barchart",
       axes: [{ name: field, field: field }],
+      limit: 10,
     };
   }
 
