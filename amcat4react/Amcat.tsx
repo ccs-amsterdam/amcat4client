@@ -167,8 +167,7 @@ export function useFieldsWithRefresh(
   const [fields, setFields] = useState<AmcatField[]>([]);
   useEffect(() => _getSetFields(index, setFields), [index]);
   const refresh = () => _getSetFields(index, setFields);
-
-  return [Object.values(fields), refresh];
+  return [fields, refresh];
 }
 
 /** Hook to get fields from amcat

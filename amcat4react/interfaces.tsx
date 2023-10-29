@@ -7,7 +7,7 @@ export interface AmcatServerConfig {
   [key: string]: any;
 }
 export const AmcatRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
-export type AmcatRole = typeof AmcatRoles[number];
+export type AmcatRole = (typeof AmcatRoles)[number];
 
 export interface AmcatUserInfo {
   email: string;
@@ -134,6 +134,7 @@ export interface AmcatIndex {
   description?: string;
   guest_role?: AmcatRole;
   user_role?: AmcatRole;
+  summary_field?: string;
 }
 
 export interface AmcatDocument {
