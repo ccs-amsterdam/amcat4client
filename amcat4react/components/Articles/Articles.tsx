@@ -2,14 +2,7 @@ import PaginationTable, { PaginationTableColumn } from "./PaginationTable";
 import ArticleSnippets from "./ArticleSnippets";
 import { useEffect, useMemo, useState } from "react";
 import ArticleModal from "../Article/ArticleModal";
-import {
-  AmcatUser,
-  AmcatIndexName,
-  AmcatQuery,
-  AmcatQueryResult,
-  SortSpec,
-  AmcatDocument,
-} from "../../interfaces";
+import { AmcatUser, AmcatIndexName, AmcatQuery, AmcatQueryResult, SortSpec, AmcatDocument } from "../../interfaces";
 import { getField, postQuery, useFields } from "../../Amcat";
 
 const DEFAULT_COLUMNS = ["date", "title"];
@@ -55,39 +48,27 @@ export default function Articles({
   const [data, setData] = useState<AmcatQueryResult>();
   const [page, setPage] = useState(0);
   const [currentSort, setCurrentSort] = useState(sort);
-
-  useEffect(() => {
-    const highlight: any = asSnippets ? { number_of_fragments: 3 } : true;
-    fetchArticles(
-      user,
-      index,
-      query,
-      page,
-      highlight,
-      perPage,
-      currentSort,
-      setData
-    );
-  }, [index, query, page, setData, asSnippets, perPage, currentSort]);
   const fields = useFields(user, index);
+  useEffect(() => {
+    if (fields == null || fields.length === 0) return undefined;
+    const highlight: any = asSnippets ? { number_of_fragments: 3 } : true;
+    const field_names = fields.filter((f) => f.meta?.amcat4_display_table === "1").map((f) => f.name);
+    fetchArticles(user, index, query, page, highlight, perPage, currentSort, field_names, setData);
+  }, [index, query, page, setData, asSnippets, perPage, currentSort, fields]);
+
   if (!columns) {
     if (fields) {
-      const default_columns: (PaginationTableColumn | undefined)[] =
-        DEFAULT_COLUMNS.map((f) => getField(fields, f));
-      const nonempty_default_columns: PaginationTableColumn[] =
-        default_columns.filter((f) => f) as PaginationTableColumn[];
+      const default_columns: (PaginationTableColumn | undefined)[] = DEFAULT_COLUMNS.map((f) => getField(fields, f));
+      const nonempty_default_columns: PaginationTableColumn[] = default_columns.filter(
+        (f) => f
+      ) as PaginationTableColumn[];
 
       let extra_columns = fields
         .filter((f) => !DEFAULT_COLUMNS.includes(f.name))
-        .filter(
-          (f) => f.meta && f.meta.amcat4_display_table === "1"
-        ) as PaginationTableColumn[];
+        .filter((f) => f.meta?.amcat4_display_table === "1") as PaginationTableColumn[];
 
       extra_columns.sort((a, b) =>
-        a.meta && b.meta
-          ? parseInt(a.meta.amcat4_display_table) -
-            parseInt(b.meta.amcat4_display_table)
-          : 0
+        a.meta && b.meta ? parseInt(a.meta.amcat4_display_table) - parseInt(b.meta.amcat4_display_table) : 0
       );
 
       columns = [...nonempty_default_columns, ...extra_columns];
@@ -139,13 +120,7 @@ export default function Articles({
         />
       )}
       {articleId ? (
-        <ArticleModal
-          user={user}
-          index={index}
-          id={articleId}
-          query={query}
-          changeArticle={setArticleId}
-        />
+        <ArticleModal user={user} index={index} id={articleId} query={query} changeArticle={setArticleId} />
       ) : null}
     </>
   );
@@ -159,9 +134,10 @@ async function fetchArticles(
   highlight: boolean,
   perPage: number,
   sort: any,
+  fields: string[],
   setData: (data: AmcatQueryResult | undefined) => void
 ) {
-  let params = { page, highlight, per_page: perPage, sort };
+  let params = { page, highlight, per_page: perPage, sort, fields };
   try {
     const res = await postQuery(user, index, query, params);
     setData(res.data);

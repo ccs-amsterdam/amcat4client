@@ -25,8 +25,10 @@ function Article({ user, index, id, query, changeArticle, link }: ArticleProps) 
   useEffect(() => {
     if (!id) return;
     if (article && id === article._id) return;
-    fetchArticle(user, index, id, query, setArticle);
-  }, [id, article, index, query]);
+    if (fields == null || fields.length === 0) return;
+    const field_names = fields.filter((f) => f.meta?.amcat4_display_meta !== "0").map((f) => f.name);
+    fetchArticle(user, index, id, query, field_names, setArticle);
+  }, [id, article, index, query, fields]);
 
   if (!article || !fields) return null;
 
@@ -47,9 +49,10 @@ function fetchArticle(
   index: AmcatIndexName,
   _id: string,
   query: AmcatQuery,
+  fields: string[],
   setArticle: Dispatch<SetStateAction<AmcatDocument | null>>
 ) {
-  let params: any = { annotations: true };
+  let params: any = { annotations: true, fields };
   query = addFilter(query, { _id: { values: [_id] } });
   postQuery(user, index, query, params)
     .then((data) => {
