@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0, 0%, 100%;
+    --foreground: 222.2, 84%, 4.9%;
+
+    --card: 0, 0%, 100%;
+    --card-foreground: 222.2, 84%, 4rgb (0, 0, 0) 0.9%;
+
+    --popover: 0, 0%, 100%;
+    --popover-foreground: 222.2, 84%, 4.9%;
+
+    /* give me a great color to complement 0 99% 40% */
+    --primary: 215, 100%, 69%;
+    --primary-foreground: 222.2, 47.4%, 11.2%;
+
+    --secondary: 35, 100%, 69%;
+    --secondary-foreground: 202, 99%, 60%;
+
+    --muted: 0, 0%, 50%;
+    --muted-foreground: 0.4, 16.3%, 46.9%;
+
+    --accent: 210, 40%, 96.1%;
+    --accent-foreground: 222.2, 47.4%, 11.2%;
+
+    --destructive: 0, 84.2%, 60.2%;
+    --destructive-foreground: 210, 40%, 98%;
+
+    --border: 214.3, 31.8%, 91.4%;
+    --input: 214.3, 31.8%, 91.4%;
+    --ring: 222.2, 84%, 4.9%;
+
+    --radius: 0.5rem;
+
+    --navbar-height: 80px;
+    --navbar-height-md: 112px;
+
+    /* Dynamic (set via side effects) */
+    --scrollPct: 0%;
+  }
+
+  .dark {
+    --background: 222.2, 84%, 4.9%;
+    --foreground: 210, 40%, 98%;
+
+    --card: 222.2, 84%, 4.9%;
+    --card-foreground: 210, 40%, 98%;
+
+    --popover: 222.2, 84%, 4.9%;
+    --popover-foreground: 210, 40%, 98%;
+
+    --primary: 215, 100%, 69%;
+    --primary-foreground: 222.2, 47.4%, 11.2%;
+
+    --secondary: 35, 100%, 69%;
+    --secondary-foreground: 202, 99%, 60%;
+
+    --muted: 217.2, 32.6%, 17.5%;
+    --muted-foreground: 215, 20.2%, 65.1%;
+
+    --accent: 217.2, 32.6%, 17.5%;
+    --accent-foreground: 210, 40%, 98%;
+
+    --destructive: 0, 62.8%, 30.6%;
+    --destructive-foreground: 210, 40%, 98%;
+
+    --border: 217.2, 32.6%, 17.5%;
+    --input: 217.2, 32.6%, 17.5%;
+    --ring: 212.7, 26.8%, 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  background: white;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: white;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--secondary));
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--secondary));
+}
+
+.loader {
+  --color: hsl(var(--primary));
+  position: relative;
+  width: 85px;
+  height: 50px;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(var(--color) 50px, transparent 0), linear-gradient(var(--color) 50px, transparent 0),
+    linear-gradient(var(--color) 50px, transparent 0), linear-gradient(var(--color) 50px, transparent 0),
+    linear-gradient(var(--color) 50px, transparent 0), linear-gradient(var(--color) 50px, transparent 0);
+  background-position:
+    0px center,
+    15px center,
+    30px center,
+    45px center,
+    60px center,
+    75px center,
+    90px center;
+  animation: rikSpikeRoll 0.65s linear infinite alternate;
+}
+@keyframes rikSpikeRoll {
+  0% {
+    background-size: 10px 3px;
+  }
+  16% {
+    background-size:
+      10px 50px,
+      10px 3px,
+      10px 3px,
+      10px 3px,
+      10px 3px,
+      10px 3px;
+  }
+  33% {
+    background-size:
+      10px 30px,
+      10px 50px,
+      10px 3px,
+      10px 3px,
+      10px 3px,
+      10px 3px;
+  }
+  50% {
+    background-size:
+      10px 10px,
+      10px 30px,
+      10px 50px,
+      10px 3px,
+      10px 3px,
+      10px 3px;
+  }
+  66% {
+    background-size:
+      10px 3px,
+      10px 10px,
+      10px 30px,
+      10px 50px,
+      10px 3px,
+      10px 3px;
+  }
+  83% {
+    background-size:
+      10px 3px,
+      10px 3px,
+      10px 10px,
+      10px 30px,
+      10px 50px,
+      10px 3px;
+  }
+  100% {
+    background-size:
+      10px 3px,
+      10px 3px,
+      10px 3px,
+      10px 10px,
+      10px 30px,
+      10px 50px;
+  }
+}
