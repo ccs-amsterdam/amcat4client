@@ -10,6 +10,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuPortal,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "./button";
 import { Delete } from "lucide-react";
@@ -21,6 +22,7 @@ interface Props {
   value2?: string | undefined;
   onChange: ({}: { value?: string | undefined; value2?: string }) => void;
   clearable?: boolean;
+  label?: string;
 }
 
 export interface Option {
@@ -38,22 +40,13 @@ export interface Option2 {
   [any: string | number]: any;
 }
 
-export function Dropdown({
-  placeholder,
-  options,
-  value,
-  value2,
-  onChange,
-  clearable,
-}: Props) {
+export function Dropdown({ placeholder, options, value, value2, onChange, clearable }: Props) {
   const selected = options.find((o) => o.value === value);
-  const selected2 = value2
-    ? selected?.options?.find((o) => o.value === value2)
-    : undefined;
+  const selected2 = value2 ? selected?.options?.find((o) => o.value === value2) : undefined;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="w-full flex items-center gap-2 min-w-[10rem] bg-background px-2 py-1 rounded-md">
+      <DropdownMenuTrigger className="flex w-full min-w-[10rem] items-center gap-2 rounded-md bg-background px-2 py-1">
         {selected ? (
           <>
             {selected.icon}
@@ -66,12 +59,9 @@ export function Dropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="max-h-screen overflow-auto">
+        {label ? <DropdownMenuLabel>{label}</DropdownMenuLabel> : null}
         {clearable && selected ? (
-          <DropdownMenuItem
-            key="_CLEAR_VALUE"
-            onClick={() => onChange({})}
-            className="text-destructive"
-          >
+          <DropdownMenuItem key="_CLEAR_VALUE" onClick={() => onChange({})} className="text-destructive">
             <div className="flex items-center gap-2">
               <Delete />
               Clear
@@ -111,10 +101,7 @@ export function Dropdown({
               </DropdownMenuSub>
             );
           return (
-            <DropdownMenuItem
-              key={option.value}
-              onClick={() => onChange({ value: option.value })}
-            >
+            <DropdownMenuItem key={option.value} onClick={() => onChange({ value: option.value })}>
               <div className="flex items-center gap-2">
                 {option.icon || null}
                 {option.text}

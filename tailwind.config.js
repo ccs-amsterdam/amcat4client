@@ -29,6 +29,9 @@ module.exports = {
         background: {
           DEFAULT: "hsl(var(--background), <alpha-value>)",
         },
+        header: {
+          DEFAULT: "hsl(var(--header), <alpha-value>)",
+        },
         foreground: {
           DEFAULT: "hsl(var(--foreground), <alpha-value>)",
         },

@@ -3,10 +3,10 @@ import "./globals.css";
 import { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
-import { Roboto } from "next/font/google";
+import { Poppins, Roboto } from "next/font/google";
 import ClientProviders from "@/components/ClientProviders";
 
-const roboto = Roboto({
+const font = Poppins({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
@@ -35,11 +35,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={roboto.className}>
-      <body className="relative flex min-h-screen flex-col scroll-smooth bg-gradient-to-br from-white to-slate-200">
+    <html lang="en" className={font.className}>
+      <body className="relative flex min-h-screen flex-col scroll-smooth ">
         <ClientProviders>
           <Navbar />
-          <div className="flex h-full w-full flex-auto flex-col py-6 md:py-12">{children}</div>
+          <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-12">{children}</div>
         </ClientProviders>
       </body>
     </html>

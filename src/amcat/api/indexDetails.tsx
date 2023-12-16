@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { AmcatRole, AmcatRoles } from "@/amcat/interfaces";
 import { useHasGlobalRole } from "./userDetails";
-import { useServerConfig } from "./serverConfig";
+import { useAmcatConfig } from "./config";
 
 export function useIndexDetails(user: AmcatUser, index: AmcatIndexName) {
   return useQuery({
@@ -17,12 +17,8 @@ export function useMyIndexrole(user: AmcatUser, index: AmcatIndexName) {
   return indexDetails?.user_role;
 }
 
-export function useHasIndexRole(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  role: AmcatRole
-) {
-  const { serverConfig } = useServerConfig(user);
+export function useHasIndexRole(user: AmcatUser, index: AmcatIndexName, role: AmcatRole) {
+  const { data: serverConfig } = useAmcatConfig(user.resource);
   const index_role = useMyIndexrole(user, index);
   const is_global_admin = useHasGlobalRole(user, "ADMIN");
   if (is_global_admin) return true;

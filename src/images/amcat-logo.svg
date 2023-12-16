@@ -9,8 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="30.000002"
-   height="30.000002"
+   viewBox="0.8 0 28 28.8"
+   width="100%"
+   height="100%"
    id="svg2"
    version="1.1"
    inkscape:version="0.47 r22583"
@@ -131,7 +132,7 @@
          sodipodi:cy="449.50504"
          sodipodi:cx="254.28572"
          id="path2816"
-         style="fill:#60a3ff;fill-opacity:1;stroke:none"
+         style="fill:#008080;fill-opacity:1;stroke:none"
          sodipodi:type="arc" />
       <g
          id="g3761">

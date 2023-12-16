@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction } from "react";
 // https://blog.logrocket.com/using-localstorage-react-hooks/
 
 function getStorageValue<T>(key: string, defaultValue: T): T {
@@ -10,7 +10,7 @@ function getStorageValue<T>(key: string, defaultValue: T): T {
   return initial ?? defaultValue;
 }
 
-export default function useLocalStorage<T>(key: string, defaultValue: T) {
+export default function useLocalStorage<T>(key: string, defaultValue: T): [T, Dispatch<SetStateAction<T>>] {
   const [value, setValue] = useState<T>(() => {
     return getStorageValue(key, defaultValue);
   });

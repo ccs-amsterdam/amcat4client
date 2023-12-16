@@ -1,12 +1,7 @@
 import { AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AmcatRole,
-  AmcatRoles,
-  AmcatUser,
-  AmcatUserInfo,
-} from "@/amcat/interfaces";
-import { useServerConfig } from "./serverConfig";
+import { AmcatRole, AmcatRoles, AmcatUser, AmcatUserInfo } from "@/amcat/interfaces";
+import { useAmcatConfig } from "./config";
 
 export function useCurrentUserDetails(user?: AmcatUser) {
   return useQuery({
@@ -27,7 +22,7 @@ export function useMyGlobalRole(user: AmcatUser | undefined) {
 }
 
 export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {
-  const { serverConfig } = useServerConfig(user);
+  const { data: serverConfig } = useAmcatConfig(user.resource);
   const actual_role = useMyGlobalRole(user);
   if (serverConfig?.authorization === "no_auth") return true;
   if (actual_role == null) return undefined;

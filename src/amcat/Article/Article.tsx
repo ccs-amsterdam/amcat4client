@@ -1,32 +1,13 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import { addFilter, postQuery } from "@/amcat/api";
 import { useFields } from "@/amcat/api/fields";
-import {
-  AmcatUser,
-  AmcatDocument,
-  AmcatField,
-  AmcatIndexName,
-  AmcatQuery,
-} from "@/amcat/interfaces";
+import { AmcatUser, AmcatDocument, AmcatField, AmcatIndexName, AmcatQuery } from "@/amcat/interfaces";
 import prepareArticle from "./prepareArticle";
 import { useMyIndexrole } from "@/amcat/api/indexDetails";
 import { Link } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableRow,
-} from "@/components/ui/table";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { PopoverContent } from "@radix-ui/react-popover";
+import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 export interface ArticleProps {
   user: AmcatUser;
@@ -40,14 +21,7 @@ export interface ArticleProps {
 }
 
 export default React.memo(Article);
-function Article({
-  user,
-  index,
-  id,
-  query,
-  changeArticle,
-  link,
-}: ArticleProps) {
+function Article({ user, index, id, query, changeArticle, link }: ArticleProps) {
   const { data: fields } = useFields(user, index);
   const [article, setArticle] = useState<AmcatDocument | null>(null);
   const myrole = useMyIndexrole(user, index);
@@ -61,21 +35,12 @@ function Article({
   if (!article || !fields) return null;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[0.6fr,1fr] prose-lg gap-6">
+    <div className="prose-lg grid grid-cols-1 gap-6 lg:grid-cols-[0.6fr,1fr]">
       <div>
-        <Meta
-          article={article}
-          fields={fields}
-          setArticle={changeArticle}
-          link={link}
-        />
+        <Meta article={article} fields={fields} setArticle={changeArticle} link={link} />
       </div>
       <div>
-        <Body
-          article={article}
-          fields={fields}
-          canviewtext={myrole !== "METAREADER"}
-        />
+        <Body article={article} fields={fields} canviewtext={myrole !== "METAREADER"} />
       </div>
     </div>
   );
@@ -86,7 +51,7 @@ function fetchArticle(
   index: AmcatIndexName,
   _id: string,
   query: AmcatQuery,
-  setArticle: Dispatch<SetStateAction<AmcatDocument | null>>
+  setArticle: Dispatch<SetStateAction<AmcatDocument | null>>,
 ) {
   let params: any = { annotations: true };
   query = addFilter(query, { _id: { values: [_id] } });
@@ -117,22 +82,9 @@ const Body = ({ article, fields, canviewtext }: BodyProps) => {
   article = useMemo(() => prepareArticle(article), [article]);
 
   // Add title, all other 'text' fields, and finally text
-  const texts = [
-    <TextField
-      key={-1}
-      article={article}
-      field="title"
-      layout={fieldLayout}
-      canviewtext={true}
-    />,
-  ];
+  const texts = [<TextField key={-1} article={article} field="title" layout={fieldLayout} canviewtext={true} />];
   fields
-    .filter(
-      (f) =>
-        f.type === "text" &&
-        !["title", "text"].includes(f.name) &&
-        article[f.name]
-    )
+    .filter((f) => f.type === "text" && !["title", "text"].includes(f.name) && article[f.name])
     .forEach((f, i) => {
       texts.push(
         <TextField
@@ -142,7 +94,7 @@ const Body = ({ article, fields, canviewtext }: BodyProps) => {
           layout={fieldLayout}
           canviewtext={canviewtext}
           label={true}
-        />
+        />,
       );
     });
 
@@ -154,7 +106,7 @@ const Body = ({ article, fields, canviewtext }: BodyProps) => {
       layout={fieldLayout}
       label={texts.length > 1}
       canviewtext={canviewtext}
-    />
+    />,
   );
   return <>{texts}</>;
 };
@@ -167,16 +119,8 @@ interface TextFieldProps {
   label?: boolean;
 }
 
-function TextField({
-  article,
-  field,
-  layout,
-  label,
-  canviewtext,
-}: TextFieldProps) {
-  const paragraphs = Array.isArray(article[field])
-    ? article[field]
-    : [article[field]];
+function TextField({ article, field, layout, label, canviewtext }: TextFieldProps) {
+  const paragraphs = Array.isArray(article[field]) ? article[field] : [article[field]];
 
   const fieldLayout = layout[field] || layout.default;
 
@@ -203,9 +147,9 @@ function TextField({
       {canviewtext ? (
         content
       ) : (
-        <div className="text-orange-700 border-2 border-orange-700 rounded-md p-2">
-          Text fields cannot be displayed because you have insufficient access
-          to this index. Please contact the index admin to request access.
+        <div className="rounded-md border-2 border-orange-700 p-2 text-orange-700">
+          Text fields cannot be displayed because you have insufficient access to this index. Please contact the index
+          admin to request access.
         </div>
       )}
     </div>
@@ -221,10 +165,7 @@ interface MetaProps {
 
 const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
   const metaFields = fields.filter(
-    (f) =>
-      f.type !== "text" &&
-      !["title", "text"].includes(f.name) &&
-      f.meta?.amcat4_display_meta !== "0"
+    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.meta?.amcat4_display_meta !== "0",
   );
   const rows = () => {
     return metaFields.map((field) => {
@@ -245,8 +186,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
 
   const abbreviate = function (text: string | number) {
     const t = text.toString();
-    if (t.length > 10)
-      return `${t.substring(0, 4)}...${t.substring(t.length - 4)}`;
+    if (t.length > 10) return `${t.substring(0, 4)}...${t.substring(t.length - 4)}`;
     return t;
   };
 
@@ -272,9 +212,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
                     {abbreviate(article._id)}
                   </a>
                 </PopoverTrigger>
-                <PopoverContent>
-                  content="Link copied to clipboard!" on="click"
-                </PopoverContent>
+                <PopoverContent>Link copied to clipboard!</PopoverContent>
               </Popover>
             </TableCell>
           </TableRow>
@@ -291,11 +229,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
  * @param {*} field
  * @returns
  */
-export const formatMetaValue = (
-  article: AmcatDocument,
-  field: AmcatField,
-  setArticle?: (id: string) => void
-) => {
+export const formatMetaValue = (article: AmcatDocument, field: AmcatField, setArticle?: (id: string) => void) => {
   const value = article[field.name];
   if (value == null) return null;
   switch (field.type) {

@@ -1,52 +1,57 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import useLocalStorage from "@/hooks/useLocalStorage";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useConfig } from "@/amcat/api/config";
-import { AmcatServerConfig } from "@/amcat/interfaces";
-import { Loading } from "@/components/ui/loading";
+import { useAmcatConfig } from "@/amcat/api/config";
 import { useRouter } from "next/navigation";
+import { abbreviateHostname } from "@/lib/urlHost";
+import { Loading } from "@/components/ui/loading";
+import { useMiddlecat } from "middlecat-react";
 
 export default function Index({}: {}) {
-  const [hosts, setHosts] = useLocalStorage<string[]>("hosts", []);
   const [host, setHost] = useState<string>("");
-  const { data: config, isLoading, error, refetch } = useConfig(host, true);
+  const { user, loading } = useMiddlecat();
+  const { data: config, isLoading, error, refetch } = useAmcatConfig(host, true);
+
   const router = useRouter();
 
   useEffect(() => {
-    if (!config) return;
-    router.push(`/host/${btoa(config.resource)}`);
-  }, [config]);
+    if (user) router.push(`/host/${abbreviateHostname(user.resource)}`);
+    if (config) router.push(`/host/${abbreviateHostname(config.resource)}`);
+  }, [user, config]);
 
   function onConnect(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     refetch();
   }
 
-  console.log(error);
-  let errorMsg = error ? "Could not connect to server" : "";
+  if (loading || user)
+    return (
+      <div className="mt-[20vh]">
+        <Loading />
+      </div>
+    );
 
-  console.log(errorMsg);
   return (
-    <div className="flex flex-auto  justify-center p-5">
-      <div className=" prose w-80  animate-fade-in px-4 text-center">
+    <div className="mt-[20vh] flex h-full flex-auto flex-col items-center p-5">
+      <div className="prose-lg w-96 animate-fade-in px-4 text-center">
         <h3>Connect to an AmCAT server</h3>
-        <form className="flex flex-col gap-2" onSubmit={onConnect}>
-          <Input
-            className="w-full"
-            value={host}
-            onChange={(e) => setHost(e.target.value)}
-            type="url"
-            name="url"
-            pattern="https?://.*"
-            required
-            placeholder="https://some-amcat-server.anywhere"
-          />
-          <Button>Connect</Button>
-          {isLoading ? <Loading msg="Connecting..." /> : null}
-          <span className="italic text-destructive">{errorMsg}</span>
+        <form onSubmit={onConnect}>
+          <fieldset className="flex flex-col gap-2" disabled={isLoading}>
+            <Input
+              className="w-full"
+              value={host}
+              onChange={(e) => setHost(e.target.value)}
+              type="url"
+              name="url"
+              pattern="https?://.*"
+              required
+              placeholder="https://some-amcat-server.anywhere"
+            />
+            <Button>{isLoading ? "Connecting..." : "Connect"}</Button>
+            <span className="text-sm italic text-destructive">{error ? "Could not connect to server" : ""}</span>
+          </fieldset>
         </form>
       </div>
     </div>
