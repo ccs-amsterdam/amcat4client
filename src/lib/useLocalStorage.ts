@@ -1,4 +1,4 @@
-import { useState, useEffect, SetStateAction } from "react";
+import { useState, useEffect, SetStateAction, Dispatch } from "react";
 // https://blog.logrocket.com/using-localstorage-react-hooks/
 
 function getStorageValue<T>(key: string, defaultValue: T): T {

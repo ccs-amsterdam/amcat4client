@@ -1,29 +1,15 @@
-import {
-  AmcatUser,
-  AmcatField,
-  AmcatFilter,
-  AmcatIndexName,
-} from "@/amcat/interfaces";
+import { AmcatField, AmcatFilter, AmcatIndexName } from "@/amcat/interfaces";
 import { filterLabel, FilterPopup } from "./FilterPopups";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Delete, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MiddlecatUser } from "middlecat-react";
 
 interface FilterPickerProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   field: AmcatField | undefined;
   value: AmcatFilter | undefined;
@@ -31,34 +17,15 @@ interface FilterPickerProps {
   onDelete: () => void;
   className?: string;
 }
-export default function FilterPicker({
-  user,
-  index,
-  field,
-  value,
-  onChange,
-  onDelete,
-  className,
-}: FilterPickerProps) {
+export default function FilterPicker({ user, index, field, value, onChange, onDelete, className }: FilterPickerProps) {
   if (field == null || value == null) return null;
 
   const asDialog = false;
   const Component = asDialog ? DialogStyle : PopoverStyle;
 
   return (
-    <Component
-      field={field}
-      value={value}
-      className={className}
-      onDelete={onDelete}
-    >
-      <FilterPopup
-        user={user}
-        index={index}
-        field={field}
-        value={value}
-        onChange={onChange}
-      />
+    <Component field={field} value={value} className={className} onDelete={onDelete}>
+      <FilterPopup user={user} index={index} field={field} value={value} onChange={onChange} />
     </Component>
   );
 }
@@ -71,13 +38,7 @@ interface StyleProps {
   onDelete: () => void;
 }
 
-function DialogStyle({
-  children,
-  field,
-  value,
-  className,
-  onDelete,
-}: StyleProps) {
+function DialogStyle({ children, field, value, className, onDelete }: StyleProps) {
   return (
     <Dialog
       defaultOpen={value?.justAdded}
@@ -86,20 +47,20 @@ function DialogStyle({
       }}
     >
       <DialogTrigger asChild>
-        <div className="flex flex-row-reverse bg-background border-[1px] rounded-md">
+        <div className="flex flex-row-reverse rounded-md border-[1px] bg-background">
           <Button
             onClick={(e) => {
               e.preventDefault();
               onDelete?.();
             }}
-            className="bg-transparent pl-0 pr-2 peer hover:bg-destructive rounded-l-none"
+            className="peer rounded-l-none bg-transparent pl-0 pr-2 hover:bg-destructive"
           >
             <Delete />
           </Button>
           <Button
             className={cn(
-              "rounded-r-none hover:bg-transparent peer-hover:bg-destructive bg-transparent first-letter:first-line:whitespace-nowrap flex gap-2 justify-between ",
-              className
+              "flex justify-between gap-2 rounded-r-none bg-transparent first-letter:first-line:whitespace-nowrap hover:bg-transparent peer-hover:bg-destructive ",
+              className,
             )}
           >
             {filterLabel(field, value, true)}
@@ -116,13 +77,7 @@ function DialogStyle({
   );
 }
 
-function PopoverStyle({
-  children,
-  field,
-  value,
-  className,
-  onDelete,
-}: StyleProps) {
+function PopoverStyle({ children, field, value, className, onDelete }: StyleProps) {
   return (
     <Popover
       defaultOpen={value?.justAdded}
@@ -131,31 +86,27 @@ function PopoverStyle({
       }}
     >
       <PopoverTrigger asChild>
-        <div className="flex flex-row-reverse bg-background border-[1px] rounded-md">
+        <div className="flex flex-row-reverse rounded-md border-[1px] bg-background">
           <Button
             onClick={(e) => {
               e.preventDefault();
               onDelete?.();
             }}
-            className="bg-transparent pl-0 pr-2 peer hover:bg-destructive rounded-l-none"
+            className="peer rounded-l-none bg-transparent pl-0 pr-2 hover:bg-destructive"
           >
             <Delete />
           </Button>
           <Button
             className={cn(
-              "rounded-r-none hover:bg-transparent peer-hover:bg-destructive bg-transparent first-letter:first-line:whitespace-nowrap flex gap-2 justify-between ",
-              className
+              "flex justify-between gap-2 rounded-r-none bg-transparent first-letter:first-line:whitespace-nowrap hover:bg-transparent peer-hover:bg-destructive ",
+              className,
             )}
           >
             {filterLabel(field, value, true)}
           </Button>
         </div>
       </PopoverTrigger>
-      <PopoverContent
-        collisionPadding={{ bottom: -9999 }}
-        side="bottom"
-        className="w-full max-h-[400px] overflow-auto"
-      >
+      <PopoverContent collisionPadding={{ bottom: -9999 }} side="bottom" className="max-h-[400px] w-full overflow-auto">
         {children}
       </PopoverContent>
     </Popover>

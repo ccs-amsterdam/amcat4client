@@ -1,16 +1,13 @@
-import {
-  AmcatIndexName,
-  AmcatQuery,
-  AmcatUser,
-  AggregationOptions,
-} from "@/amcat/interfaces";
+import { AmcatQuery, AggregationOptions, AmcatIndexName } from "@/amcat/interfaces";
 import { asPostAmcatQuery } from "./query";
 
+import { MiddlecatUser } from "middlecat-react";
+
 export function postAggregate(
-  user: AmcatUser,
+  user: MiddlecatUser,
   index: AmcatIndexName,
   query: AmcatQuery,
-  options: AggregationOptions
+  options: AggregationOptions,
 ) {
   const postAmcatQuery = asPostAmcatQuery(query);
   const params: any = {};

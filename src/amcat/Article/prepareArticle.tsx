@@ -1,10 +1,6 @@
-import { AmcatDocument } from "@/amcat/interfaces";
+import { AmcatDocument, AmcatAnnotation } from "@/amcat/interfaces";
 import { getColor, getColorGradient } from "./colors";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function prepareArticle(article: AmcatDocument) {
   if (article._annotations) article = addAnnotations(article);
@@ -12,8 +8,7 @@ export default function prepareArticle(article: AmcatDocument) {
   // add annotations also splits paragraphs. For text fields without annotations
   // we still need to do this. We can see if a text has been processed by addAnnotations
   // if it's an array. But there should be a more elegant solution
-  if (!Array.isArray(article.text))
-    article.text = splitParagraphs(article.text || "");
+  if (!Array.isArray(article.text)) article.text = splitParagraphs(article.text || "");
 
   return article;
 }
@@ -51,12 +46,7 @@ const addAnnotations = (article: AmcatDocument) => {
       }
 
       // then add the annotation span in a tags
-      parts.push(
-        annotateText(
-          splitParagraphs(text.slice(annotation.start, annotation.end)),
-          annotation
-        )
-      );
+      parts.push(annotateText(splitParagraphs(text.slice(annotation.start, annotation.end)), annotation));
 
       offset = annotation.end;
     }
@@ -109,7 +99,7 @@ const annotateText = (text: JSX.Element[], annotation: MergedAnnotation) => {
       >
         <b>{a.variable}</b>
         {": " + a.value}
-      </li>
+      </li>,
     );
   }
 
@@ -120,11 +110,7 @@ const annotateText = (text: JSX.Element[], annotation: MergedAnnotation) => {
   return (
     <Popover key={annotation.start + "_tag"}>
       <PopoverTrigger>
-        <span
-          className={cl}
-          key={annotation.start + "_tag"}
-          style={{ background: getColorGradient(colors) }}
-        >
+        <span className={cl} key={annotation.start + "_tag"} style={{ background: getColorGradient(colors) }}>
           {text}
         </span>
       </PopoverTrigger>
@@ -135,16 +121,6 @@ const annotateText = (text: JSX.Element[], annotation: MergedAnnotation) => {
   );
 };
 
-type Annotation = {
-  field: string;
-  variable: string;
-  value: any;
-  offset: number;
-  length: number;
-  start?: number;
-  color?: string;
-};
-
 type MergedAnnotation = {
   field?: string;
   length?: number;
@@ -153,18 +129,17 @@ type MergedAnnotation = {
   end?: number;
   left?: boolean;
   right?: boolean;
-  annotations?: Annotation[];
+  annotations?: AmcatAnnotation[];
 };
 
 const mergeAnnotations = (
   article: AmcatDocument,
-  annotations: Annotation[]
+  annotations: AmcatAnnotation[],
 ): { [key: string]: MergedAnnotation[] } => {
   const annotationDict: any = {};
   for (let annotation of annotations) {
     if (!article[annotation.field]) continue;
-    if (!annotationDict[annotation.field])
-      annotationDict[annotation.field] = {};
+    if (!annotationDict[annotation.field]) annotationDict[annotation.field] = {};
     for (let i = 0; i < annotation.length; i++) {
       if (!annotationDict[annotation.field][annotation.offset + i])
         annotationDict[annotation.field][annotation.offset + i] = [];
@@ -173,11 +148,7 @@ const mergeAnnotations = (
   }
 
   const mergedAnnotations: { [key: string]: MergedAnnotation[] } = {};
-  const writeAnnotation = (
-    annotation: MergedAnnotation,
-    field: string,
-    i: number
-  ) => {
+  const writeAnnotation = (annotation: MergedAnnotation, field: string, i: number) => {
     annotation.end = i;
     // annotation.annotations = annotation.annotations.map((a) => ({
     //   variable: a.variable,
@@ -210,10 +181,7 @@ const mergeAnnotations = (
         continue;
       }
 
-      newAnnotation = annotationsAreDifferent(
-        annotation.annotations,
-        positionAnnotations
-      );
+      newAnnotation = annotationsAreDifferent(annotation.annotations, positionAnnotations);
       if (newAnnotation) {
         // annotation ended with the immediate start of a new annotation
         writeAnnotation(annotation, field, i);
@@ -230,10 +198,7 @@ const mergeAnnotations = (
   return mergedAnnotations;
 };
 
-const annotationsAreDifferent = (
-  prev: Annotation[],
-  next: Annotation[]
-): boolean => {
+const annotationsAreDifferent = (prev: AmcatAnnotation[], next: AmcatAnnotation[]): boolean => {
   if (prev.length !== next.length) return true;
   for (let j = 0; j < prev.length; j++) {
     if (next[j] !== prev[j]) {

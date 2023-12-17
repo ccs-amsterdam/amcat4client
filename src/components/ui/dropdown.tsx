@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "./button";
 import { Delete } from "lucide-react";
 
 interface Props {
@@ -40,7 +39,7 @@ export interface Option2 {
   [any: string | number]: any;
 }
 
-export function Dropdown({ placeholder, options, value, value2, onChange, clearable }: Props) {
+export function Dropdown({ placeholder, options, value, value2, onChange, clearable, label }: Props) {
   const selected = options.find((o) => o.value === value);
   const selected2 = value2 ? selected?.options?.find((o) => o.value === value2) : undefined;
 

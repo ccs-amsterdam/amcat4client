@@ -3,10 +3,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:ts": "npm run dev & npm run ts:watch",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "watch": "tsc --w"
+    "ts:watch": "tsc --w"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.0.4",

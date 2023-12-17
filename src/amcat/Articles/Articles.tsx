@@ -1,23 +1,16 @@
 import ArticleSnippets from "./ArticleSnippets";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ArticleModal from "../Article/ArticleModal";
-import {
-  AmcatUser,
-  AmcatField,
-  AmcatIndexName,
-  AmcatQuery,
-  AmcatQueryResult,
-  SortSpec,
-  AmcatDocument,
-} from "@/amcat/interfaces";
+import { AmcatField, AmcatIndexName, AmcatQuery, AmcatQueryResult, SortSpec, AmcatDocument } from "@/amcat/interfaces";
 import { getField, useFields } from "@/amcat/api/fields";
 import { postQuery } from "@/amcat/api/query";
 import { useQuery } from "@tanstack/react-query";
 import { useMyIndexrole } from "../api/indexDetails";
 import { Loading } from "@/components/ui/loading";
+import { MiddlecatUser } from "middlecat-react";
 
 export interface ArticlesProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   /** Query/filter of which documents to show */
   query: AmcatQuery;
@@ -55,9 +48,7 @@ export default function Articles({
   const [articleId, setArticleId] = useState<string | null>(null);
   const { data: fields } = useFields(user, index);
   const [page, setPage] = useState(0);
-  const [readyData, setReadyData] = useState<AmcatQueryResult | undefined>(
-    undefined
-  );
+  const [readyData, setReadyData] = useState<AmcatQueryResult | undefined>(undefined);
 
   const { data, isLoading } = useQuery({
     queryKey: ["articles", user, index, query, perPage, sort, page],
@@ -96,8 +87,7 @@ export default function Articles({
     return columnList;
   }, [data, allColumns, safeColumns, fields]);
 
-  if (!safeColumns || safeColumns.length === 0)
-    return <Loading msg="Loading articles" />;
+  if (!safeColumns || safeColumns.length === 0) return <Loading msg="Loading articles" />;
 
   const handleClick = (row: any) => {
     if (onClick != null) onClick(row);
@@ -132,36 +122,27 @@ export default function Articles({
 const DEFAULT_COLUMNS = ["date", "title", "url"];
 
 function inferColumns(fields: AmcatField[]) {
-  const default_columns: (AmcatField | undefined)[] = DEFAULT_COLUMNS.map((f) =>
-    getField(fields, f)
-  );
-  const nonempty_default_columns: AmcatField[] = default_columns.filter(
-    (f) => f
-  ) as AmcatField[];
+  const default_columns: (AmcatField | undefined)[] = DEFAULT_COLUMNS.map((f) => getField(fields, f));
+  const nonempty_default_columns: AmcatField[] = default_columns.filter((f) => f) as AmcatField[];
 
   let extra_columns = fields
     .filter((f) => !DEFAULT_COLUMNS.includes(f.name))
-    .filter(
-      (f) => f.meta && f.meta.amcat4_display_table === "1"
-    ) as AmcatField[];
+    .filter((f) => f.meta && f.meta.amcat4_display_table === "1") as AmcatField[];
 
   extra_columns.sort((a, b) =>
-    a.meta && b.meta
-      ? parseInt(a.meta.amcat4_display_table) -
-        parseInt(b.meta.amcat4_display_table)
-      : 0
+    a.meta && b.meta ? parseInt(a.meta.amcat4_display_table) - parseInt(b.meta.amcat4_display_table) : 0,
   );
 
   return [...nonempty_default_columns, ...extra_columns];
 }
 
 async function fetchArticles(
-  user: AmcatUser,
+  user: MiddlecatUser,
   index: AmcatIndexName,
   query: AmcatQuery,
   perPage: number,
   sort: any,
-  page: number
+  page: number,
 ) {
   let params = {
     page,

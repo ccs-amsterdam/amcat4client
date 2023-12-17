@@ -1,13 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import QueryForm from "@/amcat/QueryForm/QueryForm";
 import { AggregationOptions, AmcatQuery } from "@/amcat/interfaces";
-import amcatGuest from "@/lib/amcatGuest";
 import { X } from "lucide-react";
 import Articles from "@/amcat/Articles/Articles";
 import AggregateResult from "@/amcat/Aggregate/AggregateResult";
+import { useMiddlecat } from "middlecat-react";
+import { Loading } from "@/components/ui/loading";
 
 interface Props {
   index: {
@@ -15,8 +16,6 @@ interface Props {
     index: string;
   };
 }
-
-const user = amcatGuest();
 
 const indexAggregations: Record<string, AggregationOptions[]> = {
   tk2023_media: [
@@ -40,50 +39,44 @@ const indexAggregations: Record<string, AggregationOptions[]> = {
 
 export default function Index({ index }: Props) {
   const router = useRouter();
-
+  const { user, loading: userLoading } = useMiddlecat();
   const [query, setQuery] = useState<AmcatQuery>({});
 
   const goBack = () => router.push("/dashboard");
 
   const aggregations = indexAggregations[index.index] || [];
 
+  // useEffect(() => {
+  //   if (userLoading) return
+  //   if (!user)
+  // }, [user, userLoading])
+
+  if (userLoading || !user) return <Loading />;
+
   return (
     <div>
       <div className="border-b-2 border-gray-400 pb-4">
         <div className="flex flex-col items-center lg:items-start">
-          <div className="flex prose max-w-[1000px] gap-3 items-center mb-6 justify-center lg:justify-start p-1">
+          <div className="prose mb-6 flex max-w-[1000px] items-center justify-center gap-3 p-1 lg:justify-start">
             <h1 className="m-0">{index.label}</h1>
             <div className="cursor-pointer p-2" onClick={goBack}>
-              <X className="w-8 h-8 text-secondary p-0" />
+              <X className="h-8 w-8 p-0 text-secondary" />
             </div>
           </div>
           <div className="w-full">
-            <QueryForm
-              user={user}
-              index={index.index}
-              query={query}
-              setQuery={setQuery}
-            />
+            <QueryForm user={user} index={index.index} query={query} setQuery={setQuery} />
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-10 xl:gap-5 xl:flex-row p-1 mt-6 justify-between items-center xl:items-start">
-        <div className=" xl:min-w-[400px] flex-auto">
+      <div className="mt-6 flex flex-col items-center justify-between gap-10 p-1 xl:flex-row xl:items-start xl:gap-5">
+        <div className=" flex-auto xl:min-w-[400px]">
           <Articles user={user} index={index.index} query={query} />
         </div>
-        <div className="max-w-[800px] flex-auto w-full flex flex-col">
+        <div className="flex w-full max-w-[800px] flex-auto flex-col">
           {aggregations.map((options) => {
             return (
-              <div
-                key={options.title || JSON.stringify(options)}
-                className="flex-auto"
-              >
-                <AggregateResult
-                  user={user}
-                  index={index.index}
-                  query={query}
-                  options={options}
-                />
+              <div key={options.title || JSON.stringify(options)} className="flex-auto">
+                <AggregateResult user={user} index={index.index} query={query} options={options} />
               </div>
             );
           })}

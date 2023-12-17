@@ -1,5 +1,4 @@
 import {
-  AmcatUser,
   AggregationAxis,
   AggregationInterval,
   AggregationMetric,
@@ -12,16 +11,11 @@ import {
 
 import { useFields, getField } from "@/amcat/api/fields";
 import { Dropdown, Option } from "@/components/ui/dropdown";
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { Tally5, TextCursor, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
+import { MiddlecatUser } from "middlecat-react";
 
 // Style Idea:
 // Just single button with dropdown menu
@@ -29,20 +23,14 @@ import { DynamicIcon } from "@/components/ui/dynamic-icon";
 // each item then has a combobox to select the column
 
 interface Props {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   options: AggregationOptions;
   setOptions: Dispatch<SetStateAction<AggregationOptions>>;
 }
 
-export default function AggregateResultOptions({
-  user,
-  index,
-  query,
-  options,
-  setOptions,
-}: Props) {
+export default function AggregateResultOptions({ user, index, query, options, setOptions }: Props) {
   const [newOptions, setNewOptions] = useState(options);
 
   useEffect(() => {
@@ -130,10 +118,7 @@ export default function AggregateResultOptions({
             />
           </div>
         </div>
-        <Button
-          disabled={optionsIdentical() || optionsInvalid()}
-          onClick={submit}
-        >
+        <Button disabled={optionsIdentical() || optionsInvalid()} onClick={submit}>
           Submit
         </Button>
       </div>
@@ -163,11 +148,7 @@ const displayOptions: {
 const aggregation_labels = {
   list: ["Group results by", "And then by", "Maximum number of rows"],
   table: ["Rows", "Columns", "(not used)"],
-  linechart: [
-    "Horizontal (X) axis",
-    "Multiple lines",
-    "Maximum number of lines",
-  ],
+  linechart: ["Horizontal (X) axis", "Multiple lines", "Maximum number of lines"],
   barchart: ["Create bars for", "Cluster bars by", "Maximum number of bars"],
 };
 
@@ -213,7 +194,7 @@ function DisplayPicker({ options, setOptions }: DisplayPickerProps) {
 }
 
 interface MetricPickerProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   value?: AggregationMetric;
   onChange: (value?: AggregationMetric) => void;
@@ -231,9 +212,7 @@ function MetricPicker({ user, index, value, onChange }: MetricPickerProps) {
       },
     ];
     for (let field of fields) {
-      const options = METRIC_FUNCTIONS.filter(
-        (f) => !f.types || f.types?.includes(field.type)
-      );
+      const options = METRIC_FUNCTIONS.filter((f) => !f.types || f.types?.includes(field.type));
       if (options.length === 0) continue;
 
       metricFieldOptions.push({
@@ -270,21 +249,14 @@ function MetricPicker({ user, index, value, onChange }: MetricPickerProps) {
 }
 
 interface AxisPickerProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   value?: AggregationAxis;
   onChange: (value?: AggregationAxis) => void;
   clearable?: boolean;
 }
-function AxisPicker({
-  user,
-  index,
-  query,
-  value,
-  onChange,
-  clearable = false,
-}: AxisPickerProps) {
+function AxisPicker({ user, index, query, value, onChange, clearable = false }: AxisPickerProps) {
   const { data: fields } = useFields(user, index);
 
   const fieldoptions = useMemo(() => {
@@ -317,8 +289,7 @@ function AxisPicker({
         name: value?.name || "",
         interval: value?.interval,
       };
-      const ftype =
-        field === "_query" ? "_query" : getField(fields, field)?.type;
+      const ftype = field === "_query" ? "_query" : getField(fields, field)?.type;
       result.field = field;
       if (ftype !== "date") delete result.interval;
       else if (result.interval == null) result.interval = "day";
@@ -334,9 +305,7 @@ function AxisPicker({
       options={fieldoptions}
       value={value?.field}
       value2={value?.interval}
-      onChange={({ value, value2 }) =>
-        setValues(value as string, value2 as AggregationInterval)
-      }
+      onChange={({ value, value2 }) => setValues(value as string, value2 as AggregationInterval)}
       clearable={clearable}
     />
   );

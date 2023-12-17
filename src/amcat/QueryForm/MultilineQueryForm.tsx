@@ -4,10 +4,11 @@ import { queriesFromString, queriesToString } from "./libQuery";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, PlusSquare, Loader } from "lucide-react";
-import { AmcatQuery, AmcatIndexName, AmcatUser } from "../interfaces";
+import { AmcatQuery, AmcatIndexName } from "../interfaces";
+import { MiddlecatUser } from "middlecat-react";
 
 interface Props {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
@@ -45,60 +46,36 @@ export default function MultilineQueryForm({
   const options = fieldOptions(fields, query);
 
   return (
-    <div className="prose max-w-none grid grid-cols-1 md:grid-cols-[1fr,300px] gap-3 lg:gap-6">
-      <form className="flex flex-col flex-auto w-full p-1">
+    <div className="prose grid max-w-none grid-cols-1 gap-3 md:grid-cols-[1fr,300px] lg:gap-6">
+      <form className="flex w-full flex-auto flex-col p-1">
         {/*       <form className="flex-auto w-full p-1">
          */}
-        <div className="flex items-center gap-2 h-10">
+        <div className="flex h-10 items-center gap-2">
           <div className="flex items-center">
             <b>Query</b>
-            <ChevronUp
-              onClick={switchAdvanced}
-              className="p-1 mb-1  w-8 h-8 cursor-pointer"
-            />
+            <ChevronUp onClick={switchAdvanced} className="mb-1 h-8  w-8 cursor-pointer p-1" />
           </div>
         </div>
         <Textarea
-          className="flex-auto min-h-[120px]"
+          className="min-h-[120px] flex-auto"
           placeholder={`Enter multiple (labeled) queries:\n\nLabel1 = query1\nLabel2 = query2\netc.`}
           onChange={(e) => {
-            updateQuery(
-              { ...query, queries: queriesFromString(e.target.value) },
-              "never"
-            );
+            updateQuery({ ...query, queries: queriesFromString(e.target.value) }, "never");
           }}
           onKeyDown={handleKeyDown}
           value={queriesToString(query?.queries || [], true)}
         />
-        <Button
-          className="bg-gray-200 border-2 w-full  h-8 mt-1"
-          onClick={submitForm}
-          disabled={!queryChanged}
-        >
-          <Loader
-            className={`${
-              debouncing ? "" : "invisible"
-            } mr-2 animate-[spin_2000ms_linear_infinite] `}
-          />
+        <Button className="mt-1 h-8 w-full  border-2 bg-gray-200" onClick={submitForm} disabled={!queryChanged}>
+          <Loader className={`${debouncing ? "" : "invisible"} mr-2 animate-[spin_2000ms_linear_infinite] `} />
           Submit Query <i className="pl-2">(ctrl+Enter)</i>{" "}
         </Button>
       </form>
 
-      <div className="flex  flex-col flex-auto w-full p-1">
-        <div className="flex items-center gap-2 h-10">
+      <div className="flex  w-full flex-auto flex-col p-1">
+        <div className="flex h-10 items-center gap-2">
           <b>Filters</b>
-          <AddFilterButton
-            options={options}
-            value={query}
-            onSubmit={(value) => updateQuery(value, 0)}
-          >
-            <PlusSquare
-              className={
-                options.length === 0
-                  ? "text-gray-400 cursor-default"
-                  : "cursor-pointer"
-              }
-            />
+          <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+            <PlusSquare className={options.length === 0 ? "cursor-default text-gray-400" : "cursor-pointer"} />
           </AddFilterButton>
         </div>
 

@@ -7,7 +7,6 @@ import {
   AmcatFilter,
   AmcatIndexName,
   AmcatQuery,
-  AmcatUser,
   DateFilter,
 } from "@/amcat/interfaces";
 import AggregateList from "./AggregateList";
@@ -17,11 +16,12 @@ import AggregateLineChart from "./AggregateLineChart";
 import { postAggregate } from "@/amcat/api/aggregate";
 import { describeError } from "@/amcat/api/error";
 import { Loading } from "@/components/ui/loading";
+import { MiddlecatUser } from "middlecat-react";
 
 //TODO: This file is becoming too complex - move some business logic to a lib and add unit tests?
 
 interface AggregateResultProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   /** The query for the results to show */
   query: AmcatQuery;
@@ -38,15 +38,7 @@ interface AggregateResultProps {
 /**
  * Display the results of an aggregate search
  */
-export default function AggregateResult({
-  user,
-  index,
-  query,
-  options,
-  width,
-  height,
-  scale,
-}: AggregateResultProps) {
+export default function AggregateResult({ user, index, query, options, width, height, scale }: AggregateResultProps) {
   const [data, setData] = useState<AggregateData>();
   const [error, setError] = useState<string>();
   const [zoom, setZoom] = useState();
@@ -78,31 +70,17 @@ export default function AggregateResult({
       cancel = true;
     };
   }, [user, index, options, query]);
-  <AggregateResult
-    user={user}
-    index={index}
-    query={query}
-    options={options as AggregationOptions}
-    height={300}
-  />;
+  <AggregateResult user={user} index={index} query={query} options={options as AggregationOptions} height={300} />;
   if (error) return <span className="text-red-600">{error}</span>;
 
-  if (!options)
-    return (
-      <span className="italic text-center">Select aggregation options</span>
-    );
-  if (!data || !options || !options.display)
-    return <Loading msg={`Loading aggregation`} />;
+  if (!options) return <span className="text-center italic">Select aggregation options</span>;
+  if (!data || !options || !options.display) return <Loading msg={`Loading aggregation`} />;
 
   // Handle a click on the aggregate result
   // values should be an array of the same length as the axes and identify the value for each axis
   const handleClick = (values: any[]) => {
     if (!options.axes || options.axes.length !== values.length)
-      throw new Error(
-        `Axis [${JSON.stringify(
-          options.axes
-        )}] incompatible with values [${values}]`
-      );
+      throw new Error(`Axis [${JSON.stringify(options.axes)}] incompatible with values [${values}]`);
     // Create a new query to filter articles based on intersection of current and new query
     const newQuery = query == null ? {} : JSON.parse(JSON.stringify(query));
     if (!newQuery.filters) newQuery.filters = {};
@@ -111,19 +89,12 @@ export default function AggregateResult({
         if (!query.queries) return;
         newQuery.queries = [query.queries[values[i]]];
       } else {
-        newQuery.filters[axis.field] = getZoomFilter(
-          values[i],
-          axis.interval,
-          newQuery.filters?.[axis.field]
-        );
+        newQuery.filters[axis.field] = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
       }
     });
     setZoom(newQuery);
   };
-  const scaled_data =
-    scale == null
-      ? data
-      : { ...data, data: data.data.map((x) => ({ ...x, n: x.n * scale })) };
+  const scaled_data = scale == null ? data : { ...data, data: data.data.map((x) => ({ ...x, n: x.n * scale })) };
 
   // Choose and render result element
   const Element = {
@@ -134,25 +105,15 @@ export default function AggregateResult({
   }[options.display];
   if (Element === undefined) {
     console.error({ Element, data, options });
-    return (
-      <span className="text-orange-500">{`Unknown display option: ${options.display}`}</span>
-    );
+    return <span className="text-orange-500">{`Unknown display option: ${options.display}`}</span>;
   }
   return (
     <div>
       {options.title ? (
-        <h3 className="text-center font-bold text-lg max-w-none prose mb-3 mt-2">
-          {options.title}
-        </h3>
+        <h3 className="prose mb-3 mt-2 max-w-none text-center text-lg font-bold">{options.title}</h3>
       ) : null}
       {getArticleList(user, index, zoom, () => setZoom(undefined))}
-      <Element
-        data={scaled_data}
-        onClick={handleClick}
-        width={width}
-        height={height}
-        limit={options.limit}
-      />
+      <Element data={scaled_data} onClick={handleClick} width={width} height={height} limit={options.limit} />
     </div>
   );
 }
@@ -166,11 +127,7 @@ export default function AggregateResult({
  * @param {object} existing the existing filters for this field, e.g. null or lte and/or gte filters
  * @returns the filter object with either a values filter or a (possibly merged) date filter
  */
-function getZoomFilter(
-  value: any,
-  interval: AggregationInterval | undefined,
-  existing: AmcatFilter
-) {
+function getZoomFilter(value: any, interval: AggregationInterval | undefined, existing: AmcatFilter) {
   // For regular values, we can directly filter
   // Existing filter can also never be stricter than the value
   if (!interval) return { values: [value] };
@@ -180,16 +137,9 @@ function getZoomFilter(
   let end = getEndDate(start, interval);
   // I tried a fancy list filter max expression but that just complicates stuff
   // for reference: new Date(Math.max(...[start, gte, gt].filter((x) => x != null).map((x) => new Date(x))))
-  if (existing?.gte)
-    start = new Date(
-      Math.max(start.getTime(), new Date(existing.gte).getTime())
-    );
-  if (existing?.gt)
-    start = new Date(
-      Math.max(start.getTime(), new Date(existing.gt).getTime())
-    );
-  if (existing?.lt)
-    end = new Date(Math.min(end.getTime(), new Date(existing.lt).getTime()));
+  if (existing?.gte) start = new Date(Math.max(start.getTime(), new Date(existing.gte).getTime()));
+  if (existing?.gt) start = new Date(Math.max(start.getTime(), new Date(existing.gt).getTime()));
+  if (existing?.lt) end = new Date(Math.min(end.getTime(), new Date(existing.lt).getTime()));
   // Now it becomes interesting. We normally set end of the interval to LT
   // However, if existing.lte "wins", we should also set our end to be LTE.
   let end_op = "lt";
@@ -244,10 +194,10 @@ function describe_filter(field: string, filter: AmcatFilter | undefined) {
 }
 
 export function getArticleList(
-  user: AmcatUser,
+  user: MiddlecatUser,
   index: AmcatIndexName,
   query: AmcatQuery | undefined,
-  onClose: () => void
+  onClose: () => void,
 ) {
   if (!query) return null;
   const header = Object.keys(query.filters || {})

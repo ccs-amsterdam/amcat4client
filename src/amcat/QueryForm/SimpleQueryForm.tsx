@@ -3,10 +3,11 @@ import { queriesFromString, queriesToString } from "./libQuery";
 import AddFilterButton, { fieldOptions } from "./AddFilterButton";
 import { Input } from "@/components/ui/input";
 import { ChevronsUpDown, Filter, Loader, Search } from "lucide-react";
-import { AmcatQuery, AmcatIndexName, AmcatUser } from "../interfaces";
+import { AmcatQuery, AmcatIndexName } from "@/amcat/interfaces";
+import { MiddlecatUser } from "middlecat-react";
 
 interface Props {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
@@ -39,7 +40,7 @@ export default function SimpleQueryForm({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-1 p-1">
-        <div className="relative  min-w-[50%] flex-auto w-auto">
+        <div className="relative  w-auto min-w-[50%] flex-auto">
           <Input
             className="pl-10"
             placeholder="search"
@@ -50,38 +51,21 @@ export default function SimpleQueryForm({
                   ...query,
                   queries: queriesFromString(e.target.value),
                 },
-                2000
+                2000,
               );
             }}
             onKeyDown={handleKeydown}
           />
-          <div className="absolute left-0 top-0 bottom-0 flex items-center pl-2 pointer-events-none">
-            {debouncing ? (
-              <Loader className="animate-[spin_2000ms_linear_infinite]" />
-            ) : (
-              <Search />
-            )}
+          <div className="pointer-events-none absolute bottom-0 left-0 top-0 flex items-center pl-2">
+            {debouncing ? <Loader className="animate-[spin_2000ms_linear_infinite]" /> : <Search />}
           </div>
         </div>
-        <ChevronsUpDown
-          onClick={switchAdvanced}
-          className="p-1 w-8 h-8 cursor-pointer"
-        />
-        <AddFilterButton
-          options={options}
-          value={query}
-          onSubmit={(value) => updateQuery(value, 0)}
-        >
-          <Filter
-            className={
-              options.length === 0 ? "text-gray-400" : "cursor-pointer"
-            }
-          />
+        <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer p-1" />
+        <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+          <Filter className={options.length === 0 ? "text-gray-400" : "cursor-pointer"} />
         </AddFilterButton>
       </div>
-      <div className="Filters flex justify-start flex-wrap items-center gap-1 p-1">
-        {children}
-      </div>
+      <div className="Filters flex flex-wrap items-center justify-start gap-1 p-1">{children}</div>
     </div>
   );
 }

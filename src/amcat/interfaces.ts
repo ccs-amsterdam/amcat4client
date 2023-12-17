@@ -1,40 +1,33 @@
 import { Axios } from "axios";
 import { ReactNode } from "react";
+import { z } from "zod";
+import {
+  amcatConfigSchema,
+  amcatIndexNameSchema,
+  amcatUserRoleSchema,
+  amcatIndexSchema,
+  amcatIndicesSchema,
+  amcatUserDetailsSchema,
+  amcatFieldTypeSchema,
+  amcatFieldSchema,
+  amcatDocumentSchema,
+  amcatQueryResultMetaSchema,
+  amcatQueryResultSchema,
+  amcatAnnotationSchema,
+} from "./schemas";
 
-export interface AmcatServerConfig {
-  middlecat_url: string;
-  authorization: "allow_guests" | "no_auth" | "allow_authenticated_guests" | "authorized_users_only";
-  resource: string;
-  [key: string]: any;
-}
-export const AmcatRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
-export type AmcatRole = (typeof AmcatRoles)[number];
-
-export interface AmcatUserInfo {
-  email: string;
-  role: AmcatRole;
-}
-
-export interface AmcatUser {
-  /** user signin email */
-  email: string;
-  /** user name */
-  name: string;
-  /** image */
-  image: string;
-  /** is user authenticated? */
-  authenticated: boolean;
-  /** Authentication is disabled? */
-  authDisabled?: boolean;
-  /** Axios instance to make API calls */
-  api: Axios;
-  /** resource url */
-  resource: string;
-  /** middlecat url */
-  middlecat: string;
-  /** Kill the AmCAT session and optionally also the MiddleCat session. Used internally on signout */
-  killSession: (signOutMiddlecat: boolean) => Promise<void>;
-}
+export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
+export type AmcatIndexName = z.infer<typeof amcatIndexNameSchema>;
+export type AmcatUserRole = z.infer<typeof amcatUserRoleSchema>;
+export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
+export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
+export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
+export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
+export type AmcatField = z.infer<typeof amcatFieldSchema>;
+export type AmcatDocument = z.infer<typeof amcatDocumentSchema>;
+export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
+export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
+export type AmcatAnnotation = z.infer<typeof amcatAnnotationSchema>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 export type AggregationInterval =
@@ -105,12 +98,6 @@ export interface AmcatFilter extends DateFilter {
   justAdded?: boolean;
 }
 
-export interface AmcatField {
-  name: string;
-  type: "long" | "double" | "object" | "keyword" | "date" | "tag" | "text" | "url" | "geo_point" | "id";
-  meta?: { [field: string]: string };
-}
-
 export interface AmcatFilters {
   [field: string]: AmcatFilter;
 }
@@ -153,33 +140,6 @@ export interface AggregateVisualizerProps {
   height?: string | number;
   /* Limit the number of bars/lines/rows */
   limit?: number;
-}
-
-export type AmcatIndexName = string;
-export interface AmcatIndex {
-  id: AmcatIndexName;
-  name: string;
-  description?: string;
-  guest_role?: AmcatRole;
-  user_role?: AmcatRole;
-  summary_field?: string;
-}
-
-export interface AmcatDocument {
-  /** We can see if a text has been processed by addAnnotations
-      if it's an array. But there should be a more elegant solution (WvA nods) */
-  _id: string;
-  text?: string | any[];
-  date?: Date;
-  url?: string;
-  title?: string;
-  _annotations?: any[];
-  [key: string]: any;
-}
-
-export interface AmcatQueryResult {
-  results?: AmcatDocument[];
-  meta?: { page: number; page_count?: number };
 }
 
 export interface LocationOptions {

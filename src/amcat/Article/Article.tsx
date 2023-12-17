@@ -1,16 +1,17 @@
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
-import { addFilter, postQuery } from "@/amcat/api";
 import { useFields } from "@/amcat/api/fields";
-import { AmcatUser, AmcatDocument, AmcatField, AmcatIndexName, AmcatQuery } from "@/amcat/interfaces";
+import { AmcatDocument, AmcatField, AmcatIndexName, AmcatQuery } from "@/amcat/interfaces";
 import prepareArticle from "./prepareArticle";
 import { useMyIndexrole } from "@/amcat/api/indexDetails";
 import { Link } from "lucide-react";
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { MiddlecatUser } from "middlecat-react";
+import { useArticle } from "../api/article";
 
 export interface ArticleProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   /** An article id. Can also be an array of length 1 with the article id, which can trigger setOpen if the id didn't change */
   id: string;
@@ -23,14 +24,8 @@ export interface ArticleProps {
 export default React.memo(Article);
 function Article({ user, index, id, query, changeArticle, link }: ArticleProps) {
   const { data: fields } = useFields(user, index);
-  const [article, setArticle] = useState<AmcatDocument | null>(null);
+  const { data: article } = useArticle(user, index, id, query);
   const myrole = useMyIndexrole(user, index);
-
-  useEffect(() => {
-    if (!id) return;
-    if (article && id === article._id) return;
-    fetchArticle(user, index, id, query, setArticle);
-  }, [id, article, index, query]);
 
   if (!article || !fields) return null;
 
@@ -44,25 +39,6 @@ function Article({ user, index, id, query, changeArticle, link }: ArticleProps) 
       </div>
     </div>
   );
-}
-
-function fetchArticle(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  _id: string,
-  query: AmcatQuery,
-  setArticle: Dispatch<SetStateAction<AmcatDocument | null>>,
-) {
-  let params: any = { annotations: true };
-  query = addFilter(query, { _id: { values: [_id] } });
-  postQuery(user, index, query, params)
-    .then((data) => {
-      setArticle(data.data.results[0]);
-    })
-    .catch((error) => {
-      console.log(error);
-      setArticle(null);
-    });
 }
 
 interface BodyProps {

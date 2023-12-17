@@ -1,21 +1,17 @@
-import { AmcatIndex, AmcatUser } from "@/amcat/interfaces";
 import { useQuery } from "@tanstack/react-query";
+import { amcatIndicesSchema } from "@/amcat/schemas";
+import { MiddlecatUser } from "middlecat-react";
 
-export default function useAmcatIndices(user: AmcatUser | undefined) {
-  const { data, isLoading, error, refetch } = useQuery({
+export default function useAmcatIndices(user: MiddlecatUser | undefined) {
+  return useQuery({
     queryKey: ["indices", user],
     queryFn: () => getIndices(user),
     enabled: user != null,
-    staleTime: 60000,
   });
-
-  const indices: AmcatIndex[] = data ? Object.values(data) : [];
-  return { indices, isLoading, error, refetch };
 }
 
-async function getIndices(user: AmcatUser | undefined) {
-  if (!user) return;
+async function getIndices(user: MiddlecatUser | undefined) {
+  if (!user) return undefined;
   const res = await user.api.get(`/index/`);
-  const indices: AmcatIndex[] = res.data;
-  return indices;
+  return amcatIndicesSchema.parse(res.data);
 }

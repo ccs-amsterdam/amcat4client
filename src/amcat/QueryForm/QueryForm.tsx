@@ -1,24 +1,13 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  AmcatIndexName,
-  AmcatQuery,
-  AmcatUser,
-  AmcatFilter,
-} from "@/amcat/interfaces";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { AmcatIndexName, AmcatQuery, AmcatFilter } from "@/amcat/interfaces";
 import MultilineQueryForm from "./MultilineQueryForm";
 import SimpleQueryForm from "./SimpleQueryForm";
 import FilterPicker from "./FilterPicker";
 import { useFields, getField } from "@/amcat/api/fields";
+import { MiddlecatUser } from "middlecat-react";
 
 export interface Props {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   setQuery: Dispatch<SetStateAction<AmcatQuery>>;
@@ -42,16 +31,18 @@ export default function QueryForm({ user, index, query, setQuery }: Props) {
 
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       if (executeAfter === "never") return;
-      debounceTimer.current = setTimeout(() => {
-        setQuery((current) => {
-          if (JSON.stringify(current) === JSON.stringify(newQuery))
-            return current;
-          return newQuery;
-        });
-        debounceTimer.current = undefined;
-      }, Number(executeAfter) || 0);
+      debounceTimer.current = setTimeout(
+        () => {
+          setQuery((current) => {
+            if (JSON.stringify(current) === JSON.stringify(newQuery)) return current;
+            return newQuery;
+          });
+          debounceTimer.current = undefined;
+        },
+        Number(executeAfter) || 0,
+      );
     },
-    [setQuery]
+    [setQuery],
   );
 
   const queryChanged = JSON.stringify(query) !== JSON.stringify(queryDebounced);
@@ -70,7 +61,7 @@ export default function QueryForm({ user, index, query, setQuery }: Props) {
 }
 
 interface DebouncedQueryFormProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
@@ -78,14 +69,7 @@ interface DebouncedQueryFormProps {
   queryChanged: boolean;
 }
 
-function DebouncedQueryForm({
-  user,
-  index,
-  query,
-  updateQuery,
-  debouncing,
-  queryChanged,
-}: DebouncedQueryFormProps) {
+function DebouncedQueryForm({ user, index, query, updateQuery, debouncing, queryChanged }: DebouncedQueryFormProps) {
   const { data: fields } = useFields(user, index);
   const [advanced, setAdvanced] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -109,7 +93,7 @@ function DebouncedQueryForm({
         ...query,
         filters: { ...query?.filters, [name]: filter },
       },
-      2000
+      2000,
     );
   };
 
@@ -125,10 +109,7 @@ function DebouncedQueryForm({
 
   return (
     <div className="flex flex-col gap-3">
-      <div
-        ref={containerRef}
-        className={`grid grid-rows-1 transition-all overflow-hidden`}
-      >
+      <div ref={containerRef} className={`grid grid-rows-1 overflow-hidden transition-all`}>
         <div>
           <div ref={formRef}>
             {" "}

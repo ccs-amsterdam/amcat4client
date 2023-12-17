@@ -1,9 +1,11 @@
 import { AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { AmcatRole, AmcatRoles, AmcatUser, AmcatUserInfo } from "@/amcat/interfaces";
 import { useAmcatConfig } from "./config";
+import { MiddlecatUser } from "middlecat-react";
+import { amcatUserDetailsSchema, amcatUserRoles } from "@/amcat/schemas";
+import { AmcatUserRole } from "@/amcat/interfaces";
 
-export function useCurrentUserDetails(user?: AmcatUser) {
+export function useCurrentUserDetails(user?: MiddlecatUser) {
   return useQuery({
     queryKey: ["users", user],
     queryFn: async () => getCurrentUserDetails(user),
@@ -16,28 +18,24 @@ export function useCurrentUserDetails(user?: AmcatUser) {
   });
 }
 
-export function useMyGlobalRole(user: AmcatUser | undefined) {
+export function useMyGlobalRole(user: MiddlecatUser | undefined) {
   const { data: userInfo } = useCurrentUserDetails(user);
   return userInfo?.role;
 }
 
-export function useHasGlobalRole(user: AmcatUser | undefined, role: AmcatRole) {
+export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUserRole) {
+  if (!user) return undefined;
   const { data: serverConfig } = useAmcatConfig(user.resource);
   const actual_role = useMyGlobalRole(user);
   if (serverConfig?.authorization === "no_auth") return true;
   if (actual_role == null) return undefined;
-  const actual_role_index = AmcatRoles.indexOf(actual_role);
-  const required_role_index = AmcatRoles.indexOf(role);
+  const actual_role_index = amcatUserRoles.indexOf(actual_role);
+  const required_role_index = amcatUserRoles.indexOf(role);
   return actual_role_index >= required_role_index;
 }
 
-async function getCurrentUserDetails(user: AmcatUser | undefined) {
-  if (!user) return;
-  if (!user.email) return;
+async function getCurrentUserDetails(user: MiddlecatUser | undefined) {
+  if (!user?.email) return;
   const res = await user.api.get(`/users/me`);
-  const userInfo: AmcatUserInfo = {
-    ...res.data,
-    role: res.data.role.toUpperCase(),
-  };
-  return userInfo;
+  return amcatUserDetailsSchema.parse(res.data);
 }

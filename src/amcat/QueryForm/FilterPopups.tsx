@@ -1,27 +1,18 @@
 import { useFieldValues } from "@/amcat/api/fieldValues";
-import {
-  AmcatUser,
-  AmcatField,
-  AmcatFilter,
-  AmcatIndexName,
-  DateFilter,
-} from "@/amcat/interfaces";
+import { AmcatField, AmcatFilter, AmcatIndexName, DateFilter } from "@/amcat/interfaces";
 import { Checkbox } from "@/components/ui/checkbox";
 import DatePicker from "./DatePicker";
+import { MiddlecatUser } from "middlecat-react";
 
 interface FilterPopupProps {
-  user: AmcatUser;
+  user: MiddlecatUser;
   index: AmcatIndexName;
   field: AmcatField | undefined;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;
 }
 
-export function filterLabel(
-  field: AmcatField | undefined,
-  filter: AmcatFilter | undefined,
-  includeName = false
-) {
+export function filterLabel(field: AmcatField | undefined, filter: AmcatFilter | undefined, includeName = false) {
   if (field == null || filter == null) return null;
 
   const name = includeName ? `${field.name} ` : "";
@@ -39,7 +30,7 @@ export function filterLabel(
 
   if (values)
     return (
-      <div className="w-full flex items-center gap-2">
+      <div className="flex w-full items-center gap-2">
         <div className="font-bold">{name}</div>
         {values}
       </div>
@@ -52,27 +43,14 @@ export function filterLabel(
   );
 }
 
-export function FilterPopup({
-  user,
-  index,
-  field,
-  value,
-  onChange,
-}: FilterPopupProps) {
+export function FilterPopup({ user, index, field, value, onChange }: FilterPopupProps) {
   if (field == null || value == null) return null;
 
-  if (field.type === "date")
-    return DateRangePopup({ user, index, field, value, onChange });
+  if (field.type === "date") return DateRangePopup({ user, index, field, value, onChange });
   return KeywordPopup({ user, index, field, value, onChange });
 }
 
-export function KeywordPopup({
-  user,
-  index,
-  field,
-  value,
-  onChange,
-}: FilterPopupProps) {
+export function KeywordPopup({ user, index, field, value, onChange }: FilterPopupProps) {
   if (field == null || value == null) return null;
 
   const { data: fieldValues } = useFieldValues(user, index, field.name);
@@ -80,10 +58,8 @@ export function KeywordPopup({
   if (!fieldValues || fieldValues.length === 0) return null;
 
   function handleChange(checked: boolean, v: string) {
-    if (checked && !selected.includes(v))
-      onChange({ values: [...selected, v] });
-    if (!checked && selected.includes(v))
-      onChange({ values: selected.filter((x) => x !== v) });
+    if (checked && !selected.includes(v)) onChange({ values: [...selected, v] });
+    if (!checked && selected.includes(v)) onChange({ values: selected.filter((x) => x !== v) });
   }
 
   return (
@@ -91,12 +67,8 @@ export function KeywordPopup({
       {fieldValues.map((v, i) => {
         const checked = selected.includes(v);
         return (
-          <div
-            key={v + i}
-            className="flex items-center gap-3 py-1"
-            onClick={() => handleChange(!checked, v)}
-          >
-            <Checkbox key={i} checked={checked} className="w-5 h-5" />
+          <div key={v + i} className="flex items-center gap-3 py-1" onClick={() => handleChange(!checked, v)}>
+            <Checkbox key={i} checked={checked} className="h-5 w-5" />
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {v}{" "}
             </label>
@@ -115,13 +87,7 @@ function date2str(date: Date, ifNone = ""): string {
   return year + "-" + month + "-" + day;
 }
 
-export function DateRangePopup({
-  user,
-  index,
-  field,
-  value,
-  onChange,
-}: FilterPopupProps) {
+export function DateRangePopup({ user, index, field, value, onChange }: FilterPopupProps) {
   if (field == null || value == null) return null;
 
   const { data: fieldValues } = useFieldValues(user, index, field.name);
@@ -135,7 +101,7 @@ export function DateRangePopup({
     onChange(result);
   };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
       <DatePicker
         label={"from"}
         value={value.gte ? new Date(value.gte) : undefined}

@@ -1,16 +1,7 @@
-import {
-  AmcatIndexName,
-  AmcatQuery,
-  AmcatUser,
-  PostAmcatQuery,
-} from "@/amcat/interfaces";
+import { AmcatQuery, PostAmcatQuery, AmcatIndexName } from "@/amcat/interfaces";
+import { MiddlecatUser } from "middlecat-react";
 
-export function postQuery(
-  user: AmcatUser,
-  index: AmcatIndexName,
-  query: AmcatQuery,
-  params: any
-) {
+export function postQuery(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, params: any) {
   const postAmcatQuery = asPostAmcatQuery(query);
   return user.api.post(`index/${index}/query`, {
     ...postAmcatQuery,
