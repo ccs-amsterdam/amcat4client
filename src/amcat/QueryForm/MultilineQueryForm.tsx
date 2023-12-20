@@ -48,12 +48,9 @@ export default function MultilineQueryForm({
   return (
     <div className="prose grid max-w-none grid-cols-1 gap-3 md:grid-cols-[1fr,300px] lg:gap-6">
       <form className="flex w-full flex-auto flex-col p-1">
-        {/*       <form className="flex-auto w-full p-1">
-         */}
         <div className="flex h-10 items-center gap-2">
           <div className="flex items-center">
             <b>Query</b>
-            <ChevronUp onClick={switchAdvanced} className="mb-1 h-8  w-8 cursor-pointer p-1" />
           </div>
         </div>
         <Textarea
@@ -77,6 +74,7 @@ export default function MultilineQueryForm({
           <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
             <PlusSquare className={options.length === 0 ? "cursor-default text-gray-400" : "cursor-pointer"} />
           </AddFilterButton>
+          <ChevronUp onClick={switchAdvanced} className="mb-1 ml-auto  h-8 w-8 cursor-pointer p-1" />
         </div>
 
         <div className="Filters flex-auto">{children}</div>

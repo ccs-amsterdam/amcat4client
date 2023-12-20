@@ -14,7 +14,8 @@ export function useFields(user: MiddlecatUser, index: AmcatIndexName | undefined
 
 export async function getFields(user: MiddlecatUser, index: AmcatIndexName) {
   const res = await user.api.get(`/index/${index}/fields`);
-  return z.array(amcatFieldSchema).parse(res.data);
+  const fieldsArray = Object.keys(res.data).map((name) => res.data[name]);
+  return z.array(amcatFieldSchema).parse(fieldsArray);
 }
 
 export function getField(fields: AmcatField[] | undefined, fieldname: string): AmcatField | undefined {

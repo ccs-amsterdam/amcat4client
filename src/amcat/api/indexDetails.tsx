@@ -18,7 +18,7 @@ export function useMyIndexrole(user: MiddlecatUser, index: AmcatIndexName) {
 }
 
 export function useHasIndexRole(user: MiddlecatUser, index: AmcatIndexName, role: AmcatUserRole) {
-  const { data: serverConfig } = useAmcatConfig(user.resource);
+  const { data: serverConfig } = useAmcatConfig();
   const index_role = useMyIndexrole(user, index);
   const is_global_admin = useHasGlobalRole(user, "ADMIN");
   if (is_global_admin) return true;

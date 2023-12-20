@@ -1,4 +1,3 @@
-import { AxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { useAmcatConfig } from "./config";
 import { MiddlecatUser } from "middlecat-react";
@@ -10,10 +9,9 @@ export function useCurrentUserDetails(user?: MiddlecatUser) {
     queryKey: ["users", user],
     queryFn: async () => getCurrentUserDetails(user),
     enabled: user != null,
-    retry: (_: any, e: AxiosError) => {
-      // Don't retry on 404, this just means the user is not known
-      console.log(e.response?.status);
-      return e.response?.status != 404;
+    retry: (_: any) => {
+      // Don't retry. It's either forbidden or user not known
+      return false;
     },
   });
 }
@@ -25,7 +23,7 @@ export function useMyGlobalRole(user: MiddlecatUser | undefined) {
 
 export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUserRole) {
   if (!user) return undefined;
-  const { data: serverConfig } = useAmcatConfig(user.resource);
+  const { data: serverConfig } = useAmcatConfig();
   const actual_role = useMyGlobalRole(user);
   if (serverConfig?.authorization === "no_auth") return true;
   if (actual_role == null) return undefined;

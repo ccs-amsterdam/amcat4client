@@ -50,7 +50,7 @@ interface BodyProps {
 // now static, but designed so that we can make it dynamic later
 const fieldLayout = {
   title: { fontSize: "1.4em", fontWeight: "bold" },
-  text: { textAlign: "justify" },
+  text: {},
   default: {},
 };
 

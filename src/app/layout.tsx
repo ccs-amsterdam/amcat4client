@@ -15,16 +15,16 @@ const font = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
   title: {
-    default: "VU Verkiezingsonderzoek 2023",
-    template: "%s | VU Verkiezingsonderzoek 2023",
+    default: "AmCAT",
+    template: "%s | AmCAT",
   },
-  description: "Resultaten en achtergrondinformatie van het VU Verkiezingsonderzoek 2023",
+  description: "Amsterdam Content Analysis Toolkit",
 
   openGraph: {
-    title: "VU Verkiezingsonderzoek 2023",
-    description: "Resultaten en achtergrondinformatie van het VU Verkiezingsonderzoek 2023",
+    title: "AmCAT",
+    description: "Amsterdam Content Analysis Toolkit",
     url: absoluteUrl("/"),
-    locale: "nl_NL",
+    locale: "en_US",
     type: "website",
   },
   icons: {

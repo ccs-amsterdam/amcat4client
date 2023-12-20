@@ -202,8 +202,8 @@ interface MetricPickerProps {
 function MetricPicker({ user, index, value, onChange }: MetricPickerProps) {
   const { data: fields } = useFields(user, index);
 
-  if (fields == null) return null;
   const metricFieldOptions = useMemo(() => {
+    if (fields == null) return [];
     const metricFieldOptions: Option[] = [
       {
         text: "Count",
@@ -231,6 +231,8 @@ function MetricPicker({ user, index, value, onChange }: MetricPickerProps) {
     const result = { ...value, function: func as MetricFunction, field };
     onChange(result as AggregationMetric);
   }
+
+  if (fields == null) return null;
 
   return (
     <Dropdown

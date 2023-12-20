@@ -9,12 +9,15 @@ export const amcatConfigSchema = z.object({
 export const amcatIndexNameSchema = z.string().regex(/^[a-z0-9_]+$/i);
 
 export const amcatUserRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
-export const amcatUserRoleSchema = z.enum(amcatUserRoles);
+export const amcatUserRoleSchema = z
+  .enum(amcatUserRoles)
+  .nullish()
+  .transform((v) => v ?? "NONE");
 
 export const amcatIndexSchema = z.object({
   id: amcatIndexNameSchema,
   name: z.string(),
-  description: z.string().optional().nullable(),
+  description: z.string().nullish(),
   guest_role: amcatUserRoleSchema.optional(),
   user_role: amcatUserRoleSchema.optional(),
   summary_field: z.string().optional(),
@@ -42,7 +45,7 @@ export const amcatFieldTypeSchema = z.enum([
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
-  meta: z.record(z.string()),
+  meta: z.record(z.string()).nullish(),
 });
 
 export const amcatAnnotationSchema = z.object({

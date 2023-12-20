@@ -36,7 +36,9 @@ export default function SimpleQueryForm({
       updateQuery(query, 0);
     }
   }
+
   const options = fieldOptions(fields, query);
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-1 p-1">
@@ -60,10 +62,12 @@ export default function SimpleQueryForm({
             {debouncing ? <Loader className="animate-[spin_2000ms_linear_infinite]" /> : <Search />}
           </div>
         </div>
-        <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer p-1" />
-        <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
-          <Filter className={options.length === 0 ? "text-gray-400" : "cursor-pointer"} />
-        </AddFilterButton>
+        <div className="flex items-center pl-2">
+          <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+            <Filter className={options.length === 0 ? "text-gray-400" : "cursor-pointer"} />
+          </AddFilterButton>
+          <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer p-1" />
+        </div>
       </div>
       <div className="Filters flex flex-wrap items-center justify-start gap-1 p-1">{children}</div>
     </div>

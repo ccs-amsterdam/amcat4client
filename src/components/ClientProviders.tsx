@@ -4,6 +4,19 @@ import { MiddlecatProvider } from "middlecat-react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 
+const defaultOptions = {
+  queries: {
+    retry: (failureCount: number, e: Error) => {
+      if (failureCount >= 2) return false;
+      // const unauthorized = e.response?.status == 401;
+      // const forbidden = e.response?.status == 403;
+      const zodError = e.name === "ZodError";
+      const doRetry = !zodError;
+      return doRetry;
+    },
+  },
+};
+
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   const mutationCache = new MutationCache({
     onError: (e) => {
@@ -15,11 +28,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       console.error(e);
     },
   });
-  const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache }));
+  const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MiddlecatProvider bff="/api/bffAuth">{children}</MiddlecatProvider>
+      <MiddlecatProvider bff="/api/bffAuth" fixedResource={process.env.NEXT_PUBLIC_AMCAT_SERVER}>
+        {children}
+      </MiddlecatProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
