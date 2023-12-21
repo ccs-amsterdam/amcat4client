@@ -5,18 +5,48 @@
 @layer base {
   :root {
     --background: 0, 0%, 100%;
-    --foreground: 222.2, 84%, 4.9%;
+    --foreground: 222.2, 84%, 14%;
     --header: 0, 0%, 20%;
 
     --card: 0, 0%, 100%;
     --card-foreground: 222.2, 84%, 4rgb (0, 0, 0) 0.9%;
 
-    --popover: 0, 0%, 100%;
-    --popover-foreground: 222.2, 84%, 4.9%;
-
-    /* give me a great color to complement 0 99% 40% */
-    --primary: 174, 56%, 50%;
+    --primary: 174, 56%, 35%;
     --primary-foreground: 222.2, 47.4%, 100%;
+
+    --secondary: 180, 100%, 25%;
+    --secondary-foreground: 202, 99%, 60%;
+
+    --muted: 0, 0%, 50%;
+    --muted-foreground: 0.4, 16.3%, 46.9%;
+
+    --accent: 210, 40%, 96.1%;
+    --accent-foreground: 222.2, 47.4%, 11.2%;
+
+    --destructive: 0, 84.2%, 60.2%;
+    --destructive-foreground: 210, 40%, 98%;
+
+    --border: 214.3, 31.8%, 91.4%;
+    --input: 214.3, 31.8%, 91.4%;
+    --ring: 222.2, 84%, 4.9%;
+
+    --radius: 0.5rem;
+
+    --navbar-height: 80px;
+    --navbar-height-md: 112px;
+  }
+
+  .dark {
+    --background: 0, 0%, 14%;
+    --foreground: 222.2, 84%, 90%;
+    --foreground-reverse: 222.2, 84%, 10%;
+    --header: 0, 0%, 20%;
+
+    --card: 0, 0%, 100%;
+    --card-foreground: 222.2, 84%, 4rgb (0, 0, 0) 0.9%;
+
+    --primary: 174, 56%, 50%;
+    --primary-foreground: 222.2, 47.4%, 0%;
 
     --secondary: 180, 100%, 25%;
     --secondary-foreground: 202, 99%, 60%;

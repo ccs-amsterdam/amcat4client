@@ -46,7 +46,7 @@ export default function MultilineQueryForm({
   const options = fieldOptions(fields, query);
 
   return (
-    <div className="prose grid max-w-none grid-cols-1 gap-3 md:grid-cols-[1fr,300px] lg:gap-6">
+    <div className="prose grid max-w-none grid-cols-1 gap-3 dark:prose-invert md:grid-cols-[1fr,300px] lg:gap-6">
       <form className="flex w-full flex-auto flex-col p-1">
         <div className="flex h-10 items-center gap-2">
           <div className="flex items-center">
@@ -62,7 +62,7 @@ export default function MultilineQueryForm({
           onKeyDown={handleKeyDown}
           value={queriesToString(query?.queries || [], true)}
         />
-        <Button className="mt-1 h-8 w-full  border-2 bg-gray-200" onClick={submitForm} disabled={!queryChanged}>
+        <Button className="mt-1 h-8 w-full  border-2" onClick={submitForm} disabled={!queryChanged}>
           <Loader className={`${debouncing ? "" : "invisible"} mr-2 animate-[spin_2000ms_linear_infinite] `} />
           Submit Query <i className="pl-2">(ctrl+Enter)</i>{" "}
         </Button>

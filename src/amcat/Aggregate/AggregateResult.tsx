@@ -110,7 +110,7 @@ export default function AggregateResult({ user, index, query, options, width, he
   return (
     <div>
       {options.title ? (
-        <h3 className="prose mb-3 mt-2 max-w-none text-center text-lg font-bold">{options.title}</h3>
+        <h3 className="prose mb-3 mt-2 max-w-none text-center text-lg font-bold dark:prose-invert">{options.title}</h3>
       ) : null}
       {getArticleList(user, index, zoom, () => setZoom(undefined))}
       <Element data={scaled_data} onClick={handleClick} width={width} height={height} limit={options.limit} />

@@ -30,7 +30,7 @@ function Article({ user, index, id, query, changeArticle, link }: ArticleProps) 
   if (!article || !fields) return null;
 
   return (
-    <div className="prose-lg grid grid-cols-1 gap-6 lg:grid-cols-[0.6fr,1fr]">
+    <div className="prose-lg grid grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div>
         <Meta article={article} fields={fields} setArticle={changeArticle} link={link} />
       </div>

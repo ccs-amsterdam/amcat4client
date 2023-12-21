@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { AmcatField, AmcatQuery } from "@/amcat/interfaces";
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
 
@@ -22,12 +18,7 @@ interface AddFilterProps {
   onSubmit: (value: AmcatQuery) => void;
 }
 
-export default function AddFilterButton({
-  children,
-  options,
-  value,
-  onSubmit,
-}: AddFilterProps) {
+export default function AddFilterButton({ children, options, value, onSubmit }: AddFilterProps) {
   const [open, setOpen] = useState(false);
 
   function addFilter(name: string) {
@@ -54,7 +45,8 @@ export default function AddFilterButton({
         <div className="grid grid-cols-1 gap-1">
           {options.map((f) => (
             <Button
-              className="bg-background border-2 flex items-center justify-start gap-2"
+              variant="outline"
+              className=" flex items-center justify-start gap-2 border-2"
               key={f.name}
               onClick={() => {
                 setOpen(false);

@@ -3,6 +3,7 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@ta
 import { MiddlecatProvider } from "middlecat-react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
+import { ThemeProvider } from "next-themes";
 
 const defaultOptions = {
   queries: {
@@ -32,10 +33,12 @@ export default function ClientProviders({ children }: { children: React.ReactNod
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MiddlecatProvider bff="/api/bffAuth" fixedResource={process.env.NEXT_PUBLIC_AMCAT_SERVER}>
-        {children}
-      </MiddlecatProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <MiddlecatProvider bff="/api/bffAuth" fixedResource={process.env.NEXT_PUBLIC_AMCAT_SERVER}>
+          {children}
+        </MiddlecatProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

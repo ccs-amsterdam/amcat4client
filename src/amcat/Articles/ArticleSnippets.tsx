@@ -1,19 +1,6 @@
-import {
-  AmcatDocument,
-  AmcatField,
-  AmcatQueryResult,
-} from "@/amcat/interfaces";
-import {
-  highlightElasticTags,
-  removeElasticTags,
-} from "./highlightElasticTags";
-import {
-  Link as LinkIcon,
-  SkipBack,
-  SkipForward,
-  StepBack,
-  StepForward,
-} from "lucide-react";
+import { AmcatDocument, AmcatField, AmcatQueryResult } from "@/amcat/interfaces";
+import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
+import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -23,12 +10,7 @@ interface Props {
   onClick?: (doc: AmcatDocument) => void;
 }
 
-export default function ArticleSnippets({
-  data,
-  columns,
-  pageChange,
-  onClick,
-}: Props) {
+export default function ArticleSnippets({ data, columns, pageChange, onClick }: Props) {
   const meta = (row: any) => {
     return columns
       .filter((c) => !["_id", "title", "text", "url"].includes(c.name))
@@ -40,26 +22,18 @@ export default function ArticleSnippets({
   const page = data?.meta?.page || 0;
   const nPages = data?.meta?.page_count || 0;
 
-  const iconStyle =
-    "w-9 h-9 text-secondary cursor-pointer hover:bg-gray-200 p-1 rounded";
+  const iconStyle = "w-9 h-9 text-secondary cursor-pointer hover:bg-gray-200 p-1 rounded";
   const disabledIconStyle = "w-9 h-9 p-1 rounded opacity-50 cursor-not-allowed";
   return (
-    <div className="relative prose">
-      <div className="flex justify-center items-center select-none">
-        <SkipBack
-          className={page > 0 ? iconStyle : disabledIconStyle}
-          onClick={() => pageChange(0)}
-        />
+    <div className="prose relative dark:prose-invert">
+      <div className="flex select-none items-center justify-center">
+        <SkipBack className={page > 0 ? iconStyle : disabledIconStyle} onClick={() => pageChange(0)} />
         <StepBack
           className={page > 0 ? iconStyle : disabledIconStyle}
           onClick={() => pageChange(Math.max(0, page - 1))}
         />
 
-        <h2
-          className={`px-4 my-3 text-center min-w-[40%] ${
-            nPages === 0 ? "hidden" : ""
-          }`}
-        >
+        <h2 className={`my-3 min-w-[40%] px-4 text-center ${nPages === 0 ? "hidden" : ""}`}>
           Page {page + 1} / {nPages}
         </h2>
         <StepForward
@@ -76,15 +50,13 @@ export default function ArticleSnippets({
           <article key={row._id + i} className="animate-fade-in">
             <div
               onClick={() => onClick && onClick(row)}
-              className={`bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded-md m-1 min-h-[5rem] ${
+              className={`m-1 min-h-[5rem] rounded-md  px-3 py-1 hover:bg-foreground/20 ${
                 onClick ? "cursor-pointer" : ""
               }`}
             >
               <div className="flex justify-between">
                 <h4 className="mt-2">
-                  <span title={removeElasticTags(row.title || "")}>
-                    {highlightElasticTags(row.title || "")}
-                  </span>
+                  <span title={removeElasticTags(row.title || "")}>{highlightElasticTags(row.title || "")}</span>
                 </h4>
                 {row.url ? (
                   <Link
@@ -95,14 +67,12 @@ export default function ArticleSnippets({
                       e.stopPropagation();
                     }}
                   >
-                    <LinkIcon className=" w-8 h-8 p-1 hover:bg-white rounded" />
+                    <LinkIcon className=" h-8 w-8 rounded p-1 hover:bg-white" />
                   </Link>
                 ) : null}
               </div>
 
-              <div className="line-clamp-2 overflow-hidden text-ellipsis">
-                {snippetText(row)}
-              </div>
+              <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row)}</div>
               <div>{meta(row)}</div>
             </div>
           </article>

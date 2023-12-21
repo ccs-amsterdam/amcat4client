@@ -53,7 +53,7 @@ export default function SimpleQueryForm({
                   ...query,
                   queries: queriesFromString(e.target.value),
                 },
-                2000,
+                1000,
               );
             }}
             onKeyDown={handleKeydown}
@@ -64,7 +64,7 @@ export default function SimpleQueryForm({
         </div>
         <div className="flex items-center pl-2">
           <AddFilterButton options={options} value={query} onSubmit={(value) => updateQuery(value, 0)}>
-            <Filter className={options.length === 0 ? "text-gray-400" : "cursor-pointer"} />
+            <Filter className={options.length === 0 ? "text-foreground/20" : "cursor-pointer"} />
           </AddFilterButton>
           <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer p-1" />
         </div>

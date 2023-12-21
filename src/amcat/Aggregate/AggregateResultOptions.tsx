@@ -64,7 +64,7 @@ export default function AggregateResultOptions({ user, index, query, options, se
   const rowClassName = "w-full";
 
   return (
-    <div className=" prose w-72">
+    <div className=" prose w-72 dark:prose-invert">
       <div className="flex flex-col gap-3">
         <div className="">
           <div className="label">Display</div>

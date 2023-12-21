@@ -16,7 +16,7 @@ export default function Index() {
     router.push(`/index/${indexName}`);
   }
 
-  if (loading)
+  if (loading || loadingIndices)
     return (
       <div className="mt-[20vh]">
         <Loading />
@@ -25,13 +25,13 @@ export default function Index() {
 
   return (
     <div className="mt-[20vh] flex h-full flex-auto flex-col items-center p-5">
-      <div className="prose-lg animate-fade-in px-4 text-center">
+      <div className="prose-lg animate-fade-in px-4 text-center dark:prose-invert">
         <h3 className="">Select an Index</h3>
         <div className="not-prose flex gap-2">
           {indices?.map((index) => {
             return (
-              <Button key={index.name} onClick={() => onSelectIndex(index.name)}>
-                {index.name}
+              <Button className="min-w-[12rem]" key={index.name} onClick={() => onSelectIndex(index.name)}>
+                {index.name?.replaceAll("_", " ")}
               </Button>
             );
           })}

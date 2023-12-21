@@ -20,13 +20,38 @@ interface FilterPickerProps {
 export default function FilterPicker({ user, index, field, value, onChange, onDelete, className }: FilterPickerProps) {
   if (field == null || value == null) return null;
 
-  const asDialog = false;
-  const Component = asDialog ? DialogStyle : PopoverStyle;
-
   return (
-    <Component field={field} value={value} className={className} onDelete={onDelete}>
-      <FilterPopup user={user} index={index} field={field} value={value} onChange={onChange} />
-    </Component>
+    <Popover
+      defaultOpen={value?.justAdded}
+      onOpenChange={() => {
+        if (value?.justAdded) value.justAdded = false;
+      }}
+    >
+      <PopoverTrigger asChild>
+        <div className="flex flex-row-reverse rounded-md border-[1px] bg-background">
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              onDelete?.();
+            }}
+            className="peer rounded-l-none  pl-0 pr-2 hover:bg-destructive"
+          >
+            <Delete />
+          </Button>
+          <Button
+            className={cn(
+              "flex justify-between gap-2 rounded-r-none first-letter:first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
+              className,
+            )}
+          >
+            {filterLabel(field, value, true)}
+          </Button>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent collisionPadding={{ bottom: -9999 }} side="bottom" className="max-h-[400px] w-full overflow-auto">
+        <FilterPopup user={user} index={index} field={field} value={value} onChange={onChange} />
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -53,13 +78,13 @@ function DialogStyle({ children, field, value, className, onDelete }: StyleProps
               e.preventDefault();
               onDelete?.();
             }}
-            className="peer rounded-l-none bg-transparent pl-0 pr-2 hover:bg-destructive"
+            className="peer rounded-l-none  pl-0 pr-2 hover:bg-destructive"
           >
             <Delete />
           </Button>
           <Button
             className={cn(
-              "flex justify-between gap-2 rounded-r-none bg-transparent first-letter:first-line:whitespace-nowrap hover:bg-transparent peer-hover:bg-destructive ",
+              "flex justify-between gap-2 rounded-r-none bg-black  first-letter:first-line:whitespace-nowrap hover:bg-primary peer-hover:bg-destructive ",
               className,
             )}
           >
@@ -92,13 +117,13 @@ function PopoverStyle({ children, field, value, className, onDelete }: StyleProp
               e.preventDefault();
               onDelete?.();
             }}
-            className="peer rounded-l-none bg-transparent pl-0 pr-2 hover:bg-destructive"
+            className="peer rounded-l-none  pl-0 pr-2 hover:bg-destructive"
           >
             <Delete />
           </Button>
           <Button
             className={cn(
-              "flex justify-between gap-2 rounded-r-none bg-transparent first-letter:first-line:whitespace-nowrap hover:bg-transparent peer-hover:bg-destructive ",
+              "flex justify-between gap-2 rounded-r-none first-letter:first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
               className,
             )}
           >

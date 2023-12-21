@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 import Logo from "@/images/amcat-logo.svg";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { AlertCircle, Loader, LogInIcon, LogOut, Network, Server, UserCheck, UserX } from "lucide-react";
+import { AlertCircle, Loader, LogInIcon, LogOut, Network, Server, SunMoon, UserCheck, UserX } from "lucide-react";
 import { useAmcatConfig } from "@/amcat/api/config";
 import { AmcatConfig } from "@/amcat/interfaces";
 import {
@@ -18,21 +18,49 @@ import {
 } from "./ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 import useAutoSignin from "@/lib/useAutoSignin";
+import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react";
 
 export default function Navbar() {
   useAutoSignin();
 
   return (
-    <nav className=" border-b-[1px]  border-secondary/20  bg-primary/20 px-4 py-2">
-      <div className="flex h-10 items-center justify-between">
-        <Link href="/">
-          <Logo className="h-6 w-6 rounded-full shadow-md shadow-gray-300" />
+    <nav className=" border-b-[1px]  border-foreground/30  px-4 py-2">
+      <div className="flex h-12 items-center justify-between">
+        <Link href="/" className="prose-lg dark:prose-invert">
+          <h3 className="text-primary">AmCAT</h3>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-[2.5rem,2.5rem] items-center gap-1">
+          <ThemeToggle />
           <AccountMenu />
         </div>
       </div>
     </nav>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <SunMoon className="h-7 w-7" />;
+
+  function renderIcon() {
+    // if not on client
+    if (typeof window === "undefined") return <SunMoon className="h-7 w-7" />;
+    if (theme === "dark") return <Sun className="h-7 w-7" />;
+    return <Moon className="h-7 w-7" />;
+  }
+
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="flex items-center gap-2 text-primary hover:text-primary/80"
+    >
+      {renderIcon()}
+    </button>
   );
 }
 
@@ -73,11 +101,11 @@ function AccountMenu() {
     }
   }
 
-  if (loadingUser || loadingConfig) return <Loader className="animate-spin" />;
+  if (loadingUser || loadingConfig) return <Loader className="animate-[spin_2000ms_linear_infinite]" />;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="outline-none">
+      <DropdownMenuTrigger className="min-w-[2.5rem] outline-none">
         <UserIcon user={user} config={config} className="h-8 w-8 p-1" />
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" sideOffset={20} className="mr-2  border-[1px] border-gray-400">
@@ -107,7 +135,7 @@ function UserIcon({
       <img
         src={user.image}
         alt="profile"
-        className="h-8 w-8 rounded-full border-[1px] border-secondary/40"
+        className="h-7 w-7 rounded-full shadow-sm shadow-foreground/50"
         referrerPolicy="no-referrer"
       />
     );

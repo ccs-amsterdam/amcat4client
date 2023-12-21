@@ -22,7 +22,7 @@ export default function AggregateResultPanel({ user, index, query }: Props) {
 
   return (
     <div>
-      <div className="prose p-5 pb-0">
+      <div className="prose p-5 pb-0 dark:prose-invert">
         <h3>Aggregate</h3>
       </div>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[auto,1fr]">
