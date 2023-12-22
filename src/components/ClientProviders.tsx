@@ -15,6 +15,7 @@ const defaultOptions = {
       const doRetry = !zodError;
       return doRetry;
     },
+    staleTime: 10000,
   },
 };
 

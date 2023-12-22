@@ -6,8 +6,8 @@ import Link from "next/link";
 import Logo from "@/images/amcat-logo.svg";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { AlertCircle, Loader, LogInIcon, LogOut, Network, Server, SunMoon, UserCheck, UserX } from "lucide-react";
-import { useAmcatConfig } from "@/amcat/api/config";
-import { AmcatConfig } from "@/amcat/interfaces";
+import { useAmcatConfig } from "@/api/config";
+import { AmcatConfig } from "@/interfaces";
 import {
   DropdownMenu,
   DropdownMenuContent,
