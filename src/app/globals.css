@@ -86,22 +86,22 @@
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
-  background: white;
+  background: hsl(var(--background));
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: white;
+  background: hsl(var(--background));
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--secondary));
+  background: hsl(var(--primary));
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--secondary));
+  background: hsl(var(--primary));
 }
 
 .loader {

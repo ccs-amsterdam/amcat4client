@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MiddlecatUser } from "middlecat-react";
 import { getField, useFields } from "@/api/fields";
+import { useState } from "react";
 
 interface FilterPickerProps {
   user: MiddlecatUser;
@@ -29,12 +30,15 @@ export default function FilterPicker({
 }: FilterPickerProps) {
   const { data: fields } = useFields(user, index);
   const field = getField(fields, fieldName);
+  const [open, setOpen] = useState(value?.justAdded);
+
   if (value == null) return null;
 
   return (
     <Popover
       defaultOpen={value?.justAdded}
-      onOpenChange={() => {
+      onOpenChange={(open) => {
+        setOpen(open);
         if (value?.justAdded) value.justAdded = false;
       }}
     >
@@ -63,7 +67,7 @@ export default function FilterPicker({
         <PopoverContent
           collisionPadding={{ bottom: -9999 }}
           side="bottom"
-          className="max-h-[400px] w-full overflow-auto"
+          className="max-h-[450px] w-full overflow-auto"
         >
           <FilterPopup user={user} index={index} field={field} value={value} onChange={onChange} />
         </PopoverContent>

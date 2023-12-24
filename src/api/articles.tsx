@@ -29,7 +29,7 @@ export function useArticles(user: MiddlecatUser, index: AmcatIndexName, query: A
     initialPageParam: 0,
     staleTime: 3000,
     getNextPageParam: (lastPage) => {
-      if (lastPage?.meta?.page == undefined) return undefined;
+      if (lastPage?.meta?.page == undefined || lastPage?.meta?.page_count == undefined) return undefined;
       if (lastPage.meta.page >= lastPage.meta.page_count) return undefined;
       return lastPage.meta.page + 1;
     },

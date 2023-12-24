@@ -3,6 +3,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { AmcatQuery } from "@/interfaces";
 import { useFields } from "@/api/fields";
 import { useFieldValues } from "@/api/fieldValues";
+import { useFieldStats } from "@/api/fieldStats";
 
 interface Props {
   user: MiddlecatUser;
@@ -12,8 +13,9 @@ interface Props {
 
 export default function Summary({ user, index, query }: Props) {
   const { data: fields } = useFields(user, index);
-  const { data: date } = useFieldValues(user, index, "date");
-  console.log(date);
+
+  //const { data: date } = useFieldStats(user, index, "date");
+  //const { data: president } = useFieldValues(user, index, "president");
 
   return (
     <div className="grid grid-cols-2">

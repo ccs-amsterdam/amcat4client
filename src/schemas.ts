@@ -20,7 +20,7 @@ export const amcatIndexSchema = z.object({
   description: z.string().nullish(),
   guest_role: amcatUserRoleSchema.optional(),
   user_role: amcatUserRoleSchema.optional(),
-  summary_field: z.string().optional(),
+  summary_field: z.string().nullish(),
 });
 
 export const amcatIndicesSchema = z.array(amcatIndexSchema);
@@ -48,6 +48,20 @@ export const amcatFieldSchema = z.object({
   meta: z.record(z.string()).nullish(),
 });
 
+export const amcatFieldValuesSchema = z.array(z.string());
+
+export const amcatFieldStatsSchema = z.object({
+  count: z.number(),
+  min: z.number(),
+  max: z.number(),
+  avg: z.number(),
+  sum: z.number(),
+  min_as_string: z.string(),
+  max_as_string: z.string(),
+  sum_as_string: z.string(),
+  avg_as_string: z.string(),
+});
+
 export const amcatAnnotationSchema = z.object({
   field: z.string(),
   variable: z.string(),
@@ -67,7 +81,7 @@ export const amcatArticleSchema = z.record(z.any()).and(
 
 export const amcatQueryResultMetaSchema = z.object({
   page: z.number(),
-  page_count: z.number(),
+  page_count: z.number().nullable(),
 });
 
 export const amcatQueryResultSchema = z.object({

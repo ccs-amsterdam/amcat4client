@@ -71,7 +71,6 @@ export default function Articles({
           onClick={canOpen ? handleClick : undefined}
         />
         <div> </div>
-        di
       </div>
 
       {articleId ? (

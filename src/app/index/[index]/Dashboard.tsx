@@ -46,7 +46,7 @@ export default function Dashboard({ user, index }: Props) {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 w-full">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full">
         <TabsList className="mb-8">
           {Object.keys(Tab).map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];

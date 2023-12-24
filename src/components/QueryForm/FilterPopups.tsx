@@ -3,6 +3,8 @@ import { AmcatField, AmcatFilter, AmcatIndexName, DateFilter } from "@/interface
 import { Checkbox } from "@/components/ui/checkbox";
 import DatePicker from "./DatePicker";
 import { MiddlecatUser } from "middlecat-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useFieldStats } from "@/api/fieldStats";
 
 interface FilterPopupProps {
   user: MiddlecatUser;
@@ -21,7 +23,7 @@ export function filterLabel(name: string, field: AmcatField | undefined, filter:
     if (filter.gte && !filter.lte) values = `from ${filter.gte}`;
     if (filter.lte && !filter.gte) values = `until ${filter.lte}`;
   } else {
-    if (filter.values) {
+    if (filter.values && filter.values.length > 0) {
       values = `(${filter.values.length})`;
     }
   }
@@ -30,7 +32,7 @@ export function filterLabel(name: string, field: AmcatField | undefined, filter:
     return (
       <div className="flex w-full items-center gap-2">
         <div className="font-bold">{name}</div>
-        {values}
+        <span className="">{values}</span>
       </div>
     );
 
@@ -49,10 +51,31 @@ export function FilterPopup({ user, index, field, value, onChange }: FilterPopup
 }
 
 export function KeywordPopup({ user, index, field, value, onChange }: FilterPopupProps) {
-  if (field == null || value == null) return null;
-
-  const { data: fieldValues } = useFieldValues(user, index, field.name);
+  const [query, setQuery] = useState("");
+  const { data: fieldValues } = useFieldValues(user, index, field?.name);
+  const enableSearch = fieldValues && fieldValues?.length > 10;
   const selected = value?.values || [];
+
+  // this way the order of showValues doesn't immediately change on select/deselect
+  const selectedRef = useRef<(string | number)[]>();
+  selectedRef.current = selected;
+
+  const showValues = useMemo(() => {
+    const selectedValues: string[] = [];
+    const unselectedValues: string[] = [];
+    for (let v of fieldValues || []) {
+      if (query && !v.toLowerCase().includes(query.toLowerCase())) continue;
+      if (selectedRef?.current?.includes(v)) {
+        selectedValues.push(v);
+      } else {
+        unselectedValues.push(v);
+      }
+    }
+    const showValues = [...selectedValues, ...unselectedValues];
+    return showValues.slice(0, 10);
+  }, [fieldValues, selectedRef, query]);
+
+  if (field == null || value == null) return null;
   if (!fieldValues || fieldValues.length === 0) return null;
 
   function handleChange(checked: boolean, v: string) {
@@ -62,13 +85,21 @@ export function KeywordPopup({ user, index, field, value, onChange }: FilterPopu
 
   return (
     <div>
-      {fieldValues.map((v, i) => {
+      {enableSearch ? (
+        <input
+          className="mb-2 rounded-md border p-2"
+          placeholder="Search..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+      ) : null}
+      {showValues.map((v, i) => {
         const checked = selected.includes(v);
         return (
           <div key={v + i} className="flex items-center gap-3 py-1" onClick={() => handleChange(!checked, v)}>
             <Checkbox key={i} checked={checked} className="h-5 w-5" />
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {v}{" "}
+              {v}
             </label>
           </div>
         );
@@ -86,10 +117,9 @@ function date2str(date: Date, ifNone = ""): string {
 }
 
 export function DateRangePopup({ user, index, field, value, onChange }: FilterPopupProps) {
+  const { data: fieldStats } = useFieldStats(user, index, field?.name);
   if (field == null || value == null) return null;
-
-  const { data: fieldValues } = useFieldValues(user, index, field.name);
-  if (!fieldValues || fieldValues.length === 0) return null;
+  if (!fieldStats) return null;
 
   const handleChange = (key: keyof DateFilter, newval: Date | undefined) => {
     let result = { ...value };
@@ -98,16 +128,29 @@ export function DateRangePopup({ user, index, field, value, onChange }: FilterPo
     } else result[key] = date2str(newval);
     onChange(result);
   };
+
+  const from = value.gte ? new Date(value.gte) : undefined;
+  const to = value.lte ? new Date(value.lte) : undefined;
+
+  const fromMin = new Date(fieldStats.min);
+  const fromMax = to || new Date(fieldStats.max);
+  const toMin = from || new Date(fieldStats.min);
+  const toMax = new Date(fieldStats.max);
+
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <DatePicker
-        label={"from"}
-        value={value.gte ? new Date(value.gte) : undefined}
+        label={"FROM DATE"}
+        value={from}
+        min={fromMin}
+        max={fromMax}
         onChange={(newval) => handleChange("gte", newval)}
       />
       <DatePicker
-        label={"to"}
-        value={value.lte ? new Date(value.lte) : undefined}
+        label={"TO DATE"}
+        value={to}
+        min={toMin}
+        max={toMax}
         onChange={(newval) => handleChange("lte", newval)}
       />
     </div>

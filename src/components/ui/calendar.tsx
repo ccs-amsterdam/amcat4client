@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LucideChevronsLeft, LucideChevronsRight } from "lucide-react";
 import { DayPicker, useNavigation, CaptionProps } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -66,18 +66,24 @@ function CustomCaption(props: CaptionProps) {
 
   const toPreviousYear = () => goToMonth(new Date(year - 1, month));
   const toNextYear = () => goToMonth(new Date(year + 1, month));
+  const toTenYearsAgo = () => goToMonth(new Date(year - 10, month));
+  const toTenYearsAhead = () => goToMonth(new Date(year + 10, month));
 
   return (
     <div className="flex select-none flex-col">
-      <div className="flex justify-center">
-        <ChevronLeft className="h-6 w-6" onClick={toPreviousYear} />
+      <div className="flex items-center justify-center">
+        <LucideChevronsLeft className="h-8 w-8" onClick={toTenYearsAgo} />
+        <ChevronLeft className="h-8 w-8" onClick={toPreviousYear} />
         <div className="w-full text-center"> {year}</div>
-        <ChevronRight className="h-6 w-6" onClick={toNextYear} />
+        <ChevronRight className="h-8 w-8" onClick={toNextYear} />
+        <LucideChevronsRight className="h-8 w-8" onClick={toTenYearsAhead} />
       </div>
-      <div className="flex justify-center">
-        <ChevronLeft className="h-6 w-6" onClick={() => previousMonth && goToMonth(previousMonth)} />
+      <div className="flex items-center justify-center">
+        <div className="w-8" />
+        <ChevronLeft className="h-8 w-8" onClick={() => previousMonth && goToMonth(previousMonth)} />
         <div className="w-full text-center"> {monthName}</div>
-        <ChevronRight className="h-6 w-6 text-right" onClick={() => nextMonth && goToMonth(nextMonth)} />
+        <ChevronRight className="h-8 w-8 text-right" onClick={() => nextMonth && goToMonth(nextMonth)} />
+        <div className="w-8" />
       </div>
     </div>
   );

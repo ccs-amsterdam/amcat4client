@@ -14,6 +14,8 @@ import {
   amcatQueryResultMetaSchema,
   amcatQueryResultSchema,
   amcatAnnotationSchema,
+  amcatFieldValuesSchema,
+  amcatFieldStatsSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -28,6 +30,8 @@ export type AmcatArticle = z.infer<typeof amcatArticleSchema>;
 export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
 export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
 export type AmcatAnnotation = z.infer<typeof amcatAnnotationSchema>;
+export type AmcatFieldValues = z.infer<typeof amcatFieldValuesSchema>;
+export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 export type AggregationInterval =
