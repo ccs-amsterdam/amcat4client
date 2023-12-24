@@ -2,7 +2,7 @@ import AddFilterButton, { fieldOptions } from "./AddFilterButton";
 import { queriesFromString, queriesToString } from "./libQuery";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ChevronUp, PlusSquare, Loader } from "lucide-react";
+import { ChevronUp, Loader, PlusSquareIcon } from "lucide-react";
 import { AmcatQuery, AmcatIndexName } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 
@@ -65,8 +65,13 @@ export default function MultilineQueryForm({
 
       <div className="flex  w-full flex-auto flex-col p-1">
         <div className="flex h-10 items-center gap-2">
-          <b>Filters</b>
-          <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)} />
+          <div className="flex gap-2">
+            <b>Filters</b>
+            <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+              <PlusSquareIcon />
+            </AddFilterButton>
+          </div>
+
           <ChevronUp onClick={switchAdvanced} className="mb-1 ml-auto  h-8 w-8 cursor-pointer p-1" />
         </div>
 

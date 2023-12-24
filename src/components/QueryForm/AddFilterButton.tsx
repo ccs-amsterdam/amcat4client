@@ -15,13 +15,14 @@ export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
 }
 
 interface AddFilterProps {
+  children: React.ReactNode;
   user: MiddlecatUser;
   index: AmcatIndexName;
   value: AmcatQuery;
   onSubmit: (value: AmcatQuery) => void;
 }
 
-export default function AddFilterButton({ user, index, value, onSubmit }: AddFilterProps) {
+export default function AddFilterButton({ children, user, index, value, onSubmit }: AddFilterProps) {
   const [open, setOpen] = useState(false);
   const { data: fields } = useFields(user, index);
 
@@ -48,7 +49,7 @@ export default function AddFilterButton({ user, index, value, onSubmit }: AddFil
       }}
     >
       <PopoverTrigger asChild>
-        <Filter className={options.length === 0 ? "text-foreground/20" : "cursor-pointer"} />
+        <div className={options.length === 0 ? "text-foreground/20" : "cursor-pointer"}>{children}</div>
       </PopoverTrigger>
       <PopoverContent>
         <div className="grid grid-cols-1 gap-1">

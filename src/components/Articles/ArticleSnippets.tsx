@@ -1,12 +1,12 @@
-import { AmcatArticle, AmcatField, AmcatQueryResult } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatQueryResult, AmcatQueryResultMeta } from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { Separator } from "../ui/separator";
 
 interface Props {
   articles: AmcatArticle[];
+  meta: AmcatQueryResultMeta | undefined;
   loadMore: () => void;
   fields: AmcatField[];
   onClick?: (doc: AmcatArticle) => void;
@@ -37,18 +37,18 @@ export default function ArticleSnippets({ articles, loadMore, fields, onClick }:
     };
   }, [loadMore, sentinelRef]);
 
-
   return (
-    <div className="relative max-w-2xl rounded border border-foreground/50">
-      <div className="grid max-h-full grid-cols-1 overflow-auto ">
+    <div className="relative max-w-2xl rounded ">
+      <div className="grid max-h-full grid-cols-1 gap-2 overflow-auto p-1">
         {articles.map((row, i: number) => (
-          <article
+          <button
             key={row._id + i}
-            className={`prose prose-sm max-w-full animate-fade-in  px-3 dark:prose-invert hover:bg-foreground/20  ${
-              onClick ? "cursor-pointer" : ""
-            }`}
+            className={`prose prose-sm max-w-full animate-fade-in rounded border border-primary/50 px-3 text-left shadow-foreground/50  
+                        transition-all dark:prose-invert hover:scale-[100.5%] hover:bg-primary/20 hover:shadow-md  ${
+                          onClick ? "cursor-pointer" : ""
+                        }`}
           >
-            <div onClick={() => onClick && onClick(row)} className={`m-1 min-h-[5rem] py-1 `}>
+            <div onClick={() => onClick && onClick(row)} className={`m-1 min-h-[5rem] py-1  `}>
               <div className="flex justify-between">
                 <h4 className="mt-2">
                   <span title={removeElasticTags(row.title || "")}>{highlightElasticTags(row.title || "")}</span>
@@ -56,6 +56,7 @@ export default function ArticleSnippets({ articles, loadMore, fields, onClick }:
                 {row.url ? (
                   <Link
                     href={row.url}
+                    tabIndex={i}
                     rel="noopener noreferrer"
                     target="_blank"
                     onClick={(e) => {
@@ -70,8 +71,7 @@ export default function ArticleSnippets({ articles, loadMore, fields, onClick }:
               <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row)}</div>
               <div>{meta(row)}</div>
             </div>
-            <Separator className="" />
-          </article>
+          </button>
         ))}
         <div ref={sentinelRef} />
       </div>

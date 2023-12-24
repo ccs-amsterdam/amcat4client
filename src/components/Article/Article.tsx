@@ -1,14 +1,14 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import React, { CSSProperties, Dispatch, ReactElement, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import { useFields } from "@/api/fields";
 import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
-import prepareArticle from "./prepareArticle";
 import { useMyIndexrole } from "@/api/indexDetails";
 import { Link } from "lucide-react";
 import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { MiddlecatUser } from "middlecat-react";
 import { useArticle } from "@/api/article";
+import { highlightElasticTags } from "../Articles/highlightElasticTags";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -30,7 +30,7 @@ function Article({ user, index, id, query, changeArticle, link }: ArticleProps) 
   if (!article || !fields) return null;
 
   return (
-    <div className="prose-lg grid grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
+    <div className="prose grid max-w-none grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div>
         <Meta article={article} fields={fields} setArticle={changeArticle} link={link} />
       </div>
@@ -47,7 +47,6 @@ interface BodyProps {
   canviewtext: boolean;
 }
 
-// now static, but designed so that we can make it dynamic later
 const fieldLayout = {
   title: { fontSize: "1.4em", fontWeight: "bold" },
   text: {},
@@ -55,10 +54,13 @@ const fieldLayout = {
 };
 
 const Body = ({ article, fields, canviewtext }: BodyProps) => {
-  article = useMemo(() => prepareArticle(article), [article]);
-
   // Add title, all other 'text' fields, and finally text
-  const texts = [<TextField key={-1} article={article} field="title" layout={fieldLayout} canviewtext={true} />];
+  const texts: ReactElement[] = [];
+
+  if (article.title) {
+    texts.push(<TextField key={-1} article={article} field="title" layout={fieldLayout} canviewtext={true} />);
+  }
+
   fields
     .filter((f) => f.type === "text" && !["title", "text"].includes(f.name) && article[f.name])
     .forEach((f, i) => {
@@ -90,21 +92,23 @@ const Body = ({ article, fields, canviewtext }: BodyProps) => {
 interface TextFieldProps {
   article: AmcatArticle;
   field: string;
-  layout: any;
+  layout: Record<string, CSSProperties>;
   canviewtext: boolean;
   label?: boolean;
 }
 
 function TextField({ article, field, layout, label, canviewtext }: TextFieldProps) {
-  const paragraphs = Array.isArray(article[field]) ? article[field] : [article[field]];
-
-  const fieldLayout = layout[field] || layout.default;
-
-  const content = paragraphs.map((p: any, i: number) => (
-    <span key={`${field}_${i}`} style={fieldLayout}>
-      {p}
-    </span>
-  ));
+  const content: ReactElement[] = [];
+  const paragraphs = article[field].split("\n");
+  console.log(paragraphs);
+  for (let paragraph of paragraphs) {
+    const text = paragraph.includes("<em>") ? highlightElasticTags(paragraph) : paragraph;
+    content.push(
+      <p className="mb-3 mt-0" key={paragraph}>
+        {text}
+      </p>,
+    );
+  }
 
   return (
     <div key={field} style={{ paddingBottom: "1em" }}>
@@ -121,7 +125,7 @@ function TextField({ article, field, layout, label, canviewtext }: TextFieldProp
         </span>
       )}
       {canviewtext ? (
-        content
+        <div style={layout[field] || {}}>{content}</div>
       ) : (
         <div className="rounded-md border-2 border-orange-700 p-2 text-orange-700">
           Text fields cannot be displayed because you have insufficient access to this index. Please contact the index
@@ -167,7 +171,7 @@ const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
   };
 
   return (
-    <Table>
+    <Table className="mt-0 table-auto">
       <TableBody>
         {link == null ? null : (
           <TableRow key={-1}>

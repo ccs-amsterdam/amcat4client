@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQueryState, parseAsStringEnum } from "next-usequerystate";
 import lzstring from "lz-string";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
+import { Button } from "@/components/ui/button";
+import Summary from "@/components/Summary/Summary";
 
 interface Props {
   user: MiddlecatUser;
@@ -45,7 +47,7 @@ export default function Dashboard({ user, index }: Props) {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 w-full">
-        <TabsList className="mb-5">
+        <TabsList className="mb-8">
           {Object.keys(Tab).map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];
             return (
@@ -56,7 +58,7 @@ export default function Dashboard({ user, index }: Props) {
           })}
         </TabsList>
         <TabsContent value={Tab.Summary}>
-          <Articles user={user} index={index} query={query} />
+          <Summary user={user} index={index} query={query} />
         </TabsContent>
         <TabsContent value={Tab.Articles}>
           <Articles user={user} index={index} query={query} />

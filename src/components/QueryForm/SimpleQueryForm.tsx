@@ -1,6 +1,5 @@
-import { useFields } from "@/api/fields";
 import { queriesFromString, queriesToString } from "./libQuery";
-import AddFilterButton, { fieldOptions } from "./AddFilterButton";
+import AddFilterButton from "./AddFilterButton";
 import { Input } from "@/components/ui/input";
 import { ChevronsUpDown, Filter, Loader, Search } from "lucide-react";
 import { AmcatQuery, AmcatIndexName } from "@/interfaces";
@@ -60,7 +59,9 @@ export default function SimpleQueryForm({
           </div>
         </div>
         <div className="flex items-center pl-2">
-          <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)} />
+          <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+            <Filter />
+          </AddFilterButton>
           <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer p-1" />
         </div>
       </div>

@@ -64,12 +64,14 @@ export default function Articles({
     <div className="w-full">
       <div className="grid grid-cols-[max,1fr] ">
         <ArticleSnippets
-          articles={articleQuery.data || []}
+          articles={articleQuery?.data?.articles || []}
+          meta={articleQuery?.data?.meta}
           loadMore={articleQuery.fetchNextPage}
           fields={fields}
           onClick={canOpen ? handleClick : undefined}
         />
         <div> </div>
+        di
       </div>
 
       {articleId ? (
