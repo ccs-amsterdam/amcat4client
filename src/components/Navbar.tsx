@@ -1,41 +1,184 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 
-import Logo from "@/images/amcat-logo.svg";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { AlertCircle, Loader, LogInIcon, LogOut, Network, Server, SunMoon, UserCheck, UserX } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  AlertCircle,
+  Library,
+  Loader,
+  LogInIcon,
+  LogOut,
+  Server,
+  SunMoon,
+  UserCheck,
+  UserX,
+  Users,
+  User,
+  Database,
+} from "lucide-react";
 import { useAmcatConfig } from "@/api/config";
-import { AmcatConfig } from "@/interfaces";
+import { AmcatConfig, AmcatIndex, AmcatIndexName } from "@/interfaces";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import useAutoSignin from "@/lib/useAutoSignin";
 import { useTheme } from "next-themes";
-import { Moon, Sun } from "lucide-react";
+import { useIndexDetails } from "@/api/indexDetails";
+import { useMyGlobalRole } from "@/api/userDetails";
+import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
+import { useMutateIndexUser } from "@/api/indexUsers";
+import { amcatUserRoleSchema } from "@/schemas";
+
+const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_infinite] text-primary" />;
+const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
 export default function Navbar() {
   useAutoSignin();
 
   return (
     <nav className=" border-b-[1px]  border-foreground/30  px-4 py-2">
-      <div className="flex h-12 items-center justify-between">
-        <Link href="/" className="prose-lg dark:prose-invert">
-          <h3 className="text-primary">AmCAT</h3>
-        </Link>
+      <div className="flex h-12 items-center justify-between ">
+        <IndexMenu />
         <div className="grid grid-cols-[2.5rem,2.5rem] items-center gap-1">
           <ThemeToggle />
           <AccountMenu />
         </div>
       </div>
     </nav>
+  );
+}
+
+function ServerMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex h-full items-center gap-3 border-primary text-primary outline-none">
+        <Database />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent></DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function IndexMenu() {
+  const path = usePathname();
+
+  const { user, loading } = useMiddlecat();
+  const role = useMyGlobalRole(user);
+  const params = useParams<{ index: string }>();
+  const router = useRouter();
+  const index = params?.index;
+  const { data: indexDetails } = useIndexDetails(user, index);
+
+  function currentPath() {
+    if (!index || !path) return null;
+    const pathParts = path.split("/");
+    return pathParts[pathParts.length - 1];
+  }
+
+  if (loading) return <Spinner />;
+  if (!user) return <div />;
+
+  const isServerAdmin = role === "ADMIN";
+  const isIndexWriter = indexDetails?.user_role === "ADMIN" || indexDetails?.user_role === "WRITER";
+  if (!isServerAdmin && !isIndexWriter) return <div />;
+
+  return (
+    <div className="flex h-full items-center">
+      <DropdownMenu>
+        <DropdownMenuTrigger className="flex h-full items-center gap-3 border-primary text-primary outline-none">
+          <Database />
+          <div className="hidden gap-3 md:flex">
+            {index?.replaceAll("_", " ")}
+            <span className="text-primary/50">{currentPath()}</span>
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
+          {isServerAdmin && <IndexMenuServerAdmin user={user} indexDetails={indexDetails} />}
+          {isServerAdmin && isIndexWriter && <DropdownMenuSeparator />}
+          {isIndexWriter && <IndexMenuIndexAdmin user={user} indexDetails={indexDetails} />}
+
+          {/* <DropdownMenuItem onClick={() => router.push("/")}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Close Index</span>
+          </DropdownMenuItem> */}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+function IndexMenuServerAdmin({ user, indexDetails }: { user: MiddlecatUser; indexDetails?: AmcatIndex }) {
+  const router = useRouter();
+  const role = useMyGlobalRole(user);
+  const { mutate } = useMutateIndexUser(user, indexDetails?.name);
+
+  if (role !== "ADMIN") return null;
+
+  function onChangeRole(role: string) {
+    mutate({ email: user.email, role });
+  }
+
+  return (
+    <DropdownMenuGroup>
+      <DropdownMenuLabel>ADMIN actions</DropdownMenuLabel>
+      <DropdownMenuItem onClick={() => router.push(`/users`)}>
+        <Users className="mr-2 h-4 w-4" />
+        <span>Manage server users</span>
+      </DropdownMenuItem>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger className={!indexDetails ? "hidden" : ""}>
+          <User className="mr-2 h-4 w-4" />
+          <span>change my index role</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent>
+          <DropdownMenuRadioGroup
+            value={indexDetails?.user_role}
+            onSelect={(e) => e.preventDefault()}
+            onValueChange={onChangeRole}
+          >
+            {roles.map((role) => {
+              return (
+                <DropdownMenuRadioItem key={role} value={role} onSelect={(e) => e.preventDefault()}>
+                  {role}
+                </DropdownMenuRadioItem>
+              );
+            })}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+    </DropdownMenuGroup>
+  );
+}
+
+function IndexMenuIndexAdmin({ user, indexDetails }: { user: MiddlecatUser; indexDetails: AmcatIndex }) {
+  const router = useRouter();
+
+  return (
+    <DropdownMenuGroup>
+      <DropdownMenuLabel>Index settings</DropdownMenuLabel>
+      <DropdownMenuItem onClick={() => router.push(`/index/${indexDetails.name}/users`)}>
+        <Users className="mr-2 h-4 w-4" />
+        <span>Users</span>
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => router.push(`/index/${indexDetails.name}/fields`)}>
+        <Server className="mr-2 h-4 w-4" />
+        <span>Fields</span>
+      </DropdownMenuItem>
+    </DropdownMenuGroup>
   );
 }
 
@@ -65,7 +208,7 @@ function ThemeToggle() {
 }
 
 function AccountMenu() {
-  const { user, loading: loadingUser, signIn, signOut, fixedResource } = useMiddlecat();
+  const { user, loading: loadingUser, signIn, signOut } = useMiddlecat();
   const { data: config, isLoading: loadingConfig } = useAmcatConfig();
 
   function renderAuthStatus() {
@@ -101,14 +244,14 @@ function AccountMenu() {
     }
   }
 
-  if (loadingUser || loadingConfig) return <Loader className="animate-[spin_2000ms_linear_infinite]" />;
+  if (loadingUser || loadingConfig) return <Spinner />;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="min-w-[2.5rem] outline-none">
-        <UserIcon user={user} config={config} className="h-8 w-8 p-1" />
+        <UserIcon user={user} config={config} className="h-7 w-7  text-primary" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" sideOffset={20} className="mr-2  border-[1px] border-gray-400">
+      <DropdownMenuContent align="end" side="bottom" sideOffset={13} className="mr-2  border-[1px] border-foreground">
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
         {renderAuthButtons()}
       </DropdownMenuContent>

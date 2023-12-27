@@ -5,7 +5,7 @@ import { AmcatField, AmcatIndexName, AmcatQuery, AmcatQueryResult, SortSpec, Amc
 import { getField, useFields } from "@/api/fields";
 import { postQuery } from "@/api/query";
 import { useQuery } from "@tanstack/react-query";
-import { useMyIndexrole } from "@/api/indexDetails";
+import { useIndexDetails, useMyIndexrole } from "@/api/indexDetails";
 import { Loading } from "@/components/ui/loading";
 import { MiddlecatUser } from "middlecat-react";
 import { useArticles } from "@/api/articles";
@@ -45,11 +45,8 @@ export default function Articles({
 }: ArticlesProps) {
   //TODO: add columns to meta OR retrieve fields (prefer the former) and pass the field types on to the table
   const role = useMyIndexrole(user, index);
-
   const [articleId, setArticleId] = useState<string | null>(null);
   const { data: fields } = useFields(user, index);
-
-  const articleQuery = useArticles(user, index, query);
 
   if (!fields) return <Loading msg="Loading fields" />;
 
@@ -64,9 +61,9 @@ export default function Articles({
     <div className="w-full">
       <div className="grid grid-cols-[max,1fr] ">
         <ArticleSnippets
-          articles={articleQuery?.data?.articles || []}
-          meta={articleQuery?.data?.meta}
-          loadMore={articleQuery.fetchNextPage}
+          user={user}
+          index={index}
+          query={query}
           fields={fields}
           onClick={canOpen ? handleClick : undefined}
         />

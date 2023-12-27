@@ -1,24 +1,12 @@
 import { useEffect, useState } from "react";
 import Article, { ArticleProps } from "./Article";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 /**
  * Show a single article
  */
-export default function ArticleModal({
-  user,
-  index,
-  id,
-  query,
-  changeArticle,
-  link,
-}: ArticleProps) {
+export default function ArticleModal({ user, index, id, query, changeArticle, link }: ArticleProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -34,7 +22,7 @@ export default function ArticleModal({
         setOpen(false);
       }}
     >
-      <DialogContent className="w-screen max-w-6xl">
+      <DialogContent className="w-[95vw] max-w-6xl">
         <DialogHeader>
           <DialogTitle></DialogTitle>
         </DialogHeader>

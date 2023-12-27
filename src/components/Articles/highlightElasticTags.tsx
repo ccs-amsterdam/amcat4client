@@ -16,7 +16,7 @@ export function highlightElasticTags(text: string): ReactElement {
             prev.push(tagged);
           } else {
             prev.push(
-              <span className="rounded bg-secondary px-1 text-secondary-foreground" key={i + tagged}>
+              <span className="rounded bg-secondary/20 px-1 " key={i + tagged}>
                 {tagged}
               </span>,
             );

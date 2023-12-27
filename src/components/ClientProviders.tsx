@@ -4,6 +4,7 @@ import { MiddlecatProvider } from "middlecat-react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { ThemeProvider } from "next-themes";
+import { toast } from "sonner";
 
 const defaultOptions = {
   queries: {
@@ -23,11 +24,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   const mutationCache = new MutationCache({
     onError: (e) => {
       console.error(e);
+      toast(e.message);
     },
   });
   const queryCache = new QueryCache({
     onError: (e) => {
       console.error(e);
+      toast(e.message);
     },
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));

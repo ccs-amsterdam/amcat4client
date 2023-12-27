@@ -99,8 +99,18 @@ interface TextFieldProps {
 
 function TextField({ article, field, layout, label, canviewtext }: TextFieldProps) {
   const content: ReactElement[] = [];
-  const paragraphs = article[field].split("\n");
-  console.log(paragraphs);
+
+  if (!article[field])
+    return (
+      <div>
+        <p className="rounded-md border-2 border-orange-700 p-2 text-orange-700" key={field}>
+          No {field} found
+        </p>
+      </div>
+    );
+
+  const paragraphs = article?.[field]?.split("\n") || [];
+
   for (let paragraph of paragraphs) {
     const text = paragraph.includes("<em>") ? highlightElasticTags(paragraph) : paragraph;
     content.push(

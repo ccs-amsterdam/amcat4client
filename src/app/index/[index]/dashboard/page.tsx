@@ -3,20 +3,18 @@
 import QueryForm from "@/components/QueryForm/QueryForm";
 import { AmcatQuery } from "@/interfaces";
 import Articles from "@/components/Articles/Articles";
-import { MiddlecatUser } from "middlecat-react";
+import { useMiddlecat } from "middlecat-react";
 
 import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQueryState, parseAsStringEnum } from "next-usequerystate";
-import lzstring from "lz-string";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
-import { Button } from "@/components/ui/button";
 import Summary from "@/components/Summary/Summary";
+import { Loading } from "@/components/ui/loading";
 
 interface Props {
-  user: MiddlecatUser;
-  index: string;
+  params: { index: string };
 }
 
 enum Tab {
@@ -26,15 +24,20 @@ enum Tab {
   Tags = "t4",
 }
 
-export default function Dashboard({ user, index }: Props) {
+export default function Index({ params }: Props) {
+  const { user, loading: loadingUser } = useMiddlecat();
+  const index = params.index;
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
   const [query, setQuery] = useState<AmcatQuery>(() => deserializeQuery(queryState));
 
   useEffect(() => {
-    // when query is edited, store it compressed in the URL (if it's not too long)
+    // when query is edited, store it compressed in the URL (if it's not too long).
+    // This allows sharing URLs with queries for most queries.
     setQueryState(serializeQuery(query));
   }, [query]);
+
+  if (loadingUser || !user) return <Loading />;
 
   return (
     <div>
@@ -46,7 +49,7 @@ export default function Dashboard({ user, index }: Props) {
         </div>
       </div>
 
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full px-1">
         <TabsList className="mb-8">
           {Object.keys(Tab).map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];
@@ -57,16 +60,18 @@ export default function Dashboard({ user, index }: Props) {
             );
           })}
         </TabsList>
-        <TabsContent value={Tab.Summary}>
-          <Summary user={user} index={index} query={query} />
-        </TabsContent>
-        <TabsContent value={Tab.Articles}>
-          <Articles user={user} index={index} query={query} />
-        </TabsContent>
-        <TabsContent value={Tab.Aggregate}>
-          <AggregateResultPanel user={user} index={index} query={query} />
-        </TabsContent>
-        <TabsContent value={Tab.Tags}></TabsContent>
+        <div className="">
+          <TabsContent value={Tab.Summary}>
+            <Summary user={user} index={index} query={query} />
+          </TabsContent>
+          <TabsContent value={Tab.Articles}>
+            <Articles user={user} index={index} query={query} />
+          </TabsContent>
+          <TabsContent value={Tab.Aggregate}>
+            <AggregateResultPanel user={user} index={index} query={query} />
+          </TabsContent>
+          <TabsContent value={Tab.Tags}></TabsContent>
+        </div>
       </Tabs>
     </div>
   );

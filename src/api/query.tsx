@@ -1,5 +1,10 @@
-import { AmcatQuery, PostAmcatQuery, AmcatIndexName } from "@/interfaces";
+import { AmcatQuery, AmcatIndexName, AmcatFilters } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
+
+export interface PostAmcatQuery {
+  filters?: AmcatFilters;
+  queries?: Record<string, string>;
+}
 
 export function postQuery(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, params: any) {
   const postAmcatQuery = asPostAmcatQuery(query);
@@ -17,6 +22,12 @@ export function asPostAmcatQuery(query: AmcatQuery) {
       postAmcatQuery.queries[q.label || q.query] = q.query;
     });
   }
-  if (query.filters) postAmcatQuery.filters = { ...query.filters };
+  if (query.filters) {
+    postAmcatQuery.filters = { ...query.filters };
+    Object.keys(postAmcatQuery.filters).forEach((key) => {
+      delete postAmcatQuery.filters?.[key].justAdded;
+    });
+  }
+
   return postAmcatQuery;
 }

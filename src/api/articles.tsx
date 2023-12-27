@@ -1,11 +1,11 @@
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { amcatQueryResultSchema } from "@/schemas";
-import { AmcatIndexName, AmcatQuery, AmcatQueryResult } from "@/interfaces";
+import { AmcatIndexName, AmcatQuery, AmcatQueryParams, AmcatQueryResult } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect } from "react";
-import { asPostAmcatQuery } from "./query";
+import { postQuery } from "./query";
 
-export function useArticles(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery) {
+export function useArticles(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, params?: AmcatQueryParams) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -24,8 +24,8 @@ export function useArticles(user: MiddlecatUser, index: AmcatIndexName, query: A
 
   return useInfiniteQuery({
     queryKey: ["articles", user, index, query],
-    queryFn: ({ pageParam }) => getArticles(user, index, query, pageParam),
-    enabled: !!user && !!index,
+    queryFn: ({ pageParam }) => getArticles(user, index, query, { page: pageParam, ...(params || {}) }),
+    enabled: !!user && !!index && !!query,
     initialPageParam: 0,
     staleTime: 3000,
     getNextPageParam: (lastPage) => {
@@ -41,10 +41,8 @@ export function useArticles(user: MiddlecatUser, index: AmcatIndexName, query: A
   });
 }
 
-async function getArticles(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, page: number = 0) {
-  const postAmcatQuery = asPostAmcatQuery(query);
-  const params = { page, annotations: true, highlight: true };
-  const res = await user.api.post(`index/${index}/query`, { ...postAmcatQuery, ...params });
+async function getArticles(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, params: AmcatQueryParams) {
+  const res = await postQuery(user, index, query, params);
   const queryResult: AmcatQueryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult;
 }

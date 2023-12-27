@@ -115,9 +115,12 @@ export interface AmcatQuery {
   filters?: AmcatFilters;
   queries?: AmcatQueryTerm[];
 }
-export interface PostAmcatQuery {
-  filters?: AmcatFilters;
-  queries?: Record<string, string>;
+
+export interface AmcatQueryParams {
+  page?: number;
+  fields?: string[];
+  snippets?: string[];
+  highlight?: boolean;
 }
 
 export type AggregateDataPoint = { [key: string]: any };

@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 
 export default function Index() {
   const router = useRouter();
-  const pathName = usePathname();
   const { user, loading } = useMiddlecat();
   const { data: indices, isLoading: loadingIndices, error } = useAmcatIndices(user);
 
   function onSelectIndex(indexName: string) {
-    router.push(`/index/${indexName}`);
+    router.push(`/index/${indexName}/dashboard`);
   }
 
   if (loading || loadingIndices)

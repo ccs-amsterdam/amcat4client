@@ -80,6 +80,8 @@ export const amcatArticleSchema = z.record(z.any()).and(
 );
 
 export const amcatQueryResultMetaSchema = z.object({
+  total_count: z.number(),
+  per_page: z.number(),
   page: z.number(),
   page_count: z.number().nullable(),
 });
@@ -87,4 +89,9 @@ export const amcatQueryResultMetaSchema = z.object({
 export const amcatQueryResultSchema = z.object({
   results: z.array(amcatArticleSchema),
   meta: amcatQueryResultMetaSchema,
+});
+
+export const amcatIndexUsers = z.object({
+  email: z.string(),
+  role: amcatUserRoleSchema,
 });

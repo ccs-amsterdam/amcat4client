@@ -3,7 +3,7 @@ import { amcatQueryResultSchema } from "@/schemas";
 import { AmcatIndexName, AmcatQuery } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { addFilter } from "@/api/util";
-import { asPostAmcatQuery } from "./query";
+import { postQuery } from "./query";
 
 export function useArticle(user: MiddlecatUser, index: AmcatIndexName, articleId: string, query?: AmcatQuery) {
   return useQuery({
@@ -16,9 +16,8 @@ export function useArticle(user: MiddlecatUser, index: AmcatIndexName, articleId
 async function getArticle(user: MiddlecatUser, index: AmcatIndexName, articleId: string, query?: AmcatQuery) {
   let q = query || {};
   q = addFilter(q, { _id: { values: [articleId] } });
-  const postAmcatQuery = asPostAmcatQuery(q);
   const params = { annotations: true };
-  const res = await user.api.post(`index/${index}/query`, { ...postAmcatQuery, ...params });
+  const res = await postQuery(user, index, q, params);
   const queryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult.results[0];
 }

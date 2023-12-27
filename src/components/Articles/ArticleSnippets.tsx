@@ -1,19 +1,25 @@
-import { AmcatArticle, AmcatField, AmcatQueryResult, AmcatQueryResultMeta } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { MiddlecatUser } from "middlecat-react";
+import { useArticles } from "@/api/articles";
 
 interface Props {
-  articles: AmcatArticle[];
-  meta: AmcatQueryResultMeta | undefined;
-  loadMore: () => void;
+  user: MiddlecatUser;
+  index: AmcatIndexName;
+  query: AmcatQuery;
   fields: AmcatField[];
   onClick?: (doc: AmcatArticle) => void;
 }
 
-export default function ArticleSnippets({ articles, loadMore, fields, onClick }: Props) {
+export default function ArticleSnippets({ user, index, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const { data, fetchNextPage } = useArticles(user, index, query, {
+    fields: ["title", "date"],
+    snippets: ["text"],
+  });
 
   const meta = (row: any) => {
     return fields
@@ -26,7 +32,7 @@ export default function ArticleSnippets({ articles, loadMore, fields, onClick }:
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          loadMore();
+          fetchNextPage();
         }
       },
       { rootMargin: "0px 0px 100% 0px" },
@@ -35,16 +41,18 @@ export default function ArticleSnippets({ articles, loadMore, fields, onClick }:
     return () => {
       if (sentinelRef.current) observer.unobserve(sentinelRef.current);
     };
-  }, [loadMore, sentinelRef]);
+  }, [fetchNextPage, sentinelRef]);
+
+  const articles = data?.articles || [];
 
   return (
     <div className="relative max-w-2xl rounded ">
-      <div className="grid max-h-full grid-cols-1 gap-2 overflow-auto p-1">
+      <div className="grid max-h-full grid-cols-1 gap-2 overflow-auto">
         {articles.map((row, i: number) => (
           <button
             key={row._id + i}
             className={`prose prose-sm max-w-full animate-fade-in rounded border border-primary/50 px-3 text-left shadow-foreground/50  
-                        transition-all dark:prose-invert hover:scale-[100.5%] hover:bg-primary/20 hover:shadow-md  ${
+                        transition-all dark:prose-invert hover:bg-primary/20 hover:shadow-md  ${
                           onClick ? "cursor-pointer" : ""
                         }`}
           >

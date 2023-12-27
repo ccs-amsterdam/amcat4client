@@ -14,7 +14,6 @@ export function useFieldValues(user: MiddlecatUser, index: AmcatIndexName, field
 
 async function getFieldValues(user: MiddlecatUser, index: AmcatIndexName, field: string) {
   const res = await user.api.get(`index/${index}/fields/${field}/values`);
-  console.log(res.data);
   const fieldValues: AmcatFieldValues = amcatFieldValuesSchema.parse(res.data);
   return fieldValues;
 }

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { Poppins, Roboto } from "next/font/google";
 import ClientProviders from "@/components/ClientProviders";
+import { Toaster } from "@/components/ui/sonner";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ClientProviders>
           <Navbar />
           <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-12">{children}</div>
+          <Toaster />
         </ClientProviders>
       </body>
     </html>
