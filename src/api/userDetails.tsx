@@ -6,7 +6,7 @@ import { AmcatUserRole } from "@/interfaces";
 
 export function useCurrentUserDetails(user?: MiddlecatUser) {
   return useQuery({
-    queryKey: ["users", user],
+    queryKey: ["currentuserdetails", user],
     queryFn: async () => getCurrentUserDetails(user),
     enabled: user != null,
     retry: (_: any) => {

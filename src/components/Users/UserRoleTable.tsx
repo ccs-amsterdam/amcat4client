@@ -12,7 +12,7 @@ import {
   DropdownMenuRadioGroup,
 } from "@/components/ui/dropdown-menu";
 import { amcatUserRoleSchema, amcatUserRoles } from "@/schemas";
-import { ChevronDown, Edit } from "lucide-react";
+import { ChevronDown, Delete, Edit, UserMinus, UserX } from "lucide-react";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { roleHigherThan } from "@/api/util";
 import { useState } from "react";
@@ -25,19 +25,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
 } from "@/components/ui/alert-dialog";
+import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
 
 interface Props {
   user: MiddlecatUser;
   ownRole: AmcatUserRole;
   users: AmcatUserDetails[];
-  changeRole: (email: string, role: string) => void;
+  roles: string[];
+  changeRole: (email: string, role: string, action: "create" | "delete" | "update") => void;
 }
 
 // This components works for both Server and Index users, depending
 // on the props passed in.
 
-export default function UserRoleTable({ user, ownRole, users, changeRole }: Props) {
+export default function UserRoleTable({ user, ownRole, users, roles, changeRole }: Props) {
   const [changeOwnRole, setChangeOwnRole] = useState<string | undefined>(undefined);
+  const [tableColumns] = useState<ColumnDef<Row>[]>(() => createTableColumns(roles));
 
   if (!["ADMIN", "WRITER"].includes(ownRole))
     return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index users</ErrorMsg>;
@@ -50,11 +54,11 @@ export default function UserRoleTable({ user, ownRole, users, changeRole }: Prop
       setChangeOwnRole(newRole);
       return;
     }
-    changeRole(email, newRole);
+    changeRole(email, newRole, newRole === "NONE" ? "delete" : "update");
   }
   function confirmChangeOwnRole() {
     if (!user || !changeOwnRole) return;
-    changeRole(user.email, changeOwnRole);
+    changeRole(user.email, changeOwnRole, changeOwnRole === "NONE" ? "delete" : "update");
   }
 
   const data: Row[] =
@@ -92,37 +96,71 @@ interface Row {
   onChange?: (newRole: string) => void;
 }
 
-const tableColumns: ColumnDef<Row>[] = [
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => {
-      const { role, canCreateAdmin, onChange } = row.original;
-      if (!onChange) return role;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="flex h-full items-center gap-3 border-primary text-primary outline-none">
-            {role}
-            <ChevronDown className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuRadioGroup value={row.original.role} onValueChange={onChange}>
-              {amcatUserRoles.map((role) => {
-                if (!canCreateAdmin && role === "ADMIN") return null;
-                return (
-                  <DropdownMenuRadioItem key={role} value={role}>
-                    {role}
-                  </DropdownMenuRadioItem>
-                );
-              })}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+function createTableColumns(roles: string[]): ColumnDef<Row>[] {
+  return [
+    {
+      accessorKey: "email",
+      header: "Email",
     },
-  },
-];
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => {
+        const { role, canCreateAdmin, onChange } = row.original;
+        if (!onChange) return role;
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex h-full items-center gap-3 border-primary text-primary outline-none">
+              {role === "NONE" ? "DELETE" : role}
+              <ChevronDown className="h-4 w-4" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuRadioGroup value={row.original.role} onValueChange={onChange}>
+                {roles.map((role) => {
+                  if (!canCreateAdmin && role === "ADMIN") return null;
+                  return (
+                    <DropdownMenuRadioItem key={role} value={role}>
+                      {role === "NONE" ? "DELETE" : role}
+                    </DropdownMenuRadioItem>
+                  );
+                })}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+    {
+      id: "actions",
+      meta: { align: "right", textAlign: "right" },
+      cell: ({ row }) => {
+        const { onChange } = row.original;
+        if (!onChange) return null;
+        return (
+          <div className="flex w-full justify-end ">
+            <Popover>
+              <PopoverTrigger asChild className="">
+                <UserMinus className="h-6 w-6 cursor-pointer  " />
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="flex flex-col gap-2">
+                  <span>Are you sure you want to delete this user?</span>
+                  <div className="grid grid-cols-[1fr,3fr] gap-1">
+                    <PopoverClose asChild>
+                      <Button variant="destructive" onClick={() => onChange("NONE")}>
+                        Yes
+                      </Button>
+                    </PopoverClose>
+                    <PopoverClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </PopoverClose>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        );
+      },
+    },
+  ];
+}

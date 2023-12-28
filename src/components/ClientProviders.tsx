@@ -24,7 +24,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   const mutationCache = new MutationCache({
     onError: (e) => {
       console.error(e);
-      toast(e.message);
+      //toast(e.message);
     },
   });
   const queryCache = new QueryCache({

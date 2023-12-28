@@ -5,10 +5,11 @@ import { MiddlecatUser } from "middlecat-react";
 
 import { z } from "zod";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export function useIndexUsers(user?: MiddlecatUser, index?: AmcatIndexName) {
   return useQuery({
-    queryKey: ["users", user, index],
+    queryKey: ["indexusers", user, index],
     queryFn: () => getIndexUsers(user, index),
     enabled: !!user && !!index,
   });
@@ -25,24 +26,34 @@ export function useMutateIndexUser(user?: MiddlecatUser, index?: AmcatIndexName 
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, role }: { email: string; role: string }) => mutateIndexUser(user, index || "", email, role),
+    mutationFn: ({ email, role, action }: { email: string; role: string; action: "create" | "delete" | "update" }) => {
+      if (!user) throw new Error("Not logged in");
+      return mutateIndexUser(user, index || "", email, role, action);
+    },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["indexdetails", user, index] });
-      queryClient.invalidateQueries({ queryKey: ["users", user, index] });
+      queryClient.invalidateQueries({ queryKey: ["indexusers", user, index] });
       toast(`Changed ${variables.email} role to ${variables.role}`);
     },
-    onError: (error) => {
-      toast(error.message);
+    onError: (error: any) => {
+      toast(error?.response?.data?.detail || error.message);
     },
   });
 }
 
-export async function mutateIndexUser(user?: MiddlecatUser, index?: AmcatIndexName, email?: string, newRole?: string) {
-  if (!user || !index || !email || !newRole) return undefined;
+export async function mutateIndexUser(
+  user: MiddlecatUser,
+  index: AmcatIndexName,
+  email: string,
+  newRole: string,
+  action: "create" | "delete" | "update",
+) {
   const role = amcatUserRoleSchema.parse(newRole);
-  if (role === "NONE") {
+  if (action === "delete") {
     await user.api.delete(`/index/${index}/users/${email}`);
-  } else {
+  } else if (action === "update") {
+    await user.api.put(`/index/${index}/users/${email}`, { role });
+  } else if (action === "create") {
     await user.api.post(`/index/${index}/users`, { email, role });
   }
 }

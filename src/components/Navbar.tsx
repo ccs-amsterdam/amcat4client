@@ -129,7 +129,7 @@ function IndexMenuServerAdmin({ user, indexDetails }: { user: MiddlecatUser; ind
   if (role !== "ADMIN") return null;
 
   function onChangeRole(role: string) {
-    mutate({ email: user.email, role });
+    mutate({ email: user.email, role, action: "update" });
   }
 
   return (
