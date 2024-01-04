@@ -13,3 +13,9 @@ export function roleHigherThan(role1: AmcatUserRole, role2: AmcatUserRole): bool
   const index2 = amcatUserRoles.indexOf(role2);
   return index1 > index2;
 }
+
+export function roleAtLeast(role1: AmcatUserRole, role2: AmcatUserRole): boolean {
+  const index1 = amcatUserRoles.indexOf(role1);
+  const index2 = amcatUserRoles.indexOf(role2);
+  return index1 >= index2;
+}

@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 interface Props {
   user: MiddlecatUser;
@@ -76,8 +77,8 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
         <AlertDialogContent>
           <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>
           <AlertDialogDescription>
-            You are about to change your own role from {ownRole} to {changeOwnRole}. This will limit your own access to
-            this index, and you will not be able to change this back yourself.
+            You are about to change your own role from {ownRole} to {changeOwnRole}. You will not be able to change this
+            back yourself.
           </AlertDialogDescription>
           <AlertDialogFooter>
             <AlertDialogCancel>Oh god no!</AlertDialogCancel>
@@ -136,31 +137,38 @@ function createTableColumns(roles: string[]): ColumnDef<Row>[] {
       cell: ({ row }) => {
         const { onChange } = row.original;
         if (!onChange) return null;
-        return (
-          <div className="flex w-full justify-end ">
-            <Popover>
-              <PopoverTrigger asChild className="">
-                <UserMinus className="h-6 w-6 cursor-pointer  " />
-              </PopoverTrigger>
-              <PopoverContent>
-                <div className="flex flex-col gap-2">
-                  <span>Are you sure you want to delete this user?</span>
-                  <div className="grid grid-cols-[1fr,3fr] gap-1">
-                    <PopoverClose asChild>
-                      <Button variant="destructive" onClick={() => onChange("NONE")}>
-                        Yes
-                      </Button>
-                    </PopoverClose>
-                    <PopoverClose asChild>
-                      <Button variant="outline">Cancel</Button>
-                    </PopoverClose>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-        );
+        return <DeleteUserAction onChange={onChange} />;
       },
     },
   ];
+}
+
+function DeleteUserAction({ onChange }: { onChange: (newRole: string) => void }) {
+  const [input, setInput] = useState("");
+
+  return (
+    <div className="flex w-full justify-end ">
+      <Popover onOpenChange={() => setInput("")}>
+        <PopoverTrigger asChild className="">
+          <UserMinus className="h-6 w-6 cursor-pointer  " />
+        </PopoverTrigger>
+        <PopoverContent>
+          <div className="flex flex-col gap-2">
+            <span>Are you sure you want to delete this user? Type "yes"</span>
+            <Input value={input} placeholder='type "yes" to confirm' onChange={(e) => setInput(e.target.value)} />
+            <div className="grid grid-cols-2 gap-1">
+              <PopoverClose asChild>
+                <Button disabled={input.toLowerCase() !== "yes"} variant="destructive" onClick={() => onChange("NONE")}>
+                  Delete
+                </Button>
+              </PopoverClose>
+              <PopoverClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </PopoverClose>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
 }

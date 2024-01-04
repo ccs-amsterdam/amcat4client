@@ -155,7 +155,7 @@ interface MetaProps {
 
 const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
   const metaFields = fields.filter(
-    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.meta?.amcat4_display_meta !== "0",
+    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.meta?.client_display?.includes("document"),
   );
   const rows = () => {
     return metaFields.map((field) => {

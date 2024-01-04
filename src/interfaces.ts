@@ -16,6 +16,7 @@ import {
   amcatAnnotationSchema,
   amcatFieldValuesSchema,
   amcatFieldStatsSchema,
+  amcatFieldMeta,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -25,6 +26,7 @@ export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
 export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
 export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
 export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
+export type AmcatFieldMeta = z.infer<typeof amcatFieldMeta>;
 export type AmcatField = z.infer<typeof amcatFieldSchema>;
 export type AmcatArticle = z.infer<typeof amcatArticleSchema>;
 export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
@@ -161,3 +163,22 @@ export interface LocationOptions {
 }
 
 export type SortSpec = string | string[] | { [field: string]: { order?: "asc" | "desc" } }[];
+
+export interface MenuRoute {
+  label: string;
+  pathname: string;
+  reqRole?: AmcatUserRole;
+}
+
+export interface AmcatClientDisplay {
+  inList: boolean;
+  inDocument: boolean;
+}
+export interface AmcatMetareaderAccess {
+  access: "none" | "read" | "snippet";
+  snippetParams: {
+    nomatch_chars: number;
+    max_matches: number;
+    match_chars: number;
+  };
+}

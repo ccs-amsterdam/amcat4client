@@ -1,4 +1,4 @@
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, AmcatUserRole } from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
@@ -9,13 +9,22 @@ import { useArticles } from "@/api/articles";
 interface Props {
   user: MiddlecatUser;
   index: AmcatIndexName;
+  indexRole: AmcatUserRole;
   query: AmcatQuery;
   fields: AmcatField[];
   onClick?: (doc: AmcatArticle) => void;
 }
 
+function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
+  return fields.filter((f) => {
+    f.type === "text" || f.type === "keyword";
+  });
+}
+
 export default function ArticleSnippets({ user, index, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
+  console.log(fields);
+
   const { data, fetchNextPage } = useArticles(user, index, query, {
     fields: ["title", "date"],
     snippets: ["text"],

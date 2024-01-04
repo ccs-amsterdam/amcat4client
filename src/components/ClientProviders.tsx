@@ -8,15 +8,16 @@ import { toast } from "sonner";
 
 const defaultOptions = {
   queries: {
-    retry: (failureCount: number, e: Error) => {
+    retry: (failureCount: number, e: any) => {
       if (failureCount >= 2) return false;
-      // const unauthorized = e.response?.status == 401;
-      // const forbidden = e.response?.status == 403;
+      const unauthorized = e.response?.status == 401;
+      const forbidden = e.response?.status == 403;
       const zodError = e.name === "ZodError";
-      const doRetry = !zodError;
+      const doRetry = !zodError && !unauthorized && !forbidden;
       return doRetry;
     },
-    staleTime: 10000,
+    cacheTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60,
   },
 };
 
@@ -28,9 +29,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     },
   });
   const queryCache = new QueryCache({
-    onError: (e) => {
+    onError: (e: any) => {
       console.error(e);
-      toast(e.message);
+      if (e?.response?.data?.detail) {
+        toast.error(e.message, { description: e?.response?.data?.detail });
+      } else {
+        toast.error(e.message);
+      }
     },
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));

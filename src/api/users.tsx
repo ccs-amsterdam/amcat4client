@@ -32,9 +32,9 @@ export function useMutateUser(user?: MiddlecatUser) {
       queryClient.invalidateQueries({ queryKey: ["users", user] });
       queryClient.invalidateQueries({ queryKey: ["currentuserdetails", user] });
       if (variables.role === "NONE") {
-        toast(`Deleted user ${variables.email}`);
+        toast.success(`Deleted user ${variables.email}`);
       } else {
-        toast(`User ${variables.email} has role ${variables.role}`);
+        toast.success(`User ${variables.email} has role ${variables.role}`);
       }
     },
     onError: (error: any, variables) => {

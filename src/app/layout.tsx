@@ -1,7 +1,7 @@
 import { absoluteUrl } from "@/lib/utils";
 import "./globals.css";
 import { Metadata } from "next";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/Menu/Navbar";
 import Link from "next/link";
 import { Poppins, Roboto } from "next/font/google";
 import ClientProviders from "@/components/ClientProviders";

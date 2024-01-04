@@ -72,7 +72,7 @@ export default function MultilineQueryForm({
             </AddFilterButton>
           </div>
 
-          <ChevronUp onClick={switchAdvanced} className="mb-1 ml-auto  h-8 w-8 cursor-pointer p-1" />
+          <ChevronUp onClick={switchAdvanced} className="mb-1 ml-auto  h-8 w-8 cursor-pointer select-none p-1" />
         </div>
 
         <div className="Filters flex-auto">{children}</div>

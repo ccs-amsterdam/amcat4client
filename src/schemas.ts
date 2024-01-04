@@ -42,10 +42,15 @@ export const amcatFieldTypeSchema = z.enum([
   "geo_point",
   "id",
 ]);
+export const amcatFieldMeta = z.object({
+  amcat4_type: z.string().nullish(),
+  metareader_access: z.string().nullish(),
+  client_display: z.string().nullish(),
+});
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
-  meta: z.record(z.string()).nullish(),
+  meta: amcatFieldMeta.nullish(),
 });
 
 export const amcatFieldValuesSchema = z.array(z.string());

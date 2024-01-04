@@ -33,10 +33,10 @@ export function useMutateIndexUser(user?: MiddlecatUser, index?: AmcatIndexName 
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["indexdetails", user, index] });
       queryClient.invalidateQueries({ queryKey: ["indexusers", user, index] });
-      toast(`Changed ${variables.email} role to ${variables.role}`);
+      toast.success(`Changed ${variables.email} role to ${variables.role}`);
     },
     onError: (error: any) => {
-      toast(error?.response?.data?.detail || error.message);
+      toast.error(error?.response?.data?.detail || error.message);
     },
   });
 }

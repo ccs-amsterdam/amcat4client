@@ -32,9 +32,7 @@ export default function CreateUserForm({ ownRole, roles }: Props) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="prose flex flex-col gap-1 p-2 dark:prose-invert">
-      <h4 className="px-2">Create user</h4>
-
+    <form onSubmit={onSubmit} className="prose flex max-w-none flex-col gap-1 dark:prose-invert">
       <Input required value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="email" />
       <div className="grid grid-cols-[2fr,1fr] gap-1">
         <DropdownMenu>
