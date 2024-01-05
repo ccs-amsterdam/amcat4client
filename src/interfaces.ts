@@ -16,7 +16,9 @@ import {
   amcatAnnotationSchema,
   amcatFieldValuesSchema,
   amcatFieldStatsSchema,
-  amcatFieldMeta,
+  amcatClientDisplaySchema,
+  amcatMetareaderAccessSchema,
+  amcatFieldMetaSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -26,7 +28,8 @@ export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
 export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
 export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
 export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
-export type AmcatFieldMeta = z.infer<typeof amcatFieldMeta>;
+export type amcatFieldMetaSerialized = z.infer<typeof amcatFieldMetaSchema>;
+export type AmcatFieldMeta = z.infer<typeof amcatFieldMetaSchema>;
 export type AmcatField = z.infer<typeof amcatFieldSchema>;
 export type AmcatArticle = z.infer<typeof amcatArticleSchema>;
 export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
@@ -34,6 +37,8 @@ export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
 export type AmcatAnnotation = z.infer<typeof amcatAnnotationSchema>;
 export type AmcatFieldValues = z.infer<typeof amcatFieldValuesSchema>;
 export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
+export type AmcatMetareaderAccess = z.infer<typeof amcatMetareaderAccessSchema>;
+export type AmcatClientDisplay = z.infer<typeof amcatClientDisplaySchema>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 export type AggregationInterval =
@@ -170,15 +175,15 @@ export interface MenuRoute {
   reqRole?: AmcatUserRole;
 }
 
-export interface AmcatClientDisplay {
-  inList: boolean;
-  inDocument: boolean;
-}
-export interface AmcatMetareaderAccess {
-  access: "none" | "read" | "snippet";
-  snippetParams: {
-    nomatch_chars: number;
-    max_matches: number;
-    match_chars: number;
-  };
-}
+// export interface AmcatClientDisplay {
+//   inList: boolean;
+//   inDocument: boolean;
+// }
+// export interface AmcatMetareaderAccess {
+//   access: "none" | "read" | "snippet";
+//   snippetParams: {
+//     nomatch_chars: number;
+//     max_matches: number;
+//     match_chars: number;
+//   };
+// }

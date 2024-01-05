@@ -45,15 +45,15 @@ const tableColumns: ColumnDef<Row>[] = [
     header: "Default visibility",
     cell: ({ row }) => {
       const field = row.original;
-      const client_display = parseClientDisplay(field.meta?.client_display || "");
+      const client_display = field.meta.client_display;
       const inList = client_display.inList || false;
       const inDocument = client_display.inDocument || false;
 
       function onChange(inList: boolean, inDocument: boolean) {
-        const client_display = stringifyClientDisplay({
+        const client_display = {
           inList: inList,
           inDocument: inDocument,
-        });
+        };
         field.onChange?.({ name: field.name, type: field.type, meta: { ...field.meta, client_display } });
       }
 
@@ -87,10 +87,9 @@ const tableColumns: ColumnDef<Row>[] = [
     header: "METAREADER access",
     cell: ({ row }) => {
       const field = row.original;
-      const metareader_access = parseMetareader(field.meta?.metareader_access || "none");
+      const metareader_access = field.meta?.metareader_access;
 
-      function onChange(metareader: AmcatMetareaderAccess) {
-        const metareader_access = stringifyMetareader(metareader);
+      function onChange(metareader_access: AmcatMetareaderAccess) {
         field.onChange?.({ name: field.name, type: field.type, meta: { ...field.meta, metareader_access } });
       }
 

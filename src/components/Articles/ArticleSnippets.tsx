@@ -21,7 +21,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
   });
 }
 
-export default function ArticleSnippets({ user, index, query, fields, onClick }: Props) {
+export default function ArticleSnippets({ user, index, indexRole, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   console.log(fields);
 

@@ -55,17 +55,16 @@ export default function Articles({
     if (showOnClick) setArticleId(row._id);
   };
 
-  const canOpen = role && role !== "METAREADER";
-
   return (
     <div className="w-full">
       <div className="grid grid-cols-[max,1fr] ">
         <ArticleSnippets
           user={user}
           index={index}
+          indexRole={role || "NONE"}
           query={query}
           fields={fields}
-          onClick={canOpen ? handleClick : undefined}
+          onClick={handleClick}
         />
         <div> </div>
       </div>

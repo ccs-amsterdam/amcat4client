@@ -42,15 +42,27 @@ export const amcatFieldTypeSchema = z.enum([
   "geo_point",
   "id",
 ]);
-export const amcatFieldMeta = z.object({
+export const amcatMetareaderAccessSchema = z.object({
+  access: z.enum(["none", "read", "snippet"]),
+  snippetParams: z.object({
+    nomatch_chars: z.number(),
+    max_matches: z.number(),
+    match_chars: z.number(),
+  }),
+});
+export const amcatClientDisplaySchema = z.object({
+  inList: z.boolean(),
+  inDocument: z.boolean(),
+});
+export const amcatFieldMetaSchema = z.object({
   amcat4_type: z.string().nullish(),
-  metareader_access: z.string().nullish(),
-  client_display: z.string().nullish(),
+  metareader_access: amcatMetareaderAccessSchema,
+  client_display: amcatClientDisplaySchema,
 });
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
-  meta: amcatFieldMeta.nullish(),
+  meta: amcatFieldMetaSchema,
 });
 
 export const amcatFieldValuesSchema = z.array(z.string());
