@@ -6,13 +6,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 /**
  * Show a single article
  */
-export default function ArticleModal({ user, index, id, query, changeArticle, link }: ArticleProps) {
+export default function ArticleModal({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setOpen(true);
   }, [id]);
-  if (!index || !id) return null;
+  if (!indexName || !id) return null;
 
   return (
     <Dialog
@@ -26,7 +26,7 @@ export default function ArticleModal({ user, index, id, query, changeArticle, li
         <DialogHeader>
           <DialogTitle></DialogTitle>
         </DialogHeader>
-        <Article user={user} id={id} index={index} query={query} link={link} />
+        <Article user={user} id={id} indexName={indexName} query={query} link={link} />
       </DialogContent>
     </Dialog>
   );

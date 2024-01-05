@@ -8,7 +8,7 @@ import { MiddlecatUser } from "middlecat-react";
 
 interface Props {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;
@@ -20,14 +20,14 @@ interface Props {
 export default function MultilineQueryForm({
   children,
   user,
-  index,
+  indexName,
   query,
   debouncing,
   queryChanged,
   updateQuery,
   switchAdvanced,
 }: Props) {
-  if (!index) return null;
+  if (!indexName) return null;
 
   function handleKeyDown(event: any) {
     if (event.key === "Enter" && event.ctrlKey) {
@@ -67,7 +67,12 @@ export default function MultilineQueryForm({
         <div className="flex h-10 items-center gap-2">
           <div className="flex gap-2">
             <b>Filters</b>
-            <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+            <AddFilterButton
+              user={user}
+              indexName={indexName}
+              value={query}
+              onSubmit={(value) => updateQuery(value, 0)}
+            >
               <PlusSquareIcon />
             </AddFilterButton>
           </div>

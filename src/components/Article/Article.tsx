@@ -1,18 +1,18 @@
-import React, { CSSProperties, Dispatch, ReactElement, SetStateAction, useEffect, useMemo, useState } from "react";
+import React, { CSSProperties, ReactElement } from "react";
 
-import { useFields } from "@/api/fields";
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
-import { useMyIndexrole } from "@/api/indexDetails";
-import { Link } from "lucide-react";
-import { Table, TableBody, TableCaption, TableCell, TableRow } from "@/components/ui/table";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { MiddlecatUser } from "middlecat-react";
 import { useArticle } from "@/api/article";
+import { useFields } from "@/api/fields";
+import { useMyIndexrole } from "@/api/index";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { Link } from "lucide-react";
+import { MiddlecatUser } from "middlecat-react";
 import { highlightElasticTags } from "../Articles/highlightElasticTags";
 
 export interface ArticleProps {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   /** An article id. Can also be an array of length 1 with the article id, which can trigger setOpen if the id didn't change */
   id: string;
   /** A query, used for highlighting */
@@ -22,10 +22,10 @@ export interface ArticleProps {
 }
 
 export default React.memo(Article);
-function Article({ user, index, id, query, changeArticle, link }: ArticleProps) {
-  const { data: fields } = useFields(user, index);
-  const { data: article } = useArticle(user, index, id, query);
-  const myrole = useMyIndexrole(user, index);
+function Article({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
+  const { data: fields } = useFields(user, indexName);
+  const { data: article } = useArticle(user, indexName, id, query);
+  const myrole = useMyIndexrole(user, indexName);
 
   if (!article || !fields) return null;
 

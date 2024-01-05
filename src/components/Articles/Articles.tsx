@@ -1,18 +1,15 @@
-import ArticleSnippets from "./ArticleSnippets";
-import { useEffect, useMemo, useState } from "react";
+import { useFields } from "@/api/fields";
+import { useMyIndexrole } from "@/api/index";
 import ArticleModal from "@/components/Article/ArticleModal";
-import { AmcatField, AmcatIndexName, AmcatQuery, AmcatQueryResult, SortSpec, AmcatArticle } from "@/interfaces";
-import { getField, useFields } from "@/api/fields";
-import { postQuery } from "@/api/query";
-import { useQuery } from "@tanstack/react-query";
-import { useIndexDetails, useMyIndexrole } from "@/api/indexDetails";
 import { Loading } from "@/components/ui/loading";
+import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, SortSpec } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
-import { useArticles } from "@/api/articles";
+import { useState } from "react";
+import ArticleSnippets from "./ArticleSnippets";
 
 export interface ArticlesProps {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   /** Query/filter of which documents to show */
   query: AmcatQuery;
   /** an Array with objects indicating which columns to show and how */
@@ -32,21 +29,11 @@ export interface ArticlesProps {
 /**
  * Table overview of a subset of articles
  */
-export default function Articles({
-  user,
-  index,
-  query,
-  columns,
-  allColumns = false,
-  perPage = 7,
-  sort,
-  onClick,
-  showOnClick = true,
-}: ArticlesProps) {
+export default function Articles({ user, indexName, query, onClick, showOnClick = true }: ArticlesProps) {
   //TODO: add columns to meta OR retrieve fields (prefer the former) and pass the field types on to the table
-  const role = useMyIndexrole(user, index);
+  const role = useMyIndexrole(user, indexName);
   const [articleId, setArticleId] = useState<string | null>(null);
-  const { data: fields } = useFields(user, index);
+  const { data: fields } = useFields(user, indexName);
 
   if (!fields) return <Loading msg="Loading fields" />;
 
@@ -60,7 +47,7 @@ export default function Articles({
       <div className="grid grid-cols-[max,1fr] ">
         <ArticleSnippets
           user={user}
-          index={index}
+          indexName={indexName}
           indexRole={role || "NONE"}
           query={query}
           fields={fields}
@@ -73,7 +60,7 @@ export default function Articles({
         <ArticleModal
           key={articleId}
           user={user}
-          index={index}
+          indexName={indexName}
           id={articleId}
           query={query}
           changeArticle={setArticleId}

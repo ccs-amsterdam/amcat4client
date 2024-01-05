@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndexDetails } from "@/api/indexDetails";
+import { useIndex } from "@/api/index";
 import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
@@ -16,13 +16,13 @@ interface Props {
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
-  const { data: indexDetails, isLoading: loadingIndexDetails, error } = useIndexDetails(user, params.index);
+  const { data: index, isLoading: loadingIndex, error } = useIndex(user, params.index);
   const { data: users, isLoading: loadingUsers } = useIndexUsers(user, params.index);
   const mutate = useMutateIndexUser(user, params.index);
 
-  if (loading || loadingIndexDetails || loadingUsers) return <Loading />;
+  if (loading || loadingIndex || loadingUsers) return <Loading />;
 
-  const ownRole = indexDetails?.user_role;
+  const ownRole = index?.user_role;
   function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
     mutate.mutate({ email, role, action });
   }

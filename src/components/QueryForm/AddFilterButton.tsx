@@ -17,14 +17,14 @@ export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
 interface AddFilterProps {
   children: React.ReactNode;
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   value: AmcatQuery;
   onSubmit: (value: AmcatQuery) => void;
 }
 
-export default function AddFilterButton({ children, user, index, value, onSubmit }: AddFilterProps) {
+export default function AddFilterButton({ children, user, indexName, value, onSubmit }: AddFilterProps) {
   const [open, setOpen] = useState(false);
-  const { data: fields } = useFields(user, index);
+  const { data: fields } = useFields(user, indexName);
 
   function addFilter(name: string) {
     const filters = value?.filters || {};

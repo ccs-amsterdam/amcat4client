@@ -1,9 +1,8 @@
-import { AmcatField, AmcatFilter, AmcatIndexName } from "@/interfaces";
+import { AmcatFilter, AmcatIndexName } from "@/interfaces";
 import { filterLabel, FilterPopup } from "./FilterPopups";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Delete, X } from "lucide-react";
+import { Delete } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MiddlecatUser } from "middlecat-react";
@@ -12,7 +11,7 @@ import { useState } from "react";
 
 interface FilterPickerProps {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   fieldName: string;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;
@@ -21,14 +20,14 @@ interface FilterPickerProps {
 }
 export default function FilterPicker({
   user,
-  index,
+  indexName,
   fieldName,
   value,
   onChange,
   onDelete,
   className,
 }: FilterPickerProps) {
-  const { data: fields } = useFields(user, index);
+  const { data: fields } = useFields(user, indexName);
   const field = getField(fields, fieldName);
   const [open, setOpen] = useState(value?.justAdded);
 
@@ -69,7 +68,7 @@ export default function FilterPicker({
           side="bottom"
           className="max-h-[450px] w-full overflow-auto"
         >
-          <FilterPopup user={user} index={index} field={field} value={value} onChange={onChange} />
+          <FilterPopup user={user} indexName={indexName} field={field} value={value} onChange={onChange} />
         </PopoverContent>
       ) : null}
     </Popover>

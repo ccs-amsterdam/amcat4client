@@ -11,14 +11,14 @@ const initialState: AggregationOptions = {
 
 interface Props {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   query: AmcatQuery;
 }
 
-export default function AggregateResultPanel({ user, index, query }: Props) {
+export default function AggregateResultPanel({ user, indexName, query }: Props) {
   const [options, setOptions] = useState<AggregationOptions>(initialState);
 
-  if (!user || !index || !query) return null;
+  if (!user || !indexName || !query) return null;
 
   return (
     <div>
@@ -27,10 +27,16 @@ export default function AggregateResultPanel({ user, index, query }: Props) {
       </div>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[auto,1fr]">
         <div className="flex justify-center p-5">
-          <AggregateResultOptions user={user} index={index} query={query} options={options} setOptions={setOptions} />
+          <AggregateResultOptions
+            user={user}
+            indexName={indexName}
+            query={query}
+            options={options}
+            setOptions={setOptions}
+          />
         </div>
         <div className="w-full p-5">
-          <AggregateResult user={user} index={index} query={query} options={options} />
+          <AggregateResult user={user} indexName={indexName} query={query} options={options} />
         </div>
       </div>
     </div>

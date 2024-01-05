@@ -8,11 +8,10 @@ import { Loading } from "../ui/loading";
 
 interface Props {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;
-  queryChanged?: boolean;
   children?: React.ReactNode[]; // pass filters as children
   switchAdvanced?: () => void;
 }
@@ -20,14 +19,13 @@ interface Props {
 export default function SimpleQueryForm({
   children,
   user,
-  index,
+  indexName,
   query,
   debouncing,
-  queryChanged,
   updateQuery,
   switchAdvanced,
 }: Props) {
-  if (!index) return <Loading />;
+  if (!indexName) return <Loading />;
 
   function handleKeydown(e: any) {
     if (e.key === "Enter") {
@@ -59,7 +57,7 @@ export default function SimpleQueryForm({
           </div>
         </div>
         <div className="flex items-center pl-2">
-          <AddFilterButton user={user} index={index} value={query} onSubmit={(value) => updateQuery(value, 0)}>
+          <AddFilterButton user={user} indexName={indexName} value={query} onSubmit={(value) => updateQuery(value, 0)}>
             <Filter />
           </AddFilterButton>
           <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer select-none p-1" />

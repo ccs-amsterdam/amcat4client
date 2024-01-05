@@ -1,7 +1,7 @@
 "use client";
 
 import QueryForm from "@/components/QueryForm/QueryForm";
-import { AmcatQuery } from "@/interfaces";
+import { AmcatIndexName, AmcatQuery } from "@/interfaces";
 import Articles from "@/components/Articles/Articles";
 import { useMiddlecat } from "middlecat-react";
 
@@ -12,6 +12,7 @@ import { useQueryState, parseAsStringEnum } from "next-usequerystate";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
 import Summary from "@/components/Summary/Summary";
 import { Loading } from "@/components/ui/loading";
+import { amcatIndexNameSchema } from "@/schemas";
 
 interface Props {
   params: { index: string };
@@ -26,7 +27,7 @@ enum Tab {
 
 export default function Index({ params }: Props) {
   const { user, loading: loadingUser } = useMiddlecat();
-  const index = params.index;
+  const indexName = amcatIndexNameSchema.parse(params.index);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
   const [query, setQuery] = useState<AmcatQuery>(() => deserializeQuery(queryState));
@@ -44,7 +45,7 @@ export default function Index({ params }: Props) {
       <div className="pb-4">
         <div className="flex flex-col items-center lg:items-start">
           <div className="w-full">
-            <QueryForm user={user} index={index} query={query} setQuery={setQuery} />
+            <QueryForm user={user} indexName={indexName} query={query} setQuery={setQuery} />
           </div>
         </div>
       </div>
@@ -62,13 +63,13 @@ export default function Index({ params }: Props) {
         </TabsList>
         <div className="">
           <TabsContent value={Tab.Summary}>
-            <Summary user={user} index={index} query={query} />
+            <Summary user={user} indexName={indexName} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Articles}>
-            <Articles user={user} index={index} query={query} />
+            <Articles user={user} indexName={indexName} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Aggregate}>
-            <AggregateResultPanel user={user} index={index} query={query} />
+            <AggregateResultPanel user={user} indexName={indexName} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Tags}></TabsContent>
         </div>

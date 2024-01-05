@@ -6,9 +6,9 @@ export interface PostAmcatQuery {
   queries?: Record<string, string>;
 }
 
-export function postQuery(user: MiddlecatUser, index: AmcatIndexName, query: AmcatQuery, params: any) {
+export function postQuery(user: MiddlecatUser, indexName: AmcatIndexName, query: AmcatQuery, params: any) {
   const postAmcatQuery = asPostAmcatQuery(query);
-  return user.api.post(`index/${index}/query`, {
+  return user.api.post(`index/${indexName}/query`, {
     ...postAmcatQuery,
     ...params,
   });

@@ -8,7 +8,7 @@ import { useArticles } from "@/api/articles";
 
 interface Props {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   indexRole: AmcatUserRole;
   query: AmcatQuery;
   fields: AmcatField[];
@@ -21,11 +21,11 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
   });
 }
 
-export default function ArticleSnippets({ user, index, indexRole, query, fields, onClick }: Props) {
+export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
   console.log(fields);
 
-  const { data, fetchNextPage } = useArticles(user, index, query, {
+  const { data, fetchNextPage } = useArticles(user, indexName, query, {
     fields: ["title", "date"],
     snippets: ["text"],
   });

@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { LogOut, User, LibraryIcon } from "lucide-react";
-import { AmcatIndex, MenuRoute } from "@/interfaces";
+import { useIndex } from "@/api/index";
+import { useMutateIndexUser } from "@/api/indexUsers";
+import { useMyGlobalRole } from "@/api/userDetails";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,20 +16,21 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { useIndexDetails } from "@/api/indexDetails";
-import { useMyGlobalRole } from "@/api/userDetails";
-import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { useMutateIndexUser } from "@/api/indexUsers";
+import { AmcatIndex, MenuRoute } from "@/interfaces";
 import { cn } from "@/lib/utils";
+import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
+import { LibraryIcon, Trash, User } from "lucide-react";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
 const indexRouting: MenuRoute[] = [
   { label: "Dashboard", pathname: "dashboard" },
-  { label: "Index users", pathname: "users", reqRole: "WRITER" },
+  { label: "Users", pathname: "users", reqRole: "WRITER" },
   { label: "Fields", pathname: "fields", reqRole: "WRITER" },
+  { label: "Settings", pathname: "settings", reqRole: "ADMIN" },
 ];
 
 export default function IndexMenu({ className }: { className?: string }) {
@@ -40,18 +39,18 @@ export default function IndexMenu({ className }: { className?: string }) {
   const role = useMyGlobalRole(user);
   const params = useParams<{ index: string }>();
   const router = useRouter();
-  const index = params?.index;
-  const { data: indexDetails } = useIndexDetails(user, index);
-  const indexRole = indexDetails?.user_role || "NONE";
+  const indexName = params?.index;
+  const { data: index } = useIndex(user, indexName);
+  const indexRole = index?.user_role || "NONE";
 
   function currentPath() {
-    if (!index || !path) return "";
+    if (!indexName || !path) return "";
     const pathParts = path.split("/");
     return pathParts[pathParts.length - 1] || "";
   }
   function onSelectPath(value: string) {
-    if (!indexDetails) return;
-    router.push(`/index/${indexDetails.name}/${value}`);
+    if (!indexName) return;
+    router.push(`/index/${indexName}/${value}`);
   }
 
   if (loading || !user || !index) return null;
@@ -67,22 +66,22 @@ export default function IndexMenu({ className }: { className?: string }) {
           )}
         >
           <LibraryIcon />
-          <div className="hidden gap-3 md:flex">{index?.replaceAll("_", " ") || "Index"}</div>
+          <div className="hidden gap-3 md:flex">{indexName?.replaceAll("_", " ") || "Index"}</div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
           <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
 
-          {index && isServerAdmin && <IndexMenuServerAdmin user={user} indexDetails={indexDetails} />}
+          {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
   );
 }
 
-function IndexMenuServerAdmin({ user, indexDetails }: { user: MiddlecatUser; indexDetails?: AmcatIndex }) {
+function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const router = useRouter();
   const role = useMyGlobalRole(user);
-  const { mutate } = useMutateIndexUser(user, indexDetails?.name);
+  const { mutate } = useMutateIndexUser(user, index?.name);
 
   if (role !== "ADMIN") return null;
 
@@ -101,13 +100,13 @@ function IndexMenuServerAdmin({ user, indexDetails }: { user: MiddlecatUser; ind
       <DropdownMenuLabel className="text-primary">ADMIN privilege</DropdownMenuLabel>
 
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger className={!indexDetails ? "hidden" : "text-primary"}>
+        <DropdownMenuSubTrigger className={!index ? "hidden" : "text-primary"}>
           <User className="mr-2 h-4 w-4" />
           <span>My index role</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent className="text-primary">
           <DropdownMenuRadioGroup
-            value={indexDetails?.user_role}
+            value={index?.user_role}
             onSelect={(e) => e.preventDefault()}
             onValueChange={onChangeRole}
           >

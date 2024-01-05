@@ -22,7 +22,7 @@ import { MiddlecatUser } from "middlecat-react";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
-  index: AmcatIndexName;
+  indexName: AmcatIndexName;
   /** The query for the results to show */
   query: AmcatQuery;
   /** Aggregation options (display and axes information) */
@@ -38,7 +38,15 @@ interface AggregateResultProps {
 /**
  * Display the results of an aggregate search
  */
-export default function AggregateResult({ user, index, query, options, width, height, scale }: AggregateResultProps) {
+export default function AggregateResult({
+  user,
+  indexName,
+  query,
+  options,
+  width,
+  height,
+  scale,
+}: AggregateResultProps) {
   const [data, setData] = useState<AggregateData>();
   const [error, setError] = useState<string>();
   const [zoom, setZoom] = useState();
@@ -48,11 +56,11 @@ export default function AggregateResult({ user, index, query, options, width, he
     // Prevent data/error being set after component is unmounted
     let cancel = false;
     // TODO: don't query if index changed but options hasn't been reset (yet)
-    if (index == null || !options?.axes || options.axes.length === 0) {
+    if (indexName == null || !options?.axes || options.axes.length === 0) {
       setData(undefined);
       setError(undefined);
     } else {
-      postAggregate(user, index, query, options)
+      postAggregate(user, indexName, query, options)
         .then((d) => {
           if (!cancel) {
             setData(d.data);
@@ -69,8 +77,14 @@ export default function AggregateResult({ user, index, query, options, width, he
     return () => {
       cancel = true;
     };
-  }, [user, index, options, query]);
-  <AggregateResult user={user} index={index} query={query} options={options as AggregationOptions} height={300} />;
+  }, [user, indexName, options, query]);
+  <AggregateResult
+    user={user}
+    indexName={indexName}
+    query={query}
+    options={options as AggregationOptions}
+    height={300}
+  />;
   if (error) return <span className="text-red-600">{error}</span>;
 
   if (!options) return <span className="text-center italic">Select aggregation options</span>;
@@ -112,7 +126,7 @@ export default function AggregateResult({ user, index, query, options, width, he
       {options.title ? (
         <h3 className="prose mb-3 mt-2 max-w-none text-center text-lg font-bold dark:prose-invert">{options.title}</h3>
       ) : null}
-      {getArticleList(user, index, zoom, () => setZoom(undefined))}
+      {getArticleList(user, indexName, zoom, () => setZoom(undefined))}
       <Element data={scaled_data} onClick={handleClick} width={width} height={height} limit={options.limit} />
     </div>
   );

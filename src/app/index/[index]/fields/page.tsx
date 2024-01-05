@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndexDetails } from "@/api/indexDetails";
+import { useIndex } from "@/api/index";
 import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
@@ -18,12 +18,12 @@ interface Props {
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const { data: fields, isLoading: loadingFields } = useFields(user, params.index);
-  const { data: indexDetails, isLoading: loadingIndexDetails } = useIndexDetails(user, params.index);
+  const { data: index, isLoading: loadingIndex } = useIndex(user, params.index);
   const { mutate } = useMutateFields(user, params.index);
 
-  if (loading || loadingIndexDetails || loadingFields) return <Loading />;
+  if (loading || loadingIndex || loadingFields) return <Loading />;
 
-  const ownRole = indexDetails?.user_role;
+  const ownRole = index?.user_role;
   if (!user || !ownRole || !fields || !mutate) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
   if (ownRole !== "ADMIN" && ownRole !== "WRITER")
     return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index fields</ErrorMsg>;

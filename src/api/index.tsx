@@ -5,22 +5,22 @@ import { useHasGlobalRole } from "./userDetails";
 import { useAmcatConfig } from "./config";
 import { MiddlecatUser } from "middlecat-react";
 
-export function useIndexDetails(user?: MiddlecatUser, index?: AmcatIndexName) {
+export function useIndex(user?: MiddlecatUser, indexName?: AmcatIndexName) {
   return useQuery({
-    queryKey: ["indexdetails", user, index],
-    queryFn: async () => getIndex(user, index),
-    enabled: !!user && !!index,
+    queryKey: ["index", user, indexName],
+    queryFn: async () => getIndex(user, indexName),
+    enabled: !!user && !!indexName,
   });
 }
 
-export function useMyIndexrole(user: MiddlecatUser, index: AmcatIndexName) {
-  const { data: indexDetails } = useIndexDetails(user, index);
-  return indexDetails?.user_role;
+export function useMyIndexrole(user: MiddlecatUser, indexName: AmcatIndexName) {
+  const { data: index } = useIndex(user, indexName);
+  return index?.user_role;
 }
 
-export function useHasIndexRole(user: MiddlecatUser, index: AmcatIndexName, role: AmcatUserRole) {
+export function useHasIndexRole(user: MiddlecatUser, indexName: AmcatIndexName, role: AmcatUserRole) {
   const { data: serverConfig } = useAmcatConfig();
-  const index_role = useMyIndexrole(user, index);
+  const index_role = useMyIndexrole(user, indexName);
   const is_global_admin = useHasGlobalRole(user, "ADMIN");
   if (is_global_admin) return true;
   if (serverConfig?.authorization === "no_auth") return true;
@@ -30,8 +30,8 @@ export function useHasIndexRole(user: MiddlecatUser, index: AmcatIndexName, role
   return actual_role_index >= required_role_index;
 }
 
-async function getIndex(user?: MiddlecatUser, index?: string) {
-  if (!user || !index) return undefined;
-  const res = await user.api.get(`/index/${index}`);
+async function getIndex(user?: MiddlecatUser, indexName?: string) {
+  if (!user || !indexName) return undefined;
+  const res = await user.api.get(`/index/${indexName}`);
   return amcatIndexSchema.parse(res.data);
 }
