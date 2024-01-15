@@ -5,6 +5,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { ThemeProvider } from "next-themes";
 import { toast } from "sonner";
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 const defaultOptions = {
   queries: {
@@ -25,12 +27,24 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   const mutationCache = new MutationCache({
     onError: (e) => {
       console.error(e);
-      //toast(e.message);
+
+      if (e instanceof ZodError) {
+        const zoderror = fromZodError(e);
+        toast.error("Invalid payload", { description: String(zoderror) });
+        return;
+      }
     },
   });
   const queryCache = new QueryCache({
     onError: (e: any) => {
       console.error(e);
+
+      if (e instanceof ZodError) {
+        const zoderror = fromZodError(e);
+        toast.error("Invalid server response", { description: String(zoderror) });
+        return;
+      }
+
       if (e?.response?.data?.detail) {
         toast.error(e.message, { description: e?.response?.data?.detail });
       } else {

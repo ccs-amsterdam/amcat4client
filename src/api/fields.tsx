@@ -2,14 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { amcatFieldSchema } from "@/schemas";
-import { AmcatField, AmcatFieldType, AmcatIndexName } from "@/interfaces";
+import { AmcatField, AmcatFieldType, AmcatIndexName, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
-import {
-  parseClientDisplay,
-  parseMetareader,
-  stringifyClientDisplay,
-  stringifyMetareader,
-} from "@/lib/serializeFieldMeta";
 
 export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexName | undefined) {
   return useQuery({
@@ -23,13 +17,6 @@ export async function getFields(user?: MiddlecatUser, indexName?: AmcatIndexName
   if (!user || !indexName) return undefined;
   const res = await user.api.get(`/index/${indexName}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => res.data[name]);
-  fieldsArray.forEach((f) => {
-    // field meta data is serialized as a compact string, because elastic limits meta characters. We parse it here.
-    // !! this also allows us to ensure that client_display and metareader_access are always set with default values.
-    //    (this does mean we need to take care that the default metareader_access is identical in the backend)
-    if (f.meta?.client_display !== undefined) f.meta.client_display = parseClientDisplay(f.meta.client_display);
-    if (f.meta?.metareader_access !== undefined) f.meta.metareader_access = parseMetareader(f.meta.metareader_access);
-  });
   return z.array(amcatFieldSchema).parse(fieldsArray);
 }
 
@@ -41,7 +28,7 @@ export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexName
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (fields: AmcatField[]) => {
+    mutationFn: (fields: UpdateAmcatField[]) => {
       if (!user) throw new Error("Not logged in");
       return mutateFields(user, indexName || "", fields);
     },
@@ -54,28 +41,18 @@ export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexName
   });
 }
 
-export async function mutateFields(user: MiddlecatUser, indexName: AmcatIndexName, fields: AmcatField[]) {
+export async function mutateFields(user: MiddlecatUser, indexName: AmcatIndexName, fields: UpdateAmcatField[]) {
   if (!indexName) return undefined;
 
   // field meta data is serialized as a compact string, because elastic limits meta characters.
-  const fieldsObject: Record<
-    string,
-    {
-      type: AmcatFieldType;
-      meta: {
-        amcat4_type?: string;
-        client_display?: string;
-        metareader_access?: string;
-      };
-    }
-  > = {};
+  const fieldsObject: Record<string, Omit<UpdateAmcatField, "name">> = {};
+
   fields.forEach((f) => {
-    fieldsObject[f.name] = { type: f.type, meta: {} };
-    if (f.meta?.amcat4_type != null) fieldsObject[f.name].meta.amcat4_type = f.meta.amcat4_type;
-    if (f.meta?.client_display != null)
-      fieldsObject[f.name].meta.client_display = stringifyClientDisplay(f.meta.client_display);
-    if (f.meta?.metareader_access != null)
-      fieldsObject[f.name].meta.metareader_access = stringifyMetareader(f.meta.metareader_access);
+    if (!f.name) return;
+    fieldsObject[f.name] = {};
+    if (f.type) fieldsObject[f.name].type = f.type;
+    if (f.metareader) fieldsObject[f.name].metareader = f.metareader;
+    if (f.client_display) fieldsObject[f.name].client_display = f.client_display;
   });
 
   return await user.api.post(`/index/${indexName}/fields`, fieldsObject);

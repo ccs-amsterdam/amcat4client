@@ -23,6 +23,12 @@ import { LibraryIcon, Trash, User } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
+import useAmcatIndices from "@/api/indices";
+import { Input } from "../ui/input";
+import { useMemo, useState } from "react";
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { CommandEmpty } from "cmdk";
+import { Select } from "@radix-ui/react-select";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -53,7 +59,8 @@ export default function IndexMenu({ className }: { className?: string }) {
     router.push(`/index/${indexName}/${value}`);
   }
 
-  if (loading || !user || !index) return null;
+  if (loading || !user) return null;
+
   const isServerAdmin = role === "ADMIN";
 
   return (
@@ -69,8 +76,10 @@ export default function IndexMenu({ className }: { className?: string }) {
           <div className="hidden gap-3 md:flex">{indexName?.replaceAll("_", " ") || "Index"}</div>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
-          <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
-
+          <SelectIndex user={user} />
+          {index && (
+            <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
+          )}
           {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -118,6 +127,43 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
               );
             })}
           </DropdownMenuRadioGroup>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+    </DropdownMenuGroup>
+  );
+}
+
+function SelectIndex({ user }: { user: MiddlecatUser }) {
+  const { data: indices } = useAmcatIndices(user);
+  const router = useRouter();
+
+  function onSelectIndex(index: string) {
+    router.push(`/index/${index}/dashboard`);
+  }
+
+  return (
+    <DropdownMenuGroup>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger className="text-primary">
+          <LibraryIcon className="mr-2 h-4 w-4" />
+          <span>Select</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent className="text-primary">
+          <Command>
+            <CommandInput placeholder="Filter indices" autoFocus={true} className="h-9" />
+            <CommandList>
+              <CommandEmpty>No index found</CommandEmpty>
+              <CommandGroup>
+                {indices?.map((index) => {
+                  return (
+                    <CommandItem key={index.name} value={index.id} onSelect={(value) => onSelectIndex(value)}>
+                      <span className="text-primary">{index.name.replaceAll("_", " ")}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
         </DropdownMenuSubContent>
       </DropdownMenuSub>
     </DropdownMenuGroup>

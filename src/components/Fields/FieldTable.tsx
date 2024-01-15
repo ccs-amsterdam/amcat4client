@@ -1,27 +1,15 @@
 "use client";
 
 import { DataTable } from "@/components/ui/datatable";
-import { AmcatField, AmcatFieldMeta, AmcatFieldType, AmcatMetareaderAccess } from "@/interfaces";
+import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import { useCallback } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
-import {
-  parseClientDisplay,
-  parseMetareader,
-  stringifyClientDisplay,
-  stringifyMetareader,
-} from "@/lib/serializeFieldMeta";
-
-interface ChangeFieldParams {
-  name: string;
-  type?: AmcatFieldType;
-  meta?: AmcatFieldMeta;
-}
 
 interface Row extends AmcatField {
-  onChange?: ({ name, type, meta }: ChangeFieldParams) => void;
+  onChange?: ({ name, type, metareader, client_display }: UpdateAmcatField) => void;
 }
 
 const tableColumns: ColumnDef<Row>[] = [
@@ -45,7 +33,7 @@ const tableColumns: ColumnDef<Row>[] = [
     header: "Default visibility",
     cell: ({ row }) => {
       const field = row.original;
-      const client_display = field.meta.client_display;
+      const client_display = field.client_display;
       const inList = client_display.inList || false;
       const inDocument = client_display.inDocument || false;
 
@@ -54,7 +42,7 @@ const tableColumns: ColumnDef<Row>[] = [
           inList: inList,
           inDocument: inDocument,
         };
-        field.onChange?.({ name: field.name, type: field.type, meta: { ...field.meta, client_display } });
+        field.onChange?.({ name: field.name, client_display });
       }
 
       return (
@@ -87,12 +75,11 @@ const tableColumns: ColumnDef<Row>[] = [
     header: "METAREADER access",
     cell: ({ row }) => {
       const field = row.original;
-      const metareader_access = field.meta?.metareader_access;
+      const metareader_access = field.metareader;
 
-      function onChange(metareader_access: AmcatMetareaderAccess) {
-        field.onChange?.({ name: field.name, type: field.type, meta: { ...field.meta, metareader_access } });
+      function onChange(metareader: AmcatMetareaderAccess) {
+        field.onChange?.({ name: field.name, metareader });
       }
-
       function changeAccess(access: "none" | "snippet" | "read") {
         onChange({ ...metareader_access, access });
       }
@@ -118,15 +105,7 @@ interface Props {
 
 export default function FieldTable({ fields, mutate }: Props) {
   const onChange = useCallback(
-    ({ name, type, meta }: ChangeFieldParams) => {
-      const oldField = fields.find((field) => field.name === name);
-      if (!oldField) return;
-      const newField = {
-        name,
-        type: type || oldField.type,
-        meta: meta || oldField.meta,
-      };
-
+    (newField: UpdateAmcatField) => {
       mutate([newField]);
     },
     [fields],

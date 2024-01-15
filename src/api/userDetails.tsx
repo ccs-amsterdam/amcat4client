@@ -33,7 +33,7 @@ export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUse
 }
 
 async function getCurrentUserDetails(user: MiddlecatUser | undefined) {
-  if (!user?.email) return;
+  if (!user?.email) return null;
   const res = await user.api.get(`/users/me`);
   return amcatUserDetailsSchema.parse(res.data);
 }

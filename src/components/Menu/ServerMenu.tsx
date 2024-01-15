@@ -55,7 +55,7 @@ export default function ServerMenu({ className }: { className?: string }) {
         <Database />
         <span className="hidden md:inline">Server</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
+      <DropdownMenuContent align="start" className="ml-1 min-w-[200px] border-[1px] border-foreground">
         <MenuRouting routes={serverRouting} current={currentPath()} role={role} onSelect={onSelectPath} />
       </DropdownMenuContent>
     </DropdownMenu>

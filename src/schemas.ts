@@ -54,15 +54,11 @@ export const amcatClientDisplaySchema = z.object({
   inList: z.boolean(),
   inDocument: z.boolean(),
 });
-export const amcatFieldMetaSchema = z.object({
-  amcat4_type: z.string().nullish(),
-  metareader_access: amcatMetareaderAccessSchema,
-  client_display: amcatClientDisplaySchema,
-});
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
-  meta: amcatFieldMetaSchema,
+  metareader: amcatMetareaderAccessSchema,
+  client_display: amcatClientDisplaySchema,
 });
 
 export const amcatFieldValuesSchema = z.array(z.string());

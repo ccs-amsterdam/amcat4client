@@ -77,13 +77,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow-y: scroll
   }
 }
+
+
 
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
-  background: hsl(var(--background));
+  background: hsla(var(--primary), 0.2);
 }
 
 /* Track */
@@ -93,12 +96,12 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary));
+  background: hsla(var(--primary), 0.2);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary));
+  background: hsla(var(--primary));
 }
 
 .spike-loader {

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { AmcatUserRole, MenuRoute } from "@/interfaces";
-import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { roleAtLeast } from "@/api/util";
 
 export default function MenuRouting({

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { MiddlecatUser } from "middlecat-react";
 import { useArticles } from "@/api/articles";
+import { Loading } from "../ui/loading";
 
 interface Props {
   user: MiddlecatUser;
@@ -25,9 +26,8 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
   const sentinelRef = useRef<HTMLDivElement>(null);
   console.log(fields);
 
-  const { data, fetchNextPage } = useArticles(user, indexName, query, {
-    fields: ["title", "date"],
-    snippets: ["text"],
+  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, {
+    fields: ["title", "date", "text[150;3;50]"],
   });
 
   const meta = (row: any) => {
@@ -53,6 +53,8 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
   }, [fetchNextPage, sentinelRef]);
 
   const articles = data?.articles || [];
+
+  if (isLoading) return <Loading msg="Loading articles" />;
 
   return (
     <div className="relative max-w-2xl rounded ">
