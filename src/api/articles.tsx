@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { amcatQueryResultSchema } from "@/schemas";
 import { AmcatIndexName, AmcatQuery, AmcatQueryParams, AmcatQueryResult } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
@@ -18,17 +18,17 @@ export function useArticles(
     // this is necessary because react query otherwise refetches ALL pages at once,
     // both slowing down the UI and making needless API requests
     return () =>
-      queryClient.setQueryData(["articles", user, indexName, query], (oldData: any) => {
+      queryClient.setQueryData(["articles", user, indexName, query, params], (oldData: any) => {
         if (!oldData) return oldData;
         return {
           pageParams: [0],
           pages: [oldData.pages[0]],
         };
       });
-  }, [queryClient, user, indexName, query]);
+  }, [queryClient, user, indexName, query, params]);
 
   return useInfiniteQuery({
-    queryKey: ["articles", user, indexName, query],
+    queryKey: ["articles", user, indexName, query, params],
     queryFn: ({ pageParam }) => getArticles(user, indexName, query, { page: pageParam, ...(params || {}) }),
     enabled: !!user && !!indexName && !!query,
     initialPageParam: 0,
@@ -40,8 +40,9 @@ export function useArticles(
     },
     select: (data) => {
       const meta = data.pages[0].meta;
-      const articles = data.pages.flatMap((page) => page.results);
-      return { meta, articles };
+      const results = data.pages.flatMap((page) => page.results);
+      const queryResult: AmcatQueryResult = { meta, results };
+      return queryResult;
     },
   });
 }

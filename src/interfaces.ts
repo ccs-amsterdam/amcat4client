@@ -18,6 +18,7 @@ import {
   amcatFieldStatsSchema,
   amcatClientDisplaySchema,
   amcatMetareaderAccessSchema,
+  amcatSnippetSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -35,6 +36,7 @@ export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
 export type AmcatAnnotation = z.infer<typeof amcatAnnotationSchema>;
 export type AmcatFieldValues = z.infer<typeof amcatFieldValuesSchema>;
 export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
+export type AmcatSnippet = z.infer<typeof amcatSnippetSchema>;
 export type AmcatMetareaderAccess = z.infer<typeof amcatMetareaderAccessSchema>;
 export type AmcatClientDisplay = z.infer<typeof amcatClientDisplaySchema>;
 
@@ -121,10 +123,14 @@ export interface AmcatQuery {
   queries?: AmcatQueryTerm[];
 }
 
+export interface AmcatQueryFieldSpec {
+  name: string;
+  snippet?: AmcatSnippet;
+}
+
 export interface AmcatQueryParams {
   page?: number;
-  fields?: string[];
-  snippets?: string[];
+  fields?: (string | AmcatQueryFieldSpec)[];
   highlight?: boolean;
 }
 
@@ -172,16 +178,3 @@ export interface MenuRoute {
   pathname: string;
   reqRole?: AmcatUserRole;
 }
-
-// export interface AmcatClientDisplay {
-//   inList: boolean;
-//   inDocument: boolean;
-// }
-// export interface AmcatMetareaderAccess {
-//   access: "none" | "read" | "snippet";
-//   snippetParams: {
-//     nomatch_chars: number;
-//     max_matches: number;
-//     match_chars: number;
-//   };
-// }

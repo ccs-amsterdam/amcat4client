@@ -34,13 +34,13 @@ const tableColumns: ColumnDef<Row>[] = [
     cell: ({ row }) => {
       const field = row.original;
       const client_display = field.client_display;
-      const inList = client_display.inList || false;
-      const inDocument = client_display.inDocument || false;
+      const inList = client_display.in_list || false;
+      const inDocument = client_display.in_document || false;
 
       function onChange(inList: boolean, inDocument: boolean) {
         const client_display = {
-          inList: inList,
-          inDocument: inDocument,
+          in_list: inList,
+          in_document: inDocument,
         };
         field.onChange?.({ name: field.name, client_display });
       }
@@ -83,15 +83,16 @@ const tableColumns: ColumnDef<Row>[] = [
       function changeAccess(access: "none" | "snippet" | "read") {
         onChange({ ...metareader_access, access });
       }
-      function changeSnippetParams(nomatch_chars: number, max_matches: number, match_chars: number) {
-        onChange({ ...metareader_access, snippetParams: { nomatch_chars, max_matches, match_chars } });
+      function changeMaxSnippet(nomatch_chars: number, max_matches: number, match_chars: number) {
+        onChange({ ...metareader_access, max_snippet: { nomatch_chars, max_matches, match_chars } });
       }
 
       return (
         <MetareaderAccessForm
+          field={field}
           metareader_access={metareader_access}
           onChangeAccess={changeAccess}
-          onChangeSnippetParams={changeSnippetParams}
+          onChangeMaxSnippet={changeMaxSnippet}
         />
       );
     },
@@ -100,7 +101,7 @@ const tableColumns: ColumnDef<Row>[] = [
 
 interface Props {
   fields: AmcatField[];
-  mutate: (fields: AmcatField[]) => void;
+  mutate: (fields: UpdateAmcatField[]) => void;
 }
 
 export default function FieldTable({ fields, mutate }: Props) {

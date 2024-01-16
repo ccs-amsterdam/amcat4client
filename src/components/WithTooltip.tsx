@@ -1,9 +1,4 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { HelpCircle } from "lucide-react";
 
 interface Props {
@@ -14,16 +9,12 @@ interface Props {
 }
 
 export function WithTooltip({ children, tooltip }: Props) {
-  const trigger = children ?? (
-    <HelpCircle className="mb-0 text-gray-600 w-5 h-5" />
-  );
+  const trigger = children ?? <HelpCircle className="mb-0 h-5 w-5 text-gray-600" />;
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
-        <TooltipContent>{tooltip}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Tooltip>
+      <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+      <TooltipContent>{tooltip}</TooltipContent>
+    </Tooltip>
   );
 }

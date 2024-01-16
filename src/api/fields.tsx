@@ -16,7 +16,7 @@ export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexName | und
 export async function getFields(user?: MiddlecatUser, indexName?: AmcatIndexName) {
   if (!user || !indexName) return undefined;
   const res = await user.api.get(`/index/${indexName}/fields`);
-  const fieldsArray = Object.keys(res.data).map((name) => res.data[name]);
+  const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
   return z.array(amcatFieldSchema).parse(fieldsArray);
 }
 
@@ -34,9 +34,6 @@ export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexName
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexName] });
-    },
-    onError: (error) => {
-      toast.error(error.message);
     },
   });
 }

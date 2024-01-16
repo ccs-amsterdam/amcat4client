@@ -33,5 +33,6 @@ export function useHasIndexRole(user: MiddlecatUser, indexName: AmcatIndexName, 
 async function getIndex(user?: MiddlecatUser, indexName?: string) {
   if (!user || !indexName) return undefined;
   const res = await user.api.get(`/index/${indexName}`);
+  console.log(res.data);
   return amcatIndexSchema.parse(res.data);
 }

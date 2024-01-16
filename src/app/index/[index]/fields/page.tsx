@@ -21,7 +21,6 @@ export default function Index({ params }: Props) {
   const { data: index, isLoading: loadingIndex } = useIndex(user, params.index);
   const { mutate } = useMutateFields(user, params.index);
 
-  console.log(fields);
   if (loading || loadingIndex || loadingFields) return <Loading />;
 
   const ownRole = index?.user_role;

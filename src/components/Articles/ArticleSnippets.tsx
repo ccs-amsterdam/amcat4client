@@ -1,11 +1,13 @@
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, AmcatUserRole } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, AmcatQueryFieldSpec, AmcatUserRole } from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MiddlecatUser } from "middlecat-react";
 import { useArticles } from "@/api/articles";
 import { Loading } from "../ui/loading";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 
 interface Props {
   user: MiddlecatUser;
@@ -17,25 +19,51 @@ interface Props {
 }
 
 function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
-  return fields.filter((f) => {
-    f.type === "text" || f.type === "keyword";
+  const listFields: AmcatQueryFieldSpec[] = [];
+  const layout: Record<string, string[]> = {
+    text: [],
+    meta: [],
+  };
+
+  fields.forEach((field) => {
+    if (!field.client_display.in_list) return;
+    if (role === "NONE") return;
+    if (role === "METAREADER" && field.metareader.access === "none") return;
+
+    const listField: AmcatQueryFieldSpec = {
+      name: field.name,
+    };
+    if (field.type === "text") {
+      if (field.name !== "title") layout.text.push(field.name);
+
+      const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;
+      listField.snippet = {
+        nomatch_chars: max_snippet ? max_snippet.nomatch_chars : 200,
+        max_matches: max_snippet ? max_snippet.max_matches : 3,
+        match_chars: max_snippet ? max_snippet.match_chars : 50,
+      };
+    } else {
+      layout.meta.push(field.name);
+    }
+    listFields.push(listField);
   });
+
+  return { listFields, layout };
 }
 
 export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
-  console.log(fields);
+  const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
+  const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
+  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, params);
+  const [showGoToTop, setShowGoToTop] = useState(false);
 
-  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, {
-    fields: ["title", "date", "text[150;3;50]"],
-  });
-
-  const meta = (row: any) => {
-    return fields
-      .filter((c) => !["_id", "title", "text", "url"].includes(c.name))
-      .map((c) => formatSnippetMeta(row, c))
-      .join(" - ");
-  };
+  useEffect(() => {
+    // show button if scrolled down at least 500 px
+    const onScroll = () => setShowGoToTop(window.scrollY > 500);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [setShowGoToTop]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -50,19 +78,32 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
     return () => {
       if (sentinelRef.current) observer.unobserve(sentinelRef.current);
     };
-  }, [fetchNextPage, sentinelRef]);
+  }, [data, fetchNextPage, sentinelRef]);
 
-  const articles = data?.articles || [];
+  const articles = data?.results || [];
 
   if (isLoading) return <Loading msg="Loading articles" />;
 
   return (
     <div className="relative max-w-2xl rounded ">
+      <div className="sticky top-10 flex justify-end pr-5">
+        <Button
+          className={`${
+            showGoToTop ? "opacity-1" : "pointer-events-none opacity-0"
+          } absolute  shadow-sm shadow-foreground/50 transition-all duration-300`}
+          variant="secondary"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        >
+          Go to top
+        </Button>
+      </div>
       <div className="grid max-h-full grid-cols-1 gap-2 overflow-auto">
         {articles.map((row, i: number) => (
           <button
             key={row._id + i}
-            className={`prose prose-sm max-w-full animate-fade-in rounded border border-primary/50 px-3 text-left shadow-foreground/50  
+            className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary px-3 text-left shadow-foreground/50  
                         transition-all dark:prose-invert hover:bg-primary/20 hover:shadow-md  ${
                           onClick ? "cursor-pointer" : ""
                         }`}
@@ -87,27 +128,34 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
                 ) : null}
               </div>
 
-              <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row)}</div>
-              <div>{meta(row)}</div>
+              <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
+              <div className="flex gap-1 pt-2">
+                {listFields
+                  .filter((field) => !["_id", "title", "text", "url"].includes(field.name))
+                  .map(
+                    (field) =>
+                      !!row[field.name] && (
+                        <Badge key={field.name} tooltip={`${field.name}`}>
+                          {row[field.name]}
+                        </Badge>
+                      ),
+                  )}
+              </div>
             </div>
           </button>
         ))}
         <div ref={sentinelRef} />
+        di
       </div>
     </div>
   );
 }
 
-function formatSnippetMeta(row: AmcatArticle, column: AmcatField) {
-  let val = row[column.name];
-  if (val == null) return "";
-  if (column.type === "id") return "🔗";
-  if (column.type === "date") return val.replace("T", " ").substring(0, 19);
-  return val;
-}
-
-function snippetText(row: AmcatArticle) {
-  const text = row.text as string;
+function snippetText(row: AmcatArticle, fields: string[]) {
+  const text = fields
+    .map((f) => row[f])
+    .filter((t) => !!t)
+    .join(" | ");
   if (text && text.includes("<em>")) return highlightElasticTags(text);
   return text;
 }

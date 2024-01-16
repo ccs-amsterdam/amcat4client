@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { TooltipProvider } from "./ui/tooltip";
 
 const defaultOptions = {
   queries: {
@@ -23,33 +24,36 @@ const defaultOptions = {
   },
 };
 
+function zodErrorToast(e: ZodError) {
+  const zoderror = fromZodError(e);
+  toast.error("Invalid payload", { description: String(zoderror) });
+}
+
+function defaultErrorToast(e: any) {
+  const msg = e?.response?.data?.detail || e?.response?.data?.message || e.message;
+  if (msg) {
+    const description = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
+    toast.error(e.message, { description });
+  } else {
+    toast.error(e.message);
+  }
+}
+
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   const mutationCache = new MutationCache({
-    onError: (e) => {
+    onError: (e: any) => {
       console.error(e);
 
-      if (e instanceof ZodError) {
-        const zoderror = fromZodError(e);
-        toast.error("Invalid payload", { description: String(zoderror) });
-        return;
-      }
+      if (e instanceof ZodError) zodErrorToast(e);
+      defaultErrorToast(e);
     },
   });
   const queryCache = new QueryCache({
     onError: (e: any) => {
       console.error(e);
 
-      if (e instanceof ZodError) {
-        const zoderror = fromZodError(e);
-        toast.error("Invalid server response", { description: String(zoderror) });
-        return;
-      }
-
-      if (e?.response?.data?.detail) {
-        toast.error(e.message, { description: e?.response?.data?.detail });
-      } else {
-        toast.error(e.message);
-      }
+      if (e instanceof ZodError) zodErrorToast(e);
+      defaultErrorToast(e);
     },
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
@@ -58,7 +62,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <MiddlecatProvider bff="/api/bffAuth" fixedResource={process.env.NEXT_PUBLIC_AMCAT_SERVER}>
-          {children}
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         </MiddlecatProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </ThemeProvider>

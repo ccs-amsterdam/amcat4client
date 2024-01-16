@@ -1,41 +1,41 @@
-import { AmcatMetareaderAccess } from "@/interfaces";
+import { AmcatField, AmcatMetareaderAccess } from "@/interfaces";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ChevronDown, Eye, EyeOff, Scissors } from "lucide-react";
 import { Input } from "../ui/input";
 import { useEffect, useRef, useState } from "react";
-import { e } from "next-usequerystate/dist/parsers-d2c58bed";
 
 interface Props {
+  field: AmcatField;
   metareader_access: AmcatMetareaderAccess;
   onChangeAccess: (access: "none" | "snippet" | "read") => void;
-  onChangeSnippetParams: (nomatch_chars: number, max_matches: number, match_chars: number) => void;
+  onChangeMaxSnippet: (nomatch_chars: number, max_matches: number, match_chars: number) => void;
 }
 
-const noneLabel = (
+const noneIcon = (
   <>
     <EyeOff className="text-destructive" />
-    Not at all
+    invisible
   </>
 );
-const snippetLabel = (
+const snippetIcon = (
   <>
     <Scissors />
-    Only snippet
+    snippet
   </>
 );
-const readLabel = (
+const readIcon = (
   <>
     <Eye />
-    Full access
+    visible
   </>
 );
 
-export default function MetareaderAccessForm({ metareader_access, onChangeAccess, onChangeSnippetParams }: Props) {
+export default function MetareaderAccessForm({ field, metareader_access, onChangeAccess, onChangeMaxSnippet }: Props) {
   function renderAccess() {
-    if (metareader_access.access === "none") return noneLabel;
-    if (metareader_access.access === "snippet") return snippetLabel;
-    if (metareader_access.access === "read") return readLabel;
+    if (metareader_access.access === "none") return noneIcon;
+    if (metareader_access.access === "snippet") return snippetIcon;
+    if (metareader_access.access === "read") return readIcon;
   }
 
   return (
@@ -46,70 +46,84 @@ export default function MetareaderAccessForm({ metareader_access, onChangeAccess
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={() => onChangeAccess("none")} className="flex gap-4">
-            {noneLabel}
+            {noneIcon}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onChangeAccess("snippet")} className="flex gap-4">
-            {snippetLabel}
-          </DropdownMenuItem>
+          {field.type === "text" ? (
+            <DropdownMenuItem onClick={() => onChangeAccess("snippet")} className="flex gap-4">
+              {snippetIcon}
+            </DropdownMenuItem>
+          ) : null}
           <DropdownMenuItem onClick={() => onChangeAccess("read")} className="flex gap-4">
-            {readLabel}
+            {readIcon}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <div className={`${metareader_access.access === "snippet" ? "" : "hidden"}`}>
-        <SnippetParamsPopover metareader_access={metareader_access} onChangeSnippetParams={onChangeSnippetParams} />
+        <MaxSnippetPopover metareader_access={metareader_access} onChangeMaxSnippet={onChangeMaxSnippet} />
       </div>
     </div>
   );
 }
 
-function SnippetParamsPopover({ metareader_access, onChangeSnippetParams }: Omit<Props, "onChangeAccess">) {
-  const [snippetParams, setSnippetParams] = useState(metareader_access.snippetParams);
-  const currentRef = useRef(snippetParams);
+function MaxSnippetPopover({ metareader_access, onChangeMaxSnippet }: Omit<Props, "field" | "onChangeAccess">) {
+  const [MaxSnippet, setMaxSnippet] = useState(metareader_access.max_snippet);
+  const currentRef = useRef(MaxSnippet);
 
   useEffect(() => {
-    currentRef.current = metareader_access.snippetParams;
-    setSnippetParams(metareader_access.snippetParams);
+    currentRef.current = metareader_access.max_snippet;
+    setMaxSnippet(metareader_access.max_snippet);
   }, [metareader_access, currentRef]);
 
   return (
     <Popover
       onOpenChange={(open) => {
-        if (!open && currentRef.current !== snippetParams) {
-          onChangeSnippetParams(snippetParams?.nomatch_chars, snippetParams?.max_matches, snippetParams?.match_chars);
+        if (!open && currentRef.current !== MaxSnippet) {
+          onChangeMaxSnippet(MaxSnippet?.nomatch_chars, MaxSnippet?.max_matches, MaxSnippet?.match_chars);
         }
       }}
     >
       <PopoverTrigger asChild className="cursor-pointer">
-        <span className="text-primary">{`${snippetParams.nomatch_chars}, ${snippetParams.max_matches} x ${snippetParams.match_chars}`}</span>
+        <span className="text-primary">{`${MaxSnippet.nomatch_chars}, ${MaxSnippet.max_matches} x ${MaxSnippet.match_chars}`}</span>
       </PopoverTrigger>
       <PopoverContent className="w-full max-w-[90vw]">
         <div className="flex flex-col gap-3 text-sm">
           <div className="flex items-center gap-3">
-            <label className="flex-auto">Length of snippet (in characters) if there is no query</label>
+            <div className="flex-auto ">
+              <h3 className="font-semibold text-foreground/50">nomatch_chars</h3>
+              <label>Length of snippet (in characters) if there is no query</label>
+            </div>
             <Input
               type="number"
+              min={1}
               className="w-28"
-              onChange={(e) => setSnippetParams({ ...snippetParams, nomatch_chars: Number(e.target.value) })}
-              value={snippetParams?.nomatch_chars}
+              onChange={(e) => setMaxSnippet({ ...MaxSnippet, nomatch_chars: Number(e.target.value) })}
+              value={MaxSnippet?.nomatch_chars}
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="flex-auto">Maximum number of query matches</label>
+            <div className="flex-auto ">
+              <h3 className="font-semibold text-foreground/50">max_matches</h3>
+              <label>Maximum number of query matches</label>
+            </div>
             <Input
               type="number"
+              min={0}
               className="w-28"
-              onChange={(e) => setSnippetParams({ ...snippetParams, max_matches: Number(e.target.value) })}
-              value={snippetParams?.max_matches}
+              onChange={(e) => setMaxSnippet({ ...MaxSnippet, max_matches: Number(e.target.value) })}
+              value={MaxSnippet?.max_matches}
             />
           </div>
           <div className="flex items-center gap-3">
-            <label className="flex-auto">Match characters</label>
+            <div className="flex-auto ">
+              <h3 className="font-semibold text-foreground/50">match_chars</h3>
+              <label>Length of snippet per query match</label>
+            </div>
             <Input
               type="number"
+              min={1}
               className="w-28"
-              onChange={(e) => setSnippetParams({ ...snippetParams, match_chars: Number(e.target.value) })}
-              value={snippetParams?.match_chars}
+              onChange={(e) => setMaxSnippet({ ...MaxSnippet, match_chars: Number(e.target.value) })}
+              value={MaxSnippet?.match_chars}
             />
           </div>
         </div>

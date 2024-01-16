@@ -31,6 +31,7 @@ export function useMutateUser(user?: MiddlecatUser) {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["users", user] });
       queryClient.invalidateQueries({ queryKey: ["currentuserdetails", user] });
+
       if (variables.role === "NONE") {
         toast.success(`Deleted user ${variables.email}`);
       } else {

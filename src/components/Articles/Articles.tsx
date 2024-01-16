@@ -6,6 +6,7 @@ import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, SortSpec } from "
 import { MiddlecatUser } from "middlecat-react";
 import { useState } from "react";
 import ArticleSnippets from "./ArticleSnippets";
+import { ErrorMsg } from "../ui/error-message";
 
 export interface ArticlesProps {
   user: MiddlecatUser;
@@ -33,9 +34,10 @@ export default function Articles({ user, indexName, query, onClick, showOnClick 
   //TODO: add columns to meta OR retrieve fields (prefer the former) and pass the field types on to the table
   const role = useMyIndexrole(user, indexName);
   const [articleId, setArticleId] = useState<string | null>(null);
-  const { data: fields } = useFields(user, indexName);
+  const { data: fields, isLoading: loadingFields } = useFields(user, indexName);
 
-  if (!fields) return <Loading msg="Loading fields" />;
+  if (loadingFields) return <Loading msg="Loading fields" />;
+  if (!fields) return <ErrorMsg type="Could not get index field data" />;
 
   const handleClick = (row: any) => {
     if (onClick != null) onClick(row);
