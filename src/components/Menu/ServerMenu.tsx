@@ -29,10 +29,9 @@ const serverRouting: NavbarRoute[] = [
 
 export default function ServerMenu({ className }: { className?: string }) {
   const path = usePathname();
-  const { user, loading } = useMiddlecat();
+  const { user, loading, fixedResource: server } = useMiddlecat();
   const role = useMyGlobalRole(user) || "NONE";
   const router = useRouter();
-  const server = process.env.NEXT_PUBLIC_AMCAT_SERVER;
 
   if (loading || !user) return null;
 

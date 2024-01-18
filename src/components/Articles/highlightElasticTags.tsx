@@ -6,6 +6,9 @@ import { ReactElement } from "react";
  *
  */
 export function highlightElasticTags(text: string): ReactElement {
+  // if </em> is immediately followed by <em>, remove them to the sequence is highlighted
+  text = text.replaceAll("</em> <em>", " ");
+
   const regex = new RegExp(/<em>(.*?)<\/em>/); // Match text inside two square brackets
   return (
     <>

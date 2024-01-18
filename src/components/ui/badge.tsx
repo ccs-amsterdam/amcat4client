@@ -22,19 +22,21 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
-  tooltip?: string;
+  tooltip?: React.ReactElement;
 }
 
-function Badge({ className, variant, tooltip, ...props }: BadgeProps) {
+function Badge({ className, variant, tooltip, children, ...props }: BadgeProps) {
   if (!tooltip) return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className={cn(badgeVariants({ variant }), className)} {...props} />
+        <div className={cn(badgeVariants({ variant }), className)} {...props}>
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">{children}</span>
+        </div>
       </TooltipTrigger>
-      <TooltipContent className="bg-background">
-        <div className="p-2 text-sm font-normal text-foreground">{tooltip}</div>
+      <TooltipContent side="right" className=" bg-background">
+        <div className="z-50 p-2 text-sm font-normal text-foreground">{tooltip}</div>
       </TooltipContent>
     </Tooltip>
   );

@@ -19,7 +19,6 @@ export default function Index({ params }: Props) {
 
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
-  console.log(index);
   return (
     <div className="flex justify-center">
       <div className="grid w-full max-w-7xl grid-cols-1 gap-5 p-5 md:grid-cols-[1fr,20rem]">

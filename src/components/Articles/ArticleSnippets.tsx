@@ -55,7 +55,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
   const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
-  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, params);
+  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
   const [showGoToTop, setShowGoToTop] = useState(false);
 
   useEffect(() => {
@@ -135,7 +135,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
                   .map(
                     (field) =>
                       !!row[field.name] && (
-                        <Badge key={field.name} tooltip={`${field.name}`}>
+                        <Badge key={field.name} className="max-w-[15rem]" tooltip={<span>{field.name}</span>}>
                           {row[field.name]}
                         </Badge>
                       ),
@@ -145,7 +145,6 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
           </button>
         ))}
         <div ref={sentinelRef} />
-        di
       </div>
     </div>
   );

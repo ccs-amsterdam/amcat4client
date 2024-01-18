@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement } from "react";
+import React, { CSSProperties, ReactElement, useMemo } from "react";
 
 import { useArticle } from "@/api/article";
 import { useFields } from "@/api/fields";
@@ -9,6 +9,7 @@ import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfac
 import { Link } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import { highlightElasticTags } from "../Articles/highlightElasticTags";
+import { Badge } from "../ui/badge";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -24,18 +25,20 @@ export interface ArticleProps {
 export default React.memo(Article);
 function Article({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
   const { data: fields } = useFields(user, indexName);
-  const { data: article } = useArticle(user, indexName, id, query);
-  const myrole = useMyIndexrole(user, indexName);
+  const documentFields = useMemo(() => fields?.filter((f) => f.client_display.in_document), [fields]);
+  const indexRole = useMyIndexrole(user, indexName);
+  const { data: article } = useArticle(user, indexName, id, query, { highlight: true }, indexRole);
 
-  if (!article || !fields) return null;
+  if (!article || !documentFields) return null;
 
   return (
-    <div className="prose grid max-w-none grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
+    <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div>
-        <Meta article={article} fields={fields} setArticle={changeArticle} link={link} />
+        <h2 className="mb-11 mt-0 text-primary">Meta data</h2>
+        <Meta article={article} fields={documentFields} setArticle={changeArticle} link={link} />
       </div>
-      <div>
-        <Body article={article} fields={fields} canviewtext={myrole !== "METAREADER"} />
+      <div className="h-full overflow-auto">
+        <Body article={article} fields={documentFields} metareader={indexRole === "METAREADER"} />
       </div>
     </div>
   );
@@ -44,7 +47,7 @@ function Article({ user, indexName, id, query, changeArticle, link }: ArticlePro
 interface BodyProps {
   article: AmcatArticle;
   fields: AmcatField[];
-  canviewtext: boolean;
+  metareader: boolean;
 }
 
 const fieldLayout = {
@@ -53,63 +56,56 @@ const fieldLayout = {
   default: {},
 };
 
-const Body = ({ article, fields, canviewtext }: BodyProps) => {
+const Body = ({ article, fields, metareader }: BodyProps) => {
   // Add title, all other 'text' fields, and finally text
+  const textFields = fields.filter((f) => f.type === "text");
   const texts: ReactElement[] = [];
 
-  if (article.title) {
-    texts.push(<TextField key={-1} article={article} field="title" layout={fieldLayout} canviewtext={true} />);
-  }
+  // make sure title goes first
+  const title = textFields.find((f) => f.name === "title");
+  if (title)
+    texts.push(
+      <TextField
+        key={"title"}
+        article={article}
+        field={title}
+        layout={fieldLayout}
+        metareader={metareader}
+        label={false}
+      />,
+    );
 
-  fields
-    .filter((f) => f.type === "text" && !["title", "text"].includes(f.name) && article[f.name])
+  console.log(textFields);
+  textFields
+    .filter((f) => f.name !== "title")
     .forEach((f, i) => {
       texts.push(
         <TextField
           key={i}
           article={article}
-          field={f.name}
+          field={f}
           layout={fieldLayout}
-          canviewtext={canviewtext}
-          label={true}
+          metareader={metareader}
+          label={textFields.length > 2}
         />,
       );
     });
 
-  texts.push(
-    <TextField
-      key={-2}
-      article={article}
-      field="text"
-      layout={fieldLayout}
-      label={texts.length > 1}
-      canviewtext={canviewtext}
-    />,
-  );
   return <>{texts}</>;
 };
 
 interface TextFieldProps {
   article: AmcatArticle;
-  field: string;
+  field: AmcatField;
   layout: Record<string, CSSProperties>;
-  canviewtext: boolean;
+  metareader: boolean;
   label?: boolean;
 }
 
-function TextField({ article, field, layout, label, canviewtext }: TextFieldProps) {
+function TextField({ article, field, layout, label, metareader }: TextFieldProps) {
   const content: ReactElement[] = [];
 
-  if (!article[field])
-    return (
-      <div>
-        <p className="rounded-md border-2 border-orange-700 p-2 text-orange-700" key={field}>
-          No {field} found
-        </p>
-      </div>
-    );
-
-  const paragraphs = article?.[field]?.split("\n") || [];
+  const paragraphs = article?.[field.name]?.split("\n") || [];
 
   for (let paragraph of paragraphs) {
     const text = paragraph.includes("<em>") ? highlightElasticTags(paragraph) : paragraph;
@@ -120,28 +116,36 @@ function TextField({ article, field, layout, label, canviewtext }: TextFieldProp
     );
   }
 
+  function renderContent() {
+    if (!metareader || field.metareader.access === "read") return <div style={layout[field.name] || {}}>{content}</div>;
+
+    if (field.metareader.access === "none")
+      return (
+        <div className="rounded-md border-2 border-orange-700 p-2 text-orange-700">
+          <b>{field.name}</b> field cannot be displayed because you have insufficient access to this index. Please
+          contact the index admin to request access.
+        </div>
+      );
+
+    if (field.metareader.access === "snippet") {
+      return (
+        <div>
+          <div style={layout[field.name] || {}}>
+            <span className="text-orange-700">Snippet:</span> {content}
+          </div>
+        </div>
+      );
+    }
+  }
+
   return (
-    <div key={field} style={{ paddingBottom: "1em" }}>
+    <div key={field.name} style={{ paddingBottom: "1em" }}>
       {!label ? null : (
-        <span
-          key={field + "_label"}
-          style={{
-            color: "grey",
-            fontWeight: "bold",
-            textAlign: "center",
-          }}
-        >
-          {field}
+        <span key={field.name + "_label"} className="font-bold text-primary">
+          {field.name}
         </span>
       )}
-      {canviewtext ? (
-        <div style={layout[field] || {}}>{content}</div>
-      ) : (
-        <div className="rounded-md border-2 border-orange-700 p-2 text-orange-700">
-          Text fields cannot be displayed because you have insufficient access to this index. Please contact the index
-          admin to request access.
-        </div>
-      )}
+      {renderContent()}
     </div>
   );
 }
@@ -153,64 +157,75 @@ interface MetaProps {
   link?: string;
 }
 
-const Meta = ({ article, fields, setArticle, link }: MetaProps) => {
+const Meta = ({ article, fields, setArticle }: MetaProps) => {
   const metaFields = fields.filter(
     (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_display.in_document,
   );
-  const rows = () => {
-    return metaFields.map((field) => {
-      const value = formatMetaValue(article, field, setArticle);
-      if (value == null) return null;
-      return (
-        <TableRow key={field.name}>
-          <TableCell>
-            <b>{field.name}</b>
-          </TableCell>
-          <TableCell>{value}</TableCell>
-        </TableRow>
-      );
-    });
-  };
 
   if (metaFields.length === 0) return null;
 
-  const abbreviate = function (text: string | number) {
-    const t = text.toString();
-    if (t.length > 10) return `${t.substring(0, 4)}...${t.substring(t.length - 4)}`;
-    return t;
-  };
-
   return (
-    <Table className="mt-0 table-auto">
-      <TableBody>
-        {link == null ? null : (
-          <TableRow key={-1}>
-            <TableCell width={1}>
-              <b>AmCAT ID</b>
-            </TableCell>
-            <TableCell>
-              <Popover>
-                <PopoverTrigger>
-                  <a
-                    href={link}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigator.clipboard.writeText(link);
-                      return false;
-                    }}
-                  >
-                    {abbreviate(article._id)}
-                  </a>
-                </PopoverTrigger>
-                <PopoverContent>Link copied to clipboard!</PopoverContent>
-              </Popover>
-            </TableCell>
-          </TableRow>
-        )}
-        {rows()}
-      </TableBody>
-    </Table>
+    <div className="flex flex-col gap-2">
+      {fields.map((field) => {
+        if (field.type === "text") return null;
+        return (
+          <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
+            <Badge
+              tooltip={
+                <div className="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                  <b>field</b>
+                  <span>{field.name}</span>
+                  <b>type</b>
+                  <span className="text-xs">{field.type}</span>
+                  <b>value</b>
+                  <span className="text-xs">
+                    {field.client_display.in_document ? "in document" : "not in document"}
+                  </span>
+                </div>
+              }
+            >
+              {field.name}
+            </Badge>
+            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+              {formatMetaValue(article, field, setArticle)}
+            </span>
+          </div>
+        );
+      })}
+    </div>
   );
+
+  // return (
+  //   <Table className="mt-0 table-auto">
+  //     <TableBody>
+  //       {link == null ? null : (
+  //         <TableRow key={-1}>
+  //           <TableCell width={1}>
+  //             <b>AmCAT ID</b>
+  //           </TableCell>
+  //           <TableCell>
+  //             <Popover>
+  //               <PopoverTrigger>
+  //                 <a
+  //                   href={link}
+  //                   onClick={(e) => {
+  //                     e.preventDefault();
+  //                     navigator.clipboard.writeText(link);
+  //                     return false;
+  //                   }}
+  //                 >
+  //                   {abbreviate(article._id)}
+  //                 </a>
+  //               </PopoverTrigger>
+  //               <PopoverContent>Link copied to clipboard!</PopoverContent>
+  //             </Popover>
+  //           </TableCell>
+  //         </TableRow>
+  //       )}
+  //       {rows()}
+  //     </TableBody>
+  //   </Table>
+  // );
 };
 
 /**

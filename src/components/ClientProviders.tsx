@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TooltipProvider } from "./ui/tooltip";
+import { useSearchParams } from "next/navigation";
 
 const defaultOptions = {
   queries: {
@@ -40,6 +41,12 @@ function defaultErrorToast(e: any) {
 }
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
+  const params = useSearchParams();
+
+  // allow signing in to local server on specific port. Useful for development,
+  // or for running local amcat without having to run a new client
+  const [port] = useState(() => params?.get("port"));
+
   const mutationCache = new MutationCache({
     onError: (e: any) => {
       console.error(e);
@@ -58,10 +65,12 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
+  const host = port ? `http://localhost:${port}` : process.env.NEXT_PUBLIC_AMCAT_SERVER;
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <MiddlecatProvider bff="/api/bffAuth" fixedResource={process.env.NEXT_PUBLIC_AMCAT_SERVER}>
+        <MiddlecatProvider bff="/api/bffAuth" fixedResource={host}>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         </MiddlecatProvider>
         <ReactQueryDevtools initialIsOpen={false} />

@@ -10,6 +10,7 @@ export function useArticles(
   indexName: AmcatIndexName,
   query: AmcatQuery,
   params?: AmcatQueryParams,
+  indexRole?: string,
 ) {
   const queryClient = useQueryClient();
 
@@ -18,17 +19,17 @@ export function useArticles(
     // this is necessary because react query otherwise refetches ALL pages at once,
     // both slowing down the UI and making needless API requests
     return () =>
-      queryClient.setQueryData(["articles", user, indexName, query, params], (oldData: any) => {
+      queryClient.setQueryData(["articles", user, indexName, query, params, indexRole], (oldData: any) => {
         if (!oldData) return oldData;
         return {
           pageParams: [0],
           pages: [oldData.pages[0]],
         };
       });
-  }, [queryClient, user, indexName, query, params]);
+  }, [queryClient, user, indexName, query, params, indexRole]);
 
   return useInfiniteQuery({
-    queryKey: ["articles", user, indexName, query, params],
+    queryKey: ["articles", user, indexName, query, params, indexRole],
     queryFn: ({ pageParam }) => getArticles(user, indexName, query, { page: pageParam, ...(params || {}) }),
     enabled: !!user && !!indexName && !!query,
     initialPageParam: 0,

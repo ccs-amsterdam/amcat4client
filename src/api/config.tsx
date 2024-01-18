@@ -1,18 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { amcatConfigSchema } from "@/schemas";
+import { useMiddlecat } from "middlecat-react";
 
 export function useAmcatConfig() {
+  const { fixedResource: host } = useMiddlecat();
   return useQuery({
     queryKey: ["config"],
-    queryFn: () => getAmcatConfig(),
+    queryFn: () => getAmcatConfig(host),
     staleTime: 1000 * 60 * 60 * 1,
   });
 }
 
-export async function getAmcatConfig() {
-  const host = process.env.NEXT_PUBLIC_AMCAT_SERVER;
-  console.log(host);
+export async function getAmcatConfig(host?: string) {
+  if (!host) return undefined;
   const res = await axios.get(`${host}/config`, { timeout: 3000 });
   return amcatConfigSchema.parse(res.data);
 }
