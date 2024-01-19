@@ -34,8 +34,13 @@ function Article({ user, indexName, id, query, changeArticle, link }: ArticlePro
   return (
     <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div>
-        <h2 className="mb-11 mt-0 text-primary">Meta data</h2>
-        <Meta article={article} fields={documentFields} setArticle={changeArticle} link={link} />
+        <h2 className=" mt-0 text-primary">Meta data</h2>
+        <Meta
+          article={article}
+          fields={documentFields}
+          setArticle={changeArticle}
+          metareader={indexRole === "METAREADER"}
+        />
       </div>
       <div className="h-full overflow-auto">
         <Body article={article} fields={documentFields} metareader={indexRole === "METAREADER"} />
@@ -121,9 +126,8 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
 
     if (field.metareader.access === "none")
       return (
-        <div className="rounded-md border-2 border-orange-700 p-2 text-orange-700">
-          <b>{field.name}</b> field cannot be displayed because you have insufficient access to this index. Please
-          contact the index admin to request access.
+        <div className="text-secondary">
+          METAREADER limitation: cannot view the <b>{field.name}</b>
         </div>
       );
 
@@ -131,7 +135,10 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
       return (
         <div>
           <div style={layout[field.name] || {}}>
-            <span className="text-orange-700">Snippet:</span> {content}
+            <span className=" text-secondary">
+              METAREADER limitation: can only view snippet of <b>{field.name}</b>:
+            </span>{" "}
+            {content}
           </div>
         </div>
       );
@@ -154,10 +161,10 @@ interface MetaProps {
   article: AmcatArticle;
   fields: AmcatField[];
   setArticle?: (id: string) => void;
-  link?: string;
+  metareader?: boolean;
 }
 
-const Meta = ({ article, fields, setArticle }: MetaProps) => {
+const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
   const metaFields = fields.filter(
     (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_display.in_document,
   );
@@ -168,6 +175,11 @@ const Meta = ({ article, fields, setArticle }: MetaProps) => {
     <div className="flex flex-col gap-2">
       {fields.map((field) => {
         if (field.type === "text") return null;
+
+        const noAccessMessage =
+          metareader && field.metareader.access !== "read" ? (
+            <span className="text-secondary">Not visible for METAREADER</span>
+          ) : null;
         return (
           <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
             <Badge
@@ -178,16 +190,14 @@ const Meta = ({ article, fields, setArticle }: MetaProps) => {
                   <b>type</b>
                   <span className="text-xs">{field.type}</span>
                   <b>value</b>
-                  <span className="text-xs">
-                    {field.client_display.in_document ? "in document" : "not in document"}
-                  </span>
+                  <span className="text-xs">{noAccessMessage || article[field.name]}</span>
                 </div>
               }
             >
               {field.name}
             </Badge>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {formatMetaValue(article, field, setArticle)}
+              {noAccessMessage || formatMetaValue(article, field, setArticle) || "EMPTY"}
             </span>
           </div>
         );
