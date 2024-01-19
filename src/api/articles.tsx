@@ -54,6 +54,8 @@ async function getArticles(
   query: AmcatQuery,
   params: AmcatQueryParams,
 ) {
+  // TODO, make sure query doesn't run needlessly
+  // also check that it doesn't run if field is added but empty
   const res = await postQuery(user, indexName, query, params);
   const queryResult: AmcatQueryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult;

@@ -49,7 +49,9 @@ export const amcatSnippetSchema = z.object({
 });
 export const amcatMetareaderAccessSchema = z.object({
   access: z.enum(["none", "read", "snippet"]),
-  max_snippet: amcatSnippetSchema.nullish().transform((o) => o || { nomatch_chars: 0, max_matches: 0, match_chars: 0 }),
+  max_snippet: amcatSnippetSchema
+    .nullish()
+    .transform((o) => o || { nomatch_chars: 150, max_matches: 0, match_chars: 50 }),
 });
 export const amcatClientDisplaySchema = z.object({
   in_list: z.boolean(),

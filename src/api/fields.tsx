@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { amcatFieldSchema } from "@/schemas";
-import { AmcatField, AmcatFieldType, AmcatIndexName, UpdateAmcatField } from "@/interfaces";
-import { toast } from "sonner";
+import { AmcatField, AmcatIndexName, UpdateAmcatField } from "@/interfaces";
 
 export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexName | undefined) {
   return useQuery({

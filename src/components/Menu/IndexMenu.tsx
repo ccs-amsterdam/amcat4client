@@ -19,16 +19,13 @@ import {
 import { AmcatIndex, MenuRoute } from "@/interfaces";
 import { cn } from "@/lib/utils";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { LibraryIcon, Trash, User } from "lucide-react";
+import { LibraryIcon, User } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
 import useAmcatIndices from "@/api/indices";
-import { Input } from "../ui/input";
-import { useMemo, useState } from "react";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { CommandEmpty } from "cmdk";
-import { Select } from "@radix-ui/react-select";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
