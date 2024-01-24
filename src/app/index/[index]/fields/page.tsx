@@ -33,7 +33,7 @@ export default function Index({ params }: Props) {
       <div className="grid w-full max-w-7xl grid-cols-1 gap-5 p-5 md:grid-cols-[1fr,20rem]">
         <div>
           <h3 className="text-lg font-bold leading-10">Fields</h3>
-          <FieldTable fields={fields || []} mutate={mutate} />
+          <FieldTable fields={fields || []} mutate={(action, fields) => mutate({ action, fields })} />
         </div>
       </div>
     </div>

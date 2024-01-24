@@ -46,15 +46,15 @@ interface MutateIndexParams {
   guest_role?: AmcatUserRole;
 }
 
-export function useMutateIndex(user: MiddlecatUser, indexName: AmcatIndexName) {
+export function useMutateIndex(user: MiddlecatUser, indexName?: AmcatIndexName) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, name, description, summary_field, guest_role, action }: MutateIndexParams) => {
       if (!user) throw new Error("Not logged in");
-      return mutateIndx(user, indexName, action, name, description, summary_field, guest_role);
+      return mutateIndex(user, id, action, name, description, summary_field, guest_role);
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["index", user, indexName] });
       queryClient.invalidateQueries({ queryKey: ["indices", user] });
 
@@ -68,7 +68,7 @@ export function useMutateIndex(user: MiddlecatUser, indexName: AmcatIndexName) {
   });
 }
 
-export async function mutateIndx(
+export async function mutateIndex(
   user: MiddlecatUser,
   id: AmcatIndexName,
   action: "create" | "delete" | "update",

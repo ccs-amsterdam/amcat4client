@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndex } from "@/api/index";
+import { useIndex, useMutateIndex } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
 import { useMyGlobalRole } from "@/api/userDetails";
 import {
@@ -87,15 +87,22 @@ export default function IndexMenu({ className }: { className?: string }) {
 function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const router = useRouter();
   const role = useMyGlobalRole(user);
-  const { mutate } = useMutateIndexUser(user, index?.name);
+  const { mutate: mutateUser } = useMutateIndexUser(user, index?.name);
+  const { mutate: mutateIndex } = useMutateIndex(user, index?.name);
 
   if (role !== "ADMIN") return null;
 
+  function onDelete() {
+    if (!index) return;
+    mutateIndex({ id: index.id, action: "delete" });
+    router.push("/index");
+  }
+
   function onChangeRole(role: string) {
     if (role === "NONE") {
-      mutate({ email: user.email, role, action: "delete" });
+      mutateUser({ email: user.email, role, action: "delete" });
     } else {
-      mutate({ email: user.email, role, action: "update" });
+      mutateUser({ email: user.email, role, action: "update" });
     }
   }
 
@@ -126,6 +133,7 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
           </DropdownMenuRadioGroup>
         </DropdownMenuSubContent>
       </DropdownMenuSub>
+      <DropdownMenuItem onClick={onDelete}>Delete</DropdownMenuItem>
     </DropdownMenuGroup>
   );
 }

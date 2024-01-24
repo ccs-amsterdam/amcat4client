@@ -19,15 +19,15 @@ export type Icon =
   | "bar chart"
   | "list"
   | "table"
-  | "long"
-  | "double"
+  | "number"
   | "object"
   | "keyword"
   | "date"
-  | "tag"
   | "text"
+  | "geo"
   | "url"
-  | "geo_point"
+  | "boolean"
+  | "vector"
   | "id";
 
 export function DynamicIcon({ type }: { type: Icon }) {
@@ -38,15 +38,13 @@ export function DynamicIcon({ type }: { type: Icon }) {
   if (type === "table") return <Table2 />;
 
   // field types
-  if (type === "long") return <Hash />;
-  if (type === "double") return <Hash />;
+  if (type === "number") return <Hash />;
   if (type === "object") return <Braces />;
   if (type === "keyword") return <Tag />;
   if (type === "date") return <CalendarDays />;
-  if (type === "tag") return <Tag />;
   if (type === "text") return <FileText />;
   if (type === "url") return <Link />;
-  if (type === "geo_point") return <Globe />;
+  if (type === "geo") return <Globe />;
   if (type === "id") return <Fingerprint />;
 
   console.error(`Unknown icon type ${type}`);

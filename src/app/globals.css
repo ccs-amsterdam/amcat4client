@@ -4,10 +4,6 @@
 
 @layer base {
   :root {
-    --background: 0, 0%, 100%;
-    --foreground: 222.2, 84%, 14%;
-    --header: 0, 0%, 20%;
-
     --card: 0, 0%, 100%;
     --card-foreground: 222.2, 84%, 4rgb (0, 0, 0) 0.9%;
 
@@ -77,6 +73,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition:
+      color 0.5s,
+      background-color 0.4s;
     overflow-y: scroll;
   }
 }

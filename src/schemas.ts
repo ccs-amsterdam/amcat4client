@@ -30,17 +30,31 @@ export const amcatUserDetailsSchema = z.object({
   role: amcatUserRoleSchema,
 });
 
-export const amcatFieldTypeSchema = z.enum([
-  "long",
-  "double",
-  "object",
-  "keyword",
-  "date",
-  "tag",
+export const amcatFieldTypeSchema = z.enum(["text", "date", "boolean", "keyword", "number", "object", "vector", "geo"]);
+export const amcatFieldElasticTypeSchema = z.enum([
   "text",
-  "url",
+  "annotated_text",
+  "binary",
+  "match_only_text",
+  "date",
+  "boolean",
+  "keyword",
+  "constant_keyword",
+  "wildcard",
+  "integer",
+  "byte",
+  "short",
+  "long",
+  "unsigned_long",
+  "float",
+  "half_float",
+  "double",
+  "scaled_float",
+  "object",
+  "flattened",
+  "nested",
+  "dense_vector",
   "geo_point",
-  "id",
 ]);
 export const amcatSnippetSchema = z.object({
   nomatch_chars: z.number().default(150),
@@ -60,6 +74,7 @@ export const amcatClientDisplaySchema = z.object({
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
+  elastic_type: amcatFieldElasticTypeSchema,
   metareader: amcatMetareaderAccessSchema,
   client_display: amcatClientDisplaySchema,
 });

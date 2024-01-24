@@ -2,7 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { amcatFieldSchema } from "@/schemas";
-import { AmcatField, AmcatIndexName, UpdateAmcatField } from "@/interfaces";
+import { AmcatField, AmcatFieldElasticType, AmcatIndexName, UpdateAmcatField } from "@/interfaces";
+import { toast } from "sonner";
 
 export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexName | undefined) {
   return useQuery({
@@ -23,33 +24,56 @@ export function getField(fields: AmcatField[] | undefined, fieldname: string): A
   return fields?.find((f) => f.name === fieldname);
 }
 
+interface MutateFieldsParams {
+  fields: UpdateAmcatField[];
+  action: "create" | "delete" | "update";
+}
+
 export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexName | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (fields: UpdateAmcatField[]) => {
+    mutationFn: ({ fields, action }: MutateFieldsParams) => {
       if (!user) throw new Error("Not logged in");
-      return mutateFields(user, indexName || "", fields);
+      return mutateFields(user, indexName || "", action, fields);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexName] });
+
+      const fieldnames = variables.fields.map((f) => f.name).join(", ");
+      if (variables.action === "create") toast.success(`Created fields: ${fieldnames}`);
+      if (variables.action === "update") toast.success(`Updated fields: ${fieldnames}`);
+      if (variables.action === "delete") toast.success(`Deleted fields: ${fieldnames}`);
     },
   });
 }
 
-export async function mutateFields(user: MiddlecatUser, indexName: AmcatIndexName, fields: UpdateAmcatField[]) {
+export async function mutateFields(
+  user: MiddlecatUser,
+  indexName: AmcatIndexName,
+  action: "create" | "delete" | "update",
+  fields: UpdateAmcatField[],
+) {
   if (!indexName) return undefined;
-
-  // field meta data is serialized as a compact string, because elastic limits meta characters.
-  const fieldsObject: Record<string, Omit<UpdateAmcatField, "name">> = {};
+  const fieldsObject: Record<string, any> = {};
 
   fields.forEach((f) => {
     if (!f.name) return;
     fieldsObject[f.name] = {};
-    if (f.type) fieldsObject[f.name].type = f.type;
+    if (f.elastic_type) {
+      if (action !== "create") throw new Error("Cannot change elastic_type of existing field");
+      fieldsObject[f.name].elastic_type = f.elastic_type;
+    }
+
     if (f.metareader) fieldsObject[f.name].metareader = f.metareader;
     if (f.client_display) fieldsObject[f.name].client_display = f.client_display;
   });
 
-  return await user.api.post(`/index/${indexName}/fields`, fieldsObject);
+  if (action === "delete") {
+    return await user.api.delete(`/index/${indexName}/fields`, { data: fields.map((f) => f.name) });
+  } else if (action === "create") {
+    return await user.api.post(`/index/${indexName}/fields`, fieldsObject);
+  } else if (action === "update") {
+    return await user.api.put(`/index/${indexName}/fields`, fieldsObject);
+  }
 }

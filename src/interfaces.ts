@@ -19,6 +19,7 @@ import {
   amcatClientDisplaySchema,
   amcatMetareaderAccessSchema,
   amcatSnippetSchema,
+  amcatFieldElasticTypeSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -28,6 +29,7 @@ export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
 export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
 export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
 export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
+export type AmcatFieldElasticType = z.infer<typeof amcatFieldElasticTypeSchema>;
 export type AmcatField = z.infer<typeof amcatFieldSchema>;
 export type UpdateAmcatField = Partial<AmcatField>;
 export type AmcatArticle = z.infer<typeof amcatArticleSchema>;

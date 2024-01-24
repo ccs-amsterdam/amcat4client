@@ -251,15 +251,13 @@ export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArt
     case "date":
       // Only remove 'T' for now. But not sure why that's a great idea
       return value.replace("T", " ").substring(0, 19);
-    case "id":
-      if (setArticle) return <Link onClick={() => setArticle(value)} />;
-    case "url":
-      return <a href={value}>{value}</a>;
-    case "tag":
+
+    case "keyword":
+      if (field.name === "id" && setArticle) return <Link onClick={() => setArticle(value)} />;
+      if (field.name === "url") return <a href={value}>{value}</a>;
       if (Array.isArray(value)) return value.map((v) => <span>{v}</span>);
       else return value ? <span>{value}</span> : null;
-    case "long":
-    case "double":
+    case "number":
       return <i>{value}</i>;
     default:
       if (typeof value === "string") return value;

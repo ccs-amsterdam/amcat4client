@@ -101,13 +101,13 @@ const tableColumns: ColumnDef<Row>[] = [
 
 interface Props {
   fields: AmcatField[];
-  mutate: (fields: UpdateAmcatField[]) => void;
+  mutate: (action: "create" | "delete" | "update", fields: UpdateAmcatField[]) => void;
 }
 
 export default function FieldTable({ fields, mutate }: Props) {
   const onChange = useCallback(
     (newField: UpdateAmcatField) => {
-      mutate([newField]);
+      mutate("update", [newField]);
     },
     [fields],
   );
