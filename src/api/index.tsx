@@ -14,7 +14,7 @@ export function useIndex(user?: MiddlecatUser, indexName?: AmcatIndexName) {
   });
 }
 
-export function useMyIndexrole(user: MiddlecatUser, indexName: AmcatIndexName) {
+export function useMyIndexrole(user?: MiddlecatUser, indexName?: AmcatIndexName) {
   const { data: index } = useIndex(user, indexName);
   return index?.user_role;
 }

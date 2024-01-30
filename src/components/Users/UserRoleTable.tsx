@@ -65,7 +65,7 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
   const data: Row[] =
     users?.map((user) => {
       const row: Row = { ...user, canCreateAdmin: ownRole === "ADMIN" };
-      const canEditUser = ownRole === "ADMIN" || (ownRole === "WRITER" && user.role === "WRITER");
+      const canEditUser = ownRole === "ADMIN" || (ownRole === "WRITER" && user.role !== "ADMIN");
       if (canEditUser) row.onChange = (newRole: string) => onChangeRole(user.email, user.role, newRole);
       return row;
     }) || [];

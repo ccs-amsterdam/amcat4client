@@ -4,6 +4,11 @@
 
 @layer base {
   :root {
+    --background: 0, 0%, 100%;
+    --foreground: 222.2, 84%, 10%;
+    --foreground-reverse: 222.2, 84%, 90%;
+    --header: 0, 0%, 80%;
+
     --card: 0, 0%, 100%;
     --card-foreground: 222.2, 84%, 4rgb (0, 0, 0) 0.9%;
 

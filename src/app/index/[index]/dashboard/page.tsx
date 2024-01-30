@@ -13,6 +13,8 @@ import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
 import Summary from "@/components/Summary/Summary";
 import { Loading } from "@/components/ui/loading";
 import { amcatIndexNameSchema } from "@/schemas";
+import { ErrorMsg } from "@/components/ui/error-message";
+import { useMyIndexrole } from "@/api";
 
 interface Props {
   params: { index: string };
@@ -28,6 +30,7 @@ enum Tab {
 export default function Index({ params }: Props) {
   const { user, loading: loadingUser } = useMiddlecat();
   const indexName = amcatIndexNameSchema.parse(params.index);
+  const indexRole = useMyIndexrole(user, indexName);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
   const [query, setQuery] = useState<AmcatQuery>(() => deserializeQuery(queryState));
@@ -39,6 +42,7 @@ export default function Index({ params }: Props) {
   }, [query]);
 
   if (loadingUser || !user) return <Loading />;
+  if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
 
   return (
     <div>

@@ -39,7 +39,7 @@ export default function Index({ params }: Props) {
         <div>
           <h3 className="text-lg font-bold leading-10">Add user</h3>
 
-          <CreateUserForm ownRole={ownRole} roles={roles} />
+          <CreateUserForm ownRole={ownRole} roles={roles} changeRole={changeRole} />
         </div>
       </div>
     </div>

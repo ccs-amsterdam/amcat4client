@@ -53,7 +53,6 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
 
 export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
   const sentinelRef = useRef<HTMLDivElement>(null);
-  console.log(fields);
   const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
   const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
   const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);

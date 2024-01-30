@@ -16,19 +16,19 @@ import { ChevronDown } from "lucide-react";
 interface Props {
   ownRole: string;
   roles: string[];
+  changeRole: (email: string, role: string, action: "create" | "delete" | "update") => void;
 }
 
-export default function CreateUserForm({ ownRole, roles }: Props) {
+export default function CreateUserForm({ ownRole, roles, changeRole }: Props) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("READER");
 
-  const { user, loading } = useMiddlecat();
-  const { mutate } = useMutateUser(user);
+  const { user } = useMiddlecat();
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email || !role) return;
-    mutate({ email, role, action: "create" });
+    changeRole(email, role, "create");
   }
 
   return (

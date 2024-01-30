@@ -14,6 +14,12 @@ interface Props {
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, params.index);
+  // const { mutate: mutateIndex } = useMutateIndex(user, index?.name);
+  // function onDelete() {
+  //   if (!index) return;
+  //   mutateIndex({ id: index.id, action: "delete" });
+  //   router.push("/");
+  // }
 
   if (loading || loadingIndex) return <Loading />;
 

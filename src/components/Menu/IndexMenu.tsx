@@ -19,7 +19,7 @@ import {
 import { AmcatIndex, MenuRoute } from "@/interfaces";
 import { cn } from "@/lib/utils";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { LibraryIcon, User } from "lucide-react";
+import { Delete, DeleteIcon, LibraryIcon, User } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
@@ -85,18 +85,10 @@ export default function IndexMenu({ className }: { className?: string }) {
 }
 
 function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
-  const router = useRouter();
   const role = useMyGlobalRole(user);
   const { mutate: mutateUser } = useMutateIndexUser(user, index?.name);
-  const { mutate: mutateIndex } = useMutateIndex(user, index?.name);
 
   if (role !== "ADMIN") return null;
-
-  function onDelete() {
-    if (!index) return;
-    mutateIndex({ id: index.id, action: "delete" });
-    router.push("/index");
-  }
 
   function onChangeRole(role: string) {
     if (role === "NONE") {
@@ -133,7 +125,6 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
           </DropdownMenuRadioGroup>
         </DropdownMenuSubContent>
       </DropdownMenuSub>
-      <DropdownMenuItem onClick={onDelete}>Delete</DropdownMenuItem>
     </DropdownMenuGroup>
   );
 }
