@@ -126,3 +126,39 @@ export const amcatIndexUsers = z.object({
   email: z.string(),
   role: amcatUserRoleSchema,
 });
+
+// aggregation
+
+export const amcatAggregationIntervalSchema = z.enum([
+  "day",
+  "week",
+  "month",
+  "quarter",
+  "year",
+  "daypart",
+  "dayofweek",
+  "monthnr",
+  "yearnr",
+  "dayofmonth",
+  "weeknr",
+]);
+export const amcatMetricFunctionSchema = z.enum(["sum", "avg", "min", "max"]);
+export const amcatAggregateDataPointSchema = z.record(z.any());
+export const amcatAggregationAxisSchema = z.object({
+  field: z.string(),
+  name: z.string(),
+  interval: amcatAggregationIntervalSchema.nullish().transform((x) => x ?? undefined),
+});
+export const amcatAggregationMetricSchema = z.object({
+  field: z.string(),
+  function: amcatMetricFunctionSchema,
+  name: z.string().optional(),
+  type: z.string().optional(),
+});
+export const amcatAggregateDataSchema = z.object({
+  data: z.array(amcatAggregateDataPointSchema),
+  meta: z.object({
+    axes: z.array(amcatAggregationAxisSchema),
+    aggregations: z.array(amcatAggregationMetricSchema),
+  }),
+});

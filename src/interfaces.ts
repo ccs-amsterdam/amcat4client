@@ -20,6 +20,12 @@ import {
   amcatMetareaderAccessSchema,
   amcatSnippetSchema,
   amcatFieldElasticTypeSchema,
+  amcatAggregationIntervalSchema,
+  amcatMetricFunctionSchema,
+  amcatAggregateDataPointSchema,
+  amcatAggregationAxisSchema,
+  amcatAggregationMetricSchema,
+  amcatAggregateDataSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -41,20 +47,14 @@ export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
 export type AmcatSnippet = z.infer<typeof amcatSnippetSchema>;
 export type AmcatMetareaderAccess = z.infer<typeof amcatMetareaderAccessSchema>;
 export type AmcatClientDisplay = z.infer<typeof amcatClientDisplaySchema>;
+export type AggregationInterval = z.infer<typeof amcatAggregationIntervalSchema>;
+export type MetricFunction = z.infer<typeof amcatMetricFunctionSchema>;
+export type AggregateDataPoint = z.infer<typeof amcatAggregateDataPointSchema>;
+export type AggregationAxis = z.infer<typeof amcatAggregationAxisSchema>;
+export type AggregationMetric = z.infer<typeof amcatAggregationMetricSchema>;
+export type AggregateData = z.infer<typeof amcatAggregateDataSchema>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
-export type AggregationInterval =
-  | "day"
-  | "week"
-  | "month"
-  | "quarter"
-  | "year"
-  | "daypart"
-  | "dayofweek"
-  | "monthnr"
-  | "yearnr"
-  | "dayofmonth"
-  | "weeknr";
 
 // NOTE: name was optional before, supposedly because
 // there are cases where you only want to specify that 'a'
@@ -62,27 +62,6 @@ export type AggregationInterval =
 // should then just infer the name before making the AggregationAxis,
 // or Typescript goes nuts.
 // For cases where there is no name (like _query type field) we'll just use ""
-export interface AggregationAxis {
-  // also seems to be field name, but then why also have name?
-  field: string;
-  // the name of the field
-  name: string;
-  interval?: AggregationInterval;
-}
-
-export type MetricFunction = "sum" | "avg" | "min" | "max";
-
-// NOTE: the meaning of names seems very different from AggregationAxis?
-// need to verify this with Wouter
-export interface AggregationMetric {
-  // the name of the field
-  field: string;
-  function: MetricFunction;
-  // maybe just a label?
-  name?: string;
-  // the type of the field
-  type?: string;
-}
 
 //TODO: think about how visual and data options relate, e.g. limit.
 export interface AggregationOptions {
@@ -135,13 +114,6 @@ export interface AmcatQueryParams {
   fields?: (string | AmcatQueryFieldSpec)[];
   highlight?: boolean;
 }
-
-export type AggregateDataPoint = { [key: string]: any };
-
-export type AggregateData = {
-  data: AggregateDataPoint[];
-  meta: { axes: AggregationAxis[]; aggregations: AggregationMetric[] };
-};
 
 export type AggregateVisualizer = (props: any) => ReactNode;
 export interface AggregateVisualizerProps {

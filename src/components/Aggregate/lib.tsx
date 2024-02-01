@@ -145,7 +145,7 @@ const MONTHS = [
   { nl: "December", _sort: 12 },
 ];
 
-export function transform_datepart_value(value: any, interval: string | undefined) {
+export function transform_datepart_value(value: any, interval: AggregationInterval | undefined) {
   switch (interval) {
     case "dayofweek":
       return DATEPARTS_DOW.get(value);

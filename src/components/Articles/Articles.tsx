@@ -46,7 +46,7 @@ export default function Articles({ user, indexName, query, onClick, showOnClick 
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-[max,1fr] ">
+      <div className="grid grid-cols-[max,1fr] rounded bg-primary/10">
         <ArticleSnippets
           user={user}
           indexName={indexName}

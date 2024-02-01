@@ -51,16 +51,22 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     onError: (e: any) => {
       console.error(e);
 
-      if (e instanceof ZodError) zodErrorToast(e);
-      defaultErrorToast(e);
+      if (e instanceof ZodError) {
+        zodErrorToast(e);
+      } else {
+        defaultErrorToast(e);
+      }
     },
   });
   const queryCache = new QueryCache({
     onError: (e: any) => {
       console.error(e);
 
-      if (e instanceof ZodError) zodErrorToast(e);
-      defaultErrorToast(e);
+      if (e instanceof ZodError) {
+        zodErrorToast(e);
+      } else {
+        defaultErrorToast(e);
+      }
     },
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));

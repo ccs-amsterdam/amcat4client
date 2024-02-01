@@ -9,8 +9,6 @@ import UserRoleTable from "@/components/Users/UserRoleTable";
 import { useMutateUser, useUsers } from "@/api/users";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import CreateUserForm from "@/components/Users/CreateUserForm";
-import { useAmcatConfig } from "@/api/config";
-import { useMemo } from "react";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 

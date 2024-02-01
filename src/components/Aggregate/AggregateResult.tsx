@@ -13,10 +13,10 @@ import AggregateList from "./AggregateList";
 import AggregateTable from "./AggregateTable";
 import AggregateBarChart from "./AggregateBarChart";
 import AggregateLineChart from "./AggregateLineChart";
-import { postAggregate } from "@/api/aggregate";
-import { describeError } from "@/api/error";
+import { useAggregate } from "@/api/aggregate";
 import { Loading } from "@/components/ui/loading";
 import { MiddlecatUser } from "middlecat-react";
+import { ErrorMsg } from "../ui/error-message";
 
 //TODO: This file is becoming too complex - move some business logic to a lib and add unit tests?
 
@@ -47,45 +47,17 @@ export default function AggregateResult({
   height,
   scale,
 }: AggregateResultProps) {
-  const [data, setData] = useState<AggregateData>();
-  const [error, setError] = useState<string>();
+  const { data, isLoading, error } = useAggregate(user, indexName, query, options);
   const [zoom, setZoom] = useState();
 
-  // Fetch data and return an error message if it fails
-  useEffect(() => {
-    // Prevent data/error being set after component is unmounted
-    let cancel = false;
-    // TODO: don't query if index changed but options hasn't been reset (yet)
-    if (indexName == null || !options?.axes || options.axes.length === 0) {
-      setData(undefined);
-      setError(undefined);
-    } else {
-      postAggregate(user, indexName, query, options)
-        .then((d) => {
-          if (!cancel) {
-            setData(d.data);
-            setError(undefined);
-          }
-        })
-        .catch((error) => {
-          if (!cancel) {
-            setData(undefined);
-            setError(describeError(error));
-          }
-        });
-    }
-    return () => {
-      cancel = true;
-    };
-  }, [user, indexName, options, query]);
-  <AggregateResult
-    user={user}
-    indexName={indexName}
-    query={query}
-    options={options as AggregationOptions}
-    height={300}
-  />;
-  if (error) return <span className="text-red-600">{error}</span>;
+  // <AggregateResult
+  //   user={user}
+  //   indexName={indexName}
+  //   query={query}
+  //   options={options as AggregationOptions}
+  //   height={300}
+  // />;
+  if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
 
   if (!options) return <span className="text-center italic">Select aggregation options</span>;
   if (!data || !options || !options.display) return <Loading msg={`Loading aggregation`} />;

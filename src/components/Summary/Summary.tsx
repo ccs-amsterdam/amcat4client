@@ -18,8 +18,8 @@ export default function Summary({ user, indexName, query }: Props) {
 
   return (
     <div className="grid grid-cols-2">
-      <div></div>
       <Articles user={user} indexName={indexName} query={query} />
+      <div></div>
     </div>
   );
 }

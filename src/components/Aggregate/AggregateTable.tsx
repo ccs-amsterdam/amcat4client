@@ -27,8 +27,7 @@ export default function AggregateTable({ data, onClick, limit }: AggregateVisual
   if (primary.interval && can_transform(primary.interval)) {
     rows = rows.sort(
       (e1, e2) =>
-        transform_datepart_value(e1, primary.interval as string)._sort -
-        transform_datepart_value(e2, primary.interval as string)._sort,
+        transform_datepart_value(e1, primary.interval)._sort - transform_datepart_value(e2, primary.interval)._sort,
     );
   }
   const cols = Array.from(colset.values()).sort() as string[];
@@ -39,9 +38,7 @@ export default function AggregateTable({ data, onClick, limit }: AggregateVisual
         <TableRow>
           <TableHead></TableHead>
           {cols.map((c) => {
-            const label = can_transform(secondary.interval)
-              ? transform_datepart_value(c, secondary.interval as string).nl
-              : c;
+            const label = can_transform(secondary.interval) ? transform_datepart_value(c, secondary.interval).nl : c;
             return <TableHead key={c}>{label}</TableHead>;
           })}
         </TableRow>
@@ -51,7 +48,7 @@ export default function AggregateTable({ data, onClick, limit }: AggregateVisual
           let label = r;
           const interval = primary.interval;
           if (can_transform(interval)) {
-            label = transform_datepart_value(r, interval as string).nl || r;
+            label = transform_datepart_value(r, interval).nl || r;
           }
           return (
             <TableRow key={r}>

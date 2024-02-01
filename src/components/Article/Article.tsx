@@ -185,12 +185,15 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
             <Badge
               tooltip={
                 <div className="grid grid-cols-[auto,1fr] items-center gap-x-3">
-                  <b>field</b>
+                  <b>FIELD</b>
                   <span>{field.name}</span>
-                  <b>type</b>
-                  <span className="text-xs">{field.type}</span>
-                  <b>value</b>
-                  <span className="text-xs">{noAccessMessage || article[field.name]}</span>
+                  <b>TYPE</b>
+                  <span className="">
+                    {field.type === field.elastic_type ? field.type : `${field.type} (${field.elastic_type})`}
+                  </span>
+
+                  <b>VALUE</b>
+                  <span className="">{noAccessMessage || article[field.name]}</span>
                 </div>
               }
             >
