@@ -155,10 +155,15 @@ export const amcatAggregationMetricSchema = z.object({
   name: z.string().optional(),
   type: z.string().optional(),
 });
+
 export const amcatAggregateDataSchema = z.object({
   data: z.array(amcatAggregateDataPointSchema),
   meta: z.object({
     axes: z.array(amcatAggregationAxisSchema),
     aggregations: z.array(amcatAggregationMetricSchema),
+    after: z
+      .record(z.any())
+      .nullish()
+      .transform((x) => x ?? undefined),
   }),
 });

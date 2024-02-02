@@ -50,6 +50,8 @@ export default function AggregateResult({
   const { data, isLoading, error } = useAggregate(user, indexName, query, options);
   const [zoom, setZoom] = useState();
 
+  console.log(data);
+
   // <AggregateResult
   //   user={user}
   //   indexName={indexName}
