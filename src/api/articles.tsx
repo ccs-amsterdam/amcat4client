@@ -1,13 +1,13 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { amcatQueryResultSchema } from "@/schemas";
-import { AmcatIndexName, AmcatQuery, AmcatQueryParams, AmcatQueryResult } from "@/interfaces";
+import { AmcatIndexId, AmcatQuery, AmcatQueryParams, AmcatQueryResult } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect } from "react";
 import { postQuery } from "./query";
 
 export function useArticles(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   query: AmcatQuery,
   params?: AmcatQueryParams,
   indexRole?: string,
@@ -48,12 +48,7 @@ export function useArticles(
   });
 }
 
-async function getArticles(
-  user: MiddlecatUser,
-  indexName: AmcatIndexName,
-  query: AmcatQuery,
-  params: AmcatQueryParams,
-) {
+async function getArticles(user: MiddlecatUser, indexName: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
   // TODO, make sure query doesn't run needlessly
   // also check that it doesn't run if field is added but empty
   const res = await postQuery(user, indexName, query, params);

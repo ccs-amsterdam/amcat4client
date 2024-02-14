@@ -2,7 +2,7 @@ import { useFields } from "@/api/fields";
 import { useMyIndexrole } from "@/api/index";
 import ArticleModal from "@/components/Article/ArticleModal";
 import { Loading } from "@/components/ui/loading";
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, SortSpec } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, SortSpec } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useState } from "react";
 import ArticleSnippets from "./ArticleSnippets";
@@ -10,7 +10,7 @@ import { ErrorMsg } from "../ui/error-message";
 
 export interface ArticlesProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   /** Query/filter of which documents to show */
   query: AmcatQuery;
   /** an Array with objects indicating which columns to show and how */

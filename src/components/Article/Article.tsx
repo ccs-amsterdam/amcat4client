@@ -5,7 +5,7 @@ import { useFields } from "@/api/fields";
 import { useMyIndexrole } from "@/api/index";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { Link } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import { highlightElasticTags } from "../Articles/highlightElasticTags";
@@ -13,7 +13,7 @@ import { Badge } from "../ui/badge";
 
 export interface ArticleProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   /** An article id. Can also be an array of length 1 with the article id, which can trigger setOpen if the id didn't change */
   id: string;
   /** A query, used for highlighting */

@@ -19,7 +19,7 @@ import {
 import { AmcatIndex, MenuRoute } from "@/interfaces";
 import { cn } from "@/lib/utils";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { Delete, DeleteIcon, LibraryIcon, User } from "lucide-react";
+import { ChevronDown, LibraryIcon, User, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
@@ -36,57 +36,74 @@ const indexRouting: MenuRoute[] = [
   { label: "Settings", pathname: "settings", reqRole: "ADMIN" },
 ];
 
-export default function IndexMenu({ className }: { className?: string }) {
+export default function IndexMenu() {
+  const router = useRouter();
+  function goToSelectIndex() {
+    router.push("/");
+  }
+  return (
+    <div className="flex h-full items-center">
+      <button
+        onClick={goToSelectIndex}
+        className="flex h-full select-none items-center gap-3 border-primary px-4  text-primary outline-none hover:bg-foreground/10"
+      >
+        <LibraryIcon />
+      </button>
+      <CurrentIndex />
+    </div>
+  );
+}
+
+function CurrentIndex() {
   const path = usePathname();
   const { user, loading } = useMiddlecat();
   const role = useMyGlobalRole(user);
   const params = useParams<{ index: string }>();
   const router = useRouter();
-  const indexName = params?.index;
-  const { data: index } = useIndex(user, indexName);
+  const indexId = decodeURI(params?.index || "");
+  const { data: index } = useIndex(user, indexId);
   const indexRole = index?.user_role || "NONE";
 
   function currentPath() {
-    if (!indexName || !path) return "";
+    if (!indexId || !path) return "";
     const pathParts = path.split("/");
     return pathParts[pathParts.length - 1] || "";
   }
   function onSelectPath(value: string) {
-    if (!indexName) return;
-    router.push(`/index/${indexName}/${value}`);
+    if (!indexId) return;
+    router.push(`/index/${indexId}/${value}`);
   }
 
   if (loading || !user) return null;
+  if (!index) return null;
 
   const isServerAdmin = role === "ADMIN";
-
   return (
-    <div className="flex h-full items-center">
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            "flex h-full select-none items-center gap-3 border-primary  text-primary outline-none hover:bg-foreground/10",
-            className,
-          )}
-        >
-          <LibraryIcon />
-          <div className="hidden gap-3 md:flex">{indexName?.replaceAll("_", " ") || "Index"}</div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
-          <SelectIndex user={user} />
-          {index && (
-            <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
-          )}
-          {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={
+          "flex h-full select-none items-center gap-3 border-primary px-3  text-primary outline-none hover:bg-foreground/10"
+        }
+      >
+        <div className="flex items-center gap-2 text-lg">
+          {currentPath()}
+          <ChevronDown className="h-4 w-4" />
+        </div>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
+        {/* <SelectIndex user={user} /> */}
+        {index && (
+          <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
+        )}
+        {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const role = useMyGlobalRole(user);
-  const { mutate: mutateUser } = useMutateIndexUser(user, index?.name);
+  const { mutate: mutateUser } = useMutateIndexUser(user, index?.id);
 
   if (role !== "ADMIN") return null;
 

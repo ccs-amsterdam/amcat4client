@@ -16,15 +16,15 @@ export function useCurrentUserDetails(user?: MiddlecatUser) {
   });
 }
 
-export function useMyGlobalRole(user: MiddlecatUser | undefined) {
+export function useMyGlobalRole(user?: MiddlecatUser | undefined) {
   const { data: userInfo } = useCurrentUserDetails(user);
   return userInfo?.role;
 }
 
 export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUserRole) {
-  if (!user) return undefined;
   const { data: serverConfig } = useAmcatConfig();
   const actual_role = useMyGlobalRole(user);
+  if (!user) return undefined;
   if (serverConfig?.authorization === "no_auth") return true;
   if (actual_role == null) return undefined;
   const actual_role_index = amcatUserRoles.indexOf(actual_role);

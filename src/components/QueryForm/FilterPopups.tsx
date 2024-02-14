@@ -1,5 +1,5 @@
 import { useFieldValues } from "@/api/fieldValues";
-import { AmcatField, AmcatFilter, AmcatIndexName, DateFilter } from "@/interfaces";
+import { AmcatField, AmcatFilter, AmcatIndexId, DateFilter } from "@/interfaces";
 import { Checkbox } from "@/components/ui/checkbox";
 import DatePicker from "./DatePicker";
 import { MiddlecatUser } from "middlecat-react";
@@ -8,7 +8,7 @@ import { useFieldStats } from "@/api/fieldStats";
 
 interface FilterPopupProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   field: AmcatField | undefined;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;

@@ -1,4 +1,4 @@
-import { AmcatFilter, AmcatIndexName } from "@/interfaces";
+import { AmcatFilter, AmcatIndexId } from "@/interfaces";
 import { filterLabel, FilterPopup } from "./FilterPopups";
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { useState } from "react";
 
 interface FilterPickerProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   fieldName: string;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;

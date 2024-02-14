@@ -2,13 +2,13 @@ import { queriesFromString, queriesToString } from "./libQuery";
 import AddFilterButton from "./AddFilterButton";
 import { Input } from "@/components/ui/input";
 import { ChevronsUpDown, Filter, Loader, Search } from "lucide-react";
-import { AmcatQuery, AmcatIndexName } from "@/interfaces";
+import { AmcatQuery, AmcatIndexId } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Loading } from "../ui/loading";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;

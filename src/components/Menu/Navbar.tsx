@@ -13,8 +13,8 @@ export default function Navbar() {
     <nav className=" border-b-[1px]  border-foreground/30">
       <div className="flex  h-16 items-center justify-between ">
         <div className="flex h-full items-center">
-          <ServerMenu className="pl-4 pr-2 md:pr-4" />
-          <IndexMenu className="px-2 md:px-4" />
+          <ServerMenu />
+          <IndexMenu />
         </div>
         <div className="grid grid-cols-[2.5rem,2.5rem] items-center gap-1">
           <ThemeToggle />

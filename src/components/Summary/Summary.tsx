@@ -1,13 +1,13 @@
 import Articles from "../Articles/Articles";
 import { MiddlecatUser } from "middlecat-react";
-import { AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useFields } from "@/api/fields";
 import { useFieldValues } from "@/api/fieldValues";
 import { useFieldStats } from "@/api/fieldStats";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
 }
 

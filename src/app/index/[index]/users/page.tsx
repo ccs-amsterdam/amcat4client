@@ -16,9 +16,10 @@ interface Props {
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
-  const { data: index, isLoading: loadingIndex, error } = useIndex(user, params.index);
-  const { data: users, isLoading: loadingUsers } = useIndexUsers(user, params.index);
-  const mutate = useMutateIndexUser(user, params.index);
+  const indexId = decodeURI(params.index);
+  const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
+  const { data: users, isLoading: loadingUsers } = useIndexUsers(user, indexId);
+  const mutate = useMutateIndexUser(user, indexId);
 
   if (loading || loadingIndex || loadingUsers) return <Loading />;
 

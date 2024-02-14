@@ -1,4 +1,4 @@
-import { AmcatFilter, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatFilter, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import FilterPicker from "./FilterPicker";
@@ -7,7 +7,7 @@ import SimpleQueryForm from "./SimpleQueryForm";
 
 export interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   setQuery: Dispatch<SetStateAction<AmcatQuery>>;
 }
@@ -61,7 +61,7 @@ export default function QueryForm({ user, indexName, query, setQuery }: Props) {
 
 interface DebouncedQueryFormProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;

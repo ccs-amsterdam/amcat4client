@@ -1,4 +1,4 @@
-import { AmcatQuery, AmcatIndexName, AmcatFilters, AmcatQueryParams, AggregationOptions } from "@/interfaces";
+import { AmcatQuery, AmcatIndexId, AmcatFilters, AmcatQueryParams, AggregationOptions } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 
 export interface PostAmcatQuery {
@@ -6,12 +6,7 @@ export interface PostAmcatQuery {
   queries?: Record<string, string>;
 }
 
-export function postQuery(
-  user: MiddlecatUser,
-  indexName: AmcatIndexName,
-  query?: AmcatQuery,
-  params?: AmcatQueryParams,
-) {
+export function postQuery(user: MiddlecatUser, indexName: AmcatIndexId, query?: AmcatQuery, params?: AmcatQueryParams) {
   const postAmcatQuery = query ? asPostAmcatQuery(query) : undefined;
   return user.api.post(`index/${indexName}/query`, {
     ...postAmcatQuery,
@@ -21,7 +16,7 @@ export function postQuery(
 
 export function postAggregateQuery(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   options: AggregationOptions,
   query?: AmcatQuery,
 ) {

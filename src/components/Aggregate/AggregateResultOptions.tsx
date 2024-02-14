@@ -3,7 +3,7 @@ import {
   AggregationInterval,
   AggregationMetric,
   AmcatQuery,
-  AmcatIndexName,
+  AmcatIndexId,
   AggregationOptions,
   DisplayOption,
   MetricFunction,
@@ -24,7 +24,7 @@ import { MiddlecatUser } from "middlecat-react";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   options: AggregationOptions;
   setOptions: Dispatch<SetStateAction<AggregationOptions>>;
@@ -195,7 +195,7 @@ function DisplayPicker({ options, setOptions }: DisplayPickerProps) {
 
 interface MetricPickerProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   value?: AggregationMetric;
   onChange: (value?: AggregationMetric) => void;
 }
@@ -252,7 +252,7 @@ function MetricPicker({ user, indexName, value, onChange }: MetricPickerProps) {
 
 interface AxisPickerProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   value?: AggregationAxis;
   onChange: (value?: AggregationAxis) => void;

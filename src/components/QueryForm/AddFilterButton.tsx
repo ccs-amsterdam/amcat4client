@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AmcatField, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
 interface AddFilterProps {
   children: React.ReactNode;
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   value: AmcatQuery;
   onSubmit: (value: AmcatQuery) => void;
 }

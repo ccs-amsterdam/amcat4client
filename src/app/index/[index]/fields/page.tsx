@@ -1,14 +1,11 @@
 "use client";
 
 import { useIndex } from "@/api/index";
-import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
 import { ErrorMsg } from "@/components/ui/error-message";
-import UserRoleTable from "@/components/Users/UserRoleTable";
-import CreateUserForm from "@/components/Users/CreateUserForm";
+
 import { useFields, useMutateFields } from "@/api/fields";
-import { AmcatField } from "@/interfaces";
 import FieldTable from "@/components/Fields/FieldTable";
 
 interface Props {
@@ -17,9 +14,10 @@ interface Props {
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
-  const { data: fields, isLoading: loadingFields } = useFields(user, params.index);
-  const { data: index, isLoading: loadingIndex } = useIndex(user, params.index);
-  const { mutate } = useMutateFields(user, params.index);
+  const indexId = decodeURI(params.index);
+  const { data: fields, isLoading: loadingFields } = useFields(user, indexId);
+  const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
+  const { mutate } = useMutateFields(user, indexId);
 
   if (loading || loadingIndex || loadingFields) return <Loading />;
 

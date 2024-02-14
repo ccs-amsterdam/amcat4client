@@ -5,7 +5,7 @@ import {
   AggregationInterval,
   AggregationOptions,
   AmcatFilter,
-  AmcatIndexName,
+  AmcatIndexId,
   AmcatQuery,
   DateFilter,
 } from "@/interfaces";
@@ -22,7 +22,7 @@ import { ErrorMsg } from "../ui/error-message";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   /** The query for the results to show */
   query: AmcatQuery;
   /** Aggregation options (display and axes information) */
@@ -183,7 +183,7 @@ function describe_filter(field: string, filter: AmcatFilter | undefined) {
 
 export function getArticleList(
   user: MiddlecatUser,
-  index: AmcatIndexName,
+  index: AmcatIndexId,
   query: AmcatQuery | undefined,
   onClose: () => void,
 ) {

@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { amcatQueryResultSchema } from "@/schemas";
-import { AmcatIndexName, AmcatQuery, AmcatQueryParams } from "@/interfaces";
+import { AmcatIndexId, AmcatQuery, AmcatQueryParams } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { addFilter } from "@/api/util";
 import { postQuery } from "./query";
 
 export function useArticle(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   articleId: string,
   query?: AmcatQuery,
   params?: AmcatQueryParams,
@@ -22,7 +22,7 @@ export function useArticle(
 
 async function getArticle(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   articleId: string,
   query?: AmcatQuery,
   params?: AmcatQueryParams,

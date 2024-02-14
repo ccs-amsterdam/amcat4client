@@ -1,7 +1,7 @@
 "use client";
 
 import QueryForm from "@/components/QueryForm/QueryForm";
-import { AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AmcatQuery } from "@/interfaces";
 import Articles from "@/components/Articles/Articles";
 import { useMiddlecat } from "middlecat-react";
 
@@ -12,7 +12,6 @@ import { useQueryState, parseAsStringEnum } from "next-usequerystate";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
 import Summary from "@/components/Summary/Summary";
 import { Loading } from "@/components/ui/loading";
-import { amcatIndexNameSchema } from "@/schemas";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { useMyIndexrole } from "@/api";
 
@@ -28,8 +27,8 @@ enum Tab {
 }
 
 export default function Index({ params }: Props) {
+  const indexName = decodeURI(params.index);
   const { user, loading: loadingUser } = useMiddlecat();
-  const indexName = amcatIndexNameSchema.parse(params.index);
   const indexRole = useMyIndexrole(user, indexName);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");

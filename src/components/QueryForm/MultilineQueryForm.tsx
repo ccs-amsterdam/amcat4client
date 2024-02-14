@@ -3,12 +3,12 @@ import { queriesFromString, queriesToString } from "./libQuery";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ChevronUp, Loader, PlusSquareIcon } from "lucide-react";
-import { AmcatQuery, AmcatIndexName } from "@/interfaces";
+import { AmcatQuery, AmcatIndexId } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;

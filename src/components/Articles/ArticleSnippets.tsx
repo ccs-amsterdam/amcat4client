@@ -1,4 +1,4 @@
-import { AmcatArticle, AmcatField, AmcatIndexName, AmcatQuery, AmcatQueryFieldSpec, AmcatUserRole } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatQueryFieldSpec, AmcatUserRole } from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
@@ -11,7 +11,7 @@ import { Button } from "../ui/button";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   indexRole: AmcatUserRole;
   query: AmcatQuery;
   fields: AmcatField[];

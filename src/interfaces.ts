@@ -3,7 +3,6 @@ import { ReactNode } from "react";
 import { z } from "zod";
 import {
   amcatConfigSchema,
-  amcatIndexNameSchema,
   amcatUserRoleSchema,
   amcatIndexSchema,
   amcatIndicesSchema,
@@ -29,7 +28,6 @@ import {
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
-export type AmcatIndexName = z.infer<typeof amcatIndexNameSchema>;
 export type AmcatUserRole = z.infer<typeof amcatUserRoleSchema>;
 export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
 export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
@@ -56,12 +54,8 @@ export type AggregateData = z.infer<typeof amcatAggregateDataSchema>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 
-// NOTE: name was optional before, supposedly because
-// there are cases where you only want to specify that 'a'
-// field of a cetain type should be used. However, we really
-// should then just infer the name before making the AggregationAxis,
-// or Typescript goes nuts.
-// For cases where there is no name (like _query type field) we'll just use ""
+export type AmcatIndexId = string;
+export type AmcatIndexName = string;
 
 //TODO: think about how visual and data options relate, e.g. limit.
 export interface AggregationOptions {

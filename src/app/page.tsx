@@ -2,38 +2,23 @@
 
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
-import useAmcatIndices from "@/api/indices";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
+
+import { useHasGlobalRole } from "@/api/userDetails";
+import { CreateIndex } from "@/components/Index/CreateIndex";
+import { SelectIndex } from "@/components/Index/SelectIndex";
 
 export default function Index() {
-  const router = useRouter();
   const { user, loading } = useMiddlecat();
-  const { data: indices, isLoading: loadingIndices, error } = useAmcatIndices(user);
+  const canCreate = useHasGlobalRole(user, "WRITER");
 
-  function onSelectIndex(indexName: string) {
-    router.push(`/index/${indexName}/dashboard`);
-  }
-
-  if (loading || loadingIndices)
-    return (
-      <div className="mt-[20vh]">
-        <Loading />
-      </div>
-    );
+  if (loading) return <Loading />;
 
   return (
-    <div className="mt-[20vh] flex h-full flex-auto flex-col items-center p-5">
-      <div className="prose-xl animate-fade-in  px-4 text-center dark:prose-invert">
-        <h2 className="">Select an Index</h2>
-        <div className="flex justify-center gap-2 ">
-          {indices?.map((index) => {
-            return (
-              <Button className="min-w-[12rem] text-lg" key={index.name} onClick={() => onSelectIndex(index.name)}>
-                {index.name?.replaceAll("_", " ")}
-              </Button>
-            );
-          })}
+    <div className="flex h-full flex-auto flex-col items-center   p-5">
+      <div className="prose-xl w-full  max-w-7xl animate-fade-in px-4 dark:prose-invert">
+        <div className=" flex h-10 justify-end">{canCreate ? <CreateIndex /> : null}</div>
+        <div className="mt-[10vh]">
+          <SelectIndex />
         </div>
       </div>
     </div>

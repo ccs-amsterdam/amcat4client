@@ -1,7 +1,7 @@
 import AggregateResultOptions from "./AggregateResultOptions";
 import AggregateResult from "./AggregateResult";
 import { useState } from "react";
-import { AggregationOptions, AmcatIndexName, AmcatQuery } from "@/interfaces";
+import { AggregationOptions, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 
 const initialState: AggregationOptions = {
@@ -11,7 +11,7 @@ const initialState: AggregationOptions = {
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexName;
+  indexName: AmcatIndexId;
   query: AmcatQuery;
 }
 

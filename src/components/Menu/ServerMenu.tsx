@@ -5,12 +5,7 @@ import React from "react";
 import { useMiddlecat } from "middlecat-react";
 import { Database } from "lucide-react";
 import { AmcatUserRole } from "@/interfaces";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePathname, useRouter } from "next/navigation";
 import { useMyGlobalRole } from "@/api/userDetails";
 import { cn } from "@/lib/utils";
@@ -22,18 +17,16 @@ interface NavbarRoute {
   reqRole?: AmcatUserRole;
 }
 
-const serverRouting: NavbarRoute[] = [
-  { label: "Select index", pathname: "" },
-  { label: "Manage users", pathname: "users", reqRole: "ADMIN" },
-];
+const serverRouting: NavbarRoute[] = [{ label: "Manage users", pathname: "users", reqRole: "ADMIN" }];
 
-export default function ServerMenu({ className }: { className?: string }) {
+export default function ServerMenu() {
   const path = usePathname();
   const { user, loading, fixedResource: server } = useMiddlecat();
   const role = useMyGlobalRole(user) || "NONE";
   const router = useRouter();
 
   if (loading || !user) return null;
+  if (role !== "ADMIN") return null;
 
   function currentPath() {
     if (!path) return "";
@@ -46,13 +39,11 @@ export default function ServerMenu({ className }: { className?: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={cn(
-          "flex h-full select-none items-center justify-center gap-3 border-primary text-primary outline-none hover:bg-foreground/10",
-          className,
-        )}
+        className={
+          "flex h-full select-none items-center justify-center gap-3 border-primary px-4 text-primary outline-none hover:bg-foreground/10"
+        }
       >
         <Database />
-        <span className="hidden md:inline">Server</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="ml-1 min-w-[200px] border-[1px] border-foreground">
         <MenuRouting routes={serverRouting} current={currentPath()} role={role} onSelect={onSelectPath} />

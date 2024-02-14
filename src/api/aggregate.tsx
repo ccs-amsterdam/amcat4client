@@ -1,4 +1,4 @@
-import { AmcatQuery, AggregationOptions, AmcatIndexName } from "@/interfaces";
+import { AmcatQuery, AggregationOptions, AmcatIndexId } from "@/interfaces";
 import { postAggregateQuery, postQuery } from "./query";
 
 import { MiddlecatUser } from "middlecat-react";
@@ -7,7 +7,7 @@ import { amcatAggregateDataSchema } from "@/schemas";
 
 export function useAggregate(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   query: AmcatQuery,
   options: AggregationOptions,
 ) {
@@ -20,7 +20,7 @@ export function useAggregate(
 
 async function postAggregate(
   user: MiddlecatUser,
-  indexName: AmcatIndexName,
+  indexName: AmcatIndexId,
   query: AmcatQuery,
   options: AggregationOptions,
 ) {
