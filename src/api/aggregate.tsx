@@ -14,7 +14,7 @@ export function useAggregate(
   return useQuery({
     queryKey: ["aggregate", user, indexName, query, options],
     queryFn: () => postAggregate(user, indexName, query, options),
-    enabled: !!user && !!indexName && !!query && !!options,
+    enabled: !!user && !!indexName && !!query && !!options?.axes && options.axes.length > 0,
   });
 }
 

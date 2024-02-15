@@ -50,8 +50,6 @@ export default function AggregateResult({
   const { data, isLoading, error } = useAggregate(user, indexName, query, options);
   const [zoom, setZoom] = useState();
 
-  console.log(data);
-
   // <AggregateResult
   //   user={user}
   //   indexName={indexName}
@@ -60,9 +58,10 @@ export default function AggregateResult({
   //   height={300}
   // />;
   if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
+  if (isLoading) return <Loading msg="Loading aggregation" />;
 
   if (!options) return <span className="text-center italic">Select aggregation options</span>;
-  if (!data || !options || !options.display) return <Loading msg={`Loading aggregation`} />;
+  if (!data || !options || !options.display) return null;
 
   // Handle a click on the aggregate result
   // values should be an array of the same length as the axes and identify the value for each axis
