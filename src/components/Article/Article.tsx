@@ -1,15 +1,15 @@
-import React, { CSSProperties, ReactElement, useMemo } from "react";
+import React, { CSSProperties, ReactElement, useMemo, useState } from "react";
 
 import { useArticle } from "@/api/article";
 import { useFields } from "@/api/fields";
 import { useMyIndexrole } from "@/api/index";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { Link } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import { highlightElasticTags } from "../Articles/highlightElasticTags";
 import { Badge } from "../ui/badge";
+import { Loading } from "../ui/loading";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -24,11 +24,19 @@ export interface ArticleProps {
 
 export default React.memo(Article);
 function Article({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
-  const { data: fields } = useFields(user, indexName);
+  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexName);
   const documentFields = useMemo(() => fields?.filter((f) => f.client_display.in_document), [fields]);
   const indexRole = useMyIndexrole(user, indexName);
-  const { data: article } = useArticle(user, indexName, id, query, { highlight: true }, indexRole);
+  const { data: article, isLoading: articleLoading } = useArticle(
+    user,
+    indexName,
+    id,
+    query,
+    { highlight: true },
+    indexRole,
+  );
 
+  if (fieldsLoading || articleLoading) return <Loading />;
   if (!article || !documentFields) return null;
 
   return (
@@ -71,7 +79,7 @@ const Body = ({ article, fields, metareader }: BodyProps) => {
   if (title)
     texts.push(
       <TextField
-        key={"title"}
+        key={article.id + "_title"}
         article={article}
         field={title}
         layout={fieldLayout}
@@ -80,13 +88,12 @@ const Body = ({ article, fields, metareader }: BodyProps) => {
       />,
     );
 
-  console.log(textFields);
   textFields
     .filter((f) => f.name !== "title")
     .forEach((f, i) => {
       texts.push(
         <TextField
-          key={i}
+          key={article.id + "_" + f.name}
           article={article}
           field={f}
           layout={fieldLayout}
@@ -207,38 +214,6 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
       })}
     </div>
   );
-
-  // return (
-  //   <Table className="mt-0 table-auto">
-  //     <TableBody>
-  //       {link == null ? null : (
-  //         <TableRow key={-1}>
-  //           <TableCell width={1}>
-  //             <b>AmCAT ID</b>
-  //           </TableCell>
-  //           <TableCell>
-  //             <Popover>
-  //               <PopoverTrigger>
-  //                 <a
-  //                   href={link}
-  //                   onClick={(e) => {
-  //                     e.preventDefault();
-  //                     navigator.clipboard.writeText(link);
-  //                     return false;
-  //                   }}
-  //                 >
-  //                   {abbreviate(article._id)}
-  //                 </a>
-  //               </PopoverTrigger>
-  //               <PopoverContent>Link copied to clipboard!</PopoverContent>
-  //             </Popover>
-  //           </TableCell>
-  //         </TableRow>
-  //       )}
-  //       {rows()}
-  //     </TableBody>
-  //   </Table>
-  // );
 };
 
 /**

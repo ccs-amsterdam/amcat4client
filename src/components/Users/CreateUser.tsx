@@ -49,7 +49,6 @@ function CreateUserForm({ ownRole, roles, changeRole }: Props) {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!emails || !role) return;
-    console.log(emails);
 
     const emailList = emails
       .split("\n")
