@@ -9,6 +9,8 @@ import UserRoleTable from "@/components/Users/UserRoleTable";
 import { useMutateUser, useUsers } from "@/api/users";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import CreateUser from "@/components/Users/CreateUser";
+import { Button } from "@/components/ui/button";
+import { UserPlus } from "lucide-react";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -28,14 +30,8 @@ export default function Index() {
   if (!user || !ownRole || !users || !changeRole) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
-    <div className="flex flex-col  justify-center">
-      <div className="flex w-full justify-end">
-        <CreateUser ownRole={ownRole} roles={roles} changeRole={changeRole} />
-      </div>
-      <div className="mt-[5vh] w-full max-w-7xl grid-cols-1">
-        <h3 className="text-lg font-bold leading-10">Users</h3>
-        <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
-      </div>
+    <div className="flex flex-col justify-center gap-4">
+      <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
     </div>
   );
 }

@@ -11,11 +11,11 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuRadioGroup,
 } from "@/components/ui/dropdown-menu";
-import { amcatUserRoleSchema, amcatUserRoles } from "@/schemas";
-import { ChevronDown, Delete, Edit, UserMinus, UserX } from "lucide-react";
+import { amcatUserRoleSchema } from "@/schemas";
+import { ChevronDown, Search, UserMinus, UserPlus } from "lucide-react";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { roleHigherThan } from "@/api/util";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,7 @@ import {
 import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import CreateUser from "./CreateUser";
 
 interface Props {
   user: MiddlecatUser;
@@ -43,6 +44,15 @@ interface Props {
 export default function UserRoleTable({ user, ownRole, users, roles, changeRole }: Props) {
   const [changeOwnRole, setChangeOwnRole] = useState<string | undefined>(undefined);
   const [tableColumns] = useState<ColumnDef<Row>[]>(() => createTableColumns(roles));
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [debouncedGlobalFilter, setDebouncedGlobalFilter] = useState(globalFilter);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setGlobalFilter(debouncedGlobalFilter);
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [debouncedGlobalFilter]);
 
   if (!["ADMIN", "WRITER"].includes(ownRole))
     return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index users</ErrorMsg>;
@@ -71,22 +81,43 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
     }) || [];
 
   return (
-    <>
-      <DataTable columns={tableColumns} data={data} />
-      <AlertDialog open={changeOwnRole !== undefined} onOpenChange={() => setChangeOwnRole(undefined)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>
-          <AlertDialogDescription>
-            You are about to change your own role from {ownRole} to {changeOwnRole}. You will not be able to change this
-            back yourself.
-          </AlertDialogDescription>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Oh god no!</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmChangeOwnRole}>Do it!!</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+    <div className="mt-[5vh] w-full max-w-7xl grid-cols-1">
+      <div className="flex items-center justify-between pb-4">
+        <div className="flex gap-1 md:gap-3">
+          <h2 className="text-xl font-bold  leading-10 sm:text-3xl ">Users</h2>
+          <CreateUser ownRole={ownRole} roles={roles} changeRole={changeRole}>
+            <Button variant="ghost" className="flex gap-2 p-4">
+              <UserPlus />
+              <span className="hidden sm:inline">Add user</span>
+            </Button>
+          </CreateUser>
+        </div>
+        <div className="relative ml-auto flex items-center">
+          <Input
+            className="max-w-1/2 w-40 pl-8"
+            value={debouncedGlobalFilter}
+            onChange={(e) => setDebouncedGlobalFilter(e.target.value)}
+          />
+          <Search className="absolute left-2  h-5 w-5" />
+        </div>
+      </div>
+      <div>
+        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} />
+        <AlertDialog open={changeOwnRole !== undefined} onOpenChange={() => setChangeOwnRole(undefined)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>
+            <AlertDialogDescription>
+              You are about to change your own role from {ownRole} to {changeOwnRole}. You will not be able to change
+              this back yourself.
+            </AlertDialogDescription>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Oh god no!</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmChangeOwnRole}>Do it!!</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </div>
   );
 }
 

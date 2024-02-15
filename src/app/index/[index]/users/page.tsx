@@ -6,7 +6,8 @@ import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
 import { ErrorMsg } from "@/components/ui/error-message";
 import UserRoleTable from "@/components/Users/UserRoleTable";
-import CreateUserForm from "@/components/Users/CreateUser";
+import CreateUser from "@/components/Users/CreateUser";
+import { Button } from "@/components/ui/button";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -32,17 +33,7 @@ export default function Index({ params }: Props) {
 
   return (
     <div className="flex justify-center">
-      <div className="grid w-full max-w-7xl grid-cols-1 gap-5 p-5 md:grid-cols-[1fr,20rem]">
-        <div>
-          <h3 className="text-lg font-bold leading-10">Users</h3>
-          <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold leading-10">Add user</h3>
-
-          <CreateUserForm ownRole={ownRole} roles={roles} changeRole={changeRole} />
-        </div>
-      </div>
+      <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
     </div>
   );
 }

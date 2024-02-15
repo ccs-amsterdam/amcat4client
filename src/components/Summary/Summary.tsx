@@ -4,6 +4,7 @@ import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useFields } from "@/api/fields";
 import { useFieldValues } from "@/api/fieldValues";
 import { useFieldStats } from "@/api/fieldStats";
+import { Button } from "../ui/button";
 
 interface Props {
   user: MiddlecatUser;
@@ -17,9 +18,11 @@ export default function Summary({ user, indexName, query }: Props) {
   //const { data: president } = useFieldValues(user, index, "president");
 
   return (
-    <div className="grid grid-cols-2">
-      <Articles user={user} indexName={indexName} query={query} />
-      <div></div>
+    <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] overflow-auto sm:grid-cols-2">
+      <div className=" max-h-screen snap-center overflow-auto rounded-l border-y border-foreground/30">
+        <Articles user={user} indexName={indexName} query={query} />
+      </div>
+      <div className=" snap-center"></div>
     </div>
   );
 }

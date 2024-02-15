@@ -21,16 +21,15 @@ interface Props {
   ownRole: string;
   roles: string[];
   changeRole: (email: string, role: string, action: "create" | "delete" | "update") => void | Promise<void>;
+  children?: React.ReactNode;
 }
 
-export default function CreateUser({ ownRole, roles, changeRole }: Props) {
+export default function CreateUser({ children, ownRole, roles, changeRole }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="min-w-[12rem] text-lg">
-        <Button variant="outline">Add Users</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Users</DialogTitle>
@@ -41,7 +40,7 @@ export default function CreateUser({ ownRole, roles, changeRole }: Props) {
   );
 }
 
-export function CreateUserForm({ ownRole, roles, changeRole }: Props) {
+function CreateUserForm({ ownRole, roles, changeRole }: Props) {
   const [emails, setEmails] = useState("");
   const [role, setRole] = useState("READER");
 

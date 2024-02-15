@@ -25,16 +25,20 @@ export function SelectIndex() {
   return (
     <div>
       <h2 className="">{indices?.length ? "Select an Index" : "This server does not have any indices you can view"}</h2>
-      <div className="flex gap-2 ">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {indices?.map((index) => {
           return (
             <Button
-              className="flex h-full min-w-[12rem] flex-col items-start text-left text-lg"
+              className="flex h-full w-full flex-col items-start text-left"
               key={index.name}
               onClick={() => onSelectIndex(index.id)}
             >
-              <div className="font-semibold">{index.name}</div>
-              <div className="font-mono text-sm">{index.id}</div>
+              <div className=" w-full overflow-hidden text-ellipsis whitespace-nowrap   text-lg font-semibold">
+                {index.name}
+              </div>
+              <div className=" w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm">
+                {index.id}
+              </div>
             </Button>
           );
         })}
