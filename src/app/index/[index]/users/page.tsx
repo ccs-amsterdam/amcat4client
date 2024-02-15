@@ -6,7 +6,7 @@ import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
 import { ErrorMsg } from "@/components/ui/error-message";
 import UserRoleTable from "@/components/Users/UserRoleTable";
-import CreateUserForm from "@/components/Users/CreateUserForm";
+import CreateUserForm from "@/components/Users/CreateUser";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -24,8 +24,8 @@ export default function Index({ params }: Props) {
   if (loading || loadingIndex || loadingUsers) return <Loading />;
 
   const ownRole = index?.user_role;
-  function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
-    mutate.mutate({ email, role, action });
+  async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
+    mutate.mutateAsync({ email, role, action }).catch(console.error);
   }
 
   if (!user || !ownRole || !users || !changeRole) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;

@@ -38,9 +38,6 @@ export function useMutateUser(user?: MiddlecatUser) {
         toast.success(`User ${variables.email} has role ${variables.role}`);
       }
     },
-    onError: (error: any, variables) => {
-      toast(`Could not ${variables.action} user: `, { description: error?.response?.data?.detail || error.message });
-    },
   });
 }
 

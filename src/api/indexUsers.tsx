@@ -34,9 +34,6 @@ export function useMutateIndexUser(user?: MiddlecatUser, indexId?: AmcatIndexId 
       queryClient.invalidateQueries({ queryKey: ["indexusers", user, indexId] });
       toast.success(`Changed ${variables.email} role to ${variables.role}`);
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.detail || error.message);
-    },
   });
 }
 

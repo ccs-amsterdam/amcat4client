@@ -4,13 +4,15 @@ import { useMiddlecat } from "middlecat-react";
 import { Button } from "@/components/ui/button";
 import { useMutateIndex } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
 
 export function CreateIndex() {
+  const router = useRouter();
   const { user } = useMiddlecat();
-  const { mutate } = useMutateIndex(user);
+  const { mutateAsync } = useMutateIndex(user);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [id, setId] = useState("");
@@ -25,9 +27,11 @@ export function CreateIndex() {
       .replace(/^[_-]+/, "");
   }
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    mutate({ id, name, description, action: "create" });
+    mutateAsync({ id, name, description, action: "create" })
+      .then(() => router.push(`/index/${id}/settings`))
+      .catch(console.error);
   }
 
   return (

@@ -40,7 +40,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="relative flex min-h-screen flex-col scroll-smooth ">
         <ClientProviders>
           <Navbar />
-          <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-12">{children}</div>
+          <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-12">
+            <div className="flex justify-center">
+              <div className="w-full max-w-7xl px-5 py-5 sm:px-10">{children}</div>
+            </div>
+          </div>
           <Toaster />
         </ClientProviders>
       </body>

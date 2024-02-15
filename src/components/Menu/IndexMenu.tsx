@@ -38,6 +38,7 @@ const indexRouting: MenuRoute[] = [
 
 export default function IndexMenu() {
   const router = useRouter();
+
   function goToSelectIndex() {
     router.push("/");
   }
@@ -48,6 +49,7 @@ export default function IndexMenu() {
         className="flex h-full select-none items-center gap-3 border-primary px-4  text-primary outline-none hover:bg-foreground/10"
       >
         <LibraryIcon />
+        <span className="hidden md:inline">Indices</span>
       </button>
       <CurrentIndex />
     </div>

@@ -34,7 +34,7 @@ function defaultErrorToast(e: any) {
   const msg = e?.response?.data?.detail || e?.response?.data?.message || e.message;
   if (msg) {
     const description = typeof msg === "string" ? msg : JSON.stringify(msg, null, 2);
-    toast.error(e.message, { description });
+    toast.error(description);
   } else {
     toast.error(e.message);
   }

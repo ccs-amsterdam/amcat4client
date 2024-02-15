@@ -35,8 +35,8 @@ export default function Index({ params }: Props) {
       <div className="flex justify-end">
         <UpdateIndex index={index} />
       </div>
-      <div className="prose-xl mt-[5vh] w-full max-w-7xl grid-cols-1 gap-5 p-5 ">
-        <h2>{index.name}</h2>
+      <div className="prose-xl mt-[5vh] w-full max-w-7xl grid-cols-1 gap-5">
+        <h2 className="break-all text-[clamp(1.2rem,5vw,2rem)]">{index.name}</h2>
         <p>{index.description}</p>
         <div className="grid grid-cols-[10rem,1fr]">
           <div className="font-bold">Guest role</div>

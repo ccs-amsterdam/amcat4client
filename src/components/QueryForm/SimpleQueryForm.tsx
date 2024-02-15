@@ -35,7 +35,7 @@ export default function SimpleQueryForm({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-1 p-1">
+      <div className="flex flex-nowrap items-center gap-1 p-1">
         <div className="relative  w-auto min-w-[50%] flex-auto">
           <Input
             className="pl-10"

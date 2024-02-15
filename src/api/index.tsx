@@ -62,9 +62,8 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
       if (variables.action === "create") toast.success(`Created index ${variables.id}`);
       if (variables.action === "update") toast.success(`Updated index ${variables.id}`);
       if (variables.action === "delete") toast.success(`Deleted index ${variables.id}`);
-    },
-    onError: (error: any, variables) => {
-      toast(`Could not ${variables.action} user: `, { description: error?.response?.data?.detail || error.message });
+
+      return variables.id;
     },
   });
 }
