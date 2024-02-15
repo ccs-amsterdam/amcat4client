@@ -55,7 +55,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
   const sentinelRef = useRef<HTMLDivElement>(null);
   const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
   const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
-  const { data, isLoading, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
+  const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
   const [showGoToTop, setShowGoToTop] = useState(false);
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
           Go to top
         </Button>
       </div>
-      <div className="grid max-h-full grid-cols-1 gap-2 overflow-auto">
+      <div className={`grid max-h-full grid-cols-1 gap-2 overflow-auto ${isFetching ? "blur-[1px]" : ""}`}>
         {articles.map((row, i: number) => (
           <button
             key={row._id + i}
