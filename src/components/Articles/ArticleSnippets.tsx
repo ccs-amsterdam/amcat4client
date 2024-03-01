@@ -72,8 +72,8 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
   const fetchedPages = data?.pages.length || 1;
 
   useEffect(() => {
-    // makes sure pagenr is within bounds and
-    setPagenr(fetchedPages - 1);
+    // makes sure pagenr is within bounds
+    setPagenr((pagenr) => Math.min(fetchedPages - 1, pagenr));
   }, [fetchedPages]);
 
   function nextPage() {
@@ -82,7 +82,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
     setPagenr(newPagenr);
   }
 
-  if (isLoading) return <Loading msg="Loading articles" />;
+  // if (isLoading) return <Loading msg="Loading articles" />;
 
   return (
     <div>

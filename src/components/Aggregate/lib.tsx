@@ -1,9 +1,4 @@
-import { AggregateData, AggregateDataPoint, AggregationAxis, AggregationInterval } from "@/interfaces";
-
-interface LongData {
-  d: AggregateDataPoint[];
-  columns: string[];
-}
+import { AggregateData, AggregateDataPoint, AggregationAxis, AggregationInterval, ChartData } from "@/interfaces";
 
 function should_add_zeroes(interval: AggregationInterval) {
   return ["year", "quarter", "month", "week", "day"].includes(interval);
@@ -11,12 +6,13 @@ function should_add_zeroes(interval: AggregationInterval) {
 
 // Convert amcat aggregate results ('long' format data plus axes) into data for recharts ('wide' data and series names)
 // Specifically, from [{ row_id, col_id, value }, ...] to [{ row_id, col1: value1, col2: value2, ...}, ...]
-export function createChartData(data: AggregateData, sorted?: boolean): LongData {
+export function createChartData(data: AggregateData, sorted?: boolean): ChartData {
   const fields = data.meta.axes.map((axis) => axis.name);
   const target = data.meta.aggregations.length > 0 ? data.meta.aggregations[0].name || "n" : "n";
   const interval = data.meta.axes[0].interval;
 
   if (fields.length === 1) {
+    //const d = data.data;
     const d = add_zeroes(data.data, fields[0], interval, [target]);
     return { d, columns: [target] };
   } else return longToWide(data.data, data.meta.axes[0], data.meta.axes[1], target);
@@ -31,7 +27,7 @@ function longToWide(
   secondary: AggregationAxis,
   target: string,
   interval?: AggregationInterval,
-): LongData {
+): ChartData {
   // convert results from amcat to wide format
   const t_col = (val: any) =>
     secondary.interval && can_transform(secondary.interval)

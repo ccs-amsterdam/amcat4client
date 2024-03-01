@@ -1,29 +1,7 @@
-// 'Inspired by' https://github.com/saikocat/colorbrewer/blob/master/index.ts
-// But couldn't get it to play ball with typescript
-
-/** Qualitative pallette 'Set1' */
-const set1: { [key: number]: string[] } = {
-  3: ["#e41a1c", "#377eb8", "#4daf4a"],
-  4: ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"],
-  5: ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"],
-  6: ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33"],
-  7: ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628"],
-  8: ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", "#f781bf"],
-  9: [
-    "#e41a1c",
-    "#377eb8",
-    "#4daf4a",
-    "#984ea3",
-    "#ff7f00",
-    "#ffff33",
-    "#a65628",
-    "#f781bf",
-    "#999999",
-  ],
-};
-
 /** Joined all qualitative palettes together */
-const morecolors = [
+const colors = [
+  "hsl(44, 64%, 45%)",
+  "hsl(174, 80%, 30%)",
   "#e41a1c",
   "#377eb8",
   "#4daf4a",
@@ -107,6 +85,5 @@ const morecolors = [
  */
 export function qualitativeColors(n: number): string[] {
   if (n < 3) n = 3; // (I think) all palettes start with 3 colors
-  if (n <= 9) return set1[n];
-  return morecolors.slice(0, n);
+  return colors.slice(0, n);
 }

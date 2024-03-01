@@ -2,7 +2,7 @@ import { AmcatQuery, AggregationOptions, AmcatIndexId } from "@/interfaces";
 import { postAggregateQuery, postQuery } from "./query";
 
 import { MiddlecatUser } from "middlecat-react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { amcatAggregateDataSchema } from "@/schemas";
 
 export function useAggregate(
@@ -11,9 +11,11 @@ export function useAggregate(
   query: AmcatQuery,
   options: AggregationOptions,
 ) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["aggregate", user, indexName, query, options],
-    queryFn: () => postAggregate(user, indexName, query, options),
+    queryFn: ({ pageParam }) => postAggregate(user, indexName, query, options, pageParam),
+    initialPageParam: {},
+    getNextPageParam: (lastPage) => lastPage?.meta?.after,
     enabled: !!user && !!indexName && !!query && !!options?.axes && options.axes.length > 0,
   });
 }
@@ -23,11 +25,8 @@ async function postAggregate(
   indexName: AmcatIndexId,
   query: AmcatQuery,
   options: AggregationOptions,
+  pageParam: Record<string, any>,
 ) {
-  const params: any = {};
-  if (options?.axes) params["axes"] = options.axes;
-  if (options?.metrics) params["aggregations"] = options.metrics;
-
-  const res = await postAggregateQuery(user, indexName, options, query);
+  const res = await postAggregateQuery(user, indexName, { ...options, after: pageParam }, query);
   return amcatAggregateDataSchema.parse(res.data);
 }

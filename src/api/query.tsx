@@ -27,6 +27,7 @@ export function postAggregateQuery(
     postOptions.aggregations = options.metrics.map((m) => {
       return { field: m.field, function: m.function, name: m.name || m.field };
     });
+  if (options.after) postOptions.after = options.after;
 
   return user.api.post(`index/${indexName}/aggregate`, {
     ...postAmcatQuery,

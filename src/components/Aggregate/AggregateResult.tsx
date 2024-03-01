@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 // import Articles from "../Articles/Articles";
 import {
   AggregateData,
@@ -17,6 +17,8 @@ import { useAggregate } from "@/api/aggregate";
 import { Loading } from "@/components/ui/loading";
 import { MiddlecatUser } from "middlecat-react";
 import { ErrorMsg } from "../ui/error-message";
+import { Button } from "../ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 //TODO: This file is becoming too complex - move some business logic to a lib and add unit tests?
 
@@ -47,16 +49,30 @@ export default function AggregateResult({
   height,
   scale,
 }: AggregateResultProps) {
-  const { data, isLoading, error } = useAggregate(user, indexName, query, options);
+  const {
+    data: infiniteData,
+    isLoading,
+    error,
+    hasNextPage,
+    fetchNextPage,
+  } = useAggregate(user, indexName, query, options);
   const [zoom, setZoom] = useState();
 
-  // <AggregateResult
-  //   user={user}
-  //   indexName={indexName}
-  //   query={query}
-  //   options={options as AggregationOptions}
-  //   height={300}
-  // />;
+  const data = useMemo(() => {
+    const meta = infiniteData?.pages[0].meta;
+    if (!meta) return null;
+
+    const data: AggregateData = { meta, data: [] };
+    for (let page of infiniteData?.pages || []) {
+      for (let row of page.data) {
+        const scaledRow = scale == null ? row : { ...row, n: row.n * scale };
+        data.data.push(scaledRow);
+      }
+    }
+    return data;
+  }, [infiniteData, scale]);
+
+  console.log(data);
   if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
   if (isLoading) return <Loading msg="Loading aggregation" />;
 
@@ -81,7 +97,6 @@ export default function AggregateResult({
     });
     setZoom(newQuery);
   };
-  const scaled_data = scale == null ? data : { ...data, data: data.data.map((x) => ({ ...x, n: x.n * scale })) };
 
   // Choose and render result element
   const Element = {
@@ -95,12 +110,37 @@ export default function AggregateResult({
     return <span className="text-orange-500">{`Unknown display option: ${options.display}`}</span>;
   }
   return (
-    <div>
-      {options.title ? (
-        <h3 className="prose mb-3 mt-2 max-w-none text-center text-lg font-bold dark:prose-invert">{options.title}</h3>
-      ) : null}
-      {getArticleList(user, indexName, zoom, () => setZoom(undefined))}
-      <Element data={scaled_data} onClick={handleClick} width={width} height={height} limit={options.limit} />
+    <div className="relative">
+      <div className={`pointer-events-none absolute right-0 top-0 z-50  `}>
+        {options.title ? (
+          <h3 className="mr-[6px] mt-[6px] max-w-none rounded-bl-md  border-foreground bg-background/50 py-1 pl-2 pr-2  font-semibold backdrop-blur-[1px]">
+            {options.title}
+          </h3>
+        ) : null}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="destructive"
+              className={`pointer-events-auto bg-destructive/60 shadow-md shadow-foreground/30 hover:bg-destructive ${
+                hasNextPage ? "block" : "hidden"
+              }`}
+              onClick={() => fetchNextPage()}
+            >
+              Load more
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="w-72 max-w-[50vw] bg-background">
+            <p>
+              This aggregation has a lot of datapoints, so not all data can be requested at once. If you want to see
+              more, click this button.
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <div className="relative z-40">
+        {getArticleList(user, indexName, zoom, () => setZoom(undefined))}
+        <Element data={data} onClick={handleClick} width={width} height={height} limit={options.limit} />
+      </div>
     </div>
   );
 }

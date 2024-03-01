@@ -5,13 +5,10 @@ import { useMiddlecat } from "middlecat-react";
 
 import { ErrorMsg } from "@/components/ui/error-message";
 
-import UserRoleTable from "@/components/Users/UserRoleTable";
-import { useMutateUser, useUsers } from "@/api/users";
-import { useCurrentUserDetails } from "@/api/userDetails";
-import CreateUser from "@/components/Users/CreateUser";
-import { Button } from "@/components/ui/button";
-import { UserPlus } from "lucide-react";
 import { useAmcatConfig } from "@/api/config";
+import { useCurrentUserDetails } from "@/api/userDetails";
+import { useMutateUser, useUsers } from "@/api/users";
+import UserRoleTable from "@/components/Users/UserRoleTable";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -31,8 +28,6 @@ export default function Index() {
 
   if (!user || !ownRole || !users || !config || !changeRole)
     return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
-
-  console.log(config);
 
   return (
     <div className="flex flex-col justify-center gap-4">

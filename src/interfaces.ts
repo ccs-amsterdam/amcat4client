@@ -67,6 +67,13 @@ export interface AggregationOptions {
   limit?: number;
   /* Show a title */
   title?: string;
+  /* Pagination */
+  after?: Record<string, any>;
+}
+
+export interface ChartData {
+  d: AggregateDataPoint[];
+  columns: string[];
 }
 
 export interface DateFilter {

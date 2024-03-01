@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Navbar />
           <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-6">
             <div className="flex justify-center">
-              <div className="w-full max-w-7xl px-5 py-5 sm:px-10">{children}</div>
+              <div className="w-full max-w-[1500px] px-5 py-5 sm:px-10">{children}</div>
             </div>
           </div>
           <Toaster />
