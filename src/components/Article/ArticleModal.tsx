@@ -22,8 +22,7 @@ export default function ArticleModal({ user, indexName, id, query, changeArticle
         setOpen(false);
       }}
     >
-      <DialogContent className="w-[95vw] max-w-6xl">
-        <DialogHeader></DialogHeader>
+      <DialogContent className=" w-[95vw] max-w-6xl">
         <Article user={user} id={id} indexName={indexName} query={query} link={link} />
       </DialogContent>
     </Dialog>

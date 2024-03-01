@@ -10,6 +10,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { highlightElasticTags } from "../Articles/highlightElasticTags";
 import { Badge } from "../ui/badge";
 import { Loading } from "../ui/loading";
+import { Button } from "../ui/button";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -25,7 +26,7 @@ export interface ArticleProps {
 export default React.memo(Article);
 function Article({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexName);
-  const documentFields = useMemo(() => fields?.filter((f) => f.client_display.in_document), [fields]);
+  const documentFields = useMemo(() => fields?.filter((f) => f.client_settings.inDocument), [fields]);
   const indexRole = useMyIndexrole(user, indexName);
   const { data: article, isLoading: articleLoading } = useArticle(
     user,
@@ -42,7 +43,7 @@ function Article({ user, indexName, id, query, changeArticle, link }: ArticlePro
   return (
     <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div>
-        <h2 className=" mt-0 text-primary">Meta data</h2>
+        <h2 className=" mt-0">Meta data</h2>
         <Meta
           article={article}
           fields={documentFields}
@@ -116,16 +117,38 @@ interface TextFieldProps {
 
 function TextField({ article, field, layout, label, metareader }: TextFieldProps) {
   const content: ReactElement[] = [];
+  const [maxLength, setMaxLength] = useState(1200);
 
   const paragraphs = article?.[field.name]?.split("\n") || [];
 
+  let nchars = 0;
+
   for (let paragraph of paragraphs) {
+    const truncated = paragraph.length > maxLength - nchars;
+    if (truncated) paragraph = paragraph.slice(0, maxLength - nchars);
     const text = paragraph.includes("<em>") ? highlightElasticTags(paragraph) : paragraph;
+    nchars += paragraph.length;
+
     content.push(
       <p className="mb-3 mt-0" key={paragraph}>
         {text}
+        {truncated ? <span className="text-primary">...</span> : null}
       </p>,
     );
+
+    if (truncated) {
+      content.push(
+        <Button
+          key="showmore"
+          className="mt-4 w-full rounded-none border-t border-dotted border-primary text-primary"
+          variant="ghost"
+          onClick={() => setMaxLength(Infinity)}
+        >
+          Show full text
+        </Button>,
+      );
+      break;
+    }
   }
 
   function renderContent() {
@@ -173,7 +196,7 @@ interface MetaProps {
 
 const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
   const metaFields = fields.filter(
-    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_display.in_document,
+    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
   );
 
   if (metaFields.length === 0) return null;
@@ -207,7 +230,9 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
               {field.name}
             </Badge>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {noAccessMessage || formatMetaValue(article, field, setArticle) || "EMPTY"}
+              {noAccessMessage || formatMetaValue(article, field, setArticle) || (
+                <span className="text-primary">NA</span>
+              )}
             </span>
           </div>
         );

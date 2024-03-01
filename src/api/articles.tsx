@@ -33,17 +33,12 @@ export function useArticles(
     queryFn: ({ pageParam }) => getArticles(user, indexName, query, { page: pageParam, ...(params || {}) }),
     enabled: !!user && !!indexName && !!query,
     initialPageParam: 0,
-    staleTime: 3000,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
     getNextPageParam: (lastPage) => {
       if (lastPage?.meta?.page == undefined || lastPage?.meta?.page_count == undefined) return undefined;
       if (lastPage.meta.page >= lastPage.meta.page_count) return undefined;
       return lastPage.meta.page + 1;
-    },
-    select: (data) => {
-      const meta = data.pages[0].meta;
-      const results = data.pages.flatMap((page) => page.results);
-      const queryResult: AmcatQueryResult = { meta, results };
-      return queryResult;
     },
   });
 }
@@ -51,6 +46,7 @@ export function useArticles(
 async function getArticles(user: MiddlecatUser, indexName: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
   // TODO, make sure query doesn't run needlessly
   // also check that it doesn't run if field is added but empty
+
   const res = await postQuery(user, indexName, query, params);
   const queryResult: AmcatQueryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult;

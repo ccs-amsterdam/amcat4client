@@ -2,9 +2,9 @@
 
 import useAutoSignin from "@/lib/useAutoSignin";
 import AccountMenu from "./AccountMenu";
-import IndexMenu from "./IndexMenu";
 import ServerMenu from "./ServerMenu";
 import ThemeToggle from "./ThemeToggle";
+import IndexMenu from "./IndexMenu";
 
 export default function Navbar() {
   useAutoSignin();

@@ -30,7 +30,7 @@ export function SelectIndex() {
           return (
             <Button
               className="flex h-full w-full flex-col items-start text-left"
-              key={index.name}
+              key={index.id}
               onClick={() => onSelectIndex(index.id)}
             >
               <div className=" w-full overflow-hidden text-ellipsis whitespace-nowrap   text-lg font-semibold">

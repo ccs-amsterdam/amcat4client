@@ -19,7 +19,7 @@ interface DataTableProps<TData, TValue> {
   globalFilter?: string;
 }
 
-const PAGESIZE = 6;
+const PAGESIZE = 10;
 
 export function DataTable<TData, TValue>({ columns, data, globalFilter }: DataTableProps<TData, TValue>) {
   const table = useReactTable({

@@ -1,4 +1,12 @@
-import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatQueryFieldSpec, AmcatUserRole } from "@/interfaces";
+import {
+  AmcatArticle,
+  AmcatField,
+  AmcatIndexId,
+  AmcatQuery,
+  AmcatQueryFieldSpec,
+  AmcatQueryResult,
+  AmcatUserRole,
+} from "@/interfaces";
 import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +16,7 @@ import { useArticles } from "@/api/articles";
 import { Loading } from "../ui/loading";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { set } from "date-fns";
 
 interface Props {
   user: MiddlecatUser;
@@ -26,7 +35,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
   };
 
   fields.forEach((field) => {
-    if (!field.client_display.in_list) return;
+    if (!field.client_settings.inList) return;
     if (role === "NONE") return;
     if (role === "METAREADER" && field.metareader.access === "none") return;
 
@@ -52,99 +61,107 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
 }
 
 export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
-  const sentinelRef = useRef<HTMLDivElement>(null);
   const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
   const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
+  const [pagenr, setPagenr] = useState(0);
   const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
-  const [showGoToTop, setShowGoToTop] = useState(false);
+
+  const articles = data?.pages[pagenr]?.results || [];
+  const nPages = data?.pages[0]?.meta?.page_count || 0;
+  const totalCount = data?.pages[0]?.meta?.total_count || 0;
+  const fetchedPages = data?.pages.length || 1;
 
   useEffect(() => {
-    // show button if scrolled down at least 500 px
-    const onScroll = () => setShowGoToTop(window.scrollY > 500);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [setShowGoToTop]);
+    // makes sure pagenr is within bounds and
+    setPagenr(fetchedPages - 1);
+  }, [fetchedPages]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchNextPage();
-        }
-      },
-      { rootMargin: "0px 0px 100% 0px" },
-    );
-    if (sentinelRef.current) observer.observe(sentinelRef.current);
-    return () => {
-      if (sentinelRef.current) observer.unobserve(sentinelRef.current);
-    };
-  }, [data, fetchNextPage, sentinelRef]);
-
-  const articles = data?.results || [];
+  function nextPage() {
+    const newPagenr = pagenr + 1;
+    if (newPagenr > fetchedPages - 1) fetchNextPage();
+    setPagenr(newPagenr);
+  }
 
   if (isLoading) return <Loading msg="Loading articles" />;
 
   return (
-    <div className="relative max-w-2xl rounded ">
-      <div className="sticky top-10 flex justify-end pr-5">
-        <Button
-          className={`${
-            showGoToTop ? "opacity-1" : "pointer-events-none opacity-0"
-          } absolute  shadow-sm shadow-foreground/50 transition-all duration-300`}
-          variant="secondary"
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
-        >
-          Go to top
-        </Button>
-      </div>
-      <div className={`grid max-h-full grid-cols-1 gap-2 overflow-auto ${isFetching ? "blur-[1px]" : ""}`}>
-        {articles.map((row, i: number) => (
-          <button
-            key={row._id + i}
-            className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary px-3 text-left shadow-foreground/50  
-                        transition-all dark:prose-invert hover:bg-primary/20 hover:shadow-md  ${
-                          onClick ? "cursor-pointer" : ""
-                        }`}
+    <div>
+      <div className="mb-1 flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-semibold text-foreground">{totalCount} articles</h3>
+        </div>
+        <div className="flex select-none items-center justify-end">
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent"
+            onClick={() => setPagenr(pagenr - 1)}
+            disabled={pagenr <= 0}
           >
-            <div onClick={() => onClick && onClick(row)} className={`m-1 min-h-[5rem] py-1  `}>
-              <div className="flex justify-between">
-                <h4 className="mt-2">
-                  <span title={removeElasticTags(row.title || "")}>{highlightElasticTags(row.title || "")}</span>
-                </h4>
-                {row.url ? (
-                  <Link
-                    href={row.url}
-                    tabIndex={i}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <LinkIcon className=" h-8 w-8 rounded p-1 hover:bg-white" />
-                  </Link>
-                ) : null}
-              </div>
+            <SkipBack />
+          </Button>
+          <div className="grid grid-cols-[1fr,auto,1fr] gap-2">
+            <div className="text-center">{pagenr + 1}</div>
+            <div>of</div>
+            <div>{nPages}</div>
+          </div>
+          <Button
+            variant="ghost"
+            className="hover:bg-transparent"
+            onClick={nextPage}
+            disabled={pagenr > nPages - 2 || isFetching}
+          >
+            <SkipForward />
+          </Button>
+        </div>
+      </div>
+      <div className="relative max-w-2xl rounded ">
+        <div
+          className={`relative grid max-h-full grid-cols-1 gap-2 overflow-auto pr-3 ${isFetching ? "opacity-80" : ""}`}
+        >
+          {articles.map((row, i: number) => (
+            <button
+              key={row._id + i}
+              className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary text-left shadow-foreground/50  
+                        transition-all dark:prose-invert hover:translate-x-1    ${onClick ? "cursor-pointer" : ""}`}
+            >
+              <div onClick={() => onClick && onClick(row)} className={`my-1 min-h-[5rem] py-1  `}>
+                <div className="flex justify-between">
+                  <h4 className="mt-2">
+                    <span title={removeElasticTags(row.title || "")}>{highlightElasticTags(row.title || "")}</span>
+                  </h4>
+                  {row.url ? (
+                    <Link
+                      href={row.url}
+                      tabIndex={i}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <LinkIcon className=" h-8 w-8 rounded p-1 hover:bg-white" />
+                    </Link>
+                  ) : null}
+                </div>
 
-              <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
-              <div className="flex gap-1 pt-2">
-                {listFields
-                  .filter((field) => !["_id", "title", "text", "url"].includes(field.name))
-                  .map(
-                    (field) =>
-                      !!row[field.name] && (
-                        <Badge key={field.name} className="max-w-[15rem]" tooltip={<span>{field.name}</span>}>
-                          {row[field.name]}
-                        </Badge>
-                      ),
-                  )}
+                <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
+                <div className="flex gap-1 pt-2">
+                  {listFields
+                    .filter((field) => !["_id", "title", "text", "url"].includes(field.name))
+                    .map(
+                      (field) =>
+                        !!row[field.name] && (
+                          <Badge key={field.name} className="max-w-[15rem]" tooltip={<span>{field.name}</span>}>
+                            {row[field.name]}
+                          </Badge>
+                        ),
+                    )}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
-        <div ref={sentinelRef} />
+            </button>
+          ))}
+        </div>
+        <div className={`h-full ${isFetching ? "block" : "hidden"}`}></div>
       </div>
     </div>
   );

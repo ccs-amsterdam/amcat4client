@@ -2,9 +2,6 @@ import Articles from "../Articles/Articles";
 import { MiddlecatUser } from "middlecat-react";
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useFields } from "@/api/fields";
-import { useFieldValues } from "@/api/fieldValues";
-import { useFieldStats } from "@/api/fieldStats";
-import { Button } from "../ui/button";
 
 interface Props {
   user: MiddlecatUser;
@@ -13,16 +10,23 @@ interface Props {
 }
 
 export default function Summary({ user, indexName, query }: Props) {
-  //const { data: fields } = useFields(user, indexName);
-  //const { data: date } = useFieldStats(user, index, "date");
-  //const { data: president } = useFieldValues(user, index, "president");
+  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexName);
 
   return (
     <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] overflow-auto sm:grid-cols-2">
-      <div className="h-[700px] snap-center overflow-auto rounded-l border-y border-foreground/30">
+      <div className=" border-foreground/31 snap-center overflow-auto  rounded-l">
         <Articles user={user} indexName={indexName} query={query} />
       </div>
-      <div className=" snap-center "></div>
+      <div className=" snap-center ">
+        {fields?.map((field) => {
+          return (
+            <div key={field.name} className="flex justify-between">
+              <div>{field.name}</div>
+              <div>{field.type}</div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -12,10 +12,9 @@ import {
   amcatArticleSchema,
   amcatQueryResultMetaSchema,
   amcatQueryResultSchema,
-  amcatAnnotationSchema,
   amcatFieldValuesSchema,
   amcatFieldStatsSchema,
-  amcatClientDisplaySchema,
+  amcatClientSettingsSchema,
   amcatMetareaderAccessSchema,
   amcatSnippetSchema,
   amcatFieldElasticTypeSchema,
@@ -39,12 +38,11 @@ export type UpdateAmcatField = Partial<AmcatField>;
 export type AmcatArticle = z.infer<typeof amcatArticleSchema>;
 export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
 export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
-export type AmcatAnnotation = z.infer<typeof amcatAnnotationSchema>;
 export type AmcatFieldValues = z.infer<typeof amcatFieldValuesSchema>;
 export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
 export type AmcatSnippet = z.infer<typeof amcatSnippetSchema>;
 export type AmcatMetareaderAccess = z.infer<typeof amcatMetareaderAccessSchema>;
-export type AmcatClientDisplay = z.infer<typeof amcatClientDisplaySchema>;
+export type AmcatClientSettings = z.infer<typeof amcatClientSettingsSchema>;
 export type AggregationInterval = z.infer<typeof amcatAggregationIntervalSchema>;
 export type MetricFunction = z.infer<typeof amcatMetricFunctionSchema>;
 export type AggregateDataPoint = z.infer<typeof amcatAggregateDataPointSchema>;

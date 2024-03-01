@@ -1,15 +1,16 @@
 "use client";
 
 import { DataTable } from "@/components/ui/datatable";
-import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField } from "@/interfaces";
+import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField, AmcatClientSettings } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import { useCallback } from "react";
 import { Checkbox } from "../ui/checkbox";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
+import VisibilityForm from "./VisibilityForm";
 
 interface Row extends AmcatField {
-  onChange?: ({ name, type, metareader, client_display }: UpdateAmcatField) => void;
+  onChange?: ({ name, type, metareader, client_settings }: UpdateAmcatField) => void;
 }
 
 const tableColumns: ColumnDef<Row>[] = [
@@ -29,46 +30,17 @@ const tableColumns: ColumnDef<Row>[] = [
       );
     },
   },
+
   {
-    header: "Default visibility",
+    header: "Display",
     cell: ({ row }) => {
       const field = row.original;
-      const client_display = field.client_display;
-      const inList = client_display.in_list || false;
-      const inDocument = client_display.in_document || false;
 
-      function onChange(inList: boolean, inDocument: boolean) {
-        const client_display = {
-          in_list: inList,
-          in_document: inDocument,
-        };
-        field.onChange?.({ name: field.name, client_display });
+      function onChange(client_settings: AmcatClientSettings) {
+        field.onChange?.({ name: field.name, client_settings });
       }
 
-      return (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={"toggleInList" + field.name}
-              checked={inList}
-              onCheckedChange={(checked) => onChange(!!checked, inDocument)}
-            />
-            <label htmlFor={"toggleInList" + field.name} className="cursor-pointer">
-              list
-            </label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={"toggleInDocument" + field.name}
-              checked={inDocument}
-              onCheckedChange={(checked) => onChange(inList, !!checked)}
-            />
-            <label htmlFor={"toggleInDocument" + field.name} className="cursor-pointer">
-              document
-            </label>
-          </div>
-        </div>
-      );
+      return <VisibilityForm field={field} client_settings={field.client_settings} onChange={onChange} />;
     },
   },
   {

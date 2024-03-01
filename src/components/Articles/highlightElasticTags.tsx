@@ -15,12 +15,13 @@ export function highlightElasticTags(text: string): ReactElement {
       {String(text)
         .split(regex)
         .reduce((prev: (string | ReactElement)[], tagged: string, i) => {
+          const cleanTagged = tagged.replaceAll("<em>", "").replaceAll("</em>", "");
           if (i % 2 === 0) {
-            prev.push(tagged);
+            prev.push(cleanTagged);
           } else {
             prev.push(
-              <span className="rounded bg-secondary/40 px-[2px]  " key={i + tagged}>
-                {tagged}
+              <span className="rounded bg-secondary px-[3px] text-secondary-foreground  " key={i}>
+                {cleanTagged}
               </span>,
             );
           }

@@ -5,6 +5,28 @@ import { amcatFieldSchema } from "@/schemas";
 import { AmcatField, AmcatFieldElasticType, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
 
+const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
+  date: {
+    inDocument: true,
+    inList: true,
+    inListSummary: true,
+  },
+  text: {
+    inDocument: true,
+    inList: true,
+  },
+  title: {
+    inDocument: true,
+    inList: true,
+  },
+  url: {
+    inDocument: true,
+  },
+  __DEFAULT__: {
+    inDocument: true,
+  },
+};
+
 export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexId | undefined) {
   return useQuery({
     queryKey: ["fields", user, indexName],
@@ -17,7 +39,13 @@ export async function getFields(user?: MiddlecatUser, indexName?: AmcatIndexId) 
   if (!user || !indexName) return undefined;
   const res = await user.api.get(`/index/${indexName}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
-  return z.array(amcatFieldSchema).parse(fieldsArray);
+  const fields = z.array(amcatFieldSchema).parse(fieldsArray);
+  return fields.map((f) => {
+    // set default values
+    const default_settings = DEFAULT_CLIENT_SETTINGS[f.name] || DEFAULT_CLIENT_SETTINGS["__DEFAULT__"];
+    f.client_settings = { ...default_settings, ...f.client_settings };
+    return f;
+  });
 }
 
 export function getField(fields: AmcatField[] | undefined, fieldname: string): AmcatField | undefined {
@@ -66,7 +94,7 @@ export async function mutateFields(
     }
 
     if (f.metareader) fieldsObject[f.name].metareader = f.metareader;
-    if (f.client_display) fieldsObject[f.name].client_display = f.client_display;
+    if (f.client_settings) fieldsObject[f.name].client_settings = f.client_settings;
   });
 
   if (action === "delete") {

@@ -17,7 +17,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex, MenuRoute } from "@/interfaces";
-import { cn } from "@/lib/utils";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, LibraryIcon, User, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
@@ -37,26 +36,6 @@ const indexRouting: MenuRoute[] = [
 ];
 
 export default function IndexMenu() {
-  const router = useRouter();
-
-  function goToSelectIndex() {
-    router.push("/");
-  }
-  return (
-    <div className="flex h-full items-center">
-      <button
-        onClick={goToSelectIndex}
-        className="flex h-full select-none items-center gap-3 border-primary px-4  text-primary outline-none hover:bg-foreground/10"
-      >
-        <LibraryIcon />
-        <span className="hidden md:inline">Indices</span>
-      </button>
-      <CurrentIndex />
-    </div>
-  );
-}
-
-function CurrentIndex() {
   const path = usePathname();
   const { user, loading } = useMiddlecat();
   const role = useMyGlobalRole(user);
@@ -77,7 +56,7 @@ function CurrentIndex() {
   }
 
   if (loading || !user) return null;
-  if (!index) return null;
+  if (!index) return <IndexOverview />;
 
   const isServerAdmin = role === "ADMIN";
   return (
@@ -87,19 +66,44 @@ function CurrentIndex() {
           "flex h-full select-none items-center gap-3 border-primary px-3  text-primary outline-none hover:bg-foreground/10"
         }
       >
-        <div className="flex items-center gap-2 text-lg">
-          {currentPath()}
-          <ChevronDown className="h-4 w-4" />
-        </div>
+        <div className="max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap ">{index.name} </div>
+        <ChevronDown className="h-4 w-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
-        {/* <SelectIndex user={user} /> */}
+        <DropdownMenuLabel className="">Current index</DropdownMenuLabel>
         {index && (
           <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
         )}
+        <DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          {/* <DropdownMenuLabel className="text-primary">Index</DropdownMenuLabel> */}
+          <DropdownMenuSub>
+            <DropdownMenuItem className="flex gap-2" onClick={() => router.push("/")}>
+              <X className="h-4 w-4" />
+              <span className="hidden md:inline">Close index</span>
+            </DropdownMenuItem>
+            <SelectIndex user={user} />
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
         {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+function IndexOverview() {
+  const router = useRouter();
+
+  function goToSelectIndex() {
+    router.push("/");
+  }
+  return (
+    <button
+      onClick={goToSelectIndex}
+      className="flex h-full select-none items-center gap-3 border-primary px-4  text-primary outline-none hover:bg-foreground/10"
+    >
+      <LibraryIcon />
+      <span className="hidden md:inline">Indices</span>
+    </button>
   );
 }
 
@@ -121,7 +125,7 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
     <DropdownMenuGroup>
       <DropdownMenuSeparator />
 
-      <DropdownMenuLabel className="text-primary">ADMIN privilege</DropdownMenuLabel>
+      <DropdownMenuLabel className="text-primary">Server admin actions</DropdownMenuLabel>
 
       <DropdownMenuSub>
         <DropdownMenuSubTrigger className={!index ? "hidden" : "text-primary"}>
@@ -159,9 +163,9 @@ function SelectIndex({ user }: { user: MiddlecatUser }) {
   return (
     <DropdownMenuGroup>
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="text-primary">
+        <DropdownMenuSubTrigger className="">
           <LibraryIcon className="mr-2 h-4 w-4" />
-          <span>Select</span>
+          <span>Select index</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent className="text-primary">
           <Command>

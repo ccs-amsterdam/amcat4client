@@ -69,16 +69,17 @@ export const amcatMetareaderAccessSchema = z.object({
     .nullish()
     .transform((o) => o || { nomatch_chars: 150, max_matches: 0, match_chars: 50 }),
 });
-export const amcatClientDisplaySchema = z.object({
-  in_list: z.boolean(),
-  in_document: z.boolean(),
+export const amcatClientSettingsSchema = z.object({
+  inList: z.boolean().nullish(),
+  inDocument: z.boolean().nullish(),
+  inListSummary: z.boolean().nullish(),
 });
 export const amcatFieldSchema = z.object({
   name: z.string(),
   type: amcatFieldTypeSchema,
   elastic_type: amcatFieldElasticTypeSchema,
   metareader: amcatMetareaderAccessSchema,
-  client_display: amcatClientDisplaySchema,
+  client_settings: amcatClientSettingsSchema,
 });
 
 export const amcatFieldValuesSchema = z.array(z.string());
@@ -95,20 +96,9 @@ export const amcatFieldStatsSchema = z.object({
   avg_as_string: z.string(),
 });
 
-export const amcatAnnotationSchema = z.object({
-  field: z.string(),
-  variable: z.string(),
-  value: z.any(),
-  offset: z.number(),
-  length: z.number(),
-  start: z.number().optional(),
-  color: z.string().optional(),
-});
-
 export const amcatArticleSchema = z.record(z.any()).and(
   z.object({
     _id: z.string(),
-    _annotations: z.array(amcatAnnotationSchema).optional(),
   }),
 );
 
