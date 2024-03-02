@@ -1,4 +1,5 @@
 import { AggregateData, AggregateDataPoint, AggregationAxis, AggregationInterval, ChartData } from "@/interfaces";
+import { qualitativeColors } from "./colors";
 
 function should_add_zeroes(interval: AggregationInterval) {
   return ["year", "quarter", "month", "week", "day"].includes(interval);
@@ -11,15 +12,23 @@ export function createChartData(data: AggregateData, sorted?: boolean): ChartDat
   const target = data.meta.aggregations.length > 0 ? data.meta.aggregations[0].name || "n" : "n";
   const interval = data.meta.axes[0].interval;
 
-  if (fields.length === 1) {
-    //const d = data.data;
-    const d = add_zeroes(data.data, fields[0], interval, [target]);
-    return { d, columns: [target] };
-  } else return longToWide(data.data, data.meta.axes[0], data.meta.axes[1], target);
+  let rows = data.data;
+  let columnNames = [target];
+  if (fields.length > 1) {
+    const wideData = longToWide(data.data, data.meta.axes[0], data.meta.axes[1], target, interval);
+    rows = wideData.rows;
+    columnNames = wideData.columnNames;
+  }
+
+  const { columns, domain } = computeChartDataStatistics(rows, columnNames);
+  rows = add_zeroes(rows, fields[0], interval, columnNames);
+
+  return { rows, columns, domain, axes: data.meta.axes, aggregations: data.meta.aggregations };
 }
 
 /*
- * Useful functions in dealing with aggregate data
+ * If there is a secondary axis, we pivot the data so that the secondary
+ * axis becomes the columns of the table.
  */
 function longToWide(
   data: AggregateDataPoint[],
@@ -27,26 +36,44 @@ function longToWide(
   secondary: AggregationAxis,
   target: string,
   interval?: AggregationInterval,
-): ChartData {
+) {
   // convert results from amcat to wide format
   const t_col = (val: any) =>
     secondary.interval && can_transform(secondary.interval)
       ? transform_datepart_value(val, secondary.interval).nl
       : val;
-  const columns = Array.from(new Set(data.map((row) => t_col(row[secondary.name]))));
-  const dmap = new Map(data.map((p) => [JSON.stringify([p[primary.name], t_col(p[secondary.name])]), p[target]]));
-  let rows = Array.from(new Set(data.map((row) => row[primary.name])));
-  if (interval === "year") rows = daterange(rows, interval);
-  let d = rows.map((row) => {
-    const p = { [primary.name]: row };
-    columns.forEach((col) => {
-      const key = JSON.stringify([row, col]);
-      p[col] = dmap.has(key) ? dmap.get(key) : 0;
+  const columnNames = Array.from(new Set(data.map((row) => String(t_col(row[secondary.name])))));
+  const dmap = new Map(
+    data.map((p) => [JSON.stringify([p[primary.name], t_col(p[secondary.name])]), Number(p[target])]),
+  );
+  let rowNames = Array.from(new Set(data.map((row) => String(row[primary.name]))));
+  if (interval === "year") rowNames = daterange(rowNames, interval);
+  let rows = rowNames.map((rowName) => {
+    const row: Record<string, string | number> = { [primary.name]: rowName };
+    columnNames.forEach((colName) => {
+      const key = JSON.stringify([rowName, colName]);
+      row[colName] = dmap.get(key) ?? 0;
     });
-    return p;
+    return row;
   });
-  d = add_zeroes(d, primary.name, primary.interval, columns);
-  return { d, columns };
+  return { rows, columnNames };
+}
+
+function computeChartDataStatistics(rows: AggregateDataPoint[], columnNames: string[]) {
+  const colors = qualitativeColors(columnNames.length);
+  const firstValue = Number(rows[0][columnNames[0]]);
+  const domain: [number, number] = [firstValue, firstValue];
+  const columns = columnNames.map((name, i) => {
+    let sum = 0;
+    for (const row of rows) {
+      const value = Number(row[name]);
+      sum += value;
+      if (value > domain[1]) domain[1] = value;
+      if (value < domain[0]) domain[0] = value;
+    }
+    return { name, sum, color: colors[i % colors.length] };
+  });
+  return { columns, domain };
 }
 
 function ymd(d: Date): string {
@@ -55,20 +82,19 @@ function ymd(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
-
 function add_zeroes(
   d: AggregateDataPoint[],
   field: string,
   interval: AggregationInterval | undefined,
-  targets: string[],
+  columnNames: string[],
 ): AggregateDataPoint[] {
   if (!interval || !should_add_zeroes(interval)) return d;
   const dmap = new Map(d.map((p) => [ymd(new Date(p[field])), p]));
   const dates = daterange(
-    d.map((p) => p[field]),
+    d.map((p) => String(p[field])),
     interval,
   );
-  const zeroes = Object.fromEntries(targets.map((f) => [f, 0]));
+  const zeroes = Object.fromEntries(columnNames.map((colName) => [colName, 0]));
   const result = dates.map((date) => dmap.get(date) || { [field]: date, ...zeroes });
   return result;
 }

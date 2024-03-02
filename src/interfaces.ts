@@ -58,9 +58,9 @@ export type AmcatIndexName = string;
 //TODO: think about how visual and data options relate, e.g. limit.
 export interface AggregationOptions {
   /* Aggregation axes, i.e. [{field: "publisher"}] */
-  axes?: AggregationAxis[];
+  axes: AggregationAxis[];
   /* Display option, i,e, "linechart" or "barchart" */
-  display?: DisplayOption;
+  display: DisplayOption;
   /* Use a specific metric rather than count -- only allow one metric for now */
   metrics?: AggregationMetric[];
   /* Limit the number of rows/lines/bars */
@@ -72,8 +72,17 @@ export interface AggregationOptions {
 }
 
 export interface ChartData {
-  d: AggregateDataPoint[];
-  columns: string[];
+  rows: AggregateDataPoint[];
+  columns: ChartDataColumn[];
+  domain: [number, number];
+  axes: AggregationAxis[];
+  aggregations: AggregationMetric[];
+}
+
+export interface ChartDataColumn {
+  name: string;
+  color: string;
+  sum: number;
 }
 
 export interface DateFilter {
@@ -119,7 +128,8 @@ export interface AggregateVisualizerProps {
   /***
    * The data to visualize
    */
-  data: AggregateData;
+  data: ChartData;
+
   /**
    * Callback when user clicks on a point,
    * should be an array of values of equal length to the # of axes

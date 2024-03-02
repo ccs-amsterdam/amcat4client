@@ -19,8 +19,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { ErrorMsg } from "../ui/error-message";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-
-//TODO: This file is becoming too complex - move some business logic to a lib and add unit tests?
+import useCreateChartData from "./useCreateChartData";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
@@ -33,22 +32,12 @@ interface AggregateResultProps {
   width?: string | number;
   /* Height of the component */
   height?: string | number;
-  /* Optional scaling factor */
-  scale?: number;
 }
 
 /**
  * Display the results of an aggregate search
  */
-export default function AggregateResult({
-  user,
-  indexName,
-  query,
-  options,
-  width,
-  height,
-  scale,
-}: AggregateResultProps) {
+export default function AggregateResult({ user, indexName, query, options, width, height }: AggregateResultProps) {
   const {
     data: infiniteData,
     isLoading,
@@ -58,26 +47,24 @@ export default function AggregateResult({
   } = useAggregate(user, indexName, query, options);
   const [zoom, setZoom] = useState();
 
-  const data = useMemo(() => {
+  const data: AggregateData | null = useMemo(() => {
+    // combine results form infiniteQuery pages.
+    // We can just use the first meta, because we only use the parts
+    // that are the same across all pages.
     const meta = infiniteData?.pages[0].meta;
     if (!meta) return null;
 
-    const data: AggregateData = { meta, data: [] };
-    for (let page of infiniteData?.pages || []) {
-      for (let row of page.data) {
-        const scaledRow = scale == null ? row : { ...row, n: row.n * scale };
-        data.data.push(scaledRow);
-      }
-    }
-    return data;
-  }, [infiniteData, scale]);
+    const data = infiniteData?.pages.flatMap((page) => page.data);
+    return { meta, data };
+  }, [infiniteData]);
 
-  console.log(data);
+  const [chartData, status] = useCreateChartData(data, true);
+
   if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
   if (isLoading) return <Loading msg="Loading aggregation" />;
 
   if (!options) return <span className="text-center italic">Select aggregation options</span>;
-  if (!data || !options || !options.display) return null;
+  if (!chartData || !options || !options.display) return null;
 
   // Handle a click on the aggregate result
   // values should be an array of the same length as the axes and identify the value for each axis
@@ -97,18 +84,18 @@ export default function AggregateResult({
     });
     setZoom(newQuery);
   };
-
   // Choose and render result element
-  const Element = {
+  const Visualization = {
     list: AggregateList,
     table: AggregateTable,
     barchart: AggregateBarChart,
     linechart: AggregateLineChart,
   }[options.display];
-  if (Element === undefined) {
-    console.error({ Element, data, options });
+  if (Visualization === undefined) {
+    console.error({ Visualization, data, options });
     return <span className="text-orange-500">{`Unknown display option: ${options.display}`}</span>;
   }
+
   return (
     <div className="relative">
       <div className={`pointer-events-none absolute right-0 top-0 z-50  `}>
@@ -139,7 +126,7 @@ export default function AggregateResult({
       </div>
       <div className="relative z-40">
         {getArticleList(user, indexName, zoom, () => setZoom(undefined))}
-        <Element data={data} onClick={handleClick} width={width} height={height} limit={options.limit} />
+        <Visualization data={chartData} onClick={handleClick} width={width} height={height} limit={options.limit} />
       </div>
     </div>
   );

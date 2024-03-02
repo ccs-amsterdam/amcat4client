@@ -135,7 +135,7 @@ export const amcatAggregationIntervalSchema = z.enum([
   "weeknr",
 ]);
 export const amcatMetricFunctionSchema = z.enum(["sum", "avg", "min", "max"]);
-export const amcatAggregateDataPointSchema = z.record(z.any());
+export const amcatAggregateDataPointSchema = z.record(z.union([z.number(), z.string()]));
 export const amcatAggregationAxisSchema = z.object({
   field: z.string(),
   name: z.string(),

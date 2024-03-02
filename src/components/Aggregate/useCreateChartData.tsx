@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 type Status = "loading" | "success" | "error";
 
 export default function useCreateChartData(
-  data: AggregateData,
+  data: AggregateData | null,
   sorted: boolean = false,
 ): [ChartData | undefined, Status] {
   const [chartData, setChartData] = useState<ChartData>();
@@ -20,6 +20,11 @@ export default function useCreateChartData(
   }, []);
 
   useEffect(() => {
+    if (data === null) {
+      setChartData(undefined);
+      setStatus("success");
+      return;
+    }
     if (worker != null && window.Worker !== undefined) {
       setStatus("loading");
       worker.onmessage = (e: MessageEvent<{ status: Status; chartData: ChartData }>) => {

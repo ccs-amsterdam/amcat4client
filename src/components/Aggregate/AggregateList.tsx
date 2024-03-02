@@ -4,13 +4,14 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 
 export default function AggregateList({ data, onClick, limit }: AggregateVisualizerProps) {
   const handleClick = (row: AggregateDataPoint) => {
-    const values = data.meta.axes.map((axis) => row[axis.field]);
+    const values = data.axes.map((axis) => row[axis.field]);
+
     onClick(values);
   };
-  let d: AggregateDataPoint[] = data.data;
+  let d: AggregateDataPoint[] = data.rows;
 
-  if (can_transform(data.meta.axes[0].interval)) {
-    d = d.map((x) => transform_dateparts(x, data.meta.axes[0])).sort((e1, e2) => e1._sort - e2._sort);
+  if (can_transform(data.axes[0].interval)) {
+    d = d.map((x) => transform_dateparts(x, data.axes[0])).sort((e1, e2) => e1._sort - e2._sort);
   }
 
   if (limit && d.length > limit) d = d.slice(0, limit);
@@ -18,18 +19,18 @@ export default function AggregateList({ data, onClick, limit }: AggregateVisuali
     <Table>
       <TableHeader>
         <TableRow>
-          {data.meta.axes.map((axis, i) => (
+          {data.axes.map((axis, i) => (
             <TableHead key={i}>{axis_label(axis)}</TableHead>
           ))}
           <TableHead>N</TableHead>
-          {data.meta.aggregations?.map((metric, i) => <TableHead key={-i}>{metric.name}</TableHead>)}
+          {data.aggregations?.map((metric, i) => <TableHead key={-i}>{metric.name}</TableHead>)}
         </TableRow>
       </TableHeader>
       <TableBody>
         {d.map((row, i) => {
           return (
             <TableRow key={i}>
-              {data.meta.axes.map((axis, j) => {
+              {data.axes.map((axis, j) => {
                 if (!axis.name) return null;
                 return (
                   <TableCell key={j} onClick={() => handleClick(row)}>
@@ -39,7 +40,7 @@ export default function AggregateList({ data, onClick, limit }: AggregateVisuali
               })}
               <TableCell>{row.n}</TableCell>
 
-              {data.meta.aggregations?.map((metric, i: number) => {
+              {data.aggregations?.map((metric, i: number) => {
                 if (!metric.name) return null;
                 return <TableCell key={-i}>{row[metric.name]}</TableCell>;
               })}
