@@ -90,7 +90,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
         <div>
           <h3 className="text-xl font-semibold text-foreground">{totalCount} articles</h3>
         </div>
-        <div className="flex select-none items-center justify-end">
+        <div className={`flex select-none items-center justify-end ${nPages > 1 ? "" : "hidden"}`}>
           <Button
             variant="ghost"
             className="hover:bg-transparent"
@@ -151,8 +151,13 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
                     .map(
                       (field) =>
                         !!row[field.name] && (
-                          <Badge key={field.name} className="max-w-[15rem]" tooltip={<span>{field.name}</span>}>
-                            {row[field.name]}
+                          <Badge
+                            key={field.name}
+                            className="max-w-[15rem]"
+                            tooltip={<span>{field.name}</span>}
+                            variant={String(row[field.name]).includes("<em>") ? "secondary" : "default"}
+                          >
+                            {removeElasticTags(row[field.name])}
                           </Badge>
                         ),
                     )}

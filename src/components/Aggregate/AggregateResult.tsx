@@ -20,6 +20,8 @@ import { ErrorMsg } from "../ui/error-message";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import useCreateChartData from "./useCreateChartData";
+import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import Articles from "../Articles/Articles";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
@@ -125,9 +127,9 @@ export default function AggregateResult({ user, indexName, query, options, width
         </Tooltip>
       </div>
       <div className="relative z-40">
-        {getArticleList(user, indexName, zoom, () => setZoom(undefined))}
         <Visualization data={chartData} onClick={handleClick} width={width} height={height} limit={options.limit} />
       </div>
+      <ArticleListModal user={user} index={indexName} query={zoom} onClose={() => setZoom(undefined)} />
     </div>
   );
 }
@@ -207,22 +209,35 @@ function describe_filter(field: string, filter: AmcatFilter | undefined) {
     .join(" and ");
 }
 
-export function getArticleList(
-  user: MiddlecatUser,
-  index: AmcatIndexId,
-  query: AmcatQuery | undefined,
-  onClose: () => void,
-) {
+function ArticleListModal({
+  user,
+  index,
+  query,
+  onClose,
+}: {
+  user: MiddlecatUser;
+  index: AmcatIndexId;
+  query: AmcatQuery | undefined;
+  onClose: () => void;
+}) {
   if (!query) return null;
   const header = Object.keys(query.filters || {})
     .map((f) => describe_filter(f, query.filters?.[f]))
     .join(" and ");
 
-  return null;
-  // return (
-  //   <Modal open onClose={onClose}>
-  //     <Modal.Header>{`Articles for ${header}`}</Modal.Header>
-  //     <Articles user={user} index={index} query={query} />
-  //   </Modal>
-  // );
+  return (
+    <Dialog
+      open={!!query}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent>
+        <DialogHeader>
+          <h3 className="italic text-primary">{header}</h3>
+        </DialogHeader>
+        <Articles user={user} indexName={index} query={query} />
+      </DialogContent>
+    </Dialog>
+  );
 }

@@ -2,7 +2,6 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { AggregateVisualizerProps } from "@/interfaces";
 import AggregateList from "./AggregateList";
 import { can_transform, transform_datepart_value } from "./lib";
-import { Columns } from "lucide-react";
 
 export default function AggregateTable({ data, onClick, limit }: AggregateVisualizerProps) {
   // A table without columns is the same as a list (not trying to get metaphysical here)
@@ -53,7 +52,11 @@ export default function AggregateTable({ data, onClick, limit }: AggregateVisual
             <TableRow key={row[primary.field]}>
               <TableCell>{row[primary.field]}</TableCell>
               {data.columns.map((column) => {
-                return <TableCell key={column.name}>{row[column.name] || 0}</TableCell>;
+                return (
+                  <TableCell className="hover:bg-primary" key={column.name}>
+                    {row[column.name] || 0}
+                  </TableCell>
+                );
               })}
             </TableRow>
           );

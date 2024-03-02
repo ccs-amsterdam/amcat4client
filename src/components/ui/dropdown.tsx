@@ -22,6 +22,7 @@ interface Props {
   onChange: ({}: { value?: string | undefined; value2?: string }) => void;
   clearable?: boolean;
   label?: string;
+  disabled?: boolean;
 }
 
 export interface Option {
@@ -39,13 +40,16 @@ export interface Option2 {
   [any: string | number]: any;
 }
 
-export function Dropdown({ placeholder, options, value, value2, onChange, clearable, label }: Props) {
+export function Dropdown({ placeholder, options, value, value2, onChange, clearable, label, disabled = false }: Props) {
   const selected = options.find((o) => o.value === value);
   const selected2 = value2 ? selected?.options?.find((o) => o.value === value2) : undefined;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex w-full min-w-[10rem] items-center gap-2 rounded-md bg-background px-2 py-1">
+      <DropdownMenuTrigger
+        disabled={disabled}
+        className="flex w-full min-w-[10rem] items-center gap-2 rounded-md bg-background px-2 py-1"
+      >
         {selected ? (
           <>
             {selected.icon}

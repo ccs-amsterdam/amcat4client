@@ -40,11 +40,11 @@ export default function AggregateResultOptions({ user, indexName, query, options
   }, [options]);
 
   function setAxis(i: number, newval?: AggregationAxis) {
-    const axes = options.axes == null ? [] : [...options.axes];
+    const axes = newOptions.axes == null ? [] : [...newOptions.axes];
     if (newval == null) {
       axes.splice(i, 1);
     } else axes[i] = newval;
-    setNewOptions({ ...options, axes });
+    setNewOptions({ ...newOptions, axes });
   }
   function submit() {
     setOptions(newOptions);
@@ -104,7 +104,7 @@ export default function AggregateResultOptions({ user, indexName, query, options
           </div>
         </div>
 
-        <div className="">
+        <div className={!newOptions.axes[0] ? "opacity-50 " : ""}>
           <div className="label">{labels[1]}</div>
 
           <div className={rowClassName}>
@@ -115,6 +115,7 @@ export default function AggregateResultOptions({ user, indexName, query, options
               value={newOptions.axes?.[1]}
               onChange={(newval) => setAxis(1, newval)}
               clearable
+              disabled={!newOptions.axes[0]}
             />
           </div>
         </div>
@@ -257,8 +258,9 @@ interface AxisPickerProps {
   value?: AggregationAxis;
   onChange: (value?: AggregationAxis) => void;
   clearable?: boolean;
+  disabled?: boolean;
 }
-function AxisPicker({ user, indexName, query, value, onChange, clearable = false }: AxisPickerProps) {
+function AxisPicker({ user, indexName, query, value, onChange, clearable = false, disabled = false }: AxisPickerProps) {
   const { data: fields } = useFields(user, indexName);
 
   const fieldoptions = useMemo(() => {
@@ -303,6 +305,7 @@ function AxisPicker({ user, indexName, query, value, onChange, clearable = false
 
   return (
     <Dropdown
+      disabled={disabled}
       placeholder="Select field"
       options={fieldoptions}
       value={value?.field}

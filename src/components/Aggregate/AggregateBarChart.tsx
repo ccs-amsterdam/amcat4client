@@ -42,6 +42,7 @@ export default function AggregateBarChart({ data, onClick, width, height, limit 
         {data.columns.map((column, i) => (
           <Bar
             key={i}
+            className="cursor-pointer"
             type="monotone"
             dataKey={column.name}
             barSize={12}

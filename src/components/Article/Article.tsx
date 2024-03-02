@@ -126,7 +126,7 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
   for (let paragraph of paragraphs) {
     const truncated = paragraph.length > maxLength - nchars;
     if (truncated) paragraph = paragraph.slice(0, maxLength - nchars);
-    const text = paragraph.includes("<em>") ? highlightElasticTags(paragraph) : paragraph;
+    const text = highlightableValue(paragraph);
     nchars += paragraph.length;
 
     content.push(
@@ -210,6 +210,7 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
           metareader && field.metareader.access !== "read" ? (
             <span className="text-secondary">Not visible for METAREADER</span>
           ) : null;
+
         return (
           <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
             <Badge
@@ -223,7 +224,7 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
                   </span>
 
                   <b>VALUE</b>
-                  <span className="">{noAccessMessage || article[field.name]}</span>
+                  <span className="">{noAccessMessage || formatMetaValue(article, field, setArticle)}</span>
                 </div>
               }
             >
@@ -249,6 +250,7 @@ const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
  */
 export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArticle?: (id: string) => void) => {
   const value = article[field.name];
+
   if (value == null) return null;
   switch (field.type) {
     case "date":
@@ -256,10 +258,11 @@ export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArt
       return value.replace("T", " ").substring(0, 19);
 
     case "keyword":
+      console.log(value);
       if (field.name === "id" && setArticle) return <Link onClick={() => setArticle(value)} />;
       if (field.name === "url") return <a href={value}>{value}</a>;
-      if (Array.isArray(value)) return value.map((v) => <span>{v}</span>);
-      else return value ? <span>{value}</span> : null;
+      if (Array.isArray(value)) return value.map((v) => <span>{highlightableValue(String(v))}</span>);
+      else return value ? <span>{highlightableValue(String(value))}</span> : null;
     case "number":
       return <i>{value}</i>;
     default:
@@ -267,3 +270,7 @@ export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArt
       return JSON.stringify(value);
   }
 };
+
+function highlightableValue(value: string) {
+  return value.includes("<em>") ? highlightElasticTags(value) : value;
+}

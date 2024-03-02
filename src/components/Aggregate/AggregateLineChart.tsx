@@ -53,7 +53,7 @@ export default function AggregateLineChart({ data, onClick, width, height, limit
               type="monotone"
               dataKey={column.name}
               stroke={colors[i]}
-              activeDot={{ onClick: (e, j) => handleClick(i, j) }}
+              activeDot={{ style: { cursor: "pointer" }, onClick: (e, j) => handleClick(i, j) }}
             />
           ))}
         </LineChart>

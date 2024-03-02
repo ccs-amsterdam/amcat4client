@@ -27,7 +27,6 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, Varian
 
 function Badge({ className, variant, tooltip, children, ...props }: BadgeProps) {
   if (!tooltip) return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>
