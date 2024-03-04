@@ -218,7 +218,6 @@ function isodate(date: Date) {
 }
 
 function describe_filter(filter: AmcatFilter | undefined) {
-  console.log(filter);
   if (!filter) return "";
   if (filter.values) return `${filter.values.join(", ")}`;
 

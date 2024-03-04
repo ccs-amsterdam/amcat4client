@@ -26,10 +26,7 @@ export default function AggregateTable({ data, onClick, limit }: AggregateVisual
         transform_datepart_value(e1, primary.interval)._sort - transform_datepart_value(e2, primary.interval)._sort,
     );
   }
-  console.log(colset);
-  const cols = Array.from(colset.values()).sort() as string[];
-  console.log(data);
-  console.log(cols);
+  //const cols = Array.from(colset.values()).sort() as string[];
   return (
     <Table>
       <TableHeader>

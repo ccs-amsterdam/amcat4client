@@ -26,7 +26,6 @@ export default function AggregateLineChart({ data, onClick, width, height, limit
 
   const handleClick = (line: number, point: any) => {
     if (!data.axes[0].name) return;
-    console.log(point.payload);
     // First value is always the payload for primary aggregation axis
     const values: (number | string)[] = [point.payload[data.axes[0].name]];
     if (data.axes.length !== 1) {

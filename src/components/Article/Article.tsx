@@ -258,7 +258,6 @@ export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArt
       return value.replace("T", " ").substring(0, 19);
 
     case "keyword":
-      console.log(value);
       if (field.name === "id" && setArticle) return <Link onClick={() => setArticle(value)} />;
       if (field.name === "url") return <a href={value}>{value}</a>;
       if (Array.isArray(value)) return value.map((v) => <span>{highlightableValue(String(v))}</span>);

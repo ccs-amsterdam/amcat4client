@@ -21,7 +21,6 @@ export function createChartData(data: AggregateData, sorted?: boolean): ChartDat
   }
 
   const { columns, domain } = computeChartDataStatistics(rows, columnNames);
-  console.log(rows);
   rows = add_zeroes(rows, fields[0], interval, columnNames);
 
   return { rows, columns, domain, axes: data.meta.axes, aggregations: data.meta.aggregations };
@@ -123,7 +122,6 @@ function incrementDate(date: Date, interval: AggregationInterval) {
 
 function daterange(values: string[], interval: AggregationInterval): string[] {
   if (interval === "monthnr") {
-    console.log(values);
     return values;
   }
   const result: string[] = [];

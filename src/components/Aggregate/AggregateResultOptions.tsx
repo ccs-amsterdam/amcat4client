@@ -274,9 +274,6 @@ function AxisPicker({
 }: AxisPickerProps) {
   const { data: fields } = useFields(user, indexName);
 
-  // someohow skipfield is ignored
-  console.log(skipField);
-  console.log(fields);
   const fieldoptions = useMemo(() => {
     const fieldoptions = (fields ?? [])
       .filter((f) => ["date", "keyword", "tag"].includes(f.type))
