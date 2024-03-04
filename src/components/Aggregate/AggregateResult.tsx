@@ -22,6 +22,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import useCreateChartData from "./useCreateChartData";
 import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import Articles from "../Articles/Articles";
+import { Toaster } from "../ui/sonner";
+import { toast } from "sonner";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
@@ -76,15 +78,25 @@ export default function AggregateResult({ user, indexName, query, options, width
     // Create a new query to filter articles based on intersection of current and new query
     const newQuery: AmcatQuery = query == null ? {} : JSON.parse(JSON.stringify(query));
     if (!newQuery.filters) newQuery.filters = {};
+    let invalid = false;
     options.axes.forEach((axis, i: number) => {
       if (axis.field === "_query") {
         if (!query.queries) return;
         newQuery.queries = [query.queries[Number(values[i])]];
       } else {
-        if (newQuery.filters)
-          newQuery.filters[axis.field] = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
+        if (!newQuery.filters) return;
+        const filter = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
+        if (filter == undefined) {
+          invalid = true;
+          return;
+        }
+        newQuery.filters[axis.field] = filter;
       }
     });
+    if (invalid) {
+      toast.error("Zooming in on this type of value is not supported");
+      return;
+    }
     setZoom(newQuery);
   };
   // Choose and render result element
@@ -144,12 +156,21 @@ export default function AggregateResult({ user, indexName, query, options, width
  * @param {object} existing the existing filters for this field, e.g. null or lte and/or gte filters
  * @returns the filter object with either a values filter or a (possibly merged) date filter
  */
-function getZoomFilter(value: string | number, interval: AggregationInterval | undefined, existing: AmcatFilter) {
+function getZoomFilter(
+  value: string | number,
+  interval: AggregationInterval | undefined,
+  existing: AmcatFilter,
+): AmcatFilter | undefined {
   // For regular values, we can directly filter
   // Existing filter can also never be stricter than the value
   if (!interval) return { values: [value] };
+
+  // For dates, currently only from/to intervalls supported, not cycles (e.g., day of the week)
+  if (!["day", "week", "month", "quarter", "year"].includes(interval)) return undefined;
+
   // For intervals/dates, we need to compute a start/end date
   // and then combine it with possible existing filters
+
   let start = new Date(value);
   let end = getEndDate(start, interval);
   // I tried a fancy list filter max expression but that just complicates stuff
