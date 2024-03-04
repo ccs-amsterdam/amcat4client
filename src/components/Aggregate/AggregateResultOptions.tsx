@@ -116,6 +116,7 @@ export default function AggregateResultOptions({ user, indexName, query, options
               onChange={(newval) => setAxis(1, newval)}
               clearable
               disabled={!newOptions.axes[0]}
+              skipField={newOptions.axes[0]?.field}
             />
           </div>
         </div>
@@ -259,13 +260,27 @@ interface AxisPickerProps {
   onChange: (value?: AggregationAxis) => void;
   clearable?: boolean;
   disabled?: boolean;
+  skipField?: string;
 }
-function AxisPicker({ user, indexName, query, value, onChange, clearable = false, disabled = false }: AxisPickerProps) {
+function AxisPicker({
+  user,
+  indexName,
+  query,
+  value,
+  onChange,
+  skipField,
+  clearable = false,
+  disabled = false,
+}: AxisPickerProps) {
   const { data: fields } = useFields(user, indexName);
 
+  // someohow skipfield is ignored
+  console.log(skipField);
+  console.log(fields);
   const fieldoptions = useMemo(() => {
     const fieldoptions = (fields ?? [])
       .filter((f) => ["date", "keyword", "tag"].includes(f.type))
+      .filter((f) => f.name !== skipField)
       .map((f) => ({
         text: f.name,
         value: f.name,
@@ -282,7 +297,7 @@ function AxisPicker({ user, indexName, query, value, onChange, clearable = false
       });
     }
     return fieldoptions;
-  }, [fields, query.queries]);
+  }, [fields, skipField, query.queries]);
 
   function setValues(field: string, interval?: AggregationInterval) {
     if (field == null || field === "") {

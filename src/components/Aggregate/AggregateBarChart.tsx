@@ -19,6 +19,7 @@ export default function AggregateBarChart({ data, onClick, width, height, limit 
       // Second value is the column clicked on
       values.push(column);
     }
+
     onClick(values);
   };
 

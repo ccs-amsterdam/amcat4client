@@ -47,7 +47,7 @@ export default function AggregateResult({ user, indexName, query, options, width
     hasNextPage,
     fetchNextPage,
   } = useAggregate(user, indexName, query, options);
-  const [zoom, setZoom] = useState();
+  const [zoom, setZoom] = useState<AmcatQuery>();
 
   const data: AggregateData | null = useMemo(() => {
     // combine results form infiniteQuery pages.
@@ -70,18 +70,19 @@ export default function AggregateResult({ user, indexName, query, options, width
 
   // Handle a click on the aggregate result
   // values should be an array of the same length as the axes and identify the value for each axis
-  const handleClick = (values: any[]) => {
+  const handleClick = (values: (number | string)[]) => {
     if (!options.axes || options.axes.length !== values.length)
       throw new Error(`Axis [${JSON.stringify(options.axes)}] incompatible with values [${values}]`);
     // Create a new query to filter articles based on intersection of current and new query
-    const newQuery = query == null ? {} : JSON.parse(JSON.stringify(query));
+    const newQuery: AmcatQuery = query == null ? {} : JSON.parse(JSON.stringify(query));
     if (!newQuery.filters) newQuery.filters = {};
-    options.axes.forEach((axis, i) => {
+    options.axes.forEach((axis, i: number) => {
       if (axis.field === "_query") {
         if (!query.queries) return;
-        newQuery.queries = [query.queries[values[i]]];
+        newQuery.queries = [query.queries[Number(values[i])]];
       } else {
-        newQuery.filters[axis.field] = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
+        if (newQuery.filters)
+          newQuery.filters[axis.field] = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
       }
     });
     setZoom(newQuery);
@@ -143,7 +144,7 @@ export default function AggregateResult({ user, indexName, query, options, width
  * @param {object} existing the existing filters for this field, e.g. null or lte and/or gte filters
  * @returns the filter object with either a values filter or a (possibly merged) date filter
  */
-function getZoomFilter(value: any, interval: AggregationInterval | undefined, existing: AmcatFilter) {
+function getZoomFilter(value: string | number, interval: AggregationInterval | undefined, existing: AmcatFilter) {
   // For regular values, we can directly filter
   // Existing filter can also never be stricter than the value
   if (!interval) return { values: [value] };
@@ -195,18 +196,17 @@ function isodate(date: Date) {
   return date.toISOString().split("T")[0];
 }
 
-function describe_filter(field: string, filter: AmcatFilter | undefined) {
+function describe_filter(filter: AmcatFilter | undefined) {
+  console.log(filter);
   if (!filter) return "";
-  if (filter.values) return `${field} '${filter.values}'`;
-  const descriptions: { [key: string]: string } = {
-    lte: "≤",
-    lt: "<",
-    gte: "≥",
-    gt: ">",
-  };
-  return (Object.keys(filter) as (keyof DateFilter)[])
-    .map((f) => `${field} ${descriptions[f]} ${filter[f]}`)
-    .join(" and ");
+  if (filter.values) return `${filter.values.join(", ")}`;
+
+  let description = "";
+  if (filter.gte) description = `>= ${filter.gte}`;
+  if (filter.gt) description = `> ${filter.gt}`;
+  if (filter.lte) description += `${description ? " and " : ""} <= ${filter.lte}`;
+  if (filter.lt) description += `${description ? " and " : ""} < ${filter.lt}`;
+  return description;
 }
 
 function ArticleListModal({
@@ -221,9 +221,6 @@ function ArticleListModal({
   onClose: () => void;
 }) {
   if (!query) return null;
-  const header = Object.keys(query.filters || {})
-    .map((f) => describe_filter(f, query.filters?.[f]))
-    .join(" and ");
 
   return (
     <Dialog
@@ -232,9 +229,16 @@ function ArticleListModal({
         if (!open) onClose();
       }}
     >
-      <DialogContent>
-        <DialogHeader>
-          <h3 className="italic text-primary">{header}</h3>
+      <DialogContent className="w-[750px] max-w-[90vw]">
+        <DialogHeader className="border-b border-secondary pb-3">
+          {Object.entries(query.filters || {}).map(([field, filter]) => (
+            <p key={field} className="max-w-[700px]">
+              <span className="mr-2 font-bold">{field}</span>{" "}
+              <span className="round rounded bg-secondary px-1 text-secondary-foreground">
+                {describe_filter(filter)}
+              </span>
+            </p>
+          ))}
         </DialogHeader>
         <Articles user={user} indexName={index} query={query} />
       </DialogContent>

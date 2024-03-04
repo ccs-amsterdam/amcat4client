@@ -62,7 +62,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
 
 export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
   const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
-  const params = useMemo(() => ({ highlight: true, fields: listFields }), [listFields]);
+  const params = useMemo(() => ({ per_page: 6, highlight: true, fields: listFields }), [listFields]);
   const [pagenr, setPagenr] = useState(0);
   const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
 

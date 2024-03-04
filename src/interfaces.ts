@@ -134,7 +134,7 @@ export interface AggregateVisualizerProps {
    * Callback when user clicks on a point,
    * should be an array of values of equal length to the # of axes
    * */
-  onClick: (value: any[]) => void;
+  onClick: (value: (string | number)[]) => void;
   /* Width of the component (default: 100%) */
   width?: string | number;
   /* Height of the component (default: 300) */
