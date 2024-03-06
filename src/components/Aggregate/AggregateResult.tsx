@@ -7,6 +7,7 @@ import {
   AmcatFilter,
   AmcatIndexId,
   AmcatQuery,
+  ChartDataColumn,
   DateFilter,
 } from "@/interfaces";
 import AggregateList from "./AggregateList";
@@ -24,6 +25,8 @@ import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import Articles from "../Articles/Articles";
 import { Toaster } from "../ui/sonner";
 import { toast } from "sonner";
+import { Popover } from "../ui/popover";
+import AggregatePagination, { useAggregatePagination } from "./AggregatePagination";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
@@ -38,6 +41,11 @@ interface AggregateResultProps {
   height?: string | number;
 }
 
+interface Zoom {
+  zoomBy: Record<string, AmcatFilter>;
+  query: AmcatQuery;
+}
+
 /**
  * Display the results of an aggregate search
  */
@@ -49,7 +57,7 @@ export default function AggregateResult({ user, indexName, query, options, width
     hasNextPage,
     fetchNextPage,
   } = useAggregate(user, indexName, query, options);
-  const [zoom, setZoom] = useState<AmcatQuery>();
+  const [zoom, setZoom] = useState<Zoom>();
 
   const data: AggregateData | null = useMemo(() => {
     // combine results form infiniteQuery pages.
@@ -61,28 +69,34 @@ export default function AggregateResult({ user, indexName, query, options, width
     const data = infiniteData?.pages.flatMap((page) => page.data);
     return { meta, data };
   }, [infiniteData]);
-
-  const [chartData, status] = useCreateChartData(data, true);
+  const [chartData] = useCreateChartData(data, true);
+  const { paginatedData, pagination } = useAggregatePagination(chartData);
 
   if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
   if (isLoading) return <Loading msg="Loading aggregation" />;
 
   if (!options) return <span className="text-center italic">Select aggregation options</span>;
-  if (!chartData || !options || !options.display) return null;
+  if (!paginatedData || !options || !options.display) return null;
 
   // Handle a click on the aggregate result
   // values should be an array of the same length as the axes and identify the value for each axis
-  const handleClick = (values: (number | string)[]) => {
+  const createZoom = (values: (number | string)[]) => {
     if (!options.axes || options.axes.length !== values.length)
       throw new Error(`Axis [${JSON.stringify(options.axes)}] incompatible with values [${values}]`);
     // Create a new query to filter articles based on intersection of current and new query
+    const zoomBy: Record<string, AmcatFilter> = {};
     const newQuery: AmcatQuery = query == null ? {} : JSON.parse(JSON.stringify(query));
     if (!newQuery.filters) newQuery.filters = {};
     let invalid = false;
+
     options.axes.forEach((axis, i: number) => {
       if (axis.field === "_query") {
         if (!query.queries) return;
-        newQuery.queries = [query.queries[Number(values[i])]];
+        const q = query.queries.find((q) => (q.label || q.query) === values[i]);
+        if (!q) return;
+        newQuery.queries = [q];
+        zoomBy.Query = { values: [q.label || q.query] };
+        // newQuery.queries = [query.queries[Number(values[i])]];
       } else {
         if (!newQuery.filters) return;
         const filter = getZoomFilter(values[i], axis.interval, newQuery.filters?.[axis.field]);
@@ -91,14 +105,18 @@ export default function AggregateResult({ user, indexName, query, options, width
           return;
         }
         newQuery.filters[axis.field] = filter;
+        zoomBy[axis.field] = filter;
       }
     });
     if (invalid) {
       toast.error("Zooming in on this type of value is not supported");
       return;
     }
-    setZoom(newQuery);
+    setZoom({ zoomBy, query: newQuery });
   };
+
+  //const createZoom = (values: (number | string)[]) => {};
+
   // Choose and render result element
   const Visualization = {
     list: AggregateList,
@@ -112,37 +130,47 @@ export default function AggregateResult({ user, indexName, query, options, width
   }
 
   return (
-    <div className="relative">
-      <div className={`pointer-events-none absolute right-0 top-0 z-50  `}>
-        {options.title ? (
-          <h3 className="mr-[6px] mt-[6px] max-w-none rounded-bl-md  border-foreground bg-background/50 py-1 pl-2 pr-2  font-semibold backdrop-blur-[1px]">
-            {options.title}
-          </h3>
-        ) : null}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="destructive"
-              className={`pointer-events-auto bg-destructive/60 shadow-md shadow-foreground/30 hover:bg-destructive ${
-                hasNextPage ? "block" : "hidden"
-              }`}
-              onClick={() => fetchNextPage()}
-            >
-              Load more
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left" className="w-72 max-w-[50vw] bg-background">
-            <p>
-              This aggregation has a lot of datapoints, so not all data can be requested at once. If you want to see
-              more, click this button.
-            </p>
-          </TooltipContent>
-        </Tooltip>
+    <div>
+      <AggregatePagination data={paginatedData} pagination={pagination} />
+      <div className="relative">
+        <div className={`pointer-events-none absolute right-0 top-0 z-50  `}>
+          {options.title ? (
+            <h3 className="mr-[6px] mt-[6px] max-w-none rounded-bl-md  border-foreground bg-background/50 py-1 pl-2 pr-2  font-semibold backdrop-blur-[1px]">
+              {options.title}
+            </h3>
+          ) : null}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="destructive"
+                className={`pointer-events-auto bg-destructive/60 shadow-md shadow-foreground/30 hover:bg-destructive ${
+                  hasNextPage ? "block" : "hidden"
+                }`}
+                onClick={() => fetchNextPage()}
+              >
+                Load more
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="w-80 max-w-[50vw] bg-background">
+              <h4 className="text-md mb-1 font-bold">Data is currently incomplete!</h4>
+              <p>
+                This aggregation has too many datapoints. The current data shown is only a sample, and can be
+                misleading. You can click the button to request more data, one batch at a time.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+        <div className="relative z-40">
+          <Visualization
+            data={paginatedData}
+            createZoom={createZoom}
+            width={width}
+            height={height}
+            limit={options.limit}
+          />
+        </div>
+        <ArticleListModal user={user} index={indexName} zoom={zoom} onClose={() => setZoom(undefined)} />
       </div>
-      <div className="relative z-40">
-        <Visualization data={chartData} onClick={handleClick} width={width} height={height} limit={options.limit} />
-      </div>
-      <ArticleListModal user={user} index={indexName} query={zoom} onClose={() => setZoom(undefined)} />
     </div>
   );
 }
@@ -232,14 +260,15 @@ function describe_filter(filter: AmcatFilter | undefined) {
 function ArticleListModal({
   user,
   index,
-  query,
+  zoom,
   onClose,
 }: {
   user: MiddlecatUser;
   index: AmcatIndexId;
-  query: AmcatQuery | undefined;
+  zoom?: Zoom;
   onClose: () => void;
 }) {
+  const query = zoom?.query;
   if (!query) return null;
 
   return (
@@ -251,11 +280,11 @@ function ArticleListModal({
     >
       <DialogContent className="w-[750px] max-w-[90vw]">
         <DialogHeader className="border-b border-secondary pb-3">
-          {Object.entries(query.filters || {}).map(([field, filter]) => (
+          {Object.keys(zoom.zoomBy || {}).map((field) => (
             <p key={field} className="max-w-[700px]">
               <span className="mr-2 font-bold">{field}</span>{" "}
               <span className="round rounded bg-secondary px-1 text-secondary-foreground">
-                {describe_filter(filter)}
+                {describe_filter(zoom.zoomBy[field])}
               </span>
             </p>
           ))}

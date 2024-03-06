@@ -3,11 +3,11 @@ import { AggregateVisualizerProps } from "@/interfaces";
 import AggregateList from "./AggregateList";
 import { can_transform, transform_datepart_value } from "./lib";
 
-export default function AggregateTable({ data, onClick, limit }: AggregateVisualizerProps) {
+export default function AggregateTable({ data, createZoom, limit }: AggregateVisualizerProps) {
   // A table without columns is the same as a list (not trying to get metaphysical here)
   const primary = data.axes[0];
   const secondary = data.axes[1];
-  if (!secondary) return AggregateList({ data, onClick, limit });
+  if (!secondary) return AggregateList({ data, createZoom, limit });
 
   let rowset = new Set();
   let colset = new Set();

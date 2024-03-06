@@ -15,7 +15,10 @@ export function useAggregate(
     queryKey: ["aggregate", user, indexName, query, options],
     queryFn: ({ pageParam }) => postAggregate(user, indexName, query, options, pageParam),
     initialPageParam: {},
-    getNextPageParam: (lastPage) => lastPage?.meta?.after,
+    getNextPageParam: (lastPage) => {
+      console.log(lastPage);
+      return lastPage?.meta?.after;
+    },
     enabled: !!user && !!indexName && !!query && !!options?.axes && options.axes.length > 0,
   });
 }

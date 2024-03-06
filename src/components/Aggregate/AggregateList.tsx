@@ -2,11 +2,11 @@ import { AggregateDataPoint, AggregateVisualizerProps } from "@/interfaces";
 import { axis_label, can_transform, transform_dateparts } from "./lib";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export default function AggregateList({ data, onClick, limit }: AggregateVisualizerProps) {
+export default function AggregateList({ data, createZoom, limit }: AggregateVisualizerProps) {
   const handleClick = (row: AggregateDataPoint) => {
     const values = data.axes.map((axis) => row[axis.field]);
 
-    onClick(values);
+    createZoom(values);
   };
   let d: AggregateDataPoint[] = data.rows;
 

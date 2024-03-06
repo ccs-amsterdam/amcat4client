@@ -8,9 +8,13 @@ import { useMemo, useState } from "react";
 import { ArrowBigRight, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 
-export default function AggregateLineChart({ data, onClick, width, height, limit }: AggregateVisualizerProps) {
+interface LineClickArea {}
+
+export default function AggregateLineChart({ data, createZoom, width, height, limit }: AggregateVisualizerProps) {
   const [page, setPage] = useState(0);
   const pageSize = 250;
+  const [line, setLine] = useState<string>("");
+  // const [lineClickArea, setLineClickArea] = useState;
 
   const showData = useMemo(() => {
     if (!data) return null;
@@ -24,16 +28,27 @@ export default function AggregateLineChart({ data, onClick, width, height, limit
 
   const colors = qualitativeColors(data.columns.length);
 
-  const handleClick = (line: number, point: any) => {
+  const handleClick = (x: number) => {
     if (!data.axes[0].name) return;
+
     // First value is always the payload for primary aggregation axis
-    const values: (number | string)[] = [point.payload[data.axes[0].name]];
+    const values: (number | string)[] = [data.rows[x][data.axes[0].name]];
     if (data.axes.length !== 1) {
+      if (!line) return;
       // Second value is the name of the line clicked on
-      values.push(data.columns[line].name);
+      values.push(line);
     }
-    onClick(values);
+
+    createZoom(values);
   };
+
+  // function closestOnYAxis() {
+  //   if (!coordinate?.y || !viewBox?.y || !viewBox.height || !payload) return 0;
+  //   const yValue = (coordinate?.y - viewBox.y) / viewBox.height;
+  //   const bins = 1 / payload.length;
+  //   const itemI Math.min(Math.floor(yValue / bins), payload.length - 1);
+  //   return
+  // }
 
   const hasPagination = showData.length < data.rows.length;
   if (height == null) height = 300;
@@ -41,11 +56,15 @@ export default function AggregateLineChart({ data, onClick, width, height, limit
   return (
     <div>
       <ResponsiveContainer height={height} width={width} className="text-sm">
-        <LineChart data={showData}>
+        <LineChart
+          style={{ cursor: "pointer" }}
+          data={showData}
+          onClick={(e) => handleClick(e.activeTooltipIndex || 0)}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey={data.axes[0].name} />
           <YAxis domain={[0, data.domain[1]]} />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip trigger={"hover"} content={<CustomTooltip value={line} onChangeGroup={setLine} />} />
           {data.columns.length > 1 ? <Legend /> : null}
           {data.columns.map((column, i) => (
             <Line
@@ -53,7 +72,7 @@ export default function AggregateLineChart({ data, onClick, width, height, limit
               type="monotone"
               dataKey={column.name}
               stroke={colors[i]}
-              activeDot={{ style: { cursor: "pointer" }, onClick: (e, j) => handleClick(i, j) }}
+              activeDot={{ style: { cursor: "pointer" } }}
             />
           ))}
         </LineChart>

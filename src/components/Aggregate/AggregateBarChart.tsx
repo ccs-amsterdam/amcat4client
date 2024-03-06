@@ -3,24 +3,27 @@ import { AggregateVisualizerProps } from "@/interfaces";
 import { qualitativeColors } from "./colors";
 import { can_transform, transform_dateparts } from "./lib";
 import { CustomTooltip } from "./CustomTooltip";
+import { useState } from "react";
 
-export default function AggregateBarChart({ data, onClick, width, height, limit }: AggregateVisualizerProps) {
+export default function AggregateBarChart({ data, createZoom, width, height, limit }: AggregateVisualizerProps) {
   if (!data) return null;
+  const [bar, setBar] = useState<string>("");
 
   const colors = qualitativeColors(data.columns.length);
   const primary = data.axes[0].name;
 
   const handleClick = (column: string, j: number) => {
-    if (onClick == null) return;
+    if (createZoom == null) return;
 
     // First value is always the value for primary axis on the clicked "row"
     const values = [data.rows[j][primary]];
     if (data.axes.length !== 1) {
-      // Second value is the column clicked on
+      if (!bar) return;
+      // Second value is the bar clicked on
       values.push(column);
     }
 
-    onClick(values);
+    createZoom(values);
   };
 
   let sorted;
@@ -39,7 +42,7 @@ export default function AggregateBarChart({ data, onClick, width, height, limit 
         <CartesianGrid strokeDasharray="3 3" />
         <YAxis type="category" dataKey={primary} width={250} interval={0} />
         <XAxis type="number" />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip itemSorter={false} cursor={{ opacity: 0.2 }} content={<CustomTooltip value={bar} />} />
         {data.columns.map((column, i) => (
           <Bar
             key={i}
@@ -48,6 +51,7 @@ export default function AggregateBarChart({ data, onClick, width, height, limit 
             dataKey={column.name}
             barSize={12}
             fill={colors[i]}
+            onMouseEnter={() => setBar(column.name)}
             onClick={(e, j) => handleClick(column.name, j)}
           />
         ))}
