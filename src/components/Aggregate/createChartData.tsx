@@ -23,6 +23,22 @@ export function createChartData(data: AggregateData, sorted?: boolean): ChartDat
   const { columns, domain } = computeChartDataStatistics(rows, columnNames);
   rows = add_zeroes(rows, fields[0], interval, columnNames);
 
+  if (data.meta.axes[0].interval) {
+    rows = rows.map((x) => transform_dateparts(x, data.meta.axes[0])).sort((e1, e2) => e1._sort - e2._sort);
+  } else {
+    if (sorted) {
+      rows = rows.sort((e1, e2) => {
+        let sum1 = 0;
+        let sum2 = 0;
+        for (const column of columns) {
+          sum1 += Number(e1[column.name]) || 0;
+          sum2 += Number(e2[column.name]) || 0;
+        }
+        return sum2 - sum1;
+      });
+    }
+  }
+
   return { rows, columns, domain, axes: data.meta.axes, aggregations: data.meta.aggregations };
 }
 
@@ -40,7 +56,7 @@ function longToWide(
   // convert results from amcat to wide format
   const t_col = (val: any) =>
     secondary.interval && can_transform(secondary.interval)
-      ? transform_datepart_value(val, secondary.interval).nl
+      ? transform_datepart_value(val, secondary.interval).label
       : val;
   const columnNames = Array.from(new Set(data.map((row) => String(t_col(row[secondary.name])))));
   const dmap = new Map(
@@ -89,15 +105,29 @@ function add_zeroes(
   columnNames: string[],
 ): AggregateDataPoint[] {
   // TODO: add zeroes for cycle dates (e.g., month number)
-  if (!interval || !should_add_zeroes(interval)) return d;
-  const dmap = new Map(d.map((p) => [ymd(new Date(p[field])), p]));
-  const dates = daterange(
-    d.map((p) => String(p[field])),
-    interval,
-  );
+  if (!interval) return d;
+
   const zeroes = Object.fromEntries(columnNames.map((colName) => [colName, 0]));
-  const result = dates.map((date) => dmap.get(date) || { [field]: date, ...zeroes });
-  return result;
+
+  if (["year", "quarter", "month", "week", "day"].includes(interval)) {
+    const domainMap = new Map(d.map((p) => [ymd(new Date(p[field])), p]));
+    const domain = daterange(
+      d.map((p) => String(p[field])),
+      interval,
+    );
+    return domain.map((x) => domainMap.get(x) || { [field]: x, ...zeroes });
+  }
+
+  function byDomain(d: AggregateDataPoint[], domain: string[]) {
+    const domainMap = new Map(d.map((p) => [String(p[field]), p]));
+    return domain.map((x) => domainMap.get(x) || { [field]: x, ...zeroes });
+  }
+
+  if (interval === "monthnr") return byDomain(d, [...MONTHS.keys()]);
+  if (interval === "dayofweek") return byDomain(d, [...DATEPARTS_DOW.keys()]);
+  if (interval === "daypart") return byDomain(d, [...DATEPARTS_DAYPART.keys()]);
+
+  return d;
 }
 
 function incrementDate(date: Date, interval: AggregationInterval) {
@@ -136,57 +166,58 @@ function daterange(values: string[], interval: AggregationInterval): string[] {
   return result;
 }
 
-export const DATEPARTS_DOW = new Map([
-  ["Monday", { nl: "Maandag", _sort: 1 }],
-  ["Tuesday", { nl: "Dinsdag", _sort: 2 }],
-  ["Wednesday", { nl: "Woensdag", _sort: 3 }],
-  ["Thursday", { nl: "Donderdag", _sort: 4 }],
-  ["Friday", { nl: "Vrijdag", _sort: 5 }],
-  ["Saturday", { nl: "Zaterdag", _sort: 6 }],
-  ["Sunday", { nl: "Zondag", _sort: 7 }],
+const DATEPARTS_DOW = new Map([
+  ["Monday", { label: "Monday", _sort: 1 }],
+  ["Tuesday", { label: "Tuesday", _sort: 2 }],
+  ["Wednesday", { label: "Wednesday", _sort: 3 }],
+  ["Thursday", { label: "Thursday", _sort: 4 }],
+  ["Friday", { label: "Friday", _sort: 5 }],
+  ["Saturday", { label: "Saturday", _sort: 6 }],
+  ["Sunday", { label: "Sunday", _sort: 7 }],
 ]);
 
 const DATEPARTS_DAYPART = new Map([
-  ["Morning", { nl: "Ochtend", _sort: 1 }],
-  ["Afternoon", { nl: "Middag", _sort: 2 }],
-  ["Evening", { nl: "Avond", _sort: 3 }],
-  ["Night", { nl: "Nacht", _sort: 4 }],
+  ["Morning", { label: "Morning", _sort: 1 }],
+  ["Afternoon", { label: "Afternoon", _sort: 2 }],
+  ["Evening", { label: "Evening", _sort: 3 }],
+  ["Night", { label: "Night", _sort: 4 }],
 ]);
 
-const MONTHS = [
-  { nl: "Januari", _sort: 1 },
-  { nl: "Februari", _sort: 2 },
-  { nl: "Maart", _sort: 3 },
-  { nl: "April", _sort: 4 },
-  { nl: "Mei", _sort: 5 },
-  { nl: "Juni", _sort: 6 },
-  { nl: "Juli", _sort: 7 },
-  { nl: "Augustus", _sort: 8 },
-  { nl: "September", _sort: 9 },
-  { nl: "Oktober", _sort: 10 },
-  { nl: "November", _sort: 11 },
-  { nl: "December", _sort: 12 },
-];
+const MONTHS = new Map([
+  ["1", { label: "January", _sort: 1 }],
+  ["2", { label: "February", _sort: 2 }],
+  ["3", { label: "March", _sort: 3 }],
+  ["4", { label: "April", _sort: 4 }],
+  ["5", { label: "May", _sort: 5 }],
+  ["6", { label: "June", _sort: 6 }],
+  ["7", { label: "July", _sort: 7 }],
+  ["8", { label: "August", _sort: 8 }],
+  ["9", { label: "September", _sort: 9 }],
+  ["10", { label: "October", _sort: 10 }],
+  ["11", { label: "November", _sort: 11 }],
+  ["12", { label: "December", _sort: 12 }],
+]);
 
-export function transform_datepart_value(value: any, interval: AggregationInterval | undefined) {
+function transform_datepart_value(value: string | number, interval: AggregationInterval | undefined) {
+  const def = { label: String(value), _sort: 0 }; // sort 0 uses order returned by AmCAT
   switch (interval) {
     case "dayofweek":
-      return DATEPARTS_DOW.get(value);
+      return DATEPARTS_DOW.get(String(value)) || def;
     case "daypart":
-      return DATEPARTS_DAYPART.get(value);
+      return DATEPARTS_DAYPART.get(String(value)) || def;
     case "monthnr":
-      return MONTHS[value - 1];
+      return MONTHS.get(String(value)) || def;
     default:
-      return value;
+      return def;
   }
 }
 
-export function transform_dateparts(x: AggregateDataPoint, axis: AggregationAxis) {
+function transform_dateparts(x: AggregateDataPoint, axis: AggregationAxis) {
   const dp = transform_datepart_value(x[axis.name], axis.interval);
-  return dp ? { ...x, [axis.name]: dp.nl, _sort: dp._sort } : x;
+  return { ...x, [axis.name]: dp.label, _sort: dp._sort };
 }
 
-export function can_transform(interval: string | undefined): boolean {
+function can_transform(interval: string | undefined): boolean {
   if (!interval) return false;
   return ["dayofweek", "daypart", "monthnr"].includes(interval);
 }
@@ -196,7 +227,7 @@ export function axis_label(axis: AggregationAxis): string {
   return axis.name;
 }
 
-export const INTERVAL_LABELS = new Map([
+const INTERVAL_LABELS = new Map([
   ["day", "Day"],
   ["week", "Week"],
   ["month", "Month"],

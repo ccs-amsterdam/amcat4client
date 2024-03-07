@@ -39,6 +39,10 @@ interface AggregateResultProps {
   width?: string | number;
   /* Height of the component */
   height?: string | number;
+  /* Starting page size */
+  defaultPageSize?: number;
+  /* Starting max nr of columns */
+  defaultNColumns?: number;
 }
 
 interface Zoom {
@@ -49,7 +53,16 @@ interface Zoom {
 /**
  * Display the results of an aggregate search
  */
-export default function AggregateResult({ user, indexName, query, options, width, height }: AggregateResultProps) {
+export default function AggregateResult({
+  user,
+  indexName,
+  query,
+  options,
+  width,
+  height,
+  defaultPageSize,
+  defaultNColumns,
+}: AggregateResultProps) {
   const {
     data: infiniteData,
     isLoading,
@@ -70,7 +83,7 @@ export default function AggregateResult({ user, indexName, query, options, width
     return { meta, data };
   }, [infiniteData]);
   const [chartData] = useCreateChartData(data, true);
-  const { paginatedData, pagination } = useAggregatePagination(chartData);
+  const { paginatedData, pagination } = useAggregatePagination(chartData, defaultPageSize, defaultNColumns);
 
   if (error) return <ErrorMsg>Could not aggregate data</ErrorMsg>;
   if (isLoading) return <Loading msg="Loading aggregation" />;
@@ -115,9 +128,7 @@ export default function AggregateResult({ user, indexName, query, options, width
     setZoom({ zoomBy, query: newQuery });
   };
 
-  //const createZoom = (values: (number | string)[]) => {};
-
-  // Choose and render result element
+  //const createZoom = (values: (number | string)[])   // Choose and render result element
   const Visualization = {
     list: AggregateList,
     table: AggregateTable,

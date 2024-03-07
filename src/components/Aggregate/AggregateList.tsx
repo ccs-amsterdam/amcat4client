@@ -1,6 +1,6 @@
 import { AggregateDataPoint, AggregateVisualizerProps } from "@/interfaces";
-import { axis_label, can_transform, transform_dateparts } from "./lib";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { axis_label } from "./createChartData";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function AggregateList({ data, createZoom, limit }: AggregateVisualizerProps) {
   const handleClick = (row: AggregateDataPoint) => {
@@ -9,10 +9,6 @@ export default function AggregateList({ data, createZoom, limit }: AggregateVisu
     createZoom(values);
   };
   let d: AggregateDataPoint[] = data.rows;
-
-  if (can_transform(data.axes[0].interval)) {
-    d = d.map((x) => transform_dateparts(x, data.axes[0])).sort((e1, e2) => e1._sort - e2._sort);
-  }
 
   if (limit && d.length > limit) d = d.slice(0, limit);
   return (

@@ -1,7 +1,6 @@
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AggregateVisualizerProps } from "@/interfaces";
 import AggregateList from "./AggregateList";
-import { can_transform, transform_datepart_value } from "./lib";
 
 export default function AggregateTable({ data, createZoom, limit }: AggregateVisualizerProps) {
   // A table without columns is the same as a list (not trying to get metaphysical here)
@@ -20,12 +19,7 @@ export default function AggregateTable({ data, createZoom, limit }: AggregateVis
     d[rowName] = { ...d[rowName], [colName]: Number(row["n"]) };
   });
   let rows = Array.from(rowset.values()).sort() as string[];
-  if (primary.interval && can_transform(primary.interval)) {
-    rows = rows.sort(
-      (e1, e2) =>
-        transform_datepart_value(e1, primary.interval)._sort - transform_datepart_value(e2, primary.interval)._sort,
-    );
-  }
+
   //const cols = Array.from(colset.values()).sort() as string[];
   return (
     <Table>

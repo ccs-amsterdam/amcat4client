@@ -65,13 +65,3 @@ export const CustomTooltip = ({
     );
   }
 };
-
-function closestOnYAxis(coordinate: number, items: number) {
-  const y = viewBox.y;
-  const height = viewBox.height;
-  const y0 = y;
-  const y1 = y + height;
-  const yValue = coordinate;
-  const closest = y0 + height - yValue;
-  return closest;
-}

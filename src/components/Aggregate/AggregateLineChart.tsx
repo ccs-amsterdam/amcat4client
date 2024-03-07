@@ -1,11 +1,10 @@
-import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line, Legend, ResponsiveContainer } from "recharts";
 import { AggregateVisualizerProps } from "@/interfaces";
+import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { CustomTooltip } from "./CustomTooltip";
-import useCreateChartData from "./useCreateChartData";
 import { qualitativeColors } from "./colors";
-import { Loading } from "../ui/loading";
+
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useMemo, useState } from "react";
-import { ArrowBigRight, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface LineClickArea {}
