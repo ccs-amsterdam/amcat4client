@@ -5,16 +5,16 @@ import { useFields } from "@/api/fields";
 import { useMyIndexrole } from "@/api/index";
 
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { Link } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
-import { highlightElasticTags } from "../Articles/highlightElasticTags";
-import { Badge } from "../ui/badge";
-import { Loading } from "../ui/loading";
 import { Button } from "../ui/button";
+import { Loading } from "../ui/loading";
+
+import { highlightElasticTags } from "@/lib/highlightElasticTags";
+import Meta from "./Meta";
 
 export interface ArticleProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   /** An article id. Can also be an array of length 1 with the article id, which can trigger setOpen if the id didn't change */
   id: string;
   /** A query, used for highlighting */
@@ -24,13 +24,13 @@ export interface ArticleProps {
 }
 
 export default React.memo(Article);
-function Article({ user, indexName, id, query, changeArticle, link }: ArticleProps) {
-  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexName);
+function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps) {
+  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const documentFields = useMemo(() => fields?.filter((f) => f.client_settings.inDocument), [fields]);
-  const indexRole = useMyIndexrole(user, indexName);
+  const indexRole = useMyIndexrole(user, indexId);
   const { data: article, isLoading: articleLoading } = useArticle(
     user,
-    indexName,
+    indexId,
     id,
     query,
     { highlight: true },
@@ -186,89 +186,6 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
     </div>
   );
 }
-
-interface MetaProps {
-  article: AmcatArticle;
-  fields: AmcatField[];
-  setArticle?: (id: string) => void;
-  metareader?: boolean;
-}
-
-const Meta = ({ article, fields, setArticle, metareader }: MetaProps) => {
-  const metaFields = fields.filter(
-    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
-  );
-
-  if (metaFields.length === 0) return null;
-
-  return (
-    <div className="flex flex-col gap-2">
-      {fields.map((field) => {
-        if (field.type === "text") return null;
-
-        const noAccessMessage =
-          metareader && field.metareader.access !== "read" ? (
-            <span className="text-secondary">Not visible for METAREADER</span>
-          ) : null;
-
-        return (
-          <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
-            <Badge
-              tooltip={
-                <div className="grid grid-cols-[auto,1fr] items-center gap-x-3">
-                  <b>FIELD</b>
-                  <span>{field.name}</span>
-                  <b>TYPE</b>
-                  <span className="">
-                    {field.type === field.elastic_type ? field.type : `${field.type} (${field.elastic_type})`}
-                  </span>
-
-                  <b>VALUE</b>
-                  <span className="">{noAccessMessage || formatMetaValue(article, field, setArticle)}</span>
-                </div>
-              }
-            >
-              {field.name}
-            </Badge>
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {noAccessMessage || formatMetaValue(article, field, setArticle) || (
-                <span className="text-primary">NA</span>
-              )}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-/**
- * Format a meta field for presentation
- * @param {*} article
- * @param {*} field
- * @returns
- */
-export const formatMetaValue = (article: AmcatArticle, field: AmcatField, setArticle?: (id: string) => void) => {
-  const value = article[field.name];
-
-  if (value == null) return null;
-  switch (field.type) {
-    case "date":
-      // Only remove 'T' for now. But not sure why that's a great idea
-      return value.replace("T", " ").substring(0, 19);
-
-    case "keyword":
-      if (field.name === "id" && setArticle) return <Link onClick={() => setArticle(value)} />;
-      if (field.name === "url") return <a href={value}>{value}</a>;
-      if (Array.isArray(value)) return value.map((v) => <span>{highlightableValue(String(v))}</span>);
-      else return value ? <span>{highlightableValue(String(value))}</span> : null;
-    case "number":
-      return <i>{value}</i>;
-    default:
-      if (typeof value === "string") return value;
-      return JSON.stringify(value);
-  }
-};
 
 function highlightableValue(value: string) {
   return value.includes("<em>") ? highlightElasticTags(value) : value;

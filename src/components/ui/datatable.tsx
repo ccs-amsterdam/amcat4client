@@ -17,23 +17,31 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   globalFilter?: string;
+  pageIndex?: number;
+  pageSize?: number;
 }
 
-const PAGESIZE = 10;
-
-export function DataTable<TData, TValue>({ columns, data, globalFilter }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  globalFilter,
+  pageIndex,
+  pageSize = 10,
+}: DataTableProps<TData, TValue>) {
+  const manualPagination = pageIndex !== undefined;
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: manualPagination ? undefined : getPaginationRowModel(),
     state: {
       globalFilter,
+      pagination: manualPagination ? { pageIndex, pageSize } : undefined,
     },
     initialState: {
       pagination: {
-        pageSize: PAGESIZE,
+        pageSize,
       },
     },
   });
@@ -76,7 +84,7 @@ export function DataTable<TData, TValue>({ columns, data, globalFilter }: DataTa
           </TableBody>
         </Table>
       </div>
-      <div className={`${nRows > PAGESIZE ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
+      <div className={`${nRows > pageSize ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
           Previous
         </Button>

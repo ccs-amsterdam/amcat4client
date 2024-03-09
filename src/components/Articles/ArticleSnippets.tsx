@@ -7,7 +7,7 @@ import {
   AmcatQueryResult,
   AmcatUserRole,
 } from "@/interfaces";
-import { highlightElasticTags, removeElasticTags } from "./highlightElasticTags";
+import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
 import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -17,71 +17,21 @@ import { Loading } from "../ui/loading";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { set } from "date-fns";
+import useListFields from "./useListFields";
+import usePaginatedArticles from "./usePaginatedArticles";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   indexRole: AmcatUserRole;
   query: AmcatQuery;
   fields: AmcatField[];
   onClick?: (doc: AmcatArticle) => void;
 }
 
-function getListFields(role: AmcatUserRole, fields: AmcatField[]) {
-  const listFields: AmcatQueryFieldSpec[] = [];
-  const layout: Record<string, string[]> = {
-    text: [],
-    meta: [],
-  };
-
-  fields.forEach((field) => {
-    if (!field.client_settings.inList) return;
-    if (role === "NONE") return;
-    if (role === "METAREADER" && field.metareader.access === "none") return;
-
-    const listField: AmcatQueryFieldSpec = {
-      name: field.name,
-    };
-    if (field.type === "text") {
-      if (field.name !== "title") layout.text.push(field.name);
-
-      const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;
-      listField.snippet = {
-        nomatch_chars: max_snippet ? max_snippet.nomatch_chars : 200,
-        max_matches: max_snippet ? max_snippet.max_matches : 3,
-        match_chars: max_snippet ? max_snippet.match_chars : 50,
-      };
-    } else {
-      layout.meta.push(field.name);
-    }
-    listFields.push(listField);
-  });
-
-  return { listFields, layout };
-}
-
-export default function ArticleSnippets({ user, indexName, indexRole, query, fields, onClick }: Props) {
-  const { listFields, layout } = useMemo(() => getListFields(indexRole, fields), [indexRole, fields]);
-  const params = useMemo(() => ({ per_page: 6, highlight: true, fields: listFields }), [listFields]);
-  const [pagenr, setPagenr] = useState(0);
-  const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexName, query, params, indexRole);
-
-  const articles = data?.pages[pagenr]?.results || [];
-  const nPages = data?.pages[0]?.meta?.page_count || 0;
-  const totalCount = data?.pages[0]?.meta?.total_count || 0;
-  const fetchedPages = data?.pages.length || 1;
-
-  useEffect(() => {
-    // makes sure pagenr is within bounds
-    setPagenr((pagenr) => Math.min(fetchedPages - 1, pagenr));
-  }, [fetchedPages]);
-
-  function nextPage() {
-    const newPagenr = pagenr + 1;
-    if (newPagenr > fetchedPages - 1) fetchNextPage();
-    setPagenr(newPagenr);
-  }
-
+export default function ArticleSnippets({ user, indexId, indexRole, query, fields, onClick }: Props) {
+  const { articles, layout, listFields, isFetching, pagenr, nPages, totalCount, prevPage, nextPage } =
+    usePaginatedArticles({ user, indexId, query, fields, indexRole, highlight: true, pageSize: 6 });
   // if (isLoading) return <Loading msg="Loading articles" />;
 
   return (
@@ -91,12 +41,7 @@ export default function ArticleSnippets({ user, indexName, indexRole, query, fie
           <h3 className="text-xl font-semibold text-foreground">{totalCount} articles</h3>
         </div>
         <div className={`flex select-none items-center justify-end ${nPages > 1 ? "" : "hidden"}`}>
-          <Button
-            variant="ghost"
-            className="hover:bg-transparent"
-            onClick={() => setPagenr(pagenr - 1)}
-            disabled={pagenr <= 0}
-          >
+          <Button variant="ghost" className="hover:bg-transparent" onClick={() => prevPage()} disabled={pagenr <= 0}>
             <SkipBack />
           </Button>
           <div className="grid grid-cols-[1fr,auto,1fr] gap-2">

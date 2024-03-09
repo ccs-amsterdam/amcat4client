@@ -10,7 +10,7 @@ import { ErrorMsg } from "../ui/error-message";
 
 export interface ArticlesProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   /** Query/filter of which documents to show */
   query: AmcatQuery;
   /** an Array with objects indicating which columns to show and how */
@@ -30,11 +30,11 @@ export interface ArticlesProps {
 /**
  * Table overview of a subset of articles
  */
-export default function Articles({ user, indexName, query, onClick, showOnClick = true }: ArticlesProps) {
+export default function Articles({ user, indexId, query, onClick, showOnClick = true }: ArticlesProps) {
   //TODO: add columns to meta OR retrieve fields (prefer the former) and pass the field types on to the table
-  const role = useMyIndexrole(user, indexName);
+  const role = useMyIndexrole(user, indexId);
   const [articleId, setArticleId] = useState<string | null>(null);
-  const { data: fields, isLoading: loadingFields } = useFields(user, indexName);
+  const { data: fields, isLoading: loadingFields } = useFields(user, indexId);
 
   if (loadingFields) return <Loading msg="Loading fields" />;
   if (!fields) return <ErrorMsg type="Could not get index field data" />;
@@ -49,7 +49,7 @@ export default function Articles({ user, indexName, query, onClick, showOnClick 
       <div className="grid grid-cols-[max,1fr] rounded ">
         <ArticleSnippets
           user={user}
-          indexName={indexName}
+          indexId={indexId}
           indexRole={role || "NONE"}
           query={query}
           fields={fields}
@@ -62,7 +62,7 @@ export default function Articles({ user, indexName, query, onClick, showOnClick 
         <ArticleModal
           key={articleId}
           user={user}
-          indexName={indexName}
+          indexId={indexId}
           id={articleId}
           query={query}
           changeArticle={setArticleId}

@@ -7,7 +7,7 @@ import { postQuery } from "./query";
 
 export function useArticles(
   user: MiddlecatUser,
-  indexName: AmcatIndexId,
+  indexId: AmcatIndexId,
   query: AmcatQuery,
   params?: AmcatQueryParams,
   indexRole?: string,
@@ -19,19 +19,19 @@ export function useArticles(
     // this is necessary because react query otherwise refetches ALL pages at once,
     // both slowing down the UI and making needless API requests
     return () =>
-      queryClient.setQueryData(["articles", user, indexName, query, params, indexRole], (oldData: any) => {
+      queryClient.setQueryData(["articles", user, indexId, query, params, indexRole], (oldData: any) => {
         if (!oldData) return oldData;
         return {
           pageParams: [0],
           pages: [oldData.pages[0]],
         };
       });
-  }, [queryClient, user, indexName, query, params, indexRole]);
+  }, [queryClient, user, indexId, query, params, indexRole]);
 
   return useInfiniteQuery({
-    queryKey: ["articles", user, indexName, query, params, indexRole],
-    queryFn: ({ pageParam }) => getArticles(user, indexName, query, { page: pageParam, ...(params || {}) }),
-    enabled: !!user && !!indexName && !!query,
+    queryKey: ["articles", user, indexId, query, params, indexRole],
+    queryFn: ({ pageParam }) => getArticles(user, indexId, query, { page: pageParam, ...(params || {}) }),
+    enabled: !!user && !!indexId && !!query,
     initialPageParam: 0,
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -43,11 +43,11 @@ export function useArticles(
   });
 }
 
-async function getArticles(user: MiddlecatUser, indexName: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
+async function getArticles(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
   // TODO, make sure query doesn't run needlessly
   // also check that it doesn't run if field is added but empty
 
-  const res = await postQuery(user, indexName, query, params);
+  const res = await postQuery(user, indexId, query, params);
   const queryResult: AmcatQueryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult;
 }

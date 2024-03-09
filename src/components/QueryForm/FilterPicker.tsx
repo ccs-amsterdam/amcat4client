@@ -11,7 +11,7 @@ import { useState } from "react";
 
 interface FilterPickerProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   fieldName: string;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;
@@ -20,14 +20,14 @@ interface FilterPickerProps {
 }
 export default function FilterPicker({
   user,
-  indexName,
+  indexId,
   fieldName,
   value,
   onChange,
   onDelete,
   className,
 }: FilterPickerProps) {
-  const { data: fields } = useFields(user, indexName);
+  const { data: fields } = useFields(user, indexId);
   const field = getField(fields, fieldName);
   const [open, setOpen] = useState(value?.justAdded);
 
@@ -68,7 +68,7 @@ export default function FilterPicker({
           side="bottom"
           className="max-h-[450px] w-full overflow-auto"
         >
-          <FilterPopup user={user} indexName={indexName} field={field} value={value} onChange={onChange} />
+          <FilterPopup user={user} indexId={indexId} field={field} value={value} onChange={onChange} />
         </PopoverContent>
       ) : null}
     </Popover>

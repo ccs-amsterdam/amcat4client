@@ -11,14 +11,14 @@ const initialState: AggregationOptions = {
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   query: AmcatQuery;
 }
 
-export default function AggregateResultPanel({ user, indexName, query }: Props) {
+export default function AggregateResultPanel({ user, indexId, query }: Props) {
   const [options, setOptions] = useState<AggregationOptions>(initialState);
 
-  if (!user || !indexName || !query) return null;
+  if (!user || !indexId || !query) return null;
 
   return (
     <div>
@@ -29,14 +29,14 @@ export default function AggregateResultPanel({ user, indexName, query }: Props) 
         <div className="flex justify-center p-5">
           <AggregateResultOptions
             user={user}
-            indexName={indexName}
+            indexId={indexId}
             query={query}
             options={options}
             setOptions={setOptions}
           />
         </div>
         <div className="w-full p-5">
-          <AggregateResult user={user} indexName={indexName} query={query} options={options} />
+          <AggregateResult user={user} indexId={indexId} query={query} options={options} />
         </div>
       </div>
     </div>

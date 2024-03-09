@@ -7,16 +7,16 @@ import SimpleQueryForm from "./SimpleQueryForm";
 
 export interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   query: AmcatQuery;
   setQuery: Dispatch<SetStateAction<AmcatQuery>>;
 }
 
-export default function QueryForm({ user, indexName, query, setQuery }: Props) {
+export default function QueryForm({ user, indexId, query, setQuery }: Props) {
   const [queryDebounced, setQueryDebounced] = useState<AmcatQuery>(query);
   const debounceTimer = useRef<any>();
 
-  if (!indexName) return null;
+  if (!indexId) return null;
 
   const updateQuery = useCallback(
     (newQuery: AmcatQuery, executeAfter: number | "never") => {
@@ -50,7 +50,7 @@ export default function QueryForm({ user, indexName, query, setQuery }: Props) {
   return (
     <DebouncedQueryForm
       user={user}
-      indexName={indexName}
+      indexId={indexId}
       query={queryDebounced}
       updateQuery={updateQuery}
       debouncing={debouncing}
@@ -61,21 +61,14 @@ export default function QueryForm({ user, indexName, query, setQuery }: Props) {
 
 interface DebouncedQueryFormProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;
   debouncing: boolean;
   queryChanged: boolean;
 }
 
-function DebouncedQueryForm({
-  user,
-  indexName,
-  query,
-  updateQuery,
-  debouncing,
-  queryChanged,
-}: DebouncedQueryFormProps) {
+function DebouncedQueryForm({ user, indexId, query, updateQuery, debouncing, queryChanged }: DebouncedQueryFormProps) {
   const [advanced, setAdvanced] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -119,7 +112,7 @@ function DebouncedQueryForm({
           <div ref={formRef}>
             <QForm
               user={user}
-              indexName={indexName}
+              indexId={indexId}
               query={query}
               updateQuery={updateQuery}
               switchAdvanced={switchAdvanced}
@@ -131,7 +124,7 @@ function DebouncedQueryForm({
                   key={f + i}
                   className="w-full"
                   user={user}
-                  indexName={indexName}
+                  indexId={indexId}
                   fieldName={f}
                   value={query?.filters?.[f]}
                   onChange={(newval) => onChangeFilter(newval, f)}

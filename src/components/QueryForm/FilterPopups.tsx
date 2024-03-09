@@ -8,7 +8,7 @@ import { useFieldStats } from "@/api/fieldStats";
 
 interface FilterPopupProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   field: AmcatField | undefined;
   value: AmcatFilter | undefined;
   onChange: (value: AmcatFilter) => void;
@@ -43,16 +43,16 @@ export function filterLabel(name: string, field: AmcatField | undefined, filter:
   );
 }
 
-export function FilterPopup({ user, indexName, field, value, onChange }: FilterPopupProps) {
+export function FilterPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   if (field == null || value == null) return null;
 
-  if (field.type === "date") return DateRangePopup({ user, indexName, field, value, onChange });
-  return KeywordPopup({ user, indexName, field, value, onChange });
+  if (field.type === "date") return DateRangePopup({ user, indexId, field, value, onChange });
+  return KeywordPopup({ user, indexId, field, value, onChange });
 }
 
-export function KeywordPopup({ user, indexName, field, value, onChange }: FilterPopupProps) {
+export function KeywordPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   const [query, setQuery] = useState("");
-  const { data: fieldValues } = useFieldValues(user, indexName, field?.name);
+  const { data: fieldValues } = useFieldValues(user, indexId, field?.name);
   const enableSearch = fieldValues && fieldValues?.length > 10;
   const selected = value?.values || [];
 
@@ -116,8 +116,8 @@ function date2str(date: Date, ifNone = ""): string {
   return year + "-" + month + "-" + day;
 }
 
-export function DateRangePopup({ user, indexName, field, value, onChange }: FilterPopupProps) {
-  const { data: fieldStats } = useFieldStats(user, indexName, field?.name);
+export function DateRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
+  const { data: fieldStats } = useFieldStats(user, indexId, field?.name);
   if (field == null || value == null) return null;
   if (!fieldStats) return null;
 

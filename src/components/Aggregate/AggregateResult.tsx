@@ -30,7 +30,7 @@ import AggregatePagination, { useAggregatePagination } from "./AggregatePaginati
 
 interface AggregateResultProps {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   /** The query for the results to show */
   query: AmcatQuery;
   /** Aggregation options (display and axes information) */
@@ -55,7 +55,7 @@ interface Zoom {
  */
 export default function AggregateResult({
   user,
-  indexName,
+  indexId,
   query,
   options,
   width,
@@ -69,7 +69,7 @@ export default function AggregateResult({
     error,
     hasNextPage,
     fetchNextPage,
-  } = useAggregate(user, indexName, query, options);
+  } = useAggregate(user, indexId, query, options);
   const [zoom, setZoom] = useState<Zoom>();
 
   const data: AggregateData | null = useMemo(() => {
@@ -180,7 +180,7 @@ export default function AggregateResult({
             limit={options.limit}
           />
         </div>
-        <ArticleListModal user={user} index={indexName} zoom={zoom} onClose={() => setZoom(undefined)} />
+        <ArticleListModal user={user} index={indexId} zoom={zoom} onClose={() => setZoom(undefined)} />
       </div>
     </div>
   );
@@ -300,7 +300,7 @@ function ArticleListModal({
             </p>
           ))}
         </DialogHeader>
-        <Articles user={user} indexName={index} query={query} />
+        <Articles user={user} indexId={index} query={query} />
       </DialogContent>
     </Dialog>
   );

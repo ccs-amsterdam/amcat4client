@@ -6,9 +6,9 @@ export interface PostAmcatQuery {
   queries?: Record<string, string>;
 }
 
-export function postQuery(user: MiddlecatUser, indexName: AmcatIndexId, query?: AmcatQuery, params?: AmcatQueryParams) {
+export function postQuery(user: MiddlecatUser, indexId: AmcatIndexId, query?: AmcatQuery, params?: AmcatQueryParams) {
   const postAmcatQuery = query ? asPostAmcatQuery(query) : undefined;
-  return user.api.post(`index/${indexName}/query`, {
+  return user.api.post(`index/${indexId}/query`, {
     ...postAmcatQuery,
     ...params,
   });
@@ -16,7 +16,7 @@ export function postQuery(user: MiddlecatUser, indexName: AmcatIndexId, query?: 
 
 export function postAggregateQuery(
   user: MiddlecatUser,
-  indexName: AmcatIndexId,
+  indexId: AmcatIndexId,
   options: AggregationOptions,
   query?: AmcatQuery,
 ) {
@@ -29,7 +29,7 @@ export function postAggregateQuery(
     });
   if (options.after) postOptions.after = options.after;
 
-  return user.api.post(`index/${indexName}/aggregate`, {
+  return user.api.post(`index/${indexId}/aggregate`, {
     ...postAmcatQuery,
     ...postOptions,
   });

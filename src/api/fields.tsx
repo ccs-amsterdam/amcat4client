@@ -27,17 +27,17 @@ const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   },
 };
 
-export function useFields(user?: MiddlecatUser, indexName?: AmcatIndexId | undefined) {
+export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
   return useQuery({
-    queryKey: ["fields", user, indexName],
-    queryFn: () => getFields(user, indexName || ""),
-    enabled: user != null && indexName != null,
+    queryKey: ["fields", user, indexId],
+    queryFn: () => getFields(user, indexId || ""),
+    enabled: user != null && indexId != null,
   });
 }
 
-export async function getFields(user?: MiddlecatUser, indexName?: AmcatIndexId) {
-  if (!user || !indexName) return undefined;
-  const res = await user.api.get(`/index/${indexName}/fields`);
+export async function getFields(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+  if (!user || !indexId) return undefined;
+  const res = await user.api.get(`/index/${indexId}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
   const fields = z.array(amcatFieldSchema).parse(fieldsArray);
   return fields.map((f) => {
@@ -57,16 +57,16 @@ interface MutateFieldsParams {
   action: "create" | "delete" | "update";
 }
 
-export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexId | undefined) {
+export function useMutateFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ fields, action }: MutateFieldsParams) => {
       if (!user) throw new Error("Not logged in");
-      return mutateFields(user, indexName || "", action, fields);
+      return mutateFields(user, indexId || "", action, fields);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["fields", user, indexName] });
+      queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
 
       const fieldnames = variables.fields.map((f) => f.name).join(", ");
       if (variables.action === "create") toast.success(`Created fields: ${fieldnames}`);
@@ -78,11 +78,11 @@ export function useMutateFields(user?: MiddlecatUser, indexName?: AmcatIndexId |
 
 export async function mutateFields(
   user: MiddlecatUser,
-  indexName: AmcatIndexId,
+  indexId: AmcatIndexId,
   action: "create" | "delete" | "update",
   fields: UpdateAmcatField[],
 ) {
-  if (!indexName) return undefined;
+  if (!indexId) return undefined;
   const fieldsObject: Record<string, any> = {};
 
   fields.forEach((f) => {
@@ -98,10 +98,10 @@ export async function mutateFields(
   });
 
   if (action === "delete") {
-    return await user.api.delete(`/index/${indexName}/fields`, { data: fields.map((f) => f.name) });
+    return await user.api.delete(`/index/${indexId}/fields`, { data: fields.map((f) => f.name) });
   } else if (action === "create") {
-    return await user.api.post(`/index/${indexName}/fields`, fieldsObject);
+    return await user.api.post(`/index/${indexId}/fields`, fieldsObject);
   } else if (action === "update") {
-    return await user.api.put(`/index/${indexName}/fields`, fieldsObject);
+    return await user.api.put(`/index/${indexId}/fields`, fieldsObject);
   }
 }

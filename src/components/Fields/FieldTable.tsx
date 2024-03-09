@@ -4,7 +4,6 @@ import { DataTable } from "@/components/ui/datatable";
 import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField, AmcatClientSettings } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
 import { useCallback } from "react";
-import { Checkbox } from "../ui/checkbox";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
 import VisibilityForm from "./VisibilityForm";
@@ -25,7 +24,10 @@ const tableColumns: ColumnDef<Row>[] = [
       return (
         <div className="flex items-center gap-2">
           <DynamicIcon type={row.original.type} />
-          <span>{row.original.type}</span>
+          <div>
+            <div>{row.original.type}</div>
+            <div className="text-xs  leading-3 text-primary">{row.original.elastic_type}</div>
+          </div>
         </div>
       );
     },

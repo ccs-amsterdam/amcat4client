@@ -10,27 +10,27 @@ import { autoFormatDate } from "@/lib/autoFormatDate";
 
 interface Props {
   user: MiddlecatUser;
-  indexName: AmcatIndexId;
+  indexId: AmcatIndexId;
   query: AmcatQuery;
 }
 
-export default function Summary({ user, indexName, query }: Props) {
-  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexName);
+export default function Summary({ user, indexId, query }: Props) {
+  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
 
   function renderVisualization(field: AmcatField) {
     if (!field.client_settings.inListSummary) return null;
     if (field.type === "date")
-      return <DateSummaryGraph key={field.name} user={user} indexName={indexName} query={query} field={field} />;
+      return <DateSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
     if (field.type === "keyword")
-      return <KeywordSummaryGraph key={field.name} user={user} indexName={indexName} query={query} field={field} />;
+      return <KeywordSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
   }
 
   return (
     <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] gap-1 overflow-auto md:grid-cols-2 md:gap-3">
       <div className=" border-foreground/31 snap-center overflow-auto  rounded-l">
-        <Articles user={user} indexName={indexName} query={query} />
+        <Articles user={user} indexId={indexId} query={query} />
       </div>
-      <div className="flex snap-center flex-col gap-3  md:gap-6">
+      <div className="mt-12 flex snap-center flex-col  gap-3 md:gap-6">
         {(fields || []).map((field) => {
           return <div key={field.name}>{renderVisualization(field)}</div>;
         })}
@@ -43,8 +43,8 @@ interface SummaryProps extends Props {
   field: AmcatField;
 }
 
-function DateSummaryGraph({ user, indexName, query, field }: SummaryProps) {
-  const { data: values, isLoading: valuesLoading } = useFieldStats(user, indexName, field.name);
+function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
+  const { data: values, isLoading: valuesLoading } = useFieldStats(user, indexId, field.name);
 
   const axes = useMemo(() => {
     if (!values) return [];
@@ -62,7 +62,7 @@ function DateSummaryGraph({ user, indexName, query, field }: SummaryProps) {
   return (
     <AggregateResult
       user={user}
-      indexName={indexName}
+      indexId={indexId}
       query={query}
       options={{ axes, display: "linechart", title: field.name.toUpperCase() }}
       defaultPageSize={100}
@@ -70,7 +70,7 @@ function DateSummaryGraph({ user, indexName, query, field }: SummaryProps) {
   );
 }
 
-function KeywordSummaryGraph({ user, indexName, query, field }: SummaryProps) {
+function KeywordSummaryGraph({ user, indexId, query, field }: SummaryProps) {
   const axes = useMemo(() => {
     const axes: AggregationAxis[] = [{ name: field.name, field: field.name }];
     if (query.queries && query.queries.length > 0) axes.push({ name: "_query", field: "_query" });
@@ -80,7 +80,7 @@ function KeywordSummaryGraph({ user, indexName, query, field }: SummaryProps) {
   return (
     <AggregateResult
       user={user}
-      indexName={indexName}
+      indexId={indexId}
       query={query}
       options={{ axes, display: "barchart", title: field.name.toUpperCase() }}
       defaultPageSize={10}

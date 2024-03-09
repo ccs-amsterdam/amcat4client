@@ -139,7 +139,7 @@ export default function AggregatePagination({ data, pagination }: Props) {
       </DropdownMenu>
       <DropdownMenu>
         <DropdownMenuTrigger className={`flex items-center gap-1 px-1 text-sm ${showPageSize ? "block" : "hidden"}`}>
-          {hasPagination ? `${pagination.pageSize} per page` : "show all"} <ChevronDown className="h-4 w-4" />
+          {hasPagination ? `${pagination.pageSize}` : "show all"} <ChevronDown className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Show per page</DropdownMenuLabel>
