@@ -29,31 +29,36 @@ interface Props {
   onClick?: (doc: AmcatArticle) => void;
 }
 
-export default function ArticleSnippets({ user, indexId, indexRole, query, fields, onClick }: Props) {
-  const { articles, layout, listFields, isFetching, pagenr, nPages, totalCount, prevPage, nextPage } =
-    usePaginatedArticles({ user, indexId, query, fields, indexRole, highlight: true, pageSize: 6 });
-  // if (isLoading) return <Loading msg="Loading articles" />;
+const defaultSnippets = {
+  nomatch_chars: 200,
+  max_matches: 5,
+  match_chars: 50,
+};
 
+export default function ArticleSnippets({ user, indexId, indexRole, query, fields, onClick }: Props) {
+  const { articles, layout, listFields, isFetching, pageIndex, pageCount, totalCount, prevPage, nextPage } =
+    usePaginatedArticles({ user, indexId, query, fields, indexRole, highlight: true, defaultSnippets, pageSize: 6 });
+  // if (isLoading) return <Loading msg="Loading articles" />;
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold text-foreground">{totalCount} articles</h3>
         </div>
-        <div className={`flex select-none items-center justify-end ${nPages > 1 ? "" : "hidden"}`}>
-          <Button variant="ghost" className="hover:bg-transparent" onClick={() => prevPage()} disabled={pagenr <= 0}>
+        <div className={`flex select-none items-center justify-end ${pageCount > 1 ? "" : "hidden"}`}>
+          <Button variant="ghost" className="hover:bg-transparent" onClick={() => prevPage()} disabled={pageIndex <= 0}>
             <SkipBack />
           </Button>
           <div className="grid grid-cols-[1fr,auto,1fr] gap-2">
-            <div className="text-center">{pagenr + 1}</div>
+            <div className="text-center">{pageIndex + 1}</div>
             <div>of</div>
-            <div>{nPages}</div>
+            <div>{pageCount}</div>
           </div>
           <Button
             variant="ghost"
             className="hover:bg-transparent"
             onClick={nextPage}
-            disabled={pagenr > nPages - 2 || isFetching}
+            disabled={pageIndex > pageCount - 2 || isFetching}
           >
             <SkipForward />
           </Button>

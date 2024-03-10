@@ -88,6 +88,7 @@
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
+  height: 5px;
   background: hsla(var(--primary), 0.2);
 }
 

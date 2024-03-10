@@ -19,11 +19,14 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
       if (field.name !== "title") layout.text.push(field.name);
 
       const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;
-      listField.snippet = {
-        nomatch_chars: max_snippet ? max_snippet.nomatch_chars : defaultSnippets?.nomatch_chars ?? 200,
-        max_matches: max_snippet ? max_snippet.max_matches : defaultSnippets?.max_matches ?? 3,
-        match_chars: max_snippet ? max_snippet.match_chars : defaultSnippets?.match_chars ?? 50,
-      };
+
+      if (max_snippet !== undefined || defaultSnippets !== undefined) {
+        listField.snippet = {
+          nomatch_chars: Math.min(max_snippet?.nomatch_chars ?? Infinity, defaultSnippets?.nomatch_chars ?? Infinity),
+          max_matches: Math.min(max_snippet?.max_matches ?? Infinity, defaultSnippets?.max_matches ?? Infinity),
+          match_chars: Math.min(max_snippet?.match_chars ?? Infinity, defaultSnippets?.match_chars ?? Infinity),
+        };
+      }
     } else {
       layout.meta.push(field.name);
     }
@@ -34,18 +37,6 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
 }
 
 export default function useListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippets?: AmcatSnippet) {
-  const [fieldSelection, setFieldSelection] = useState<AmcatField[]>(() => {
-    return fields.filter((field) => field.client_settings.inList);
-  });
-
-  useEffect(() => {
-    setFieldSelection(fields.filter((field) => field.client_settings.inList));
-  }, [fields]);
-
-  const { listFields, layout } = useMemo(
-    () => getListFields(role, fieldSelection, defaultSnippets),
-    [role, fields, fieldSelection],
-  );
-  console.log(listFields);
-  return { listFields, layout, fieldSelection, setFieldSelection };
+  const { listFields, layout } = useMemo(() => getListFields(role, fields, defaultSnippets), [role, fields]);
+  return { listFields, layout };
 }

@@ -24,7 +24,7 @@ export const formatField = (article: AmcatArticle, field: AmcatField, setArticle
     case "number":
       return <i>{value}</i>;
     case "text":
-      return <span>{highlightableValue(String(value))}</span>;
+      return <span title={String(value)}>{highlightableValue(String(value))}</span>;
     default:
       if (typeof value === "string") return value;
       return JSON.stringify(value);

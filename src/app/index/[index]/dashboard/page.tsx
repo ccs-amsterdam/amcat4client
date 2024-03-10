@@ -15,6 +15,7 @@ import { Loading } from "@/components/ui/loading";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { useMyIndexrole } from "@/api";
 import ArticleTable from "@/components/Articles/ArticleTable";
+import DownloadArticles from "@/components/Articles/DownloadArticles";
 
 interface Props {
   params: { index: string };
@@ -22,9 +23,9 @@ interface Props {
 
 enum Tab {
   Summary = "t1",
-  Articles = "t2",
-  Aggregate = "t3",
-  Tags = "t4",
+  Aggregate = "t2",
+  Tags = "t3",
+  Download = "t4",
 }
 
 export default function Index({ params }: Props) {
@@ -69,13 +70,13 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Summary}>
             <Summary user={user} indexId={indexId} query={query} />
           </TabsContent>
-          <TabsContent value={Tab.Articles}>
-            <ArticleTable user={user} indexId={indexId} query={query} />
-          </TabsContent>
           <TabsContent value={Tab.Aggregate}>
             <AggregateResultPanel user={user} indexId={indexId} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Tags}></TabsContent>
+          <TabsContent value={Tab.Download}>
+            <DownloadArticles user={user} indexId={indexId} query={query} />
+          </TabsContent>
         </div>
       </Tabs>
     </div>

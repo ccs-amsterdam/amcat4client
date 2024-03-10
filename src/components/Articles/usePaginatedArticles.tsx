@@ -1,5 +1,5 @@
 import { useArticles } from "@/api/articles";
-import { AmcatField, AmcatIndexId, AmcatQuery, AmcatSnippet, AmcatUserRole } from "@/interfaces";
+import { AmcatField, AmcatIndexId, AmcatQuery, AmcatSnippet, AmcatUserRole, AmcatArticle } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useListFields from "./useListFields";
@@ -14,6 +14,7 @@ interface params {
   pageSize: number;
   highlight?: boolean;
   defaultSnippets?: AmcatSnippet;
+  combineResults?: boolean;
 }
 
 export default function usePaginatedArticles({
@@ -25,38 +26,49 @@ export default function usePaginatedArticles({
   pageSize,
   highlight,
   defaultSnippets,
+  combineResults,
 }: params) {
-  const { listFields, layout, fieldSelection, setFieldSelection } = useListFields(
-    indexRole || "NONE",
-    fields || [],
-    defaultSnippets,
-  );
+  const { listFields, layout } = useListFields(indexRole || "NONE", fields || [], defaultSnippets);
   const params = useMemo(
     () => ({ per_page: pageSize, highlight: !!highlight, fields: listFields }),
     [pageSize, listFields],
   );
-  const [pagenr, setPagenr] = useState(0);
+
+  const [articles, setArticles] = useState<AmcatArticle[]>([]);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [alignedPageIndex, setAlignedPageIndex] = useState(0);
   const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexId, query, params, indexRole);
 
-  const articles = data?.pages[pagenr]?.results || [];
-  const nPages = data?.pages[0]?.meta?.page_count || 0;
+  useEffect(() => {
+    if (!data?.pages || pageIndex > data.pages.length - 1) {
+      return;
+    }
+    if (combineResults) {
+      setArticles(data?.pages.map((page) => page.results).flat() || []);
+    } else {
+      setArticles(data?.pages[pageIndex]?.results || []);
+    }
+    setAlignedPageIndex(pageIndex);
+  }, [combineResults, data, pageIndex]);
+
+  const pageCount = data?.pages[0]?.meta?.page_count || 0;
   const totalCount = data?.pages[0]?.meta?.total_count || 0;
   const fetchedPages = data?.pages.length || 1;
 
   useEffect(() => {
-    // makes sure pagenr is within bounds
-    setPagenr((pagenr) => Math.min(fetchedPages - 1, pagenr));
+    // makes sure pageIndex is within bounds
+    setPageIndex((pageIndex) => Math.min(fetchedPages - 1, pageIndex));
   }, [fetchedPages]);
 
   const prevPage = useCallback(() => {
-    setPagenr((pagenr) => Math.max(0, pagenr - 1));
-  }, [setPagenr]);
+    setPageIndex((pageIndex) => Math.max(0, pageIndex - 1));
+  }, [setPageIndex]);
 
   const nextPage = useCallback(() => {
-    const newPagenr = pagenr + 1;
+    const newPagenr = pageIndex + 1;
     if (newPagenr > fetchedPages - 1) fetchNextPage();
-    setPagenr(newPagenr);
-  }, [pagenr, fetchNextPage, setPagenr]);
+    setPageIndex(newPagenr);
+  }, [pageIndex, fetchNextPage, setPageIndex]);
 
   return {
     articles,
@@ -64,12 +76,10 @@ export default function usePaginatedArticles({
     layout,
     isLoading,
     isFetching,
-    pagenr,
-    nPages,
+    pageIndex: alignedPageIndex,
+    pageCount,
     totalCount,
     prevPage,
     nextPage,
-    fieldSelection,
-    setFieldSelection,
   };
 }

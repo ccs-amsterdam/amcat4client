@@ -109,7 +109,7 @@ export default function AggregatePagination({ data, pagination }: Props) {
   }, [pagination]);
 
   return (
-    <div className="flex h-10 justify-end gap-3 text-sm text-primary">
+    <div className="flex h-10 justify-end gap-3 text-sm text-secondary">
       <DropdownMenu>
         <DropdownMenuTrigger
           className={`flex items-center gap-1 px-1 text-sm ${hasColumnSelection ? "block" : "hidden"}`}

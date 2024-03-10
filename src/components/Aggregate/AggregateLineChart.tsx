@@ -15,15 +15,8 @@ export default function AggregateLineChart({ data, createZoom, width, height, li
   const [line, setLine] = useState<string>("");
   // const [lineClickArea, setLineClickArea] = useState;
 
-  const showData = useMemo(() => {
-    if (!data) return null;
-    const start = page * pageSize;
-    const end = start + pageSize;
-    return data.rows.slice(start, end);
-  }, [page, data, pageSize]);
-
   //if (status === "loading") return <Loading />;
-  if (!showData || !data) return null;
+  if (!data) return null;
 
   const colors = qualitativeColors(data.columns.length);
 
@@ -41,15 +34,6 @@ export default function AggregateLineChart({ data, createZoom, width, height, li
     createZoom(values);
   };
 
-  // function closestOnYAxis() {
-  //   if (!coordinate?.y || !viewBox?.y || !viewBox.height || !payload) return 0;
-  //   const yValue = (coordinate?.y - viewBox.y) / viewBox.height;
-  //   const bins = 1 / payload.length;
-  //   const itemI Math.min(Math.floor(yValue / bins), payload.length - 1);
-  //   return
-  // }
-
-  const hasPagination = showData.length < data.rows.length;
   if (height == null) height = 300;
   if (width == null) width = "100%";
   return (
@@ -57,7 +41,7 @@ export default function AggregateLineChart({ data, createZoom, width, height, li
       <ResponsiveContainer height={height} width={width} className="text-sm">
         <LineChart
           style={{ cursor: "pointer" }}
-          data={showData}
+          data={data.rows}
           onClick={(e) => handleClick(e.activeTooltipIndex || 0)}
         >
           <CartesianGrid strokeDasharray="3 3" />
@@ -76,26 +60,6 @@ export default function AggregateLineChart({ data, createZoom, width, height, li
           ))}
         </LineChart>
       </ResponsiveContainer>
-      <div
-        className={`ml-16 grid select-none grid-cols-[1fr,1fr,1fr] items-center ${hasPagination ? "block" : "hidden"}`}
-      >
-        <Button variant="ghost" className="flex gap-3" onClick={() => setPage(page - 1)} disabled={page === 0}>
-          <ArrowLeft />
-          Previous
-        </Button>
-        <div className="mx-auto px-3">
-          {page + 1} of {Math.ceil(data.rows.length / pageSize)}
-        </div>
-        <Button
-          variant="ghost"
-          className="flex gap-3"
-          onClick={() => setPage(page + 1)}
-          disabled={showData.length < pageSize}
-        >
-          Next
-          <ArrowRight />
-        </Button>
-      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import {
   ColumnDef,
   FilterFn,
+  PaginationState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -12,33 +13,49 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./button";
+import { Updater } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   globalFilter?: string;
-  pageIndex?: number;
+  pagination?: {
+    pageCount: number;
+    pageIndex: number;
+    nextPage: () => void;
+    prevPage: () => void;
+  };
+  loading?: boolean;
   pageSize?: number;
+}
+
+interface Pagination {
+  pageIndex: number;
+  pageSize: number;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   globalFilter,
-  pageIndex,
-  pageSize = 10,
+  pagination,
+  loading,
+  pageSize = 6,
 }: DataTableProps<TData, TValue>) {
-  const manualPagination = pageIndex !== undefined;
+  const manualPagination = !!pagination;
+
   const table = useReactTable({
     data,
     columns,
+    // pageCount: manualPagination ? pagination.pageCount : undefined,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: manualPagination ? undefined : getPaginationRowModel(),
-    state: {
-      globalFilter,
-      pagination: manualPagination ? { pageIndex, pageSize } : undefined,
-    },
+    getPaginationRowModel: getPaginationRowModel(),
+    state: manualPagination
+      ? { globalFilter, pagination: { pageIndex: pagination.pageIndex, pageSize } }
+      : { globalFilter },
     initialState: {
       pagination: {
         pageSize,
@@ -46,7 +63,7 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const nRows = table.getFilteredRowModel().rows.length;
+  const canPaginate = !manualPagination && (table.getCanNextPage() || table.getCanPreviousPage());
 
   return (
     <div>
@@ -84,12 +101,26 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className={`${nRows > pageSize ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
-        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          Previous
+      <div className={`${canPaginate ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            table.previousPage();
+          }}
+          disabled={!table.getCanPreviousPage()}
+        >
+          <ArrowLeft />
         </Button>
-        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          Next
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            table.nextPage();
+          }}
+          disabled={!table.getCanNextPage()}
+        >
+          <ArrowRight />
         </Button>
       </div>
     </div>
