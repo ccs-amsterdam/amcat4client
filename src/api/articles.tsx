@@ -11,6 +11,7 @@ export function useArticles(
   query: AmcatQuery,
   params?: AmcatQueryParams,
   indexRole?: string,
+  enabled: boolean = true,
 ) {
   const queryClient = useQueryClient();
 
@@ -31,7 +32,7 @@ export function useArticles(
   return useInfiniteQuery({
     queryKey: ["articles", user, indexId, query, params, indexRole],
     queryFn: ({ pageParam }) => getArticles(user, indexId, query, { page: pageParam, ...(params || {}) }),
-    enabled: !!user && !!indexId && !!query,
+    enabled: enabled && !!user && !!indexId && !!query,
     initialPageParam: 0,
     staleTime: Infinity,
     refetchOnWindowFocus: false,

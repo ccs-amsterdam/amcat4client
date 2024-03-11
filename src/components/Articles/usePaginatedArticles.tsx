@@ -15,6 +15,7 @@ interface params {
   highlight?: boolean;
   defaultSnippets?: AmcatSnippet;
   combineResults?: boolean;
+  enabled?: boolean;
 }
 
 export default function usePaginatedArticles({
@@ -27,6 +28,7 @@ export default function usePaginatedArticles({
   highlight,
   defaultSnippets,
   combineResults,
+  enabled = true,
 }: params) {
   const { listFields, layout } = useListFields(indexRole || "NONE", fields || [], defaultSnippets);
   const params = useMemo(
@@ -37,7 +39,7 @@ export default function usePaginatedArticles({
   const [articles, setArticles] = useState<AmcatArticle[]>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [alignedPageIndex, setAlignedPageIndex] = useState(0);
-  const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexId, query, params, indexRole);
+  const { data, isLoading, isFetching, fetchNextPage } = useArticles(user, indexId, query, params, indexRole, enabled);
 
   useEffect(() => {
     if (!data?.pages || pageIndex > data.pages.length - 1) {
@@ -65,10 +67,12 @@ export default function usePaginatedArticles({
   }, [setPageIndex]);
 
   const nextPage = useCallback(() => {
-    const newPagenr = pageIndex + 1;
-    if (newPagenr > fetchedPages - 1) fetchNextPage();
-    setPageIndex(newPagenr);
-  }, [pageIndex, fetchNextPage, setPageIndex]);
+    setPageIndex((pageIndex) => {
+      const newPagenr = pageIndex + 1;
+      if (newPagenr > fetchedPages - 1) fetchNextPage();
+      return newPagenr;
+    });
+  }, [fetchNextPage, setPageIndex]);
 
   return {
     articles,

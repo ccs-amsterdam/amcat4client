@@ -10,6 +10,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Loading } from "../ui/loading";
 import ArticleTable from "./ArticleTable";
 import usePaginatedArticles from "./usePaginatedArticles";
+import { useCSVDownloader } from "react-papaparse";
+import { Progress } from "../ui/progress";
+import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Input } from "../ui/input";
 
 interface Props {
   user: MiddlecatUser;
@@ -50,7 +54,7 @@ export default function DownloadArticles({ user, indexId, query }: Props) {
 
   return (
     <div>
-      <div className="pb-6">
+      <div className="flex justify-end gap-3 pb-6">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
@@ -78,9 +82,8 @@ export default function DownloadArticles({ user, indexId, query }: Props) {
             })}
           </DropdownMenuContent>
         </DropdownMenu>
+        <Downloader user={user} indexId={indexId} query={query} fields={fields} indexRole={indexRole} />
       </div>
-      <Downloader user={user} indexId={indexId} query={query} fields={fields} indexRole={indexRole} />
-      <h3 className="mb-2 text-xl font-bold text-primary">Preview</h3>
       <ArticleTable user={user} indexId={indexId} query={query} fields={fields} />
     </div>
   );
@@ -95,15 +98,74 @@ interface DownloaderProps {
 }
 
 function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps) {
-  const { articles, layout, listFields, isFetching, pageIndex, pageCount, totalCount, prevPage, nextPage } =
-    usePaginatedArticles({
-      user,
-      indexId,
-      query,
-      fields,
-      indexRole,
-      pageSize: 1000,
-    });
+  const [enabled, setEnabled] = useState(false);
+  const [filename, setFilename] = useState<string>("articles");
+  const { CSVDownloader, Type } = useCSVDownloader();
+  const { articles, pageIndex, pageCount, nextPage } = usePaginatedArticles({
+    user,
+    indexId,
+    query,
+    fields,
+    indexRole,
+    pageSize: 1000,
+    combineResults: true,
+    enabled,
+  });
 
-  return <div></div>;
+  useEffect(() => {
+    setFilename(`${indexId}_articles`);
+  }, [indexId]);
+
+  useEffect(() => {
+    if (pageIndex < pageCount - 1) nextPage();
+  }, [nextPage, pageIndex, pageCount]);
+
+  if (!enabled) return <Button onClick={() => setEnabled(true)}>Start download</Button>;
+
+  function render() {
+    if (pageIndex < pageCount - 1)
+      return (
+        <div className=" ">
+          <div className="mb-1 flex justify-between">
+            <div>Fetching page</div>
+            <div>
+              {pageIndex + 1} / {pageCount}
+            </div>
+          </div>
+          <Progress value={(100 * pageIndex) / pageCount - 1} />
+        </div>
+      );
+
+    return (
+      <>
+        <div className="flex-between flex items-center gap-1">
+          <Input
+            className="focus-visible:ring-transparent"
+            value={filename}
+            onChange={(e) => setFilename(e.target.value)}
+          />
+          <div className="text-foreground/70">.csv</div>
+        </div>
+
+        <CSVDownloader
+          type={Type.Button}
+          className="rounded-md border bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/80"
+          download={true}
+          data={articles}
+          bom={true}
+          filename={`${filename}.csv`}
+        >
+          Download
+        </CSVDownloader>
+      </>
+    );
+  }
+
+  return (
+    <Dialog open={true} onOpenChange={(open) => setEnabled(open)}>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+        <div className="mt-5 flex flex-col gap-3">{render()}</div>
+      </DialogContent>
+    </Dialog>
+  );
 }
