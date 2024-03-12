@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex, MenuRoute } from "@/interfaces";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { ChevronDown, LibraryIcon, User, X } from "lucide-react";
+import { Book, ChevronDown, LayoutDashboard, LibraryIcon, Menu, Settings, User, Users, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
@@ -28,81 +28,98 @@ import { CommandEmpty } from "cmdk";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
-const indexRouting: MenuRoute[] = [
-  { label: "Dashboard", pathname: "dashboard" },
-  { label: "Users", pathname: "users", reqRole: "WRITER" },
-  { label: "Fields", pathname: "fields", reqRole: "WRITER" },
-  { label: "Settings", pathname: "settings", reqRole: "ADMIN" },
-];
-
 export default function IndexMenu() {
-  const path = usePathname();
   const { user, loading } = useMiddlecat();
   const role = useMyGlobalRole(user);
   const params = useParams<{ index: string }>();
   const router = useRouter();
   const indexId = decodeURI(params?.index || "");
   const { data: index } = useIndex(user, indexId);
-  const indexRole = index?.user_role || "NONE";
-
-  function currentPath() {
-    if (!indexId || !path) return "";
-    const pathParts = path.split("/");
-    return pathParts[pathParts.length - 1] || "";
-  }
-  function onSelectPath(value: string) {
-    if (!indexId) return;
-    router.push(`/index/${indexId}/${value}`);
-  }
 
   if (loading || !user) return null;
-  if (!index) return <IndexOverview />;
+  if (!index) return <IndicesLink />;
 
   const isServerAdmin = role === "ADMIN";
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        className={
-          "flex h-full select-none items-center gap-3 border-primary px-3  text-primary outline-none hover:bg-foreground/10"
-        }
-      >
-        <div className="max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap ">{index.name} </div>
-        <ChevronDown className="h-4 w-4" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
-        <DropdownMenuLabel className="">Current index</DropdownMenuLabel>
-        {index && (
-          <MenuRouting routes={indexRouting} current={currentPath()} role={indexRole} onSelect={onSelectPath} />
-        )}
-        <DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          {/* <DropdownMenuLabel className="text-primary">Index</DropdownMenuLabel> */}
-          <DropdownMenuSub>
-            <DropdownMenuItem className="flex gap-2" onClick={() => router.push("/")}>
-              <X className="h-4 w-4" />
-              <span className="hidden md:inline">Close index</span>
-            </DropdownMenuItem>
-            <SelectIndex user={user} />
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
-        {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          className={
+            "flex h-full select-none items-center gap-3 border-primary px-3  outline-none hover:bg-foreground/10"
+          }
+        >
+          <Menu />
+          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap lg:block ">
+            {index.name}{" "}
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
+          <DropdownMenuGroup>
+            <DropdownMenuSub>
+              <DropdownMenuItem className="flex gap-2" onClick={() => router.push("/")}>
+                <X className="h-4 w-4" />
+                <span className="">Close index</span>
+              </DropdownMenuItem>
+              <SelectIndex user={user} />
+            </DropdownMenuSub>
+          </DropdownMenuGroup>
+          {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
+      <NavLink index={index} path="users" label="Users" icon={<Users />} />
+      <NavLink index={index} path="settings" label="Settings" icon={<Settings />} />
+    </>
   );
 }
-function IndexOverview() {
-  const router = useRouter();
 
-  function goToSelectIndex() {
-    router.push("/");
-  }
+function useCurrentPath() {
+  const path = usePathname();
+  if (!path) return "";
+  const pathParts = path.split("/");
+  return pathParts[pathParts.length - 1] || "";
+}
+
+function IndicesLink() {
+  const router = useRouter();
+  const currentPath = useCurrentPath();
+  const active = currentPath === "";
+
   return (
     <button
-      onClick={goToSelectIndex}
-      className="flex h-full select-none items-center gap-3 border-primary px-4  text-primary outline-none hover:bg-foreground/10"
+      onClick={() => router.push("/")}
+      className={`${active ? "text-primary" : "text-foreground/80"}
+      flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
     >
       <LibraryIcon />
-      <span className="hidden md:inline">Indices</span>
+      <span>Indices</span>
+    </button>
+  );
+}
+
+function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string; label: string; icon: JSX.Element }) {
+  const router = useRouter();
+  const currentPath = useCurrentPath();
+  const active = path === currentPath;
+  const href = `/index/${index.id}/${path}`;
+  const indexRole = index?.user_role || "NONE";
+
+  const writer = indexRole === "WRITER" || indexRole === "ADMIN";
+  if (!writer) {
+    if (path === "users" || path === "settings") return null;
+    if (path === "dashboard" && active) return null;
+  }
+
+  return (
+    <button
+      onClick={() => router.push(href)}
+      className={`${
+        active ? "text-primary" : "text-foreground/80"
+      } flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
+    >
+      {icon}
+      <span className="hidden lg:inline">{label}</span>
     </button>
   );
 }
@@ -125,14 +142,14 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
     <DropdownMenuGroup>
       <DropdownMenuSeparator />
 
-      <DropdownMenuLabel className="text-primary">Server admin actions</DropdownMenuLabel>
+      <DropdownMenuLabel className="">Server admin actions</DropdownMenuLabel>
 
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger className={!index ? "hidden" : "text-primary"}>
+        <DropdownMenuSubTrigger className={!index ? "hidden" : ""}>
           <User className="mr-2 h-4 w-4" />
           <span>My index role</span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="text-primary">
+        <DropdownMenuSubContent className="">
           <DropdownMenuRadioGroup
             value={index?.user_role}
             onSelect={(e) => e.preventDefault()}
@@ -175,7 +192,7 @@ function SelectIndex({ user }: { user: MiddlecatUser }) {
               <CommandGroup>
                 {indices?.map((index) => {
                   return (
-                    <CommandItem key={index.name} value={index.id} onSelect={(value) => onSelectIndex(value)}>
+                    <CommandItem key={index.id} value={index.id} onSelect={(value) => onSelectIndex(value)}>
                       <span className="text-primary">{index.name.replaceAll("_", " ")}</span>
                     </CommandItem>
                   );

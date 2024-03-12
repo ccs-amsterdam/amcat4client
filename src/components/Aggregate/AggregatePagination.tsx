@@ -90,7 +90,7 @@ const pageSizeOptions = [
 export default function AggregatePagination({ data, pagination }: Props) {
   const hasPagination = data.rows.length < pagination.n;
   const showPageSize = pagination.n > pageSizeOptions[0].value;
-  const hasColumnSelection = pagination.columns.length < pagination.allColumns.length;
+  const hasColumnSelection = pagination.allColumns.length > 1;
   const nPages = Math.ceil(pagination.n / pagination.pageSize);
 
   function onToggleColumn(event: any, column: ChartDataColumn) {
@@ -109,7 +109,7 @@ export default function AggregatePagination({ data, pagination }: Props) {
   }, [pagination]);
 
   return (
-    <div className="flex h-10 justify-end gap-3 text-sm text-secondary">
+    <div className="flex h-10 justify-end gap-3 text-sm text-foreground">
       <DropdownMenu>
         <DropdownMenuTrigger
           className={`flex items-center gap-1 px-1 text-sm ${hasColumnSelection ? "block" : "hidden"}`}

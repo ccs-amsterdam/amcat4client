@@ -2,8 +2,6 @@
 
 import {
   ColumnDef,
-  FilterFn,
-  PaginationState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -13,8 +11,6 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./button";
-import { Updater } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
@@ -29,11 +25,6 @@ interface DataTableProps<TData, TValue> {
   };
   loading?: boolean;
   pageSize?: number;
-}
-
-interface Pagination {
-  pageIndex: number;
-  pageSize: number;
 }
 
 export function DataTable<TData, TValue>({

@@ -1,7 +1,7 @@
 import { useMyIndexrole } from "@/api";
 import { useFields } from "@/api/fields";
 import { AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interfaces";
-import { ChevronDown, EyeOff } from "lucide-react";
+import { ChevronDown, Download, EyeOff } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import { MouseEvent, useEffect, useState } from "react";
 import { Button } from "../ui/button";
@@ -23,7 +23,6 @@ interface Props {
 
 export default function DownloadArticles({ user, indexId, query }: Props) {
   const [fields, setFields] = useState<AmcatField[] | undefined>();
-  const [pageSize, setPageSize] = useState(6);
 
   const indexRole = useMyIndexrole(user, indexId);
   const { data: allFields, isLoading } = useFields(user, indexId);
@@ -99,7 +98,7 @@ interface DownloaderProps {
 
 function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps) {
   const [enabled, setEnabled] = useState(false);
-  const [filename, setFilename] = useState<string>("articles");
+  const [filename, setFilename] = useState<string>("");
   const { CSVDownloader, Type } = useCSVDownloader();
   const { articles, pageIndex, pageCount, nextPage } = usePaginatedArticles({
     user,
@@ -112,15 +111,18 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
     enabled,
   });
 
-  useEffect(() => {
-    setFilename(`${indexId}_articles`);
-  }, [indexId]);
+  const defaultFilename = `${indexId}_articles`;
 
   useEffect(() => {
     if (pageIndex < pageCount - 1) nextPage();
   }, [nextPage, pageIndex, pageCount]);
 
-  if (!enabled) return <Button onClick={() => setEnabled(true)}>Start download</Button>;
+  if (!enabled)
+    return (
+      <Button onClick={() => setEnabled(true)} className="flex items-center gap-2">
+        <Download className="h-5 w-5" />
+      </Button>
+    );
 
   function render() {
     if (pageIndex < pageCount - 1)
@@ -140,7 +142,8 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
       <>
         <div className="flex-between flex items-center gap-1">
           <Input
-            className="focus-visible:ring-transparent"
+            placeholder={defaultFilename}
+            className="selection:bg-foreground/20 focus-visible:ring-transparent"
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
           />
@@ -153,7 +156,7 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
           download={true}
           data={articles}
           bom={true}
-          filename={`${filename}.csv`}
+          filename={`${filename || defaultFilename}`}
         >
           Download
         </CSVDownloader>
@@ -163,7 +166,7 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
 
   return (
     <Dialog open={true} onOpenChange={(open) => setEnabled(open)}>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent>
         <div className="mt-5 flex flex-col gap-3">{render()}</div>
       </DialogContent>
     </Dialog>

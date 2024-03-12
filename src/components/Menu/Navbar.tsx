@@ -5,6 +5,7 @@ import AccountMenu from "./AccountMenu";
 import ServerMenu from "./ServerMenu";
 import ThemeToggle from "./ThemeToggle";
 import IndexMenu from "./IndexMenu";
+import Refresh from "./Refresh";
 
 export default function Navbar() {
   useAutoSignin();
@@ -16,8 +17,9 @@ export default function Navbar() {
           <ServerMenu />
           <IndexMenu />
         </div>
-        <div className="grid grid-cols-[2.5rem,2.5rem] items-center gap-1">
+        <div className="grid grid-cols-[2.5rem,2.5rem,2.5rem] items-center gap-1">
           <ThemeToggle />
+          <Refresh />
           <AccountMenu />
         </div>
       </div>

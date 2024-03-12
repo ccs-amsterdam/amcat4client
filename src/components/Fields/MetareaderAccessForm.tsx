@@ -89,8 +89,8 @@ function MaxSnippetPopover({ metareader_access, onChangeMaxSnippet }: Omit<Props
         <div className="flex flex-col gap-3 text-sm">
           <div className="flex items-center gap-3">
             <div className="flex-auto ">
-              <h3 className="font-semibold text-foreground/50">nomatch_chars</h3>
-              <label>Length of snippet (in characters) if there is no query</label>
+              <h3 className="font-semibold text-foreground/50">Full-text snippet size</h3>
+              <label>Cut of text after this number of characters*</label>
             </div>
             <Input
               type="number"
@@ -100,23 +100,26 @@ function MaxSnippetPopover({ metareader_access, onChangeMaxSnippet }: Omit<Props
               value={MaxSnippet?.nomatch_chars}
             />
           </div>
+          <h3 className="text-md mb-0 border-t pt-4 font-semibold ">
+            If a text query is used, show snippets per match
+          </h3>
           <div className="flex items-center gap-3">
             <div className="flex-auto ">
-              <h3 className="font-semibold text-foreground/50">max_matches</h3>
-              <label>Maximum number of query matches</label>
+              <h3 className="font-semibold text-foreground/50">Number of matches</h3>
+              <label>If zero, always show the full-text snippet </label>
             </div>
             <Input
               type="number"
               min={0}
-              className="w-28"
+              className="w-28 text-foreground"
               onChange={(e) => setMaxSnippet({ ...MaxSnippet, max_matches: Number(e.target.value) })}
               value={MaxSnippet?.max_matches}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${!MaxSnippet?.max_matches ? "opacity-50" : ""}`}>
             <div className="flex-auto ">
-              <h3 className="font-semibold text-foreground/50">match_chars</h3>
-              <label>Length of snippet per query match</label>
+              <h3 className="font-semibold text-foreground/50">Query-match snippet size</h3>
+              <label>Number of characters* around matched text</label>
             </div>
             <Input
               type="number"
@@ -125,6 +128,9 @@ function MaxSnippetPopover({ metareader_access, onChangeMaxSnippet }: Omit<Props
               onChange={(e) => setMaxSnippet({ ...MaxSnippet, match_chars: Number(e.target.value) })}
               value={MaxSnippet?.match_chars}
             />
+          </div>
+          <div className="mt-2 italic text-foreground/70">
+            * cuts of after last full word, so exact number of characters can be higher
           </div>
         </div>
       </PopoverContent>

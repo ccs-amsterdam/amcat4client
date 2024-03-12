@@ -1,4 +1,4 @@
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Legend, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AggregateVisualizerProps } from "@/interfaces";
 import { qualitativeColors } from "./colors";
 import { CustomTooltip } from "./CustomTooltip";
@@ -29,12 +29,14 @@ export default function AggregateBarChart({ data, createZoom, width, height, lim
   if (width == null) width = "100%";
 
   return (
-    <ResponsiveContainer width={width} height={height}>
+    <ResponsiveContainer width={width} height={height} className="text-sm">
       <BarChart data={data.rows} layout="vertical">
         <CartesianGrid strokeDasharray="3 3" />
         <YAxis type="category" dataKey={primary} width={250} interval={0} />
         <XAxis type="number" domain={[0, data.domain[1]]} />
         <Tooltip cursor={{ opacity: 0.2 }} content={<CustomTooltip value={bar} />} />
+
+        {data.axes.length > 1 ? <Legend /> : null}
         {data.columns.map((column, i) => (
           <Bar
             key={i}

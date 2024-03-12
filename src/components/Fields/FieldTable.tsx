@@ -3,10 +3,12 @@
 import { DataTable } from "@/components/ui/datatable";
 import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField, AmcatClientSettings } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
 import VisibilityForm from "./VisibilityForm";
+import { Input } from "../ui/input";
+import { Search } from "lucide-react";
 
 interface Row extends AmcatField {
   onChange?: ({ name, type, metareader, client_settings }: UpdateAmcatField) => void;
@@ -79,6 +81,16 @@ interface Props {
 }
 
 export default function FieldTable({ fields, mutate }: Props) {
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [debouncedGlobalFilter, setDebouncedGlobalFilter] = useState(globalFilter);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setGlobalFilter(debouncedGlobalFilter);
+    }, 250);
+    return () => clearTimeout(timeout);
+  }, [debouncedGlobalFilter]);
+
   const onChange = useCallback(
     (newField: UpdateAmcatField) => {
       mutate("update", [newField]);
@@ -95,5 +107,28 @@ export default function FieldTable({ fields, mutate }: Props) {
       return row;
     }) || [];
 
-  return <DataTable columns={tableColumns} data={data} />;
+  return (
+    <div>
+      <div className="flex items-center justify-between pb-4">
+        <div className="prose-xl flex gap-1 md:gap-3">
+          <h3 className="">Fields</h3>
+          {/* <CreateUser ownRole={ownRole} roles={roles} changeRole={changeRole}>
+            <Button variant="ghost" className="flex gap-2 p-4">
+              <UserPlus />
+              <span className="hidden sm:inline">Add user</span>
+            </Button>
+          </CreateUser> */}
+        </div>
+        <div className="relative ml-auto flex items-center">
+          <Input
+            className="max-w-1/2 w-40 pl-8"
+            value={debouncedGlobalFilter}
+            onChange={(e) => setDebouncedGlobalFilter(e.target.value)}
+          />
+          <Search className="absolute left-2  h-5 w-5" />
+        </div>
+      </div>
+      <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={50} />
+    </div>
+  );
 }

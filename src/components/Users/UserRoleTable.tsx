@@ -102,7 +102,7 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
         </div>
       </div>
       <div>
-        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} />
+        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={50} />
         <AlertDialog open={changeOwnRole !== undefined} onOpenChange={() => setChangeOwnRole(undefined)}>
           <AlertDialogContent>
             <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>

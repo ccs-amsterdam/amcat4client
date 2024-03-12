@@ -33,11 +33,8 @@ export function UpdateIndex({ index }: { index: AmcatIndex }) {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogTrigger asChild className="min-w-[12rem] text-lg">
-        <Button variant="outline" className="w-min min-w-0 justify-start gap-4">
-          <Edit className="ml-1 h-4 w-4" />
-          Edit
-        </Button>
+      <DialogTrigger className="min-w-[12rem] text-lg">
+        <Edit className="ml-1 h-7 w-7" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

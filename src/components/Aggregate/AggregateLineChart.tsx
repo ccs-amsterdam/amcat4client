@@ -48,7 +48,7 @@ export default function AggregateLineChart({ data, createZoom, width, height, li
           <XAxis dataKey={data.axes[0].name} />
           <YAxis domain={[0, data.domain[1]]} />
           <Tooltip trigger={"hover"} content={<CustomTooltip value={line} onChangeGroup={setLine} />} />
-          {data.columns.length > 1 ? <Legend /> : null}
+          {data.axes.length > 1 ? <Legend /> : null}
           {data.columns.map((column, i) => (
             <Line
               key={column.name + i}
