@@ -1,8 +1,7 @@
 /** Joined all qualitative palettes together */
 const colors = [
-  "hsl(44, 64%, 45%)",
-  "hsl(174, 80%, 30%)",
-  "#e41a1c",
+  "hsl(var(--secondary))",
+  "hsl(var(--primary))",
   "#377eb8",
   "#4daf4a",
   "#984ea3",
@@ -10,6 +9,7 @@ const colors = [
   "#ffff33",
   "#a65628",
   "#f781bf",
+  "#e41a1c",
   "#999999",
   "#66c2a5",
   "#fc8d62",

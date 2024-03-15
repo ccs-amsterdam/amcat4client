@@ -15,7 +15,7 @@
     --primary: 174, 80%, 30%;
     --primary-foreground: 222.2, 47.4%, 100%;
 
-    --secondary: 44, 64%, 60%;
+    --secondary: 44, 64%, 50%;
     --secondary-foreground: 222.2, 47.4%, 20%;
 
     --muted: 0, 0%, 50%;
@@ -88,8 +88,8 @@
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
-  height: 5px;
-  background: hsla(var(--primary), 0.2);
+  height: 6px;
+  background: hsla(var(--secondary), 0.2);
 }
 
 /* Track */
@@ -99,12 +99,12 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsla(var(--primary), 0.2);
+  background: hsla(var(--secondary), 0.4);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(var(--primary));
+  background: hsla(var(--secondary));
 }
 
 .spike-loader {

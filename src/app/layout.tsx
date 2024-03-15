@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Poppins, Roboto } from "next/font/google";
 import ClientProviders from "@/components/ClientProviders";
 import { Toaster } from "@/components/ui/sonner";
+import Script from "next/script";
 
 const font = Poppins({
   subsets: ["latin"],
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={font.className} suppressHydrationWarning>
       <body className="relative flex min-h-screen flex-col scroll-smooth ">
+        <Script src="//cdn.jsdelivr.net/npm/eruda">eruda.init()</Script>
         <ClientProviders>
           <Navbar />
           <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-6">
