@@ -64,7 +64,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
           </Button>
         </div>
       </div>
-      <div className="relative max-w-2xl rounded ">
+      <div className="relative rounded ">
         <div
           className={`relative grid max-h-full grid-cols-1 gap-2 overflow-auto pr-3 ${isFetching ? "opacity-80" : ""}`}
         >

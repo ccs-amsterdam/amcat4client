@@ -53,7 +53,7 @@ export default function IndexMenu() {
             {index.name}{" "}
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="min-w-[200px] border-[1px] border-foreground">
+        <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
           <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuItem className="flex gap-2" onClick={() => router.push("/")}>
@@ -68,7 +68,6 @@ export default function IndexMenu() {
       </DropdownMenu>
 
       <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
-      <NavLink index={index} path="users" label="Users" icon={<Users />} />
       <NavLink index={index} path="settings" label="Settings" icon={<Settings />} />
     </>
   );

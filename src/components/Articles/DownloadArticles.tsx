@@ -106,7 +106,7 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
     query,
     fields,
     indexRole,
-    pageSize: 1000,
+    pageSize: 200,
     combineResults: true,
     enabled,
   });
@@ -129,12 +129,12 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
       return (
         <div className=" ">
           <div className="mb-1 flex justify-between">
-            <div>Fetching page</div>
+            <div>Fetching pages</div>
             <div>
               {pageIndex + 1} / {pageCount}
             </div>
           </div>
-          <Progress value={(100 * pageIndex) / pageCount - 1} />
+          <Progress className="mt-2" value={(100 * pageIndex) / pageCount - 1} />
         </div>
       );
 

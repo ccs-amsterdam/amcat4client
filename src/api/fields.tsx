@@ -27,11 +27,11 @@ const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   },
 };
 
-export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
+export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, enabled: boolean = true) {
   return useQuery({
     queryKey: ["fields", user, indexId],
     queryFn: () => getFields(user, indexId || ""),
-    enabled: user != null && indexId != null,
+    enabled: enabled && user != null && indexId != null,
   });
 }
 

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
 import { AmcatIndex } from "@/interfaces";
 
-export function UpdateIndex({ index }: { index: AmcatIndex }) {
+export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
   const { user } = useMiddlecat();
   const { mutate } = useMutateIndex(user);
   const [name, setName] = useState("");
@@ -33,8 +33,8 @@ export function UpdateIndex({ index }: { index: AmcatIndex }) {
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
-      <DialogTrigger className="min-w-[12rem] text-lg">
-        <Edit className="ml-1 h-7 w-7" />
+      <DialogTrigger asChild className="text-lg">
+        {children}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
