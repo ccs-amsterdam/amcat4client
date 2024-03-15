@@ -17,9 +17,10 @@ interface Props {
   indexId: AmcatIndexId;
   query: AmcatQuery;
   fields: AmcatField[];
+  children?: React.ReactNode;
 }
 
-export default function ArticleTable({ user, indexId, query, fields }: Props) {
+export default function ArticleTable({ user, indexId, query, fields, children }: Props) {
   const [pageSize, setPageSize] = useState(6);
   const indexRole = useMyIndexrole(user, indexId);
   const { articles, pageIndex, prevPage, nextPage, isFetching, pageCount } = usePaginatedArticles({
@@ -41,7 +42,7 @@ export default function ArticleTable({ user, indexId, query, fields }: Props) {
       header: () => (
         <div>
           <div>ID</div>
-          <div className="text-xs text-secondary">identifier</div>
+          <div className="text-xs text-primary">identifier</div>
         </div>
       ),
       cell: ({ row }) => {
@@ -61,7 +62,7 @@ export default function ArticleTable({ user, indexId, query, fields }: Props) {
         header: () => (
           <div className="py-1">
             {field.name}{" "}
-            <div className={`text-xs ${!!restricted ? "text-destructive" : "text-secondary"}`}>
+            <div className={`text-xs ${!!restricted ? "text-destructive" : "text-primary"}`}>
               {restricted || field.type}
             </div>
           </div>
@@ -80,14 +81,7 @@ export default function ArticleTable({ user, indexId, query, fields }: Props) {
 
   return (
     <div>
-      <div className={`${true ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
-        <Button variant="outline" size="sm" onClick={prevPage} disabled={pageIndex <= 0}>
-          <ArrowLeft />
-        </Button>
-        <Button variant="outline" size="sm" onClick={nextPage} disabled={isFetching || pageIndex >= pageCount - 1}>
-          {isFetching ? <Loader className="animate-[spin_2000ms_linear_infinite] " /> : <ArrowRight />}
-        </Button>
-      </div>
+      <div className={`${true ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>{children}</div>
       <DataTable
         data={articles}
         columns={columns}

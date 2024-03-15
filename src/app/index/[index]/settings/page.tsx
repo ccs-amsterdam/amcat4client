@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Edit } from "lucide-react";
+import { parseAsStringEnum, useQueryState } from "next-usequerystate";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -22,13 +23,19 @@ interface Props {
   params: { index: string };
 }
 
-type Tabs = "index" | "fields" | "users";
+enum Tab {
+  Index = "t1",
+  Fields = "t2",
+  Users = "t3",
+  // Articles = "t4",
+}
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
-  const [tab, setTab] = useState<Tabs>("index");
+
+  const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Index));
 
   // TODO: SOMEHOW INVALIDATION DOESN'T WORK IN UPDATEINDEX
 
@@ -39,7 +46,15 @@ export default function Index({ params }: Props) {
     <div className="flex w-full  flex-col gap-10">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tabs)} className="flex min-h-[500px] w-full flex-col">
         <TabsList className="mb-12">
-          <TabsTrigger value="index" key="index">
+          {Object.keys(Tab).map((tab) => {
+            const tabValue = Tab[tab as keyof typeof Tab];
+            return (
+              <TabsTrigger key={tabValue} value={tabValue}>
+                {tab}
+              </TabsTrigger>
+            );
+          })}
+          {/* <TabsTrigger value="index" key="index">
             Index
           </TabsTrigger>
           <TabsTrigger value="fields" key="fields">
@@ -47,19 +62,24 @@ export default function Index({ params }: Props) {
           </TabsTrigger>
           <TabsTrigger value="users" key="users">
             Users
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
         <div className="mx-auto w-full max-w-6xl">
-          <TabsContent value="index">
+          <TabsContent value={Tab.Index}>
             <Settings index={index} />
           </TabsContent>
-          <TabsContent value="fields">
+          <TabsContent value={Tab.Fields}>
             <Fields index={index} />
           </TabsContent>
-          <TabsContent value="users">
+          <TabsContent value={Tab.Users}>
             <Users index={index} />
           </TabsContent>
         </div>
+        {/* <div className="mx-auto w-full">
+          <TabsContent value={Tab.Articles}>
+            <div>Articles</div>
+          </TabsContent>
+        </div> */}
       </Tabs>
     </div>
   );

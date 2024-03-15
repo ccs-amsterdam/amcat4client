@@ -52,8 +52,8 @@ export default function DownloadArticles({ user, indexId, query }: Props) {
   if (!indexRole || !fields) return null;
 
   return (
-    <div>
-      <div className="flex justify-end gap-3 pb-6">
+    <ArticleTable user={user} indexId={indexId} query={query} fields={fields}>
+      <div className="flex justify-end gap-3 ">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="flex items-center gap-2">
@@ -83,8 +83,7 @@ export default function DownloadArticles({ user, indexId, query }: Props) {
         </DropdownMenu>
         <Downloader user={user} indexId={indexId} query={query} fields={fields} indexRole={indexRole} />
       </div>
-      <ArticleTable user={user} indexId={indexId} query={query} fields={fields} />
-    </div>
+    </ArticleTable>
   );
 }
 

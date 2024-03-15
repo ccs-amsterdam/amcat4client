@@ -11,7 +11,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, StepBack, StepForward } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
-    // pageCount: manualPagination ? pagination.pageCount : undefined,
+    pageCount: manualPagination ? pagination.pageCount : undefined,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -49,12 +49,13 @@ export function DataTable<TData, TValue>({
       : { globalFilter },
     initialState: {
       pagination: {
+        pageIndex: 0,
         pageSize,
       },
     },
   });
 
-  const canPaginate = !manualPagination && (table.getCanNextPage() || table.getCanPreviousPage());
+  const canPaginate = table.getCanNextPage() || table.getCanPreviousPage();
 
   return (
     <div>
@@ -92,26 +93,27 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className={`${canPaginate ? "flex" : "hidden"} items-center justify-end space-x-2 py-4`}>
+      <div className={`${canPaginate ? "flex" : "hidden"} select-none items-center justify-end space-x-2 py-4`}>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => {
-            table.previousPage();
-          }}
+          onClick={() => (manualPagination ? pagination.prevPage() : table.previousPage())}
           disabled={!table.getCanPreviousPage()}
         >
-          <ArrowLeft />
+          <StepBack />
         </Button>
+        <div className="grid grid-cols-[1fr,auto,1fr] gap-2">
+          <div>{table.getState()?.pagination?.pageIndex + 1}</div>
+          <div>of</div>
+          <div>{table.getPageCount()}</div>
+        </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          onClick={() => {
-            table.nextPage();
-          }}
+          onClick={() => (manualPagination ? pagination.nextPage() : table.nextPage())}
           disabled={!table.getCanNextPage()}
         >
-          <ArrowRight />
+          <StepForward />
         </Button>
       </div>
     </div>

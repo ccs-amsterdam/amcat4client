@@ -30,7 +30,7 @@ export type Icon =
   | "vector"
   | "id";
 
-export function DynamicIcon({ type }: { type: Icon }) {
+export function DynamicIcon({ type }: { type: Icon | null }) {
   // display types
   if (type === "line graph") return <LineChart />;
   if (type === "bar chart") return <BarChart3 />;

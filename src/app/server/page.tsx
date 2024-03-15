@@ -30,19 +30,21 @@ export default function Index() {
     return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
-    <div className="flex flex-col justify-center gap-4">
-      <div>
-        <div className="grid grid-cols-[10rem,1fr]">
-          <div className="font-bold">Server</div>
+    <div className="flex flex-col justify-center gap-12 lg:flex-row">
+      <div className="h-min w-min ">
+        <h2 className="text-lg font-semibold">Server configuration</h2>
+
+        <p className="text-sm">
+          These settings are configured at the server level, and cannot be changed via the client
+        </p>
+        <div className="mt-4 grid grid-cols-[8rem,1fr]">
+          <div className="font-bold">Resource</div>
           <div className="font-mono text-primary">{config.resource}</div>
 
           <div className="font-bold">MiddleCat</div>
           <div className="font-mono text-primary">{config.middlecat_url}</div>
           <div className="font-bold">Authorization</div>
           <div className="font-mono text-primary">{config.authorization}</div>
-
-          <div className="font-bold">My role</div>
-          <div className="font-mono text-primary">{userDetails.role}</div>
         </div>
       </div>
       <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />

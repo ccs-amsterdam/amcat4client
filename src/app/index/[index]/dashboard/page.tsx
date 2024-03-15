@@ -28,7 +28,6 @@ enum Tab {
   Tags = "t3",
   Download = "t4",
   Upload = "t5",
-  Blallalalalalala = "t6",
 }
 
 export default function Index({ params }: Props) {
@@ -47,11 +46,13 @@ export default function Index({ params }: Props) {
 
   if (loadingUser || !user) return <Loading />;
   if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
+
   const canEdit = indexRole === "ADMIN" || indexRole === "WRITER";
+  const searchEnabled = tab !== Tab.Upload;
 
   return (
     <div>
-      <div className="pb-4">
+      <div className={` pb-4 ${searchEnabled ? "" : "pointer-events-none opacity-50"}`}>
         <div className="flex flex-col items-center lg:items-start">
           <div className="w-full">
             <QueryForm user={user} indexId={indexId} query={query} setQuery={setQuery} />

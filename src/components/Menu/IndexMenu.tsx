@@ -16,7 +16,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AmcatIndex, MenuRoute } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId, MenuRoute } from "@/interfaces";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 import { Book, ChevronDown, LayoutDashboard, LibraryIcon, Menu, Settings, User, Users, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
@@ -60,7 +60,7 @@ export default function IndexMenu() {
                 <X className="h-4 w-4" />
                 <span className="">Close index</span>
               </DropdownMenuItem>
-              <SelectIndex user={user} />
+              <SelectIndex user={user} indexId={indexId} />
             </DropdownMenuSub>
           </DropdownMenuGroup>
           {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
@@ -168,7 +168,7 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
   );
 }
 
-function SelectIndex({ user }: { user: MiddlecatUser }) {
+function SelectIndex({ user, indexId }: { user: MiddlecatUser; indexId: AmcatIndexId }) {
   const { data: indices } = useAmcatIndices(user);
   const router = useRouter();
 
@@ -183,16 +183,17 @@ function SelectIndex({ user }: { user: MiddlecatUser }) {
           <LibraryIcon className="mr-2 h-4 w-4" />
           <span>Select index</span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="text-primary">
+        <DropdownMenuSubContent className="">
           <Command>
             <CommandInput placeholder="Filter indices" autoFocus={true} className="h-9" />
             <CommandList>
               <CommandEmpty>No index found</CommandEmpty>
               <CommandGroup>
                 {indices?.map((index) => {
+                  if (index.id === indexId) return null;
                   return (
                     <CommandItem key={index.id} value={index.id} onSelect={(value) => onSelectIndex(value)}>
-                      <span className="text-primary">{index.name.replaceAll("_", " ")}</span>
+                      <span>{index.name.replaceAll("_", " ")}</span>
                     </CommandItem>
                   );
                 })}
