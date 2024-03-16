@@ -24,6 +24,12 @@
     --accent: 174, 40%, 96.1%;
     --accent-foreground: 174, 47.4%, 11.2%;
 
+    --check: 174, 56%, 40%;
+    --check-foreground: 222.2, 47.4%, 0%;
+
+    --warn: 0, 84.2%, 60.2%;
+    --warn-foreground: 210, 40%, 98%;
+
     --destructive: 0, 84.2%, 60.2%;
     --destructive-foreground: 210, 40%, 98%;
 
@@ -57,6 +63,12 @@
 
     --accent: 0, 0%, 11.1%;
     --accent-foreground: 0, 0%, 90.2%;
+
+    --check: 174, 56%, 50%;
+    --check-foreground: 222.2, 47.4%, 0%;
+
+    --warn: 0, 84.2%, 60.2%;
+    --warn-foreground: 210, 40%, 98%;
 
     --destructive: 0, 84.2%, 60.2%;
     --destructive-foreground: 210, 40%, 98%;

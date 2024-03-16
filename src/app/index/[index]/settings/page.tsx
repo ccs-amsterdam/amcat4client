@@ -44,7 +44,7 @@ export default function Index({ params }: Props) {
 
   return (
     <div className="flex w-full  flex-col gap-10">
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tabs)} className="flex min-h-[500px] w-full flex-col">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px] w-full flex-col">
         <TabsList className="mb-12">
           {Object.keys(Tab).map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];
@@ -54,15 +54,6 @@ export default function Index({ params }: Props) {
               </TabsTrigger>
             );
           })}
-          {/* <TabsTrigger value="index" key="index">
-            Index
-          </TabsTrigger>
-          <TabsTrigger value="fields" key="fields">
-            Fields
-          </TabsTrigger>
-          <TabsTrigger value="users" key="users">
-            Users
-          </TabsTrigger> */}
         </TabsList>
         <div className="mx-auto w-full max-w-6xl">
           <TabsContent value={Tab.Index}>
@@ -75,11 +66,6 @@ export default function Index({ params }: Props) {
             <Users index={index} />
           </TabsContent>
         </div>
-        {/* <div className="mx-auto w-full">
-          <TabsContent value={Tab.Articles}>
-            <div>Articles</div>
-          </TabsContent>
-        </div> */}
       </Tabs>
     </div>
   );

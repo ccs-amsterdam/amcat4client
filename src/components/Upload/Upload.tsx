@@ -3,7 +3,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useCSVReader } from "react-papaparse";
 import { Button } from "../ui/button";
-import { ChevronDown, List, Plus, X } from "lucide-react";
+import { AlertCircleIcon, CheckSquare, ChevronDown, List, Plus, Square, X } from "lucide-react";
 import { useFields } from "@/api/fields";
 
 import {
@@ -44,19 +44,6 @@ export default function Upload({ user, indexId }: Props) {
     return fields.filter((f) => !columns.find((c) => c.field === f.name));
   }, [fields, columns]);
 
-  // const tableColumns: ColumnDef<Record<string, jsType>>[] = useMemo(() => {
-  //   return columns.map((c) => ({
-  //     header: c.name,
-  //     cell: ({ row }) => {
-  //       return (
-  //         <div className="max-w-[5rem] overflow-hidden text-ellipsis whitespace-nowrap">
-  //           <span title={String(row.original[c.name])}>{row.original[c.name]}</span>
-  //         </div>
-  //       );
-  //     },
-  //   }));
-  // }, [columns]);
-
   const setColumn = (column: Column) => setColumns(columns.map((c) => (c.name === column.name ? column : c)));
 
   if (fieldsLoading) return <div>Loading...</div>;
@@ -72,6 +59,7 @@ export default function Upload({ user, indexId }: Props) {
               <TableHead className="text-lg font-semibold">Column</TableHead>
               <TableHead className="text-lg font-semibold">Index field</TableHead>
               <TableHead className="text-lg font-semibold">Field type</TableHead>
+              <TableHead className="text-lg font-semibold">Upload status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -80,16 +68,12 @@ export default function Upload({ user, indexId }: Props) {
                 <TableRow key={column.name} className="">
                   <TableCell>{column.name}</TableCell>
                   <TableCell>
-                    <SelectAmcatField
-                      column={column}
-                      unusedFields={unusedFields}
-                      fields={fields}
-                      setColumn={setColumn}
-                    />
+                    <SelectAmcatField column={column} unusedFields={unusedFields} setColumn={setColumn} />
                   </TableCell>
                   <TableCell>
-                    <SelectFieldType column={column} fields={fields} setColumn={setColumn} />
+                    <SelectFieldType column={column} setColumn={setColumn} />
                   </TableCell>
+                  <TableCell>{getUploadStatus(column, data)}</TableCell>
                 </TableRow>
               );
             })}
@@ -114,15 +98,35 @@ export default function Upload({ user, indexId }: Props) {
   );
 }
 
+function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
+  let icon = <Square className="h-6 w-6 text-secondary" />;
+  let text = "Not used";
+
+  if (column.field) {
+    if (!column.elasticType) {
+      icon = <AlertCircleIcon className="text-warn h-6 w-6" />;
+      text = "Type not set";
+    } else {
+      icon = <CheckSquare className="text-check h-6 w-6" />;
+      text = "Ready";
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      {text}
+    </div>
+  );
+}
+
 function SelectAmcatField({
   column,
   setColumn,
-  fields,
   unusedFields,
 }: {
   column: Column;
   setColumn: (column: Column) => void;
-  fields: AmcatField[];
   unusedFields: AmcatField[];
 }) {
   if (!column) return null;
@@ -175,17 +179,7 @@ function SelectAmcatField({
   );
 }
 
-function SelectFieldType({
-  name,
-  column,
-  setColumn,
-  fields,
-}: {
-  name: string;
-  column: Column;
-  setColumn: (column: Column) => void;
-  fields: AmcatField[];
-}) {
+function SelectFieldType({ column, setColumn }: { column: Column; setColumn: (column: Column) => void }) {
   console.log(column);
   if (!column.field) return null;
   return (
