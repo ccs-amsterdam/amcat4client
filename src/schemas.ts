@@ -32,7 +32,17 @@ export const amcatUserDetailsSchema = z.object({
   role: amcatUserRoleSchema,
 });
 
-export const amcatFieldTypeSchema = z.enum(["text", "date", "boolean", "keyword", "number", "object", "vector", "geo"]);
+export const amcatFieldTypeSchema = z.enum([
+  "id",
+  "text",
+  "date",
+  "boolean",
+  "keyword",
+  "number",
+  "object",
+  "vector",
+  "geo",
+]);
 export const amcatFieldElasticTypeSchema = z.enum([
   "text",
   "annotated_text",
@@ -76,6 +86,7 @@ export const amcatClientSettingsSchema = z.object({
 });
 export const amcatFieldSchema = z.object({
   name: z.string(),
+  identifier: z.boolean(),
   type: amcatFieldTypeSchema,
   elastic_type: amcatFieldElasticTypeSchema,
   metareader: amcatMetareaderAccessSchema,

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Icon } from "@/components/ui/dynamic-icon";
 
 import {
   DropdownMenu,

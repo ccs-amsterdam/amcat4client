@@ -12,25 +12,12 @@ import {
   Link,
   Globe,
   Fingerprint,
+  ToggleLeft,
+  Binary,
+  Tally5,
 } from "lucide-react";
 
-export type Icon =
-  | "line graph"
-  | "bar chart"
-  | "list"
-  | "table"
-  | "number"
-  | "object"
-  | "keyword"
-  | "date"
-  | "text"
-  | "geo"
-  | "url"
-  | "boolean"
-  | "vector"
-  | "id";
-
-export function DynamicIcon({ type }: { type: Icon | null }) {
+export function DynamicIcon({ type }: { type: string | null }) {
   // display types
   if (type === "line graph") return <LineChart />;
   if (type === "bar chart") return <BarChart3 />;
@@ -38,7 +25,7 @@ export function DynamicIcon({ type }: { type: Icon | null }) {
   if (type === "table") return <Table2 />;
 
   // field types
-  if (type === "number") return <Hash />;
+  if (type === "number" || type === "float") return <Binary />;
   if (type === "object") return <Braces />;
   if (type === "keyword") return <Tag />;
   if (type === "date") return <CalendarDays />;
@@ -46,6 +33,8 @@ export function DynamicIcon({ type }: { type: Icon | null }) {
   if (type === "url") return <Link />;
   if (type === "geo") return <Globe />;
   if (type === "id") return <Fingerprint />;
+  if (type === "boolean") return <ToggleLeft />;
+  if (type === "integer") return <Tally5 />;
 
   console.error(`Unknown icon type ${type}`);
   return <X />;
