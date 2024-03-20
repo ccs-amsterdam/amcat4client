@@ -130,7 +130,7 @@ export default function Upload({ user, indexId }: Props) {
 
   async function startUpload() {
     if (!ready) return;
-    const batches = splitIntoBatches(data, 10);
+    const batches = splitIntoBatches(data, 100);
     setUploadStatus({
       status: "uploading",
       error: null,
@@ -148,9 +148,9 @@ export default function Upload({ user, indexId }: Props) {
 
   if (uploadStatus.status === "uploading")
     return (
-      <div className="mx-auto">
+      <div className="mx-auto flex flex-col gap-4">
         <h3 className="prose-xl w-full">Uploading documents</h3>
-        <div className="flex flex-col gap-4">
+        <div className="flex gap-4">
           <Loader className="h-8 w-8 animate-spin" />
           <div>
             batch {uploadStatus.batch_index + 1}/{uploadStatus.batches.length}
@@ -171,7 +171,7 @@ export default function Upload({ user, indexId }: Props) {
     );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
       <div className={`flex flex-col gap-8 ${data.length === 0 ? "hidden" : ""}`}>
         <div className={`p-4 ${fields.length === 0 ? "hidden" : ""}`}>
@@ -296,9 +296,10 @@ function SelectAmcatField({
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
           {column.field ? (
             <>
-              <Key className={` h-6 w-6 text-primary ${column.identifier ? "" : "hidden"}`} />
               <DynamicIcon type={column.type} />
-              {column.elasticType}
+              <span className="text-primary">{column.field}</span>
+              <span className="text-sm italic text-foreground/60">{column.elasticType}</span>
+              <Key className={` h-6 w-6 text-primary ${column.identifier ? "" : "hidden"}`} />
             </>
           ) : (
             <>
@@ -442,7 +443,7 @@ function CreateFieldDialog({
                     Number
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <Item label="Real number (float)" type="number" elasticType="float" />
+                    <Item label="Real number (double)" type="number" elasticType="double" />
                     <Item label="Integer (long)" type="number" elasticType="integer" />
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>

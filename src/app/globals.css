@@ -101,7 +101,7 @@
 ::-webkit-scrollbar {
   width: 10px;
   height: 6px;
-  background: hsla(var(--secondary), 0.2);
+  background: hsla(var(--foreground), 0.2);
 }
 
 /* Track */
@@ -111,12 +111,12 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsla(var(--secondary), 0.4);
+  background: hsla(var(--foreground), 0.4);
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(var(--secondary));
+  background: hsla(var(--foreground));
 }
 
 .spike-loader {

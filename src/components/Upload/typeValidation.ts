@@ -1,5 +1,6 @@
 import { AmcatFieldElasticType, UpdateAmcatField } from "@/interfaces";
 import { Column, jsType } from "./Upload";
+import { is } from "date-fns/locale";
 
 export function prepareUploadData(data: Record<string, jsType>[], columns: Column[]) {
   const documents = data.map((row) => {
@@ -141,12 +142,14 @@ function coerceUnsignedInteger(value: jsType) {
 }
 
 function coerceDate(value: jsType) {
-  if (typeof value === "string") {
-    if (!value.includes("Z")) value += "Z";
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) return date.toISOString();
-  }
-  return null;
+  if (typeof value !== "string") return null;
+
+  if (!value.includes("Z")) value += "Z";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return null;
+
+  if (value.includes(":")) return date.toISOString();
+  return date.toISOString().split("T")[0];
 }
 
 function coerceBoolean(value: jsType) {

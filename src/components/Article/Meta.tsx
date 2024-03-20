@@ -15,7 +15,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
   const metaFields = fields.filter(
     (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
   );
-
+  console.log(article);
   if (metaFields.length === 0) return null;
 
   return (
@@ -27,6 +27,8 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
           metareader && field.metareader.access !== "read" ? (
             <span className="text-secondary">Not visible for METAREADER</span>
           ) : null;
+
+        if (!article[field.name] && !noAccessMessage) return null;
 
         return (
           <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">

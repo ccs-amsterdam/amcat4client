@@ -26,8 +26,8 @@ export default function Summary({ user, indexId, query }: Props) {
   }
 
   return (
-    <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] gap-1 overflow-auto md:grid-cols-2 md:gap-3">
-      <div className=" border-foreground/31 snap-center overflow-auto  rounded-l">
+    <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] gap-1 overflow-auto md:grid-cols-2 md:gap-3 md:overflow-visible">
+      <div className="border-foreground/31 snap-center overflow-auto  rounded-l">
         <Articles user={user} indexId={indexId} query={query} />
       </div>
       <div className="mt-12 flex snap-center flex-col  gap-3 md:gap-6">
