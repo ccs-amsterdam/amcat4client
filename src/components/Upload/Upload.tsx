@@ -148,27 +148,23 @@ export default function Upload({ user, indexId }: Props) {
 
   if (uploadStatus.status === "uploading")
     return (
-      <div>
+      <div className="mx-auto">
         <h3 className="prose-xl w-full">Uploading documents</h3>
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Loader className="h-8 w-8 animate-spin" />
-              <div>
-                batch {uploadStatus.batch_index + 1}/{uploadStatus.batches.length}
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => {
-                    setUploadStatus({ ...uploadStatus, status: "idle" });
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
+          <Loader className="h-8 w-8 animate-spin" />
+          <div>
+            batch {uploadStatus.batch_index + 1}/{uploadStatus.batches.length}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <Button
+              onClick={() => {
+                setUploadStatus({ ...uploadStatus, status: "idle" });
+              }}
+            >
+              Cancel
+            </Button>
           </div>
         </div>
       </div>
@@ -177,10 +173,10 @@ export default function Upload({ user, indexId }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
-      <div className="flex flex-col gap-8">
+      <div className={`flex flex-col gap-8 ${data.length === 0 ? "hidden" : ""}`}>
         <div className={`p-4 ${fields.length === 0 ? "hidden" : ""}`}>
           <h3 className="prose-xl w-full">Index fields</h3>
-          <div className="flex">
+          <div className="flex flex-wrap gap-1">
             {fields.map((field) => {
               const used = columns.find((c) => c.field === field.name);
               return (
@@ -190,10 +186,10 @@ export default function Upload({ user, indexId }: Props) {
                     !!used ? "" : "bg-primary text-primary-foreground"
                   } flex gap-3 rounded-lg border  p-2  `}
                 >
+                  {field.identifier ? <Key className="h-6 w-6" /> : null}
                   <DynamicIcon type={field.type} />
                   <div className="flex w-full justify-between gap-3">
                     <div className="font-bold ">{field.name}</div>
-                    {field.identifier ? <Key className="h-6 w-6" /> : null}
                   </div>
                 </div>
               );
@@ -205,8 +201,7 @@ export default function Upload({ user, indexId }: Props) {
             <TableRow>
               <TableHead className="text-lg font-semibold">Column</TableHead>
               <TableHead className="text-lg font-semibold">Index field</TableHead>
-              <TableHead className="text-lg font-semibold">Field settings</TableHead>
-              <TableHead className="text-lg font-semibold">Upload status</TableHead>
+              <TableHead className="text-lg font-semibold">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -223,34 +218,23 @@ export default function Upload({ user, indexId }: Props) {
                       validating={validating}
                     />
                   </TableCell>
-                  <TableCell>
-                    <div className="flex h-full items-center gap-2">
-                      {column.type ? (
-                        <>
-                          <Key className={` h-6 w-6 text-secondary ${column.identifier ? "" : "opacity-0"}`} />
-                          <DynamicIcon type={column.type} />
-                          {column.elasticType}
-                        </>
-                      ) : null}
-                    </div>
-                  </TableCell>
                   <TableCell>{getUploadStatus(column, data)}</TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
-      </div>
-      <div className="flex items-center">
-        <Button disabled={!ready} onClick={() => startUpload()}>
-          Upload {data.length || ""} documents
-        </Button>
-        {warn ? (
-          <div className="ml-4 flex items-center gap-2">
-            <AlertCircleIcon className="h-6 w-6 text-warn" />
-            <div>Some fields have type mismatches. These will become missing values</div>
-          </div>
-        ) : null}
+        <div className="flex items-center">
+          <Button disabled={!ready} onClick={() => startUpload()}>
+            Upload {data.length || ""} documents
+          </Button>
+          {warn ? (
+            <div className="ml-4 flex items-center gap-2">
+              <AlertCircleIcon className="h-6 w-6 text-warn" />
+              <div>Some fields have type mismatches. These will become missing values</div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -303,14 +287,25 @@ function SelectAmcatField({
   const [createField, setCreateField] = useState(false);
 
   const isNew = column.field && !column.exists;
+  const isExisting = column.field && column.exists;
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger className={`flex w-full gap-2 rounded p-2 `}>
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
-          {column.field ? column.field : "Select field"}
-          <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
+          {column.field ? (
+            <>
+              <Key className={` h-6 w-6 text-primary ${column.identifier ? "" : "hidden"}`} />
+              <DynamicIcon type={column.type} />
+              {column.elasticType}
+            </>
+          ) : (
+            <>
+              Select field
+              <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
+            </>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSub>
@@ -600,6 +595,7 @@ function prepareData({
       type: field.type,
       elasticType: field.elastic_type,
       status: "Validating",
+      identifier: field.identifier,
       exists: true,
     };
   });
