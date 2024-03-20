@@ -19,3 +19,11 @@ export function roleAtLeast(role1: AmcatUserRole, role2: AmcatUserRole): boolean
   const index2 = amcatUserRoles.indexOf(role2);
   return index1 >= index2;
 }
+
+export function splitIntoBatches<T>(arr: T[], batchSize: number): T[][] {
+  const batches: T[][] = [];
+  for (let i = 0; i < arr.length; i += batchSize) {
+    batches.push(arr.slice(i, i + batchSize));
+  }
+  return batches;
+}

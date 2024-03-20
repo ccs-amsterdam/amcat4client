@@ -27,7 +27,6 @@ enum Tab {
   Aggregate = "t2",
   Tags = "t3",
   Download = "t4",
-  Upload = "t5",
 }
 
 export default function Index({ params }: Props) {
@@ -48,11 +47,10 @@ export default function Index({ params }: Props) {
   if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
 
   const canEdit = indexRole === "ADMIN" || indexRole === "WRITER";
-  const searchEnabled = tab !== Tab.Upload;
 
   return (
     <div>
-      <div className={` pb-4 ${searchEnabled ? "" : "pointer-events-none opacity-50"}`}>
+      <div className={` pb-4 `}>
         <div className="flex flex-col items-center lg:items-start">
           <div className="w-full">
             <QueryForm user={user} indexId={indexId} query={query} setQuery={setQuery} />
@@ -63,7 +61,6 @@ export default function Index({ params }: Props) {
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full px-1">
         <TabsList className="mb-8 overflow-auto">
           {Object.keys(Tab).map((tab) => {
-            if (!canEdit && tab === Tab.Upload) return null;
             const tabValue = Tab[tab as keyof typeof Tab];
             return (
               <TabsTrigger key={tabValue} value={tabValue}>
@@ -82,9 +79,6 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Tags}></TabsContent>
           <TabsContent value={Tab.Download}>
             <DownloadArticles user={user} indexId={indexId} query={query} />
-          </TabsContent>
-          <TabsContent value={Tab.Upload}>
-            <Upload user={user} indexId={indexId} />
           </TabsContent>
         </div>
       </Tabs>

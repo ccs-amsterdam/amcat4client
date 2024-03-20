@@ -1,9 +1,18 @@
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { amcatQueryResultSchema } from "@/schemas";
-import { AmcatIndexId, AmcatQuery, AmcatQueryParams, AmcatQueryResult } from "@/interfaces";
+import {
+  AmcatField,
+  AmcatIndexId,
+  AmcatQuery,
+  AmcatQueryParams,
+  AmcatQueryResult,
+  UpdateAmcatField,
+} from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect } from "react";
 import { postQuery } from "./query";
+import { toast } from "sonner";
+import { z } from "zod";
 
 export function useArticles(
   user: MiddlecatUser,
@@ -47,8 +56,28 @@ export function useArticles(
 async function getArticles(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
   // TODO, make sure query doesn't run needlessly
   // also check that it doesn't run if field is added but empty
-
   const res = await postQuery(user, indexId, query, params);
   const queryResult: AmcatQueryResult = amcatQueryResultSchema.parse(res.data);
   return queryResult;
+}
+
+export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: { documents: Record<string, any>; new_fields?: Record<string, UpdateAmcatField> }) => {
+      if (!user || !indexId) throw new Error("Not logged in");
+      const res = await user.api.post(`/index/${indexId}/documents`, params);
+      return z
+        .object({
+          n_submitted: z.number(),
+          created: z.array(z.string()),
+        })
+        .parse(res.data);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
+    },
+  });
 }

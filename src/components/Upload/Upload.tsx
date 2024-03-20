@@ -1,11 +1,23 @@
-import { AmcatField, AmcatFieldElasticType, AmcatFieldType, AmcatIndexId } from "@/interfaces";
+import { AmcatField, AmcatFieldElasticType, AmcatFieldType, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useCSVReader } from "react-papaparse";
 import { Button } from "../ui/button";
-import { AlertCircleIcon, CheckSquare, ChevronDown, Edit, Key, List, Loader, Plus, Square, X } from "lucide-react";
-import { useFields } from "@/api/fields";
-import { validateColumns } from "./typeValidation";
+import {
+  AlertCircleIcon,
+  CheckSquare,
+  ChevronDown,
+  Edit,
+  HelpCircle,
+  Key,
+  List,
+  Loader,
+  Plus,
+  Square,
+  X,
+} from "lucide-react";
+import { useFields, useMutateFields } from "@/api/fields";
+import { prepareUploadData, validateColumns } from "./typeValidation";
 
 import {
   DropdownMenu,
@@ -16,12 +28,15 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Checkbox } from "../ui/checkbox";
 import { set } from "date-fns";
+import { useMutateArticles } from "@/api/articles";
+import { splitIntoBatches } from "@/api/util";
+import { toast } from "sonner";
 
 interface Props {
   user: MiddlecatUser;
@@ -30,6 +45,14 @@ interface Props {
 
 export type jsType = string | number | boolean;
 export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type mismatch";
+interface UploadStatus {
+  status: "idle" | "uploading" | "success" | "error";
+  error: string | null;
+  batch_index: number;
+  batches: { documents: Record<string, any>[]; new_fields?: Record<string, UpdateAmcatField> }[];
+  submitted: number;
+  created: number;
+}
 
 export interface Column {
   name: string;
@@ -46,11 +69,20 @@ export default function Upload({ user, indexId }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const [data, setData] = useState<Record<string, jsType>[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
+  const { mutateAsync: mutateArticles } = useMutateArticles(user, indexId);
   const unusedFields = useMemo(() => {
     if (!fields) return [];
     return fields.filter((f) => !columns.find((c) => c.field === f.name));
   }, [fields, columns]);
   const [validating, setValidating] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
+    status: "idle",
+    error: null,
+    batch_index: 0,
+    batches: [],
+    submitted: 0,
+    created: 0,
+  });
 
   useEffect(() => {
     const needsValidation = columns.filter((c) => c.status === "Validating");
@@ -64,19 +96,111 @@ export default function Upload({ user, indexId }: Props) {
     });
   }, [columns, data]);
 
-  const ready = columns.every((c) => c.status !== "Validating" && c.status !== "Type not set");
+  useEffect(() => {
+    // upload batches
+    if (uploadStatus.status !== "uploading") return;
+    const batch = uploadStatus.batches[uploadStatus.batch_index];
+    mutateArticles(batch)
+      .then((result) => {
+        if (uploadStatus.batch_index === uploadStatus.batches.length - 1) {
+          setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "success" }));
+          toast.success(
+            `Upload complete. Created ${uploadStatus.created + result.created.length} / ${
+              uploadStatus.submitted + result.n_submitted
+            } documents. `,
+          );
+        } else {
+          setUploadStatus((uploadStatus) => ({
+            ...uploadStatus,
+            batch_index: uploadStatus.batch_index + 1,
+            submitted: uploadStatus.submitted + result.n_submitted,
+            created: uploadStatus.created + result.created.length,
+          }));
+        }
+      })
+      .catch((e) => {
+        setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "error", error: e.message }));
+        toast.error("Upload failed");
+      });
+  }, [uploadStatus]);
+
+  const nonePending = columns.length > 0 && columns.every((c) => !["Validating", "Type not set"].includes(c.status));
+  const ready = nonePending && columns.some((c) => c.status === "Ready");
   const warn = columns.some((c) => c.status === "Type mismatch");
+
+  async function startUpload() {
+    if (!ready) return;
+    const batches = splitIntoBatches(data, 10);
+    setUploadStatus({
+      status: "uploading",
+      error: null,
+      batch_index: 0,
+      batches: batches.map((batch) => prepareUploadData(batch, columns)),
+      submitted: 0,
+      created: 0,
+    });
+  }
 
   const setColumn = (column: Column) => setColumns(columns.map((c) => (c.name === column.name ? column : c)));
 
   if (fieldsLoading) return <div>Loading...</div>;
   if (!fields) return null;
 
+  if (uploadStatus.status === "uploading")
+    return (
+      <div>
+        <h3 className="prose-xl w-full">Uploading documents</h3>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Loader className="h-8 w-8 animate-spin" />
+              <div>
+                batch {uploadStatus.batch_index + 1}/{uploadStatus.batches.length}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => {
+                    setUploadStatus({ ...uploadStatus, status: "idle" });
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
   return (
-    <div className="flex flex-col gap-16">
+    <div className="flex flex-col gap-8">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
-      <div className="flex flex-col-reverse gap-4 md:flex-row md:gap-12">
-        <Table>
+      <div className="flex flex-col gap-8">
+        <div className={`p-4 ${fields.length === 0 ? "hidden" : ""}`}>
+          <h3 className="prose-xl w-full">Index fields</h3>
+          <div className="flex">
+            {fields.map((field) => {
+              const used = columns.find((c) => c.field === field.name);
+              return (
+                <div
+                  key={field.name}
+                  className={`${
+                    !!used ? "" : "bg-primary text-primary-foreground"
+                  } flex gap-3 rounded-lg border  p-2  `}
+                >
+                  <DynamicIcon type={field.type} />
+                  <div className="flex w-full justify-between gap-3">
+                    <div className="font-bold ">{field.name}</div>
+                    {field.identifier ? <Key className="h-6 w-6" /> : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <Table className="table-auto whitespace-nowrap">
           <TableHeader>
             <TableRow>
               <TableHead className="text-lg font-semibold">Column</TableHead>
@@ -116,25 +240,17 @@ export default function Upload({ user, indexId }: Props) {
             })}
           </TableBody>
         </Table>
-        <div className="ml-auto flex flex-wrap gap-2 p-3 md:flex-col">
-          <h3 className="w-full text-lg font-bold">Index fields</h3>
-          {fields.map((field) => {
-            const used = columns.find((c) => c.field === field.name);
-            console.log(!!used);
-            return (
-              <div
-                key={field.name}
-                className={`${!!used ? "" : "bg-primary text-primary-foreground"} flex gap-3 rounded-lg border  p-2  `}
-              >
-                <DynamicIcon type={field.type} />
-                <div className="flex w-full justify-between gap-3">
-                  <div className="font-bold ">{field.name}</div>
-                  {field.identifier ? <Key className="h-6 w-6" /> : null}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      </div>
+      <div className="flex items-center">
+        <Button disabled={!ready} onClick={() => startUpload()}>
+          Upload {data.length || ""} documents
+        </Button>
+        {warn ? (
+          <div className="ml-4 flex items-center gap-2">
+            <AlertCircleIcon className="h-6 w-6 text-warn" />
+            <div>Some fields have type mismatches. These will become missing values</div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -142,19 +258,21 @@ export default function Upload({ user, indexId }: Props) {
 
 function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   let icon: ReactNode;
+  let text = String(column.status);
 
   switch (column.status) {
     case "Ready":
-      icon = <CheckSquare className="text-check h-6 w-6" />;
+      icon = <CheckSquare className="h-6 w-6 text-check" />;
       break;
     case "Validating":
       icon = <Loader className="h-6 w-6 animate-spin" />;
       break;
     case "Type not set":
-      icon = <Square className="text-warn h-6 w-6" />;
+      icon = <Square className="h-6 w-6 text-warn" />;
       break;
     case "Type mismatch":
-      icon = <AlertCircleIcon className="text-warn h-6 w-6" />;
+      icon = <AlertCircleIcon className="h-6 w-6 text-warn" />;
+      text = column.typeWarning || "Type mismatch";
       break;
     default:
       icon = <Square className="h-6 w-6 text-secondary" />;
@@ -163,7 +281,7 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   return (
     <div className="flex items-center gap-2">
       {icon}
-      {column.status}
+      {text}
     </div>
   );
 }
@@ -190,9 +308,9 @@ function SelectAmcatField({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger className={`flex w-full gap-2 rounded p-2 `}>
-          {column.field ? column.field : "Select field"}
-          <ChevronDown className="h-5 w-5" />
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
+          {column.field ? column.field : "Select field"}
+          <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSub>
@@ -228,7 +346,9 @@ function SelectAmcatField({
           </DropdownMenuItem>
           <DropdownMenuItem
             className={column.field ? "flex gap-2" : "hidden"}
-            onClick={() => setColumn({ ...column, field: null, type: null, elasticType: null, exists: false })}
+            onClick={() =>
+              setColumn({ ...column, field: null, type: null, elasticType: null, exists: false, status: "Not used" })
+            }
           >
             <X /> Remove field
           </DropdownMenuItem>
@@ -258,10 +378,10 @@ function CreateFieldDialog({
   setColumn: (column: Column) => void;
   disabled?: boolean;
 }) {
-  const [newColumn, setNewColumn] = useState({ ...column, field: column.name });
+  const [newColumn, setNewColumn] = useState(() => ({ ...column, field: column.field || column.name }));
 
   useEffect(() => {
-    setNewColumn({ ...column, field: column.name });
+    setNewColumn({ ...column, field: column.field || column.name });
   }, [column]);
 
   function Item({
@@ -274,7 +394,10 @@ function CreateFieldDialog({
     label?: string;
   }) {
     return (
-      <DropdownMenuItem className="flex gap-2" onClick={() => setNewColumn({ ...newColumn, type, elasticType })}>
+      <DropdownMenuItem
+        className="flex gap-2"
+        onClick={() => setNewColumn({ ...newColumn, type, elasticType, status: "Validating" })}
+      >
         <DynamicIcon type={elasticType} />
         {label || type}
       </DropdownMenuItem>
@@ -296,40 +419,42 @@ function CreateFieldDialog({
             this after the data has been uploaded.
           </p> */}
         </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <Input
-            placeholder="Field name"
-            value={newColumn.field || ""}
-            onChange={(e) => setNewColumn({ ...newColumn, field: e.target.value })}
-          />
-          <DropdownMenu>
-            <DropdownMenuTrigger disabled={disabled} className="flex w-full gap-2 rounded">
-              {newColumn.elasticType ? (
-                <div className="flex gap-3">
-                  <DynamicIcon type={newColumn.elasticType} /> {newColumn.elasticType}
-                </div>
-              ) : (
-                "Select type"
-              )}
-              <ChevronDown className="h-5 w-5" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <Item label="Text" type="text" elasticType="text" />
-              <Item label="Keyword" type="keyword" elasticType="keyword" />
-              <Item label="Date" type="date" elasticType="date" />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className="flex gap-2">
-                  <DynamicIcon type="number" />
-                  Number
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <Item label="Real number (float)" type="number" elasticType="float" />
-                  <Item label="Integer (long)" type="number" elasticType="integer" />
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <Item label="Boolean" type="boolean" elasticType="boolean" />
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="flex flex-col gap-4 overflow-auto">
+          <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr,10rem]">
+            <Input
+              placeholder="Field name"
+              value={newColumn.field || ""}
+              onChange={(e) => setNewColumn({ ...newColumn, field: e.target.value })}
+            />
+            <DropdownMenu>
+              <DropdownMenuTrigger disabled={disabled} className="flex gap-2 rounded sm:ml-auto">
+                {newColumn.elasticType ? (
+                  <div className="flex gap-3">
+                    <DynamicIcon type={newColumn.elasticType} /> {newColumn.elasticType}
+                  </div>
+                ) : (
+                  "Select type"
+                )}
+                <ChevronDown className="h-5 w-5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <Item label="Text" type="text" elasticType="text" />
+                <Item label="Keyword" type="keyword" elasticType="keyword" />
+                <Item label="Date" type="date" elasticType="date" />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="flex gap-2">
+                    <DynamicIcon type="number" />
+                    Number
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <Item label="Real number (float)" type="number" elasticType="float" />
+                    <Item label="Integer (long)" type="number" elasticType="integer" />
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <Item label="Boolean" type="boolean" elasticType="boolean" />
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div
             className=" flex items-center gap-3 "
             onClick={() => {
@@ -337,13 +462,32 @@ function CreateFieldDialog({
             }}
           >
             <Key className="h-6 w-6" />
-            <label className="">Use as identifier*</label>
+            <label className="">Use as identifier</label>
             <Checkbox className="ml-[2px] h-5 w-5" checked={newColumn.identifier}>
               Field exists
             </Checkbox>
           </div>
         </div>
-        <div className="flex flex-col gap-3">
+        <div className="mt-2 flex items-center gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <HelpCircle className="cursor-pointer text-primary" />
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>Creating a new index field</DialogHeader>
+              <p className="text-sm">
+                When creating a new index field, you need to pick a name and type. The type indicates how the data will
+                be stored in Elasticsearch. Make sure to pick a suitable type, because you won't be able to change this
+                after the data has been uploaded.
+              </p>
+              <p className="text-sm">
+                If a field is marked as an <i>identifier</i>, it will be used to prevent duplicate documents. Use a
+                unique identifier (e.g., URL) if available. Use multiple identifiers for unique combinations (e.g.,
+                author & timestamp). If no identifier is set, only documents that are entirely identical will be
+                considered duplicates.
+              </p>
+            </DialogContent>
+          </Dialog>
           <div className="ml-auto flex gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
@@ -358,10 +502,6 @@ function CreateFieldDialog({
               Create
             </Button>
           </div>
-          <p className="text-sm italic">
-            * Identifier fields are used to prevent duplicate documents. Use unique identifier (e.g., URL) if available.
-            Use multiple identifiers for unique combinations (e.g., author & timestamp)
-          </p>
         </div>
       </DialogContent>
     </Dialog>

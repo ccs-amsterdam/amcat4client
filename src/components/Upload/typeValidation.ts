@@ -1,8 +1,8 @@
-import { AmcatFieldElasticType } from "@/interfaces";
+import { AmcatFieldElasticType, UpdateAmcatField } from "@/interfaces";
 import { Column, jsType } from "./Upload";
 
 export function prepareUploadData(data: Record<string, jsType>[], columns: Column[]) {
-  return data.map((row) => {
+  const documents = data.map((row) => {
     const newRow: Record<string, jsType> = {};
     for (const column of columns) {
       if (!column.field) continue;
@@ -16,6 +16,20 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
     }
     return newRow;
   });
+
+  const hasNewFields = columns.some((c) => c.field && !c.exists);
+  if (!hasNewFields) return { documents };
+
+  const new_fields: Record<string, UpdateAmcatField> = {};
+  columns.forEach((c) => {
+    if (c.field && !c.exists && c.elasticType) {
+      new_fields[c.field] = {
+        elastic_type: c.elasticType,
+        identifier: !!c.identifier,
+      };
+    }
+  });
+  return { documents: documents, new_fields };
 }
 
 function setCoercedValueOrSkip(
@@ -30,8 +44,6 @@ function setCoercedValueOrSkip(
 }
 
 export async function validateColumns(columns: Column[], data: Record<string, jsType>[]): Promise<Column[]> {
-  const types = columns.map((c) => c.elasticType);
-
   return columns.map((column) => {
     if (column.status !== "Validating") return column;
 

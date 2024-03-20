@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Edit } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "next-usequerystate";
+import Upload from "@/components/Upload/Upload";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -27,7 +28,7 @@ enum Tab {
   Index = "t1",
   Fields = "t2",
   Users = "t3",
-  // Articles = "t4",
+  Upload = "t4",
 }
 
 export default function Index({ params }: Props) {
@@ -64,6 +65,9 @@ export default function Index({ params }: Props) {
           </TabsContent>
           <TabsContent value={Tab.Users}>
             <Users index={index} />
+          </TabsContent>
+          <TabsContent value={Tab.Upload}>
+            <Upload indexId={index.id} user={user} />
           </TabsContent>
         </div>
       </Tabs>
