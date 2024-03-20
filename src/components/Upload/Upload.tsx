@@ -287,7 +287,6 @@ function SelectAmcatField({
   const [createField, setCreateField] = useState(false);
 
   const isNew = column.field && !column.exists;
-  const isExisting = column.field && column.exists;
 
   return (
     <>

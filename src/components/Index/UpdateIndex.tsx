@@ -8,24 +8,27 @@ import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
-import { AmcatIndex } from "@/interfaces";
+import { AmcatIndex, AmcatUserRole } from "@/interfaces";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
   const { user } = useMiddlecat();
   const { mutate } = useMutateIndex(user);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [guestRole, setGuestRole] = useState<AmcatUserRole>("METAREADER");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!index) return;
     setName(index.name);
     setDescription(index.description);
+    setGuestRole(index.guest_role);
   }, [index]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    mutate({ id: index.id, name, description, action: "update" });
+    mutate({ id: index.id, name, description, guest_role: guestRole, action: "update" });
     setOpen(false);
   }
 
@@ -63,6 +66,33 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
               name="description"
             />
           </div>
+
+          <div className="flex flex-col">
+            <label>Guest role</label>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className="flex gap-3">
+                  <div>{guestRole}</div>
+                  <Edit className="h-5 w-5" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <div className="flex flex-col gap-2">
+                  {["NONE", "METAREADER", "READER", "WRITER", "ADMIN"].map((role) => (
+                    <DropdownMenuItem
+                      key={role}
+                      onClick={() => {
+                        setGuestRole(role as AmcatUserRole);
+                      }}
+                    >
+                      {role}
+                    </DropdownMenuItem>
+                  ))}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           <Button className="mt-2 w-full">Create</Button>
         </form>
       </DialogContent>

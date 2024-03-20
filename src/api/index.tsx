@@ -39,20 +39,21 @@ async function getIndex(user?: MiddlecatUser, indexId?: string) {
 
 interface MutateIndexParams {
   id: AmcatIndexId;
-  action: "create" | "delete" | "update";
+  action: "create" | "delete" | "update" | "archive" | "unarchive";
   name?: string;
   description?: string;
   summary_field?: string;
   guest_role?: AmcatUserRole;
+  archive?: boolean;
 }
 
 export function useMutateIndex(user: MiddlecatUser | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, name, description, summary_field, guest_role, action }: MutateIndexParams) => {
+    mutationFn: ({ id, name, description, summary_field, guest_role, archive, action }: MutateIndexParams) => {
       if (!user) throw new Error("Not logged in");
-      return mutateIndex(user, id, action, name, description, summary_field, guest_role);
+      return mutateIndex(user, id, action, name, description, summary_field, guest_role, archive);
     },
     onSuccess: (_, variables) => {
       const indexId = variables.id;
@@ -71,18 +72,23 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
 export async function mutateIndex(
   user: MiddlecatUser | undefined,
   id: AmcatIndexId,
-  action: "create" | "delete" | "update",
+  action: "create" | "delete" | "update" | "archive" | "unarchive",
   name?: string,
   description?: string,
   summary_field?: string,
   guest_role?: AmcatUserRole,
+  archive?: boolean,
 ) {
   if (!user) throw new Error("Not logged in");
   if (action === "delete") {
     return await user.api.delete(`index/${id}`);
   } else if (action === "create") {
-    return await user.api.post(`index`, { id, name, description, summary_field, guest_role });
+    return await user.api.post(`index`, { id, name, description, summary_field, guest_role, archive });
   } else if (action === "update") {
-    return await user.api.put(`index/${id}`, { name, description, summary_field, guest_role });
+    return await user.api.put(`index/${id}`, { name, description, summary_field, guest_role, archive });
+  } else if (action === "archive") {
+    return await user.api.post(`index/${id}/archive`);
+  } else if (action === "unarchive") {
+    return await user.api.post(`index/${id}/archive`);
   }
 }
