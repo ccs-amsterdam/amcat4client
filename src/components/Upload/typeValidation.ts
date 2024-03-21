@@ -33,6 +33,33 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
   return { documents: documents, new_fields };
 }
 
+export function autoTypeColumn(data: Record<string, jsType>[], name: string): Column {
+  const field = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/^_/, "");
+
+  const column: Column = { name, field, type: null, elasticType: null, status: "Validating", exists: false };
+
+  const isDate = countInvalid(data, name, coerceDate) / data.length < 0.2;
+  if (isDate) return { ...column, type: "date", elasticType: "date" };
+
+  const isNumber = countInvalid(data, name, coerceNumeric) / data.length < 0.2;
+  if (isNumber) {
+    const isInt = countInvalid(data, name, coerceInteger) === 0;
+    if (isInt) return { ...column, type: "number", elasticType: "integer" };
+    return { ...column, type: "number", elasticType: "double" };
+  }
+
+  const isBoolean = countInvalid(data, name, coerceBoolean) === 0;
+  if (isBoolean) return { ...column, type: "boolean", elasticType: "boolean" };
+
+  const pctUnique = percentUnique(data, name);
+  if (pctUnique < 0.5 && !hasValueLongerThan(data, name, 256))
+    return { ...column, type: "keyword", elasticType: "keyword" };
+
+  return { ...column, type: "text", elasticType: "text" };
+}
 function setCoercedValueOrSkip(
   row: Record<string, jsType>,
   value: jsType,
@@ -49,9 +76,7 @@ export async function validateColumns(columns: Column[], data: Record<string, js
     if (column.status !== "Validating") return column;
 
     if (column.type === "keyword") {
-      const maxRecommendedLength = 256;
-      const tooLong = data.some((d) => String(d[column.name]).length > maxRecommendedLength);
-      if (tooLong) {
+      if (hasValueLongerThan(data, column.name, 256)) {
         return {
           ...column,
           status: "Type mismatch",
@@ -100,9 +125,9 @@ export async function validateColumns(columns: Column[], data: Record<string, js
           return { ...column, status: "Type mismatch", typeWarning: `${invalidIntegers} invalid unsigned integers` };
         }
       } else {
-        const invalidFloats = countInvalid(data, column.name, coerceNumeric);
-        if (invalidFloats > 0) {
-          return { ...column, status: "Type mismatch", typeWarning: `${invalidFloats} invalid numbers` };
+        const invalidDoubles = countInvalid(data, column.name, coerceNumeric);
+        if (invalidDoubles > 0) {
+          return { ...column, status: "Type mismatch", typeWarning: `${invalidDoubles} invalid numbers` };
         }
       }
     }
@@ -121,8 +146,11 @@ export async function validateColumns(columns: Column[], data: Record<string, js
 function coerceNumeric(value: jsType) {
   if (typeof value === "number") return value;
   if (typeof value === "string") {
-    const num = Number(value);
-    if (!isNaN(num)) return num;
+    // if a number doesn't start with a number > 0, it's not a number
+    if (/^[1-9]/.test(value)) {
+      const num = Number(value);
+      if (!isNaN(num)) return num;
+    }
   }
   return null;
 }
@@ -178,4 +206,13 @@ function countInvalid(data: Record<string, jsType>[], column: string, validator:
 
 function countEmpty(data: Record<string, jsType>[], column: string) {
   return data.filter((d) => d[column] === "").length;
+}
+
+function percentUnique(data: Record<string, jsType>[], column: string) {
+  const unique = new Set(data.map((d) => d[column])).size;
+  return unique / data.length;
+}
+
+function hasValueLongerThan(data: Record<string, jsType>[], column: string, max: number) {
+  return data.some((d) => String(d[column]).length > max);
 }

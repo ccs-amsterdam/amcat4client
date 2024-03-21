@@ -1,8 +1,5 @@
+import { useFields } from "@/api/fields";
 import { AmcatField, AmcatFieldElasticType, AmcatFieldType, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
-import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
-import { useCSVReader } from "react-papaparse";
-import { Button } from "../ui/button";
 import {
   AlertCircleIcon,
   CheckSquare,
@@ -12,13 +9,22 @@ import {
   Key,
   List,
   Loader,
+  Minus,
   Plus,
   Square,
   X,
 } from "lucide-react";
-import { useFields, useMutateFields } from "@/api/fields";
-import { prepareUploadData, validateColumns } from "./typeValidation";
+import { MiddlecatUser } from "middlecat-react";
+import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { useCSVReader } from "react-papaparse";
+import { Button } from "../ui/button";
+import { autoTypeColumn, prepareUploadData, validateColumns } from "./typeValidation";
 
+import { useMutateArticles } from "@/api/articles";
+import { splitIntoBatches } from "@/api/util";
+import { toast } from "sonner";
+import { Checkbox } from "../ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,15 +34,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { DynamicIcon } from "../ui/dynamic-icon";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { Checkbox } from "../ui/checkbox";
-import { set } from "date-fns";
-import { useMutateArticles } from "@/api/articles";
-import { splitIntoBatches } from "@/api/util";
-import { toast } from "sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 
 interface Props {
   user: MiddlecatUser;
@@ -46,12 +46,13 @@ interface Props {
 export type jsType = string | number | boolean;
 export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type mismatch";
 interface UploadStatus {
+  operation: "create" | "update" | "index";
   status: "idle" | "uploading" | "success" | "error";
   error: string | null;
   batch_index: number;
   batches: { documents: Record<string, any>[]; new_fields?: Record<string, UpdateAmcatField> }[];
-  submitted: number;
-  created: number;
+  successes: number;
+  failures: number;
 }
 
 export interface Column {
@@ -75,13 +76,15 @@ export default function Upload({ user, indexId }: Props) {
     return fields.filter((f) => !columns.find((c) => c.field === f.name));
   }, [fields, columns]);
   const [validating, setValidating] = useState(false);
+  const [operation, setOperation] = useState<"create" | "update" | "index">("create");
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
+    operation,
     status: "idle",
     error: null,
     batch_index: 0,
     batches: [],
-    submitted: 0,
-    created: 0,
+    successes: 0,
+    failures: 0,
   });
 
   useEffect(() => {
@@ -104,17 +107,20 @@ export default function Upload({ user, indexId }: Props) {
       .then((result) => {
         if (uploadStatus.batch_index === uploadStatus.batches.length - 1) {
           setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "success" }));
+          let operationMessage = "created";
+          if (operation === "update") operationMessage = "updated";
+          if (operation === "index") operationMessage = "created or updated";
           toast.success(
-            `Upload complete. Created ${uploadStatus.created + result.created.length} / ${
-              uploadStatus.submitted + result.n_submitted
+            `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${
+              uploadStatus.successes + result.successes + uploadStatus.failures + result.failures
             } documents. `,
           );
         } else {
           setUploadStatus((uploadStatus) => ({
             ...uploadStatus,
             batch_index: uploadStatus.batch_index + 1,
-            submitted: uploadStatus.submitted + result.n_submitted,
-            created: uploadStatus.created + result.created.length,
+            successes: uploadStatus.successes + result.successes,
+            failures: uploadStatus.failures + result.failures,
           }));
         }
       })
@@ -132,16 +138,28 @@ export default function Upload({ user, indexId }: Props) {
     if (!ready) return;
     const batches = splitIntoBatches(data, 100);
     setUploadStatus({
+      operation,
       status: "uploading",
       error: null,
       batch_index: 0,
       batches: batches.map((batch) => prepareUploadData(batch, columns)),
-      submitted: 0,
-      created: 0,
+      successes: 0,
+      failures: 0,
     });
   }
 
-  const setColumn = (column: Column) => setColumns(columns.map((c) => (c.name === column.name ? column : c)));
+  function setColumn(column: Column) {
+    let newColumn = { ...column };
+    if (column.field !== null) {
+      let suffix = "";
+      let i = 2;
+      while (columns.some((c) => c.field === `${column.field}${suffix}` && c.name !== column.name)) {
+        suffix = suffix + String(i++);
+      }
+      newColumn.field = `${column.field}${suffix}`;
+    }
+    setColumns(columns.map((c) => (c.name === newColumn.name ? newColumn : c)));
+  }
 
   if (fieldsLoading) return <div>Loading...</div>;
   if (!fields) return null;
@@ -211,6 +229,7 @@ export default function Upload({ user, indexId }: Props) {
                   <TableCell>{column.name}</TableCell>
                   <TableCell>
                     <SelectAmcatField
+                      data={data}
                       column={column}
                       fields={fields}
                       unusedFields={unusedFields}
@@ -226,8 +245,32 @@ export default function Upload({ user, indexId }: Props) {
         </Table>
         <div className="flex items-center">
           <Button disabled={!ready} onClick={() => startUpload()}>
-            Upload {data.length || ""} documents
+            {operation} {data.length || ""} documents
           </Button>
+          <div className="ml-3 flex">
+            <div className="flex items-center gap-4">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 rounded p-2">
+                  {operation}
+                  <ChevronDown className="h-5 w-5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setOperation("create")}>
+                    <span className="w-16">Create</span>
+                    <span className="ml-4 text-foreground/60">Skip documents with same identifier</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setOperation("update")}>
+                    <span className="w-16">Update</span>
+                    <span className="ml-4 text-foreground/60">Replace documents with same identifier</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setOperation("index")}>
+                    <span className="w-16">Index </span>
+                    <span className="ml-4 text-foreground/60">Create or Update</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
           {warn ? (
             <div className="ml-4 flex items-center gap-2">
               <AlertCircleIcon className="h-6 w-6 text-warn" />
@@ -271,12 +314,14 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
 }
 
 function SelectAmcatField({
+  data,
   column,
   setColumn,
   fields,
   unusedFields,
   validating,
 }: {
+  data: Record<string, jsType>[];
   column: Column;
   setColumn: (column: Column) => void;
   fields: AmcatField[];
@@ -286,19 +331,29 @@ function SelectAmcatField({
   if (!column) return null;
   const [createField, setCreateField] = useState(false);
 
+  function autoType(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setColumn(autoTypeColumn(data, column.name));
+  }
+
+  function toggleIdentifier() {
+    setColumn({ ...column, identifier: !column.identifier });
+  }
+
   const isNew = column.field && !column.exists;
 
   return (
-    <>
+    <div className="flex items-center gap-3">
       <DropdownMenu>
-        <DropdownMenuTrigger className={`flex w-full gap-2 rounded p-2 `}>
+        <DropdownMenuTrigger className={`flex items-center gap-2 rounded p-2 `}>
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
           {column.field ? (
             <>
               <DynamicIcon type={column.type} />
+              <Key className={` h-4 w-4 text-primary ${column.identifier ? "" : "hidden"}`} />
               <span className="text-primary">{column.field}</span>
               <span className="text-sm italic text-foreground/60">{column.elasticType}</span>
-              <Key className={` h-6 w-6 text-primary ${column.identifier ? "" : "hidden"}`} />
             </>
           ) : (
             <>
@@ -349,6 +404,17 @@ function SelectAmcatField({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Button variant="outline" onClick={autoType} className={`${column.field ? "hidden" : ""} ml-3 h-6 px-2 py-0`}>
+        Auto type
+      </Button>
+      <Button
+        variant="outline"
+        onClick={toggleIdentifier}
+        className={`${column.field && !column.exists ? "" : "hidden"} ml-3 h-6 px-2 py-0`}
+      >
+        {column.identifier ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />} <Key className="h-4 w-4" />
+      </Button>
       <CreateFieldDialog
         open={createField}
         setOpen={setCreateField}
@@ -356,7 +422,7 @@ function SelectAmcatField({
         setColumn={setColumn}
         disabled={validating}
       />
-    </>
+    </div>
   );
 }
 
@@ -398,6 +464,8 @@ function CreateFieldDialog({
       </DropdownMenuItem>
     );
   }
+
+  const invalidFieldName = newColumn.field === "_id";
 
   return (
     <Dialog
@@ -483,14 +551,16 @@ function CreateFieldDialog({
               </p>
             </DialogContent>
           </Dialog>
+
+          {invalidFieldName ? <div className="ml-auto text-destructive">Invalid field name</div> : null}
           <div className="ml-auto flex gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
             <Button
-              disabled={!newColumn.field || !newColumn.type || !newColumn.elasticType}
+              disabled={!newColumn.field || !newColumn.type || !newColumn.elasticType || invalidFieldName}
               onClick={() => {
-                setColumn(newColumn);
+                if (!invalidFieldName) setColumn(newColumn);
                 setOpen(false);
               }}
             >

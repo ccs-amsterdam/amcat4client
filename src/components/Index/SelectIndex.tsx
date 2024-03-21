@@ -1,16 +1,16 @@
 "use client";
 
-import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
 import useAmcatIndices from "@/api/indices";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useEffect, useMemo, useState } from "react";
-import { Input } from "../ui/input";
-import { ArchiveX, ArrowLeft, ArrowRight } from "lucide-react";
-import { AmcatIndex, AmcatIndices } from "@/interfaces";
-import { Tooltip, TooltipContent } from "../ui/tooltip";
+import { Loading } from "@/components/ui/loading";
+import { AmcatIndices } from "@/interfaces";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
+import { useMiddlecat } from "middlecat-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Input } from "../ui/input";
+import { Tooltip, TooltipContent } from "../ui/tooltip";
 
 const PAGESIZE = 16;
 
@@ -99,7 +99,7 @@ export function SelectIndex() {
                 className={` ${archived ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
                 onClick={() => setArchived(!archived)}
               >
-                <ArchiveX className={`h-5 w-5 ${archived ? "text-secondary-foreground" : "text-foreground/50"}`} />
+                <Trash2 className={`h-5 w-5 ${archived ? "text-secondary-foreground" : "text-foreground/50"}`} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>

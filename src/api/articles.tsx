@@ -69,8 +69,8 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
       const res = await user.api.post(`/index/${indexId}/documents`, params);
       return z
         .object({
-          n_submitted: z.number(),
-          created: z.array(z.string()),
+          successes: z.number(),
+          failures: z.number(),
         })
         .parse(res.data);
     },

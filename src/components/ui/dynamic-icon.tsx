@@ -4,7 +4,6 @@ import {
   BarChart3,
   List,
   Table2,
-  Hash,
   Braces,
   Tag,
   CalendarDays,
@@ -25,7 +24,7 @@ export function DynamicIcon({ type }: { type: string | null }) {
   if (type === "table") return <Table2 />;
 
   // field types
-  if (type === "number" || type === "float") return <Binary />;
+  if (type === "number" || type === "float" || type === "double") return <Binary />;
   if (type === "object") return <Braces />;
   if (type === "keyword") return <Tag />;
   if (type === "date") return <CalendarDays />;

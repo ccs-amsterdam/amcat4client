@@ -46,8 +46,6 @@ export default function Index({ params }: Props) {
   if (loadingUser || !user) return <Loading />;
   if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
 
-  const canEdit = indexRole === "ADMIN" || indexRole === "WRITER";
-
   return (
     <div>
       <div className={` pb-4 `}>
