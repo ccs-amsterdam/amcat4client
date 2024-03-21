@@ -191,6 +191,7 @@ function SelectIndex({ user, indexId }: { user: MiddlecatUser; indexId: AmcatInd
               <CommandGroup>
                 {indices?.map((index) => {
                   if (index.id === indexId) return null;
+                  if (index.archived) return null;
                   return (
                     <CommandItem key={index.id} value={index.id} onSelect={(value) => onSelectIndex(value)}>
                       <span>{index.name.replaceAll("_", " ")}</span>

@@ -18,12 +18,14 @@ export const amcatIndexSchema = z.object({
   description: z.string(),
   guest_role: amcatUserRoleSchema,
   user_role: amcatUserRoleSchema,
+  archived: z.string().nullable(),
 });
 
 export const amcatIndicesItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   guest_role: amcatUserRoleSchema,
+  archived: z.string().nullable(),
 });
 export const amcatIndicesSchema = z.array(amcatIndicesItemSchema);
 

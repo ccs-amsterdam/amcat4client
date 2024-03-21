@@ -86,9 +86,5 @@ export async function mutateIndex(
     return await user.api.post(`index`, { id, name, description, summary_field, guest_role, archive });
   } else if (action === "update") {
     return await user.api.put(`index/${id}`, { name, description, summary_field, guest_role, archive });
-  } else if (action === "archive") {
-    return await user.api.post(`index/${id}/archive`);
-  } else if (action === "unarchive") {
-    return await user.api.post(`index/${id}/archive`);
   }
 }

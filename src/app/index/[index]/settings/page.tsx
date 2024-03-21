@@ -3,7 +3,7 @@
 import { useIndex, useMutateIndex } from "@/api/index";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { AmcatIndex } from "@/interfaces";
 import { useEffect, useState } from "react";
 import { UpdateIndex } from "@/components/Index/UpdateIndex";
@@ -35,10 +35,7 @@ export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
-
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Index));
-
-  // TODO: SOMEHOW INVALIDATION DOESN'T WORK IN UPDATEINDEX
 
   if (loading || loadingIndex) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
@@ -58,7 +55,7 @@ export default function Index({ params }: Props) {
         </TabsList>
         <div className="mx-auto w-full max-w-6xl">
           <TabsContent value={Tab.Index}>
-            <Settings index={index} />
+            <Settings user={user} index={index} />
           </TabsContent>
           <TabsContent value={Tab.Fields}>
             <Fields index={index} />
@@ -75,18 +72,32 @@ export default function Index({ params }: Props) {
   );
 }
 
-function Settings({ index }: { index: AmcatIndex }) {
+function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
+  const { mutate } = useMutateIndex(user);
+
   return (
     <div className="grid grid-cols-1 items-start justify-between gap-10">
       <div>
         <div className="mb-3 flex items-center gap-5 md:justify-between">
           <h2 className="mb-0 mt-0 break-all text-[clamp(1.2rem,5vw,2rem)]">{index.name}</h2>
-          <UpdateIndex index={index}>
-            <Button variant="ghost" className="flex gap-3">
-              <Edit className="h-7 w-7" />
-              <div className="hidden text-xl md:block">Edit</div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={!index.archived ? "destructive" : "default"}
+              onClick={() => {
+                if (mutate) {
+                  mutate({ id: index.id, action: "update", archive: !index.archived });
+                }
+              }}
+            >
+              {!!index.archived ? "Unarchive" : "Archive"}
             </Button>
-          </UpdateIndex>
+            <UpdateIndex index={index}>
+              <Button variant="ghost" className="flex gap-3">
+                <Edit className="h-7 w-7" />
+                <div className="hidden text-xl md:block">Edit</div>
+              </Button>
+            </UpdateIndex>
+          </div>
         </div>
         <p className=" mt-0 break-all text-[clamp(0.8rem,3.5vw,1.4rem)]">{index.description}</p>
       </div>
@@ -95,6 +106,11 @@ function Settings({ index }: { index: AmcatIndex }) {
         <div className="text-primary">{index.guest_role}</div>
         <div className="font-bold">Own role</div>
         <div className=" text-primary">{index.user_role}</div>
+      </div>
+      <div className={`${index.archived ? "" : "hidden"}`}>
+        <p className="w-max rounded border border-destructive p-2 text-destructive">
+          This project was archived on {index.archived?.split(".")[0]}
+        </p>
       </div>
     </div>
   );

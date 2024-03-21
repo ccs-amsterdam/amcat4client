@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
 import { AmcatIndex, AmcatUserRole } from "@/interfaces";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { Checkbox } from "../ui/checkbox";
 
 export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
   const { user } = useMiddlecat();
@@ -30,6 +31,9 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
     e.preventDefault();
     mutate({ id: index.id, name, description, guest_role: guestRole, action: "update" });
     setOpen(false);
+  }
+  async function onArchive(archive: boolean) {
+    mutate({ id: index.id, archive, action: "update" });
   }
 
   if (!index) return null;
@@ -92,7 +96,14 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
+          <div>
+            <label>Archived</label>
+            <div>
+              <Checkbox checked={!!index.archived} onChange={() => onArchive(!!index.archived)}>
+                Archive
+              </Checkbox>
+            </div>
+          </div>
           <Button className="mt-2 w-full">Create</Button>
         </form>
       </DialogContent>
