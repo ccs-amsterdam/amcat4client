@@ -1,20 +1,15 @@
+import { ChartData, ChartDataColumn } from "@/interfaces";
+import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
 import { ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
-import { Button } from "../ui/button";
 import { useEffect, useMemo, useState } from "react";
-import { AggregateDataPoint, ChartData, ChartDataColumn } from "@/interfaces";
-import { Dropdown } from "../ui/dropdown";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { DropdownMenuGroup } from "@radix-ui/react-dropdown-menu";
-import { Input } from "../ui/input";
 
 interface Pagination {
   page: number;

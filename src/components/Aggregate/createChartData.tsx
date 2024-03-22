@@ -1,10 +1,6 @@
 import { AggregateData, AggregateDataPoint, AggregationAxis, AggregationInterval, ChartData } from "@/interfaces";
 import { qualitativeColors } from "./colors";
 
-function should_add_zeroes(interval: AggregationInterval) {
-  return ["year", "quarter", "month", "week", "day"].includes(interval);
-}
-
 // Convert amcat aggregate results ('long' format data plus axes) into data for recharts ('wide' data and series names)
 // Specifically, from [{ row_id, col_id, value }, ...] to [{ row_id, col1: value1, col2: value2, ...}, ...]
 export function createChartData(data: AggregateData, sorted?: boolean): ChartData {
@@ -24,7 +20,13 @@ export function createChartData(data: AggregateData, sorted?: boolean): ChartDat
   rows = add_zeroes(rows, fields[0], interval, columnNames);
 
   if (data.meta.axes[0].interval) {
-    rows = rows.map((x) => transform_dateparts(x, data.meta.axes[0])).sort((e1, e2) => e1._sort - e2._sort);
+    rows = rows
+      .map((x) => transform_dateparts(x, data.meta.axes[0]))
+      .sort((e1, e2) => e1._sort - e2._sort)
+      .map((row) => {
+        const { _sort, ...columns } = row;
+        return columns;
+      });
   } else {
     if (sorted) {
       rows = rows.sort((e1, e2) => {

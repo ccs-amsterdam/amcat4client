@@ -1,9 +1,8 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { Moon, RefreshCw, Sun, SunMoon } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useQueryClient } from "@tanstack/react-query";
+import { RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Refresh() {

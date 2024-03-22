@@ -2,13 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 // import Articles from "../Articles/Articles";
 import {
   AggregateData,
+  AggregateDataPoint,
+  AggregationAxis,
   AggregationInterval,
   AggregationOptions,
   AmcatFilter,
   AmcatIndexId,
   AmcatQuery,
-  ChartDataColumn,
-  DateFilter,
 } from "@/interfaces";
 import AggregateList from "./AggregateList";
 import AggregateTable from "./AggregateTable";
@@ -21,12 +21,15 @@ import { ErrorMsg } from "../ui/error-message";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import useCreateChartData from "./useCreateChartData";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
 import Articles from "../Articles/Articles";
 import { Toaster } from "../ui/sonner";
 import { toast } from "sonner";
 import { Popover } from "../ui/popover";
 import AggregatePagination, { useAggregatePagination } from "./AggregatePagination";
+import { useCSVDownloader } from "react-papaparse";
+import { DownloadIcon } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface AggregateResultProps {
   user: MiddlecatUser;
@@ -142,7 +145,10 @@ export default function AggregateResult({
 
   return (
     <div>
-      <AggregatePagination data={paginatedData} pagination={pagination} />
+      <div className="flex items-center justify-end gap-4 px-1">
+        <AggregatePagination data={paginatedData} pagination={pagination} />
+        <DownloadData data={paginatedData.rows} axes={paginatedData.axes} indexId={indexId} disabled={hasNextPage} />
+      </div>
       <div className="relative">
         <div className={`pointer-events-none absolute right-0 top-0 z-50  `}>
           {options.title ? (
@@ -183,6 +189,52 @@ export default function AggregateResult({
         <ArticleListModal user={user} index={indexId} zoom={zoom} onClose={() => setZoom(undefined)} />
       </div>
     </div>
+  );
+}
+
+function DownloadData({
+  data,
+  axes,
+  indexId,
+  disabled,
+}: {
+  data: AggregateDataPoint[];
+  axes: AggregationAxis[];
+  indexId: AmcatIndexId;
+
+  disabled: boolean;
+}) {
+  const { CSVDownloader, Type } = useCSVDownloader();
+  const [filename, setFilename] = useState("");
+
+  const defaultFilename = `${indexId}_${axes.map((a) => a.name).join("_X_")}`;
+  return (
+    <Dialog>
+      <DialogTrigger disabled={disabled} className="disabled:opacity-50">
+        <DownloadIcon className="h-5 w-5 " />
+      </DialogTrigger>
+      <DialogContent>
+        <div className="flex-between flex items-center gap-1">
+          <Input
+            placeholder={defaultFilename}
+            className="selection:bg-foreground/20 focus-visible:ring-transparent"
+            value={filename}
+            onChange={(e) => setFilename(e.target.value)}
+          />
+          <div className="text-foreground/70">.csv</div>
+        </div>
+        <CSVDownloader
+          type={Type.Button}
+          className="rounded-md border bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/80"
+          download={true}
+          data={data}
+          bom={true}
+          filename={`${filename || defaultFilename}`}
+        >
+          Download data
+        </CSVDownloader>
+      </DialogContent>
+    </Dialog>
   );
 }
 

@@ -10,12 +10,8 @@ import { Button } from "../ui/button";
 interface LineClickArea {}
 
 export default function AggregateLineChart({ data, createZoom, width, height, limit }: AggregateVisualizerProps) {
-  const [page, setPage] = useState(0);
-  const pageSize = 250;
   const [line, setLine] = useState<string>("");
-  // const [lineClickArea, setLineClickArea] = useState;
 
-  //if (status === "loading") return <Loading />;
   if (!data) return null;
 
   const colors = qualitativeColors(data.columns.length);

@@ -46,7 +46,7 @@ interface Props {
 export type jsType = string | number | boolean;
 export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type mismatch";
 interface UploadStatus {
-  operation: "create" | "update" | "index";
+  operation: "create" | "index" | "update";
   status: "idle" | "uploading" | "success" | "error";
   error: string | null;
   batch_index: number;
@@ -65,6 +65,8 @@ export interface Column {
   typeWarning?: string;
   identifier?: boolean;
 }
+
+// TODO: Operation is currently not working (always uses index)
 
 export default function Upload({ user, indexId }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
@@ -86,6 +88,7 @@ export default function Upload({ user, indexId }: Props) {
     successes: 0,
     failures: 0,
   });
+  const [noIdentifierWarning, setNoIdentifierWarning] = useState(false);
 
   useEffect(() => {
     const needsValidation = columns.filter((c) => c.status === "Validating");
@@ -107,9 +110,7 @@ export default function Upload({ user, indexId }: Props) {
       .then((result) => {
         if (uploadStatus.batch_index === uploadStatus.batches.length - 1) {
           setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "success" }));
-          let operationMessage = "created";
-          if (operation === "update") operationMessage = "updated";
-          if (operation === "index") operationMessage = "created or updated";
+          let operationMessage = operation === "index" ? "created or updated" : "created";
           toast.success(
             `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${
               uploadStatus.successes + result.successes + uploadStatus.failures + result.failures
@@ -126,7 +127,7 @@ export default function Upload({ user, indexId }: Props) {
       })
       .catch((e) => {
         setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "error", error: e.message }));
-        toast.error("Upload failed");
+        // toast.error("Upload failed");
       });
   }, [uploadStatus]);
 
@@ -159,6 +160,22 @@ export default function Upload({ user, indexId }: Props) {
       newColumn.field = `${column.field}${suffix}`;
     }
     setColumns(columns.map((c) => (c.name === newColumn.name ? newColumn : c)));
+  }
+
+  function onUpload() {
+    if (!fields) return;
+    const allNew = columns.every((c) => !c.exists);
+    const noIdentifiers = columns.every((c) => !c.identifier);
+    if (allNew && noIdentifiers) {
+      setNoIdentifierWarning(true);
+    } else {
+      startUpload();
+    }
+  }
+
+  function onIgnoreNoIdentifierWarning() {
+    setNoIdentifierWarning(false);
+    startUpload();
   }
 
   if (fieldsLoading) return <div>Loading...</div>;
@@ -244,28 +261,62 @@ export default function Upload({ user, indexId }: Props) {
           </TableBody>
         </Table>
         <div className="flex items-center">
-          <Button disabled={!ready} onClick={() => startUpload()}>
-            {operation} {data.length || ""} documents
+          <Button disabled={!ready} onClick={onUpload}>
+            Upload {data.length || ""} documents
           </Button>
+          <Dialog open={noIdentifierWarning} onOpenChange={() => setNoIdentifierWarning(false)}>
+            <DialogContent>
+              <DialogHeader className="text-lg font-bold">Are you sure you don't need identifiers?</DialogHeader>
+              <p>
+                If you select one or multiple identifiers, they will be used to uniquely identify documents. It can be a
+                unique field like a <b>URL</b>, but also a combination of fields like <b>author + timestamp</b>.
+                Identifiers prevent accidentally uploading duplicate documents, and you can use them to update existing
+                documents.
+              </p>
+              <p>
+                If no identifiers are specified, only documents that are entirely identical will be considered
+                duplicates.
+              </p>
+              <div className="mt-5 flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setNoIdentifierWarning(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={onIgnoreNoIdentifierWarning}>Upload without identifiers</Button>
+              </div>
+            </DialogContent>
+          </Dialog>
           <div className="ml-3 flex">
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 rounded p-2">
-                  {operation}
+                  {operation === "create" ? "Create" : "Create or replace"}
                   <ChevronDown className="h-5 w-5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setOperation("create")}>
-                    <span className="w-16">Create</span>
-                    <span className="ml-4 text-foreground/60">Skip documents with same identifier</span>
+                <DropdownMenuContent side="top" className="max-w-md">
+                  <DropdownMenuItem
+                    onClick={() => setOperation("create")}
+                    className="flex-col items-start justify-start"
+                  >
+                    <span className="">Create</span>
+                    <div className=" text-foreground/60">
+                      Only upload new documents. If identifier already exists, keep the original{" "}
+                    </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setOperation("update")}>
-                    <span className="w-16">Update</span>
-                    <span className="ml-4 text-foreground/60">Replace documents with same identifier</span>
+                  <DropdownMenuItem
+                    onClick={() => setOperation("update")}
+                    className="flex-col items-start justify-start"
+                  >
+                    <span className="">Create or update </span>
+                    <span className="text-foreground/60"></span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setOperation("index")}>
-                    <span className="w-16">Index </span>
-                    <span className="ml-4 text-foreground/60">Create or Update</span>
+                  <DropdownMenuItem
+                    onClick={() => setOperation("index")}
+                    className="flex-col items-start justify-start"
+                  >
+                    <span className="">Create or replace </span>
+                    <span className="text-foreground/60">
+                      Upload all documents. If identifier already exists, replace the original{" "}
+                    </span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -544,10 +595,10 @@ function CreateFieldDialog({
                 after the data has been uploaded.
               </p>
               <p className="text-sm">
-                If a field is marked as an <i>identifier</i>, it will be used to prevent duplicate documents. Use a
-                unique identifier (e.g., URL) if available. Use multiple identifiers for unique combinations (e.g.,
-                author & timestamp). If no identifier is set, only documents that are entirely identical will be
-                considered duplicates.
+                If a field is marked as an <i>identifier</i>, it will be used to prevent duplicate documents (like a
+                primary key in SQL). Use a unique identifier (e.g., URL) if available. Use multiple identifiers for
+                unique combinations (e.g., author & timestamp). If no identifier is set, only documents that are
+                entirely identical will be considered duplicates.
               </p>
             </DialogContent>
           </Dialog>

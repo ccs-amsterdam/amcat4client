@@ -25,7 +25,7 @@ interface Props {
 enum Tab {
   Summary = "t1",
   Aggregate = "t2",
-  Tags = "t3",
+  // Tags = "t3",
   Download = "t4",
 }
 
@@ -74,7 +74,7 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Aggregate}>
             <AggregateResultPanel user={user} indexId={indexId} query={query} />
           </TabsContent>
-          <TabsContent value={Tab.Tags}></TabsContent>
+          {/* <TabsContent value={Tab.Tags}></TabsContent> */}
           <TabsContent value={Tab.Download}>
             <DownloadArticles user={user} indexId={indexId} query={query} />
           </TabsContent>

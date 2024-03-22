@@ -18,6 +18,7 @@ export function useAggregate(
     getNextPageParam: (lastPage) => {
       return lastPage?.meta?.after;
     },
+
     enabled: !!user && !!indexId && !!query && !!options?.axes && options.axes.length > 0,
   });
 }

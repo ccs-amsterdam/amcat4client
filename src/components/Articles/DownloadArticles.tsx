@@ -149,16 +149,18 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
           <div className="text-foreground/70">.csv</div>
         </div>
 
-        <CSVDownloader
-          type={Type.Button}
-          className="rounded-md border bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/80"
-          download={true}
-          data={articles}
-          bom={true}
-          filename={`${filename || defaultFilename}`}
-        >
-          Download
-        </CSVDownloader>
+        <div onClick={() => setEnabled(false)}>
+          <CSVDownloader
+            type={Type.Button}
+            className="w-full rounded-md border bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/80"
+            download={true}
+            data={articles}
+            bom={true}
+            filename={`${filename || defaultFilename}`}
+          >
+            Download
+          </CSVDownloader>
+        </div>
       </>
     );
   }
