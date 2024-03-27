@@ -14,9 +14,12 @@ import UserRoleTable from "@/components/Users/UserRoleTable";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Edit } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "next-usequerystate";
 import Upload from "@/components/Upload/Upload";
+import { Dialog } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { set } from "date-fns";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -74,23 +77,40 @@ export default function Index({ params }: Props) {
 
 function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
   const { mutate } = useMutateIndex(user);
+  const [archiveOpen, setArchiveOpen] = useState(false);
 
+  console.log(archiveOpen);
   return (
     <div className="grid grid-cols-1 items-start justify-between gap-10">
       <div>
         <div className="mb-3 flex items-center gap-5 md:justify-between">
           <h2 className="mb-0 mt-0 break-all text-[clamp(1.2rem,5vw,2rem)]">{index.name}</h2>
           <div className="flex items-center gap-2">
-            <Button
-              variant={!index.archived ? "destructive" : "default"}
-              onClick={() => {
-                if (mutate) {
-                  mutate({ id: index.id, action: "update", archive: !index.archived });
-                }
-              }}
-            >
-              {!!index.archived ? "Unarchive" : "Archive"}
-            </Button>
+            <Popover open={archiveOpen} onOpenChange={setArchiveOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  onClick={() => setArchiveOpen(!archiveOpen)}
+                  variant={!index.archived ? "outline" : "default"}
+                  className="flex gap-2"
+                >
+                  <Trash2 className="h-5 w-5" />
+                  {!!index.archived ? "Unarchive" : "Archive"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="flex flex-col gap-3">
+                <p>Are you sure you want to {!!index.archived ? "unarchive" : "archive"} this index?</p>
+                <Button
+                  onClick={() => {
+                    if (mutate) {
+                      mutate({ id: index.id, action: "update", archive: !index.archived });
+                    }
+                    setArchiveOpen(false);
+                  }}
+                >
+                  Yes
+                </Button>
+              </PopoverContent>
+            </Popover>
             <UpdateIndex index={index}>
               <Button variant="ghost" className="flex gap-3">
                 <Edit className="h-7 w-7" />

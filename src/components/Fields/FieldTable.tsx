@@ -11,7 +11,7 @@ import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 
 interface Row extends AmcatField {
-  onChange?: ({ name, type, metareader, client_settings }: UpdateAmcatField) => void;
+  onChange?: ({ name, type_group, metareader, client_settings }: UpdateAmcatField) => void;
 }
 
 const tableColumns: ColumnDef<Row>[] = [
@@ -25,10 +25,10 @@ const tableColumns: ColumnDef<Row>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
-          <DynamicIcon type={row.original.type} />
+          <DynamicIcon type={row.original.type_group} />
           <div>
-            <div>{row.original.type}</div>
-            <div className="text-xs  leading-3 text-primary">{row.original.elastic_type}</div>
+            <div>{row.original.type_group}</div>
+            <div className="text-xs  leading-3 text-primary">{row.original.type}</div>
           </div>
         </div>
       );

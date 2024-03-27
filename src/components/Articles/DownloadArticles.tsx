@@ -99,7 +99,7 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
   const [enabled, setEnabled] = useState(false);
   const [filename, setFilename] = useState<string>("");
   const { CSVDownloader, Type } = useCSVDownloader();
-  const { articles, pageIndex, pageCount, nextPage } = usePaginatedArticles({
+  const { articles, pageIndex, pageCount, isLoading, nextPage } = usePaginatedArticles({
     user,
     indexId,
     query,
@@ -124,12 +124,12 @@ function Downloader({ user, indexId, query, fields, indexRole }: DownloaderProps
     );
 
   function render() {
-    if (pageIndex < pageCount - 1)
+    if (isLoading || pageIndex < pageCount - 1)
       return (
         <div className=" ">
           <div className="mb-1 flex justify-between">
             <div>Fetching pages</div>
-            <div>
+            <div className={pageCount ? "" : "hidden"}>
               {pageIndex + 1} / {pageCount}
             </div>
           </div>

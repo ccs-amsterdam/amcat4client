@@ -346,9 +346,7 @@ function ArticleListModal({
           {Object.keys(zoom.zoomBy || {}).map((field) => (
             <p key={field} className="max-w-[700px]">
               <span className="mr-2 font-bold">{field}</span>{" "}
-              <span className="round rounded bg-secondary px-1 text-secondary-foreground">
-                {describe_filter(zoom.zoomBy[field])}
-              </span>
+              <span className="round rounded bg-secondary/30 px-2 py-[2px]">{describe_filter(zoom.zoomBy[field])}</span>
             </p>
           ))}
         </DialogHeader>

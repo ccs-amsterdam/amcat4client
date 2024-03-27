@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { amcatFieldSchema } from "@/schemas";
-import { AmcatField, AmcatFieldElasticType, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
+import { AmcatField, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
 
 const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
@@ -88,9 +88,9 @@ export async function mutateFields(
   fields.forEach((f) => {
     if (!f.name) return;
     fieldsObject[f.name] = {};
-    if (f.elastic_type) {
-      if (action !== "create") throw new Error("Cannot change elastic_type of existing field");
-      fieldsObject[f.name].elastic_type = f.elastic_type;
+    if (f.type) {
+      if (action !== "create") throw new Error("Cannot change type of existing field");
+      fieldsObject[f.name].type = f.type;
     }
 
     if (f.metareader) fieldsObject[f.name].metareader = f.metareader;

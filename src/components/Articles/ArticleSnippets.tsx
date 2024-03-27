@@ -1,23 +1,10 @@
-import {
-  AmcatArticle,
-  AmcatField,
-  AmcatIndexId,
-  AmcatQuery,
-  AmcatQueryFieldSpec,
-  AmcatQueryResult,
-  AmcatUserRole,
-} from "@/interfaces";
-import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
-import { Link as LinkIcon, SkipBack, SkipForward, StepBack, StepForward } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interfaces";
+import { Link as LinkIcon, SkipBack, SkipForward } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
-import { useArticles } from "@/api/articles";
-import { Loading } from "../ui/loading";
+import Link from "next/link";
+import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { set } from "date-fns";
-import useListFields from "./useListFields";
 import usePaginatedArticles from "./usePaginatedArticles";
 
 interface Props {

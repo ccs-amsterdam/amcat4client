@@ -15,7 +15,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
     const listField: AmcatQueryFieldSpec = {
       name: field.name,
     };
-    if (field.type === "text") {
+    if (field.type_group === "text") {
       if (field.name !== "title") layout.text.push(field.name);
 
       const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;

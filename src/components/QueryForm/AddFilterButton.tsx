@@ -11,7 +11,7 @@ import { useFields } from "@/api/fields";
 export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
   return fields
     .filter((f) => !Object.keys(query?.filters || {}).includes(f.name))
-    .filter((f) => ["date", "keyword", "tag"].includes(f.type));
+    .filter((f) => ["date", "keyword", "tag"].includes(f.type_group));
 }
 
 interface AddFilterProps {
@@ -63,7 +63,7 @@ export default function AddFilterButton({ children, user, indexId, value, onSubm
                 addFilter(f.name);
               }}
             >
-              <DynamicIcon type={f.type} />
+              <DynamicIcon type={f.type_group} />
               <div className="flex-auto text-center">{f.name}</div>
             </Button>
           ))}

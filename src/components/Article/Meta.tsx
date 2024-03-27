@@ -1,6 +1,4 @@
 import { AmcatArticle, AmcatField } from "@/interfaces";
-import { Link } from "lucide-react";
-import { highlightElasticTags } from "@/lib/highlightElasticTags";
 import { Badge } from "../ui/badge";
 import { formatField } from "@/lib/formatField";
 
@@ -13,7 +11,7 @@ interface MetaProps {
 
 export default function Meta({ article, fields, setArticle, metareader }: MetaProps) {
   const metaFields = fields.filter(
-    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
+    (f) => f.type_group !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
   );
   console.log(article);
   if (metaFields.length === 0) return null;
@@ -21,7 +19,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
   return (
     <div className="flex flex-col gap-2">
       {fields.map((field) => {
-        if (field.type === "text") return null;
+        if (field.type_group === "text") return null;
 
         const noAccessMessage =
           metareader && field.metareader.access !== "read" ? (
@@ -39,7 +37,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
                   <span>{field.name}</span>
                   <b>TYPE</b>
                   <span className="">
-                    {field.type === field.elastic_type ? field.type : `${field.type} (${field.elastic_type})`}
+                    {field.type_group === field.type ? field.type_group : `${field.type_group} (${field.type})`}
                   </span>
 
                   <b>VALUE</b>

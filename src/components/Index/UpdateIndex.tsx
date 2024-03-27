@@ -96,14 +96,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-          <div>
-            <label>Archived</label>
-            <div>
-              <Checkbox checked={!!index.archived} onChange={() => onArchive(!!index.archived)}>
-                Archive
-              </Checkbox>
-            </div>
-          </div>
+
           <Button className="mt-2 w-full">Create</Button>
         </form>
       </DialogContent>

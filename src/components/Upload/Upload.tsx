@@ -1,5 +1,5 @@
 import { useFields } from "@/api/fields";
-import { AmcatField, AmcatFieldElasticType, AmcatFieldType, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
+import { AmcatField, AmcatFieldType, AmcatFieldTypeGroup, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import {
   AlertCircleIcon,
   CheckSquare,
@@ -50,7 +50,7 @@ interface UploadStatus {
   status: "idle" | "uploading" | "success" | "error";
   error: string | null;
   batch_index: number;
-  batches: { documents: Record<string, any>[]; new_fields?: Record<string, UpdateAmcatField> }[];
+  batches: { documents: Record<string, any>[]; fields?: Record<string, UpdateAmcatField> }[];
   successes: number;
   failures: number;
 }
@@ -58,8 +58,8 @@ interface UploadStatus {
 export interface Column {
   name: string;
   field: string | null;
+  typeGroup: AmcatFieldTypeGroup | null;
   type: AmcatFieldType | null;
-  elasticType: AmcatFieldElasticType | null;
   status: Status;
   exists: boolean;
   typeWarning?: string;
@@ -222,7 +222,7 @@ export default function Upload({ user, indexId }: Props) {
                   } flex gap-3 rounded-lg border  p-2  `}
                 >
                   {field.identifier ? <Key className="h-6 w-6" /> : null}
-                  <DynamicIcon type={field.type} />
+                  <DynamicIcon type={field.type_group} />
                   <div className="flex w-full justify-between gap-3">
                     <div className="font-bold ">{field.name}</div>
                   </div>
@@ -401,10 +401,10 @@ function SelectAmcatField({
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
           {column.field ? (
             <>
-              <DynamicIcon type={column.type} />
-              <Key className={` h-4 w-4 text-primary ${column.identifier ? "" : "hidden"}`} />
+              <DynamicIcon type={column.typeGroup} />
               <span className="text-primary">{column.field}</span>
-              <span className="text-sm italic text-foreground/60">{column.elasticType}</span>
+              <Key className={` h-4 w-4 text-primary ${column.identifier ? "" : "hidden"}`} />
+              <span className="text-sm italic text-foreground/60">{column.type}</span>
             </>
           ) : (
             <>
@@ -427,8 +427,8 @@ function SelectAmcatField({
                       setColumn({
                         ...column,
                         field: field.name,
+                        typeGroup: field.type_group,
                         type: field.type,
-                        elasticType: field.elastic_type,
                         status: "Validating",
                         exists: true,
                       })
@@ -448,7 +448,14 @@ function SelectAmcatField({
           <DropdownMenuItem
             className={column.field ? "flex gap-2" : "hidden"}
             onClick={() =>
-              setColumn({ ...column, field: null, type: null, elasticType: null, exists: false, status: "Not used" })
+              setColumn({
+                ...column,
+                field: null,
+                typeGroup: null,
+                type: null,
+                exists: false,
+                status: "Not used",
+              })
             }
           >
             <X /> Remove field
@@ -498,20 +505,20 @@ function CreateFieldDialog({
 
   function Item({
     label,
+    typeGroup,
     type,
-    elasticType,
   }: {
+    typeGroup: AmcatFieldTypeGroup | null;
     type: AmcatFieldType | null;
-    elasticType: AmcatFieldElasticType | null;
     label?: string;
   }) {
     return (
       <DropdownMenuItem
         className="flex gap-2"
-        onClick={() => setNewColumn({ ...newColumn, type, elasticType, status: "Validating" })}
+        onClick={() => setNewColumn({ ...newColumn, typeGroup, type, status: "Validating" })}
       >
-        <DynamicIcon type={elasticType} />
-        {label || type}
+        <DynamicIcon type={type} />
+        {label || typeGroup}
       </DropdownMenuItem>
     );
   }
@@ -542,9 +549,9 @@ function CreateFieldDialog({
             />
             <DropdownMenu>
               <DropdownMenuTrigger disabled={disabled} className="flex gap-2 rounded sm:ml-auto">
-                {newColumn.elasticType ? (
+                {newColumn.type ? (
                   <div className="flex gap-3">
-                    <DynamicIcon type={newColumn.elasticType} /> {newColumn.elasticType}
+                    <DynamicIcon type={newColumn.type} /> {newColumn.type}
                   </div>
                 ) : (
                   "Select type"
@@ -552,20 +559,20 @@ function CreateFieldDialog({
                 <ChevronDown className="h-5 w-5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <Item label="Text" type="text" elasticType="text" />
-                <Item label="Keyword" type="keyword" elasticType="keyword" />
-                <Item label="Date" type="date" elasticType="date" />
+                <Item label="Text" typeGroup="text" type="text" />
+                <Item label="Keyword" typeGroup="keyword" type="keyword" />
+                <Item label="Date" typeGroup="date" type="date" />
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="flex gap-2">
                     <DynamicIcon type="number" />
                     Number
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
-                    <Item label="Real number (double)" type="number" elasticType="double" />
-                    <Item label="Integer (long)" type="number" elasticType="integer" />
+                    <Item label="Real number (double)" typeGroup="number" type="double" />
+                    <Item label="Integer (long)" typeGroup="number" type="integer" />
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <Item label="Boolean" type="boolean" elasticType="boolean" />
+                <Item label="Boolean" typeGroup="boolean" type="boolean" />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -609,7 +616,7 @@ function CreateFieldDialog({
               Cancel
             </Button>
             <Button
-              disabled={!newColumn.field || !newColumn.type || !newColumn.elasticType || invalidFieldName}
+              disabled={!newColumn.field || !newColumn.typeGroup || !newColumn.type || invalidFieldName}
               onClick={() => {
                 if (!invalidFieldName) setColumn(newColumn);
                 setOpen(false);
@@ -709,12 +716,12 @@ function prepareData({
   const columns = importedData[0].map((column): Column => {
     const name = String(column);
     const field = fields.find((f) => f.name === name);
-    if (!field) return { name, field: null, type: null, elasticType: null, status: "Not used", exists: false };
+    if (!field) return { name, field: null, typeGroup: null, type: null, status: "Not used", exists: false };
     return {
       name,
       field: name,
+      typeGroup: field.type_group,
       type: field.type,
-      elasticType: field.elastic_type,
       status: "Validating",
       identifier: field.identifier,
       exists: true,

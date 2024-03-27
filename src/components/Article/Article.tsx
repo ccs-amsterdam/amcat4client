@@ -72,7 +72,7 @@ const fieldLayout = {
 
 const Body = ({ article, fields, metareader }: BodyProps) => {
   // Add title, all other 'text' fields, and finally text
-  const textFields = fields.filter((f) => f.type === "text");
+  const textFields = fields.filter((f) => f.type_group === "text");
   const texts: ReactElement[] = [];
 
   // make sure title goes first

@@ -33,12 +33,12 @@ interface AxisPickerProps {
  */
 export default function AxisPicker({ fields, value, onChange, label, byQuery = false }: AxisPickerProps) {
   const axisOptions = fields
-    .filter((f) => ["keyword", "tag", "date"].includes(f.type))
+    .filter((f) => ["keyword", "tag", "date"].includes(f.type_group))
     .map((f) => ({
       key: f.name,
       text: f.name,
       value: f.name,
-      icon: f.type === "date" ? "calendar outline" : "list",
+      icon: f.type_group === "date" ? "calendar outline" : "list",
     }));
   if (byQuery)
     axisOptions.unshift({
@@ -55,10 +55,10 @@ export default function AxisPicker({ fields, value, onChange, label, byQuery = f
     // I don't know why the name of the field was not included here.
     // currently refactoring so that aggregationaxis always has a name,
     // but don't know the consequences yet
-    const f = newval === "_query" ? { name: "", type: "_query" } : getField(fields, newval);
+    const f = newval === "_query" ? { name: "", type_group: "_query" } : getField(fields, newval);
     if (!f) return;
-    const interval = f.type === "date" ? value?.interval : undefined;
-    onChange({ name: f.name, interval: interval, field: f.type });
+    const interval = f.type_group === "date" ? value?.interval : undefined;
+    onChange({ name: f.name, interval: interval, field: f.type_group });
   };
   const field = getField(fields, value.field);
 
@@ -79,7 +79,7 @@ export default function AxisPicker({ fields, value, onChange, label, byQuery = f
         </SelectContent>
       </Select>
 
-      {field?.type === "date" ? (
+      {field?.type_group === "date" ? (
         <Select onValueChange={(value) => setInterval(value as AggregationInterval)} value={value?.interval}>
           <SelectTrigger>
             <SelectValue placeholder="Select interval for date aggregation" />
