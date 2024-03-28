@@ -8,13 +8,21 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
 import VisibilityForm from "./VisibilityForm";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { Key, Search } from "lucide-react";
 
 interface Row extends AmcatField {
   onChange?: ({ name, type_group, metareader, client_settings }: UpdateAmcatField) => void;
 }
 
 const tableColumns: ColumnDef<Row>[] = [
+  {
+    accessorKey: "identifier",
+    header: "Identifier",
+    cell: ({ row }) => {
+      console.log(row.original.identifier);
+      return row.original.identifier ? <Key className="h-5 w-5 " /> : null;
+    },
+  },
   {
     accessorKey: "name",
     header: "Field",

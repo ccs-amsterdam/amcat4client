@@ -161,3 +161,5 @@ export interface MenuRoute {
   pathname: string;
   reqRole?: AmcatUserRole;
 }
+
+export type UploadOperation = "create" | "update" | "index";

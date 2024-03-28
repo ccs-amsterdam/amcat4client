@@ -1,5 +1,12 @@
 import { useFields } from "@/api/fields";
-import { AmcatField, AmcatFieldType, AmcatFieldTypeGroup, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
+import {
+  AmcatField,
+  AmcatFieldType,
+  AmcatFieldTypeGroup,
+  AmcatIndexId,
+  UpdateAmcatField,
+  UploadOperation,
+} from "@/interfaces";
 import {
   AlertCircleIcon,
   CheckSquare,
@@ -37,6 +44,7 @@ import {
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Input } from "../ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { useHasIndexRole } from "@/api/index";
 
 interface Props {
   user: MiddlecatUser;
@@ -46,11 +54,15 @@ interface Props {
 export type jsType = string | number | boolean;
 export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type mismatch";
 interface UploadStatus {
-  operation: "create" | "index" | "update";
+  operation: UploadOperation;
   status: "idle" | "uploading" | "success" | "error";
   error: string | null;
   batch_index: number;
-  batches: { documents: Record<string, any>[]; fields?: Record<string, UpdateAmcatField> }[];
+  batches: {
+    documents: Record<string, any>[];
+    fields?: Record<string, UpdateAmcatField>;
+    operation: UploadOperation;
+  }[];
   successes: number;
   failures: number;
 }
@@ -70,6 +82,7 @@ export interface Column {
 
 export default function Upload({ user, indexId }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
+  const isAdmin = useHasIndexRole(user, indexId, "ADMIN");
   const [data, setData] = useState<Record<string, jsType>[]>([]);
   const [columns, setColumns] = useState<Column[]>([]);
   const { mutateAsync: mutateArticles } = useMutateArticles(user, indexId);
@@ -78,7 +91,7 @@ export default function Upload({ user, indexId }: Props) {
     return fields.filter((f) => !columns.find((c) => c.field === f.name));
   }, [fields, columns]);
   const [validating, setValidating] = useState(false);
-  const [operation, setOperation] = useState<"create" | "update" | "index">("create");
+  const [operation, setOperation] = useState<UploadOperation>("create");
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>({
     operation,
     status: "idle",
@@ -131,8 +144,9 @@ export default function Upload({ user, indexId }: Props) {
       });
   }, [uploadStatus]);
 
+  const duplicates = useMemo(() => hasDuplicates(data, columns), [data, columns]);
   const nonePending = columns.length > 0 && columns.every((c) => !["Validating", "Type not set"].includes(c.status));
-  const ready = nonePending && columns.some((c) => c.status === "Ready");
+  const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready");
   const warn = columns.some((c) => c.status === "Type mismatch");
 
   async function startUpload() {
@@ -143,7 +157,7 @@ export default function Upload({ user, indexId }: Props) {
       status: "uploading",
       error: null,
       batch_index: 0,
-      batches: batches.map((batch) => prepareUploadData(batch, columns)),
+      batches: batches.map((batch) => prepareUploadData(batch, columns, operation)),
       successes: 0,
       failures: 0,
     });
@@ -151,10 +165,13 @@ export default function Upload({ user, indexId }: Props) {
 
   function setColumn(column: Column) {
     let newColumn = { ...column };
-    if (column.field !== null) {
+
+    if (!column.exists && column.field !== null) {
+      const uniqueFields = new Set(columns.filter((c) => c.field !== newColumn.field).map((c) => c.field));
+      fields?.forEach((f) => uniqueFields.add(f.name));
       let suffix = "";
       let i = 2;
-      while (columns.some((c) => c.field === `${column.field}${suffix}` && c.name !== column.name)) {
+      while (uniqueFields.has(`${column.field}${suffix}`)) {
         suffix = suffix + String(i++);
       }
       newColumn.field = `${column.field}${suffix}`;
@@ -176,6 +193,17 @@ export default function Upload({ user, indexId }: Props) {
   function onIgnoreNoIdentifierWarning() {
     setNoIdentifierWarning(false);
     startUpload();
+  }
+
+  function renderOperationLabel(operation: UploadOperation) {
+    switch (operation) {
+      case "create":
+        return "Create";
+      case "update":
+        return "Create or update";
+      case "index":
+        return "Create or replace";
+    }
   }
 
   if (fieldsLoading) return <div>Loading...</div>;
@@ -289,7 +317,7 @@ export default function Upload({ user, indexId }: Props) {
             <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 rounded p-2">
-                  {operation === "create" ? "Create" : "Create or replace"}
+                  {renderOperationLabel(operation)}
                   <ChevronDown className="h-5 w-5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="top" className="max-w-md">
@@ -298,36 +326,54 @@ export default function Upload({ user, indexId }: Props) {
                     className="flex-col items-start justify-start"
                   >
                     <span className="">Create</span>
-                    <div className=" text-foreground/60">
-                      Only upload new documents. If identifier already exists, keep the original{" "}
-                    </div>
+                    <div className=" text-foreground/60">If identifier already exists, skip the document</div>
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    disabled={!isAdmin}
                     onClick={() => setOperation("update")}
                     className="flex-col items-start justify-start"
                   >
-                    <span className="">Create or update </span>
-                    <span className="text-foreground/60"></span>
+                    <span className="">
+                      Create or update{" "}
+                      {isAdmin ? "" : <span className="rounded bg-warn px-1 text-warn-foreground">admin only</span>}
+                    </span>
+                    <span className="text-foreground/60">
+                      If identifier already exists, add or overwrite the uploaded fields. Other fields will not be
+                      changed
+                    </span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
+                    disabled={!isAdmin}
                     onClick={() => setOperation("index")}
                     className="flex-col items-start justify-start"
                   >
-                    <span className="">Create or replace </span>
+                    <span className="">
+                      Create or replace{" "}
+                      {isAdmin ? "" : <span className="rounded bg-warn px-1 text-warn-foreground">admin only</span>}
+                    </span>
                     <span className="text-foreground/60">
-                      Upload all documents. If identifier already exists, replace the original{" "}
+                      If identifier already exists, replace the entire document. This will also delete fields that are
+                      not in the uploaded data
                     </span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
-          {warn ? (
-            <div className="ml-4 flex items-center gap-2">
-              <AlertCircleIcon className="h-6 w-6 text-warn" />
-              <div>Some fields have type mismatches. These will become missing values</div>
-            </div>
-          ) : null}
+          <div className="flex flex-col gap-2">
+            {warn ? (
+              <div className="ml-4 flex items-center gap-2">
+                <AlertCircleIcon className="h-6 w-6 text-secondary" />
+                <div>Some fields have type mismatches. These will become missing values</div>
+              </div>
+            ) : null}
+            {duplicates ? (
+              <div className="ml-4 flex items-center gap-2">
+                <AlertCircleIcon className="h-6 w-6 text-warn" />
+                <div>Some documents have duplicate identifiers</div>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>
@@ -464,7 +510,7 @@ function SelectAmcatField({
       </DropdownMenu>
 
       <Button variant="outline" onClick={autoType} className={`${column.field ? "hidden" : ""} ml-3 h-6 px-2 py-0`}>
-        Auto type
+        automate
       </Button>
       <Button
         variant="outline"
@@ -738,4 +784,15 @@ function prepareData({
 
   setData(data);
   setColumns(columns);
+}
+
+function hasDuplicates(data: Record<string, jsType>[], columns: Column[]) {
+  let identifiers = columns.filter((c) => c.identifier).map((c) => c.name);
+  if (identifiers.length === 0) identifiers = columns.map((c) => c.name);
+  const ids = data.map((doc) => {
+    const idCols = identifiers.map((id) => doc[id]);
+    return JSON.stringify(idCols);
+  });
+  const uniqueIds = new Set(ids);
+  return ids.length !== uniqueIds.size;
 }

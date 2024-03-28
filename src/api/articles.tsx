@@ -7,6 +7,7 @@ import {
   AmcatQueryParams,
   AmcatQueryResult,
   UpdateAmcatField,
+  UploadOperation,
 } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect } from "react";
@@ -64,7 +65,12 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (params: { documents: Record<string, any>; new_fields?: Record<string, UpdateAmcatField> }) => {
+    mutationFn: async (params: {
+      documents: Record<string, any>;
+      fields?: Record<string, UpdateAmcatField>;
+      operation: UploadOperation;
+    }) => {
+      console.log(params.operation);
       if (!user || !indexId) throw new Error("Not logged in");
       const res = await user.api.post(`/index/${indexId}/documents`, params);
       return z
@@ -75,6 +81,7 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
         .parse(res.data);
     },
     onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["article", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
     },

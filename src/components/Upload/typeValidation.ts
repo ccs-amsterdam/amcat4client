@@ -1,7 +1,7 @@
-import { AmcatFieldType, UpdateAmcatField } from "@/interfaces";
+import { AmcatFieldType, UpdateAmcatField, UploadOperation } from "@/interfaces";
 import { Column, jsType } from "./Upload";
 
-export function prepareUploadData(data: Record<string, jsType>[], columns: Column[]) {
+export function prepareUploadData(data: Record<string, jsType>[], columns: Column[], operation: UploadOperation) {
   const documents = data.map((row) => {
     const newRow: Record<string, jsType> = {};
     for (const column of columns) {
@@ -20,7 +20,7 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
   });
 
   const hasNewFields = columns.some((c) => c.field && !c.exists);
-  if (!hasNewFields) return { documents };
+  if (!hasNewFields) return { documents, operation };
 
   const fields: Record<string, UpdateAmcatField> = {};
   columns.forEach((c) => {
@@ -31,7 +31,7 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
       };
     }
   });
-  return { documents: documents, fields };
+  return { documents: documents, fields, operation };
 }
 
 export function autoTypeColumn(data: Record<string, jsType>[], name: string): Column {
@@ -171,7 +171,7 @@ function coerceUnsignedInteger(value: jsType) {
 }
 
 function coerceDate(value: jsType) {
-  if (typeof value !== "string") return null;
+  if (typeof value !== "string" || !value.includes("-")) return null;
 
   if (!value.includes("Z")) value += "Z";
   const date = new Date(value);
