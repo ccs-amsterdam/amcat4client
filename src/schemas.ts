@@ -82,6 +82,7 @@ export const amcatMetareaderAccessSchema = z.object({
     .transform((o) => o || { nomatch_chars: 150, max_matches: 0, match_chars: 50 }),
 });
 export const amcatClientSettingsSchema = z.object({
+  isHeading: z.boolean().nullish(),
   inList: z.boolean().nullish(),
   inDocument: z.boolean().nullish(),
   inListSummary: z.boolean().nullish(),

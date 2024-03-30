@@ -111,7 +111,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsla(var(--foreground), 0.4);
+  background: hsla(var(--foreground), 0.2);
 }
 
 /* Handle on hover */

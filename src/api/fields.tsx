@@ -18,6 +18,7 @@ const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   title: {
     inDocument: true,
     inList: true,
+    isHeading: true,
   },
   url: {
     inDocument: true,
@@ -92,10 +93,15 @@ export async function mutateFields(
       if (action !== "create") throw new Error("Cannot change type of existing field");
       fieldsObject[f.name].type = f.type;
     }
+    if (f.identifier) {
+      if (action !== "create") throw new Error("Cannot change identifier of existing field");
+      fieldsObject[f.name].identifier = f.identifier;
+    }
 
     if (f.metareader) fieldsObject[f.name].metareader = f.metareader;
     if (f.client_settings) fieldsObject[f.name].client_settings = f.client_settings;
   });
+  console.log(fieldsObject);
 
   if (action === "delete") {
     return await user.api.delete(`/index/${indexId}/fields`, { data: fields.map((f) => f.name) });

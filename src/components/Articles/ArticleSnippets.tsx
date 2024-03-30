@@ -64,7 +64,14 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
               <div onClick={() => onClick && onClick(row)} className={`my-1 min-h-[5rem] py-1  `}>
                 <div className="flex justify-between">
                   <h4 className="mt-2">
-                    <span title={removeElasticTags(row.title || "")}>{highlightElasticTags(row.title || "")}</span>
+                    {layout.title.map((title, i) => {
+                      return (
+                        <span key={title} title={removeElasticTags(String(row[title] || ""))}>
+                          {i > 0 ? <span className="mx-1 text-primary"> | </span> : ""}
+                          {highlightElasticTags(String(row[title] || "NA"))}
+                        </span>
+                      );
+                    })}
                   </h4>
                   {row.url ? (
                     <Link
@@ -84,7 +91,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                 <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
                 <div className="flex gap-1 pt-2">
                   {listFields
-                    .filter((field) => !["_id", "title", "text", "url"].includes(field.name))
+                    .filter((field) => !layout.text.includes(field.name) && !layout.title.includes(field.name))
                     .map(
                       (field) =>
                         !!row[field.name] && (

@@ -19,7 +19,6 @@ const tableColumns: ColumnDef<Row>[] = [
     accessorKey: "identifier",
     header: "Identifier",
     cell: ({ row }) => {
-      console.log(row.original.identifier);
       return row.original.identifier ? <Key className="h-5 w-5 " /> : null;
     },
   },

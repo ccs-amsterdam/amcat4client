@@ -11,6 +11,7 @@ import { Loading } from "../ui/loading";
 
 import { highlightElasticTags } from "@/lib/highlightElasticTags";
 import Meta from "./Meta";
+import { Badge } from "../ui/badge";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -64,63 +65,48 @@ interface BodyProps {
   metareader: boolean;
 }
 
-const fieldLayout = {
-  title: { fontSize: "1.4em", fontWeight: "bold" },
-  text: {},
-  default: {},
-};
-
 const Body = ({ article, fields, metareader }: BodyProps) => {
-  // Add title, all other 'text' fields, and finally text
-  const textFields = fields.filter((f) => f.type_group === "text");
-  const texts: ReactElement[] = [];
+  const titleFields = fields.filter((f) => f.client_settings.isHeading);
+  const textFields = fields.filter((f) => f.type_group === "text" && !f.client_settings.isHeading);
 
-  // make sure title goes first
-  const title = textFields.find((f) => f.name === "title");
-  if (title)
-    texts.push(
-      <TextField
-        key={article.id + "_title"}
-        article={article}
-        field={title}
-        layout={fieldLayout}
-        metareader={metareader}
-        label={false}
-      />,
-    );
+  return (
+    <>
+      <h2 className="mt-2">
+        {titleFields.map((f, i) => (
+          <span key={f.name}>
+            {i > 0 ? <span className="mx-1 text-primary"> | </span> : ""}
+            {highlightElasticTags(String(article[f.name] || "NA"))}
+          </span>
+        ))}
+      </h2>
+      {textFields.map((f) => {
+        if (!article[f.name]) return null;
 
-  textFields
-    .filter((f) => f.name !== "title")
-    .forEach((f, i) => {
-      texts.push(
-        <TextField
-          key={article.id + "_" + f.name}
-          article={article}
-          field={f}
-          layout={fieldLayout}
-          metareader={metareader}
-          label={textFields.length > 2}
-        />,
-      );
-    });
-
-  return <>{texts}</>;
+        return (
+          <TextField
+            key={article.id + "_" + f.name}
+            article={article}
+            field={f}
+            metareader={metareader}
+            label={textFields.length > 1}
+          />
+        );
+      })}
+    </>
+  );
 };
 
 interface TextFieldProps {
   article: AmcatArticle;
   field: AmcatField;
-  layout: Record<string, CSSProperties>;
   metareader: boolean;
   label?: boolean;
 }
 
-function TextField({ article, field, layout, label, metareader }: TextFieldProps) {
+function TextField({ article, field, label, metareader }: TextFieldProps) {
   const content: ReactElement[] = [];
   const [maxLength, setMaxLength] = useState(1200);
-
-  const paragraphs = article?.[field.name]?.split("\n") || [];
-
+  const paragraphs = String(article?.[field.name])?.split("\n") || [];
   let nchars = 0;
 
   for (let paragraph of paragraphs) {
@@ -152,7 +138,7 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
   }
 
   function renderContent() {
-    if (!metareader || field.metareader.access === "read") return <div style={layout[field.name] || {}}>{content}</div>;
+    if (!metareader || field.metareader.access === "read") return <div>{content}</div>;
 
     if (field.metareader.access === "none")
       return (
@@ -164,7 +150,7 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
     if (field.metareader.access === "snippet") {
       return (
         <div>
-          <div style={layout[field.name] || {}}>
+          <div>
             <span className=" text-secondary">
               METAREADER limitation: can only view snippet of <b>{field.name}</b>:
             </span>{" "}
@@ -176,12 +162,8 @@ function TextField({ article, field, layout, label, metareader }: TextFieldProps
   }
 
   return (
-    <div key={field.name} style={{ paddingBottom: "1em" }}>
-      {!label ? null : (
-        <span key={field.name + "_label"} className="font-bold text-primary">
-          {field.name}
-        </span>
-      )}
+    <div key={field.name} className="pb-1">
+      {!label ? null : <div className="mb-2 border-b border-foreground/30 pr-1 text-foreground/60">{field.name}</div>}
       {renderContent()}
     </div>
   );

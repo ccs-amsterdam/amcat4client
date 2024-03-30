@@ -13,7 +13,6 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
   const metaFields = fields.filter(
     (f) => f.type_group !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
   );
-  console.log(article);
   if (metaFields.length === 0) return null;
 
   return (

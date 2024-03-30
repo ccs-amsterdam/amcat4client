@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippets?: AmcatSnippet) {
   const listFields: AmcatQueryFieldSpec[] = [];
   const layout: Record<string, string[]> = {
+    title: [],
     text: [],
     meta: [],
   };
@@ -15,8 +16,9 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
     const listField: AmcatQueryFieldSpec = {
       name: field.name,
     };
+    if (field.client_settings?.isHeading) layout.title.push(field.name);
     if (field.type_group === "text") {
-      if (field.name !== "title") layout.text.push(field.name);
+      if (!field.client_settings?.isHeading) layout.text.push(field.name);
 
       const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;
 

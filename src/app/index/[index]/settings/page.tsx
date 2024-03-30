@@ -79,7 +79,6 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
   const { mutate } = useMutateIndex(user);
   const [archiveOpen, setArchiveOpen] = useState(false);
 
-  console.log(archiveOpen);
   return (
     <div className="grid grid-cols-1 items-start justify-between gap-10">
       <div>

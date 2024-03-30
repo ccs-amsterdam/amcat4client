@@ -1,5 +1,5 @@
 import { AmcatClientSettings, AmcatField } from "@/interfaces";
-import { ChevronDown, File, LineChart, List } from "lucide-react";
+import { ChevronDown, File, Heading, LineChart, List } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { useEffect, useState } from "react";
 
@@ -14,7 +14,6 @@ const IconClass = "h-5 w-5";
 export default function VisibilityForm({ field, client_settings, onChange }: Props) {
   const canVisualize = field.type_group !== "text";
   const [newClientSettings, setNewClientSettings] = useState(client_settings);
-
   useEffect(() => setNewClientSettings(client_settings), [client_settings]);
 
   function renderLabel() {
@@ -22,6 +21,7 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
       <>
         <File className={`${IconClass} ${client_settings.inDocument ? "text-foreground" : "text-foreground/30"}`} />
         <List className={`${IconClass} ${client_settings.inList ? "text-foreground" : "text-foreground/30"}`} />
+        <Heading className={`${IconClass} ${client_settings.isHeading ? "text-foreground" : "text-foreground/30"}`} />
         <LineChart
           className={`${IconClass} ${client_settings.inListSummary ? "text-foreground" : "text-foreground/30"} ${
             canVisualize ? "" : "opacity-0"
@@ -30,7 +30,6 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
       </>
     );
   }
-
   function updateNewClientSettings(e: React.MouseEvent<HTMLDivElement>, newSettings: AmcatClientSettings) {
     e.preventDefault();
     setNewClientSettings(newSettings);
@@ -39,9 +38,7 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
   return (
     <div className="flex flex-col gap-1">
       <DropdownMenu onOpenChange={(open) => !open && onChange(newClientSettings)}>
-        <DropdownMenuTrigger className="flex items-center gap-1 outline-none">
-          {renderLabel()} <ChevronDown className="h-4 w-4" />
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger className="flex items-center gap-1 outline-none">{renderLabel()}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
             onClick={(e) =>
@@ -58,6 +55,15 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
           >
             <List className={newClientSettings.inList ? "" : "text-foreground/30"} />
             show in list
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={(e) =>
+              updateNewClientSettings(e, { ...newClientSettings, isHeading: !newClientSettings.isHeading })
+            }
+            className="flex gap-4"
+          >
+            <Heading className={newClientSettings.isHeading ? "" : "text-foreground/30"} />
+            show as heading (title)
           </DropdownMenuItem>
           {canVisualize ? (
             <DropdownMenuItem

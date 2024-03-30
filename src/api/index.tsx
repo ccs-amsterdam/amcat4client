@@ -34,7 +34,6 @@ async function getIndex(user?: MiddlecatUser, indexId?: string) {
   const res = await user.api.get(`/index/${indexId}`);
   return amcatIndexSchema.parse(res.data);
 }
-
 interface MutateIndexParams {
   id: AmcatIndexId;
   action: "create" | "delete" | "update" | "archive" | "unarchive";
