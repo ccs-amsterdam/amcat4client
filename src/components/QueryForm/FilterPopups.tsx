@@ -5,6 +5,7 @@ import DatePicker from "./DatePicker";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFieldStats } from "@/api/fieldStats";
+import { Input } from "../ui/input";
 
 interface FilterPopupProps {
   user: MiddlecatUser;
@@ -47,9 +48,39 @@ export function FilterPopup({ user, indexId, field, value, onChange }: FilterPop
   if (field == null || value == null) return null;
 
   if (field.type_group === "date") return DateRangePopup({ user, indexId, field, value, onChange });
+  if (field.type_group === "number") return NumberRangePopup({ user, indexId, field, value, onChange });
   return KeywordPopup({ user, indexId, field, value, onChange });
 }
 
+export function NumberRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
+  const { data: fieldStats } = useFieldStats(user, indexId, field?.name);
+
+  if (field == null || value == null || fieldStats == null) return null;
+  return (
+    <div>
+      <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-[4rem,10rem] items-center">
+          <label>from</label>
+          <Input
+            type="number"
+            min={fieldStats.min}
+            value={Number(value.gte) || fieldStats.min}
+            onChange={(e) => onChange({ gte: String(e.target.value), lte: value.lte })}
+          />
+        </div>
+        <div className="grid grid-cols-[4rem,10rem] items-center">
+          <label>to</label>
+          <Input
+            type="number"
+            max={fieldStats.max || fieldStats.max}
+            value={Number(value.lte) || fieldStats.max}
+            onChange={(e) => onChange({ gte: value.gte, lte: String(e.target.value) })}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 export function KeywordPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   const [query, setQuery] = useState("");
   const { data: fieldValues } = useFieldValues(user, indexId, field?.name);

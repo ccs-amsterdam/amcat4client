@@ -11,7 +11,7 @@ import { useFields } from "@/api/fields";
 export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
   return fields
     .filter((f) => !Object.keys(query?.filters || {}).includes(f.name))
-    .filter((f) => ["date", "keyword", "tag"].includes(f.type_group));
+    .filter((f) => ["date", "keyword", "tag", "number"].includes(f.type_group));
 }
 
 interface AddFilterProps {
@@ -48,7 +48,7 @@ export default function AddFilterButton({ children, user, indexId, value, onSubm
         }
       }}
     >
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <div className={options.length === 0 ? "text-foreground/20" : "cursor-pointer"}>{children}</div>
       </PopoverTrigger>
       <PopoverContent>

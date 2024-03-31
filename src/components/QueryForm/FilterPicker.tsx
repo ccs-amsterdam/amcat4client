@@ -48,13 +48,13 @@ export default function FilterPicker({
               e.preventDefault();
               onDelete?.();
             }}
-            className="peer rounded-l-none  pl-0 pr-2 hover:bg-destructive"
+            className="peer h-8 rounded-l-none pl-0 pr-2 hover:bg-destructive"
           >
             <Delete />
           </Button>
           <Button
             className={cn(
-              "flex justify-between gap-2 rounded-r-none first-letter:first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
+              "flex h-8 justify-between gap-2 rounded-r-none first-letter:first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
               className,
             )}
           >
@@ -64,7 +64,7 @@ export default function FilterPicker({
       </PopoverTrigger>
       {field != null ? (
         <PopoverContent
-          collisionPadding={{ bottom: -9999 }}
+          collisionPadding={{ left: 10, right: 10, top: 10, bottom: -9999 }}
           side="bottom"
           className="max-h-[450px] w-full overflow-auto"
         >

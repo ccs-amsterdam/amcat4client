@@ -25,6 +25,7 @@ const defaultSnippets = {
 export default function ArticleSnippets({ user, indexId, indexRole, query, fields, onClick }: Props) {
   const { articles, layout, listFields, isFetching, pageIndex, pageCount, totalCount, prevPage, nextPage } =
     usePaginatedArticles({ user, indexId, query, fields, indexRole, highlight: true, defaultSnippets, pageSize: 6 });
+
   // if (isLoading) return <Loading msg="Loading articles" />;
   return (
     <div>
@@ -58,10 +59,11 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
           {articles.map((row, i: number) => (
             <button
               key={row._id + i}
+              onClick={() => onClick && onClick(row)}
               className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary text-left shadow-foreground/50  
                         transition-all dark:prose-invert hover:translate-x-1    ${onClick ? "cursor-pointer" : ""}`}
             >
-              <div onClick={() => onClick && onClick(row)} className={`my-1 min-h-[5rem] py-1  `}>
+              <article className={`my-1 min-h-[5rem] py-1  `}>
                 <div className="flex justify-between">
                   <h4 className="mt-2">
                     {layout.title.map((title, i) => {
@@ -106,7 +108,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                         ),
                     )}
                 </div>
-              </div>
+              </article>
             </button>
           ))}
         </div>

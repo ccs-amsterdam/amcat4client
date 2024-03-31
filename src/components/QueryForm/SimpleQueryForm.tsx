@@ -60,7 +60,7 @@ export default function SimpleQueryForm({
           <AddFilterButton user={user} indexId={indexId} value={query} onSubmit={(value) => updateQuery(value, 0)}>
             <Filter />
           </AddFilterButton>
-          <ChevronsUpDown onClick={switchAdvanced} className="h-8 w-8 cursor-pointer select-none p-1" />
+          <ChevronsUpDown role="button" onClick={switchAdvanced} className="h-8 w-8 cursor-pointer select-none p-1" />
         </div>
       </div>
       <div className="Filters flex flex-wrap items-center justify-start gap-1 p-1">{children}</div>

@@ -206,6 +206,27 @@ export default function Upload({ user, indexId }: Props) {
     }
   }
 
+  function renderExistingField(fields: AmcatField[]) {
+    return (
+      <div className="flex flex-wrap gap-1">
+        {fields.map((field) => {
+          const color = !field.identifier
+            ? "bg-primary text-primary-foreground"
+            : "bg-secondary text-secondary-foreground";
+          const used = columns.find((c) => c.field === field.name);
+          return (
+            <div key={field.name} className={`${!!used ? "" : color} flex gap-3 rounded-lg border  p-2  `}>
+              <DynamicIcon type={field.type_group} />
+              <div className="flex w-full justify-between gap-3">
+                <div className="font-bold ">{field.name}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   if (fieldsLoading) return <div>Loading...</div>;
   if (!fields) return null;
 
@@ -233,30 +254,21 @@ export default function Upload({ user, indexId }: Props) {
       </div>
     );
 
+  const identifiers = fields.filter((f) => f.identifier);
+  const otherFields = fields.filter((f) => !f.identifier);
+
   return (
     <div className="flex flex-col gap-4">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
       <div className={`flex flex-col gap-8 ${data.length === 0 ? "hidden" : ""}`}>
-        <div className={`p-4 ${fields.length === 0 ? "hidden" : ""}`}>
-          <h3 className="prose-xl w-full">Index fields</h3>
-          <div className="flex flex-wrap gap-1">
-            {fields.map((field) => {
-              const used = columns.find((c) => c.field === field.name);
-              return (
-                <div
-                  key={field.name}
-                  className={`${
-                    !!used ? "" : "bg-primary text-primary-foreground"
-                  } flex gap-3 rounded-lg border  p-2  `}
-                >
-                  {field.identifier ? <Key className="h-6 w-6" /> : null}
-                  <DynamicIcon type={field.type_group} />
-                  <div className="flex w-full justify-between gap-3">
-                    <div className="font-bold ">{field.name}</div>
-                  </div>
-                </div>
-              );
-            })}
+        <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
+          <div className={` ${identifiers.length === 0 ? "hidden" : ""}`}>
+            <h3 className="prose-xl w-full">Index identifiers</h3>
+            {renderExistingField(identifiers)}
+          </div>
+          <div className={` ${otherFields.length === 0 ? "hidden" : ""}`}>
+            <h3 className="prose-xl w-full">Index fields</h3>
+            {renderExistingField(otherFields)}
           </div>
         </div>
         <Table className="table-auto whitespace-nowrap">
@@ -326,7 +338,9 @@ export default function Upload({ user, indexId }: Props) {
                     className="flex-col items-start justify-start"
                   >
                     <span className="">Create</span>
-                    <div className=" text-foreground/60">If identifier already exists, skip the document</div>
+                    <div className=" text-foreground/60">
+                      If document (identifier) already exists, skip the document
+                    </div>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={!isAdmin}
@@ -338,11 +352,12 @@ export default function Upload({ user, indexId }: Props) {
                       {isAdmin ? "" : <span className="rounded bg-warn px-1 text-warn-foreground">admin only</span>}
                     </span>
                     <span className="text-foreground/60">
-                      If identifier already exists, add or overwrite the uploaded fields. Other fields will not be
-                      changed
+                      If document (identifier) already exists, add or overwrite the uploaded fields. (existing fields
+                      that are not in the uploaded data will not not be removed)
                     </span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
+
+                  {/* <DropdownMenuItem
                     disabled={!isAdmin}
                     onClick={() => setOperation("index")}
                     className="flex-col items-start justify-start"
@@ -355,7 +370,7 @@ export default function Upload({ user, indexId }: Props) {
                       If identifier already exists, replace the entire document. This will also delete fields that are
                       not in the uploaded data
                     </span>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -447,9 +462,13 @@ function SelectAmcatField({
           {isNew ? <div className="rounded bg-secondary px-1 py-0 text-secondary-foreground">NEW</div> : null}
           {column.field ? (
             <>
+              <Key
+                className={` h-6 w-6 rounded bg-secondary p-1 text-secondary-foreground ${
+                  column.identifier ? "" : "hidden"
+                }`}
+              />
               <DynamicIcon type={column.typeGroup} />
               <span className="text-primary">{column.field}</span>
-              <Key className={` h-4 w-4 text-primary ${column.identifier ? "" : "hidden"}`} />
               <span className="text-sm italic text-foreground/60">{column.type}</span>
             </>
           ) : (

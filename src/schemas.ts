@@ -98,17 +98,27 @@ export const amcatFieldSchema = z.object({
 
 export const amcatFieldValuesSchema = z.array(z.string());
 
-export const amcatFieldStatsSchema = z.object({
-  count: z.number(),
-  min: z.number(),
-  max: z.number(),
-  avg: z.number(),
-  sum: z.number(),
-  min_as_string: z.string(),
-  max_as_string: z.string(),
-  sum_as_string: z.string(),
-  avg_as_string: z.string(),
-});
+export const amcatFieldStatsSchema = z
+  .object({
+    count: z.number(),
+    min: z.number(),
+    max: z.number(),
+    avg: z.number(),
+    sum: z.number(),
+    min_as_string: z.string().nullish(),
+    max_as_string: z.string().nullish(),
+    sum_as_string: z.string().nullish(),
+    avg_as_string: z.string().nullish(),
+  })
+  .transform((o) => {
+    return {
+      ...o,
+      min_as_string: o.min_as_string ?? String(o.min),
+      max_as_string: o.max_as_string ?? String(o.max),
+      sum_as_string: o.sum_as_string ?? String(o.sum),
+      avg_as_string: o.avg_as_string ?? String(o.avg),
+    };
+  }); 
 
 export const amcatArticleSchema = z.record(z.any()).and(
   z.object({

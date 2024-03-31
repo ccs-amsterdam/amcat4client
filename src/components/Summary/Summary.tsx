@@ -47,7 +47,7 @@ function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
   const { data: values, isLoading: valuesLoading } = useFieldStats(user, indexId, field.name);
 
   const axes = useMemo(() => {
-    if (!values) return [];
+    if (!values?.max_as_string || !values.min_as_string) return [];
     const minTime = new Date(values.min_as_string).getTime();
     const maxTime = new Date(values.max_as_string).getTime();
     const interval = autoFormatDate(minTime, maxTime, 20);

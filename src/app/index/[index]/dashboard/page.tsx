@@ -17,6 +17,7 @@ import { useMyIndexrole } from "@/api";
 import ArticleTable from "@/components/Articles/ArticleTable";
 import DownloadArticles from "@/components/Articles/DownloadArticles";
 import Upload from "@/components/Upload/Upload";
+import Update from "@/components/Update/Update";
 
 interface Props {
   params: { index: string };
@@ -25,7 +26,7 @@ interface Props {
 enum Tab {
   Summary = "t1",
   Aggregate = "t2",
-  // Tags = "t3",
+  Update = "t3",
   Download = "t4",
 }
 
@@ -45,7 +46,7 @@ export default function Index({ params }: Props) {
 
   if (loadingUser || !user) return <Loading />;
   if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
-
+  const isWriter = indexRole === "WRITER" || indexRole === "ADMIN";
   return (
     <div>
       <div className={` pb-4 `}>
@@ -59,6 +60,7 @@ export default function Index({ params }: Props) {
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full px-1">
         <TabsList className="mb-8 overflow-auto">
           {Object.keys(Tab).map((tab) => {
+            if (tab === "Update" && !isWriter) return null;
             const tabValue = Tab[tab as keyof typeof Tab];
             return (
               <TabsTrigger key={tabValue} value={tabValue}>
@@ -74,7 +76,9 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Aggregate}>
             <AggregateResultPanel user={user} indexId={indexId} query={query} />
           </TabsContent>
-          {/* <TabsContent value={Tab.Tags}></TabsContent> */}
+          <TabsContent value={Tab.Update}>
+            <Update user={user} indexId={indexId} query={query} />
+          </TabsContent>
           <TabsContent value={Tab.Download}>
             <DownloadArticles user={user} indexId={indexId} query={query} />
           </TabsContent>

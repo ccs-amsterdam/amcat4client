@@ -70,7 +70,6 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
       fields?: Record<string, UpdateAmcatField>;
       operation: UploadOperation;
     }) => {
-      console.log(params.operation);
       if (!user || !indexId) throw new Error("Not logged in");
       const res = await user.api.post(`/index/${indexId}/documents`, params);
       return z
@@ -84,6 +83,8 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
       queryClient.invalidateQueries({ queryKey: ["article", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["fieldValues", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["aggregate", user, indexId] });
     },
   });
 }

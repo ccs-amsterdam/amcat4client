@@ -49,8 +49,8 @@ export default function MultilineQueryForm({
           </div>
         </div>
         <Textarea
-          className="min-h-[120px] flex-auto"
-          placeholder={`Enter multiple (labeled) queries:\n\nLabel1 = query1\nLabel2 = query2\netc.`}
+          className="min-h-[100px] flex-auto"
+          placeholder={`Enter multiple (labeled) queries:\n\nLabel1 = query1\nLabel2 = query2`}
           onChange={(e) => {
             updateQuery({ ...query, queries: queriesFromString(e.target.value) }, "never");
           }}
@@ -72,7 +72,11 @@ export default function MultilineQueryForm({
             </AddFilterButton>
           </div>
 
-          <ChevronUp onClick={switchAdvanced} className="mb-1 ml-auto  h-8 w-8 cursor-pointer select-none p-1" />
+          <ChevronUp
+            role="button"
+            onClick={switchAdvanced}
+            className="mb-1 ml-auto  h-8 w-8 cursor-pointer select-none p-1"
+          />
         </div>
 
         <div className="Filters flex-auto">{children}</div>

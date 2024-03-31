@@ -35,9 +35,12 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
     setNewClientSettings(newSettings);
   }
 
+  function onClose() {
+    if (newClientSettings !== client_settings) onChange(newClientSettings);
+  }
   return (
     <div className="flex flex-col gap-1">
-      <DropdownMenu onOpenChange={(open) => !open && onChange(newClientSettings)}>
+      <DropdownMenu onOpenChange={(open) => !open && onClose()}>
         <DropdownMenuTrigger className="flex items-center gap-1 outline-none">{renderLabel()}</DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem
