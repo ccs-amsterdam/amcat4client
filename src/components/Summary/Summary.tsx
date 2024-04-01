@@ -19,9 +19,9 @@ export default function Summary({ user, indexId, query }: Props) {
 
   function renderVisualization(field: AmcatField) {
     if (!field.client_settings.inListSummary) return null;
-    if (field.type_group === "date")
+    if (field.type === "date")
       return <DateSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
-    if (field.type_group === "keyword")
+    if (field.type === "keyword")
       return <KeywordSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
   }
 

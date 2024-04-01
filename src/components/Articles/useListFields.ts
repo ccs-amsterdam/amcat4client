@@ -17,7 +17,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
       name: field.name,
     };
     if (field.client_settings?.isHeading) layout.title.push(field.name);
-    if (field.type_group === "text") {
+    if (field.type === "text") {
       if (!field.client_settings?.isHeading) layout.text.push(field.name);
 
       const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;

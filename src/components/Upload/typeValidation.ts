@@ -1,4 +1,4 @@
-import { AmcatFieldType, UpdateAmcatField, UploadOperation } from "@/interfaces";
+import { AmcatElasticFieldType, UpdateAmcatField, UploadOperation } from "@/interfaces";
 import { Column, jsType } from "./Upload";
 
 export function prepareUploadData(data: Record<string, jsType>[], columns: Column[], operation: UploadOperation) {
@@ -9,11 +9,9 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
       if (column.status !== "Ready" && column.status !== "Type mismatch") continue;
       if (column.field === null) continue;
 
-      if (column.typeGroup === "date") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceDate);
-      else if (column.typeGroup === "number")
-        setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceNumeric);
-      else if (column.typeGroup === "boolean")
-        setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceBoolean);
+      if (column.type === "date") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceDate);
+      else if (column.type === "number") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceNumeric);
+      else if (column.type === "boolean") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceBoolean);
       else newRow[column.field] = row[column.name];
     }
     return newRow;
@@ -24,9 +22,10 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
 
   const fields: Record<string, UpdateAmcatField> = {};
   columns.forEach((c) => {
-    if (c.field && !c.exists && c.type) {
+    if (c.field && !c.exists && c.type && c.elastic_type) {
       fields[c.field] = {
         type: c.type,
+        elastic_type: c.elastic_type,
         identifier: !!c.identifier,
       };
     }
@@ -40,26 +39,26 @@ export function autoTypeColumn(data: Record<string, jsType>[], name: string): Co
     .replace(/[^a-z0-9]/g, "_")
     .replace(/^_/, "");
 
-  const column: Column = { name, field, typeGroup: null, type: null, status: "Validating", exists: false };
+  const column: Column = { name, field, type: null, elastic_type: null, status: "Validating", exists: false };
 
   const isDate = countInvalid(data, name, coerceDate) / data.length < 0.2;
-  if (isDate) return { ...column, typeGroup: "date", type: "date" };
+  if (isDate) return { ...column, type: "date", elastic_type: "date" };
 
   const isNumber = countInvalid(data, name, coerceNumeric) / data.length < 0.2;
   if (isNumber) {
     const isInt = countInvalid(data, name, coerceInteger) === 0;
-    if (isInt) return { ...column, typeGroup: "number", type: "integer" };
-    return { ...column, typeGroup: "number", type: "double" };
+    if (isInt) return { ...column, type: "integer", elastic_type: "integer" };
+    return { ...column, type: "number", elastic_type: "double" };
   }
 
   const isBoolean = countInvalid(data, name, coerceBoolean) === 0;
-  if (isBoolean) return { ...column, typeGroup: "boolean", type: "boolean" };
+  if (isBoolean) return { ...column, type: "boolean", elastic_type: "boolean" };
 
   const pctUnique = percentUnique(data, name);
   if (pctUnique < 0.5 && !hasValueLongerThan(data, name, 256))
-    return { ...column, typeGroup: "keyword", type: "keyword" };
+    return { ...column, type: "keyword", elastic_type: "keyword" };
 
-  return { ...column, typeGroup: "text", type: "text" };
+  return { ...column, type: "text", elastic_type: "text" };
 }
 function setCoercedValueOrSkip(
   row: Record<string, jsType>,
@@ -76,7 +75,7 @@ export async function validateColumns(columns: Column[], data: Record<string, js
   return columns.map((column) => {
     if (column.status !== "Validating") return column;
 
-    if (column.typeGroup === "keyword") {
+    if (column.type === "keyword") {
       if (hasValueLongerThan(data, column.name, 256)) {
         return {
           ...column,
@@ -86,7 +85,7 @@ export async function validateColumns(columns: Column[], data: Record<string, js
       }
     }
 
-    if (column.typeGroup === "text" || column.typeGroup === "keyword") {
+    if (column.type === "text" || column.type === "keyword") {
       const empty = countEmpty(data, column.name);
       if (empty > 0) {
         return { ...column, status: "Type mismatch", typeWarning: `${empty} empty values` };
@@ -100,27 +99,27 @@ export async function validateColumns(columns: Column[], data: Record<string, js
       }
     }
 
-    if (column.typeGroup === "id") {
+    if (column.type === "id") {
       const uniquevalues = new Set(data.map((d) => d[column.name]));
       if (uniquevalues.size !== data.length) {
         return { ...column, status: "Type mismatch", typeWarning: "Duplicate values" };
       }
     }
 
-    if (column.typeGroup === "date") {
+    if (column.type === "date") {
       const invalidDates = countInvalid(data, column.name, coerceDate);
       if (invalidDates > 0) {
         return { ...column, status: "Type mismatch", typeWarning: `${invalidDates} invalid dates` };
       }
     }
 
-    if (column.typeGroup === "number") {
-      if (signedIntegerType(column.type)) {
+    if (column.type === "number") {
+      if (signedIntegerType(column.elastic_type)) {
         const invalidIntegers = countInvalid(data, column.name, coerceInteger);
         if (invalidIntegers > 0) {
           return { ...column, status: "Type mismatch", typeWarning: `${invalidIntegers} invalid integers` };
         }
-      } else if (unsignedIntegerType(column.type)) {
+      } else if (unsignedIntegerType(column.elastic_type)) {
         const invalidIntegers = countInvalid(data, column.name, coerceUnsignedInteger);
         if (invalidIntegers > 0) {
           return { ...column, status: "Type mismatch", typeWarning: `${invalidIntegers} invalid unsigned integers` };
@@ -133,7 +132,7 @@ export async function validateColumns(columns: Column[], data: Record<string, js
       }
     }
 
-    if (column.typeGroup === "boolean") {
+    if (column.type === "boolean") {
       const invalidBooleans = countInvalid(data, column.name, coerceBoolean);
       if (invalidBooleans > 0) {
         return { ...column, status: "Type mismatch", typeWarning: `${invalidBooleans} invalid booleans` };
@@ -194,11 +193,11 @@ function coerceBoolean(value: jsType) {
   return null;
 }
 
-function signedIntegerType(type: AmcatFieldType | null) {
-  return type && ["long", "integer", "short", "byte"].includes(type);
+function signedIntegerType(elastic_type: AmcatElasticFieldType | null) {
+  return elastic_type && ["long", "integer", "short", "byte"].includes(elastic_type);
 }
-function unsignedIntegerType(type: AmcatFieldType | null) {
-  return type && ["unsigned_long"].includes(type);
+function unsignedIntegerType(elastic_type: AmcatElasticFieldType | null) {
+  return elastic_type && ["unsigned_long"].includes(elastic_type);
 }
 
 function countInvalid(data: Record<string, jsType>[], column: string, validator: (value: jsType) => jsType | null) {

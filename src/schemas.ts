@@ -34,7 +34,7 @@ export const amcatUserDetailsSchema = z.object({
   role: amcatUserRoleSchema,
 });
 
-export const amcatFieldTypeGroupSchema = z.enum([
+export const amcatFieldTypeSchema = z.enum([
   "id",
   "text",
   "date",
@@ -44,8 +44,10 @@ export const amcatFieldTypeGroupSchema = z.enum([
   "object",
   "vector",
   "geo",
+  "integer",
+  "tag",
 ]);
-export const amcatFieldTypeSchema = z.enum([
+export const amcatElasticFieldTypeSchema = z.enum([
   "text",
   "annotated_text",
   "binary",
@@ -90,8 +92,8 @@ export const amcatClientSettingsSchema = z.object({
 export const amcatFieldSchema = z.object({
   name: z.string(),
   identifier: z.boolean(),
-  type_group: amcatFieldTypeGroupSchema,
   type: amcatFieldTypeSchema,
+  elastic_type: amcatElasticFieldTypeSchema,
   metareader: amcatMetareaderAccessSchema,
   client_settings: amcatClientSettingsSchema,
 });
@@ -118,7 +120,7 @@ export const amcatFieldStatsSchema = z
       sum_as_string: o.sum_as_string ?? String(o.sum),
       avg_as_string: o.avg_as_string ?? String(o.avg),
     };
-  }); 
+  });
 
 export const amcatArticleSchema = z.record(z.any()).and(
   z.object({

@@ -11,14 +11,14 @@ interface MetaProps {
 
 export default function Meta({ article, fields, setArticle, metareader }: MetaProps) {
   const metaFields = fields.filter(
-    (f) => f.type_group !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
+    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
   );
   if (metaFields.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-2">
       {fields.map((field) => {
-        if (field.type_group === "text") return null;
+        if (field.type === "text") return null;
 
         const noAccessMessage =
           metareader && field.metareader.access !== "read" ? (
@@ -36,7 +36,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
                   <span>{field.name}</span>
                   <b>TYPE</b>
                   <span className="">
-                    {field.type_group === field.type ? field.type_group : `${field.type_group} (${field.type})`}
+                    {field.type === field.elastic_type ? field.type : `${field.type} (${field.elastic_type})`}
                   </span>
 
                   <b>VALUE</b>

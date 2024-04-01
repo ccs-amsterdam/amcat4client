@@ -63,7 +63,7 @@ export default function ArticleTable({ user, indexId, query, fields, children }:
           <div className="py-1">
             {field.name}{" "}
             <div className={`text-xs ${!!restricted ? "text-destructive" : "text-primary"}`}>
-              {restricted || field.type_group}
+              {restricted || field.type}
             </div>
           </div>
         ),

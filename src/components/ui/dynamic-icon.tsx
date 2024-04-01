@@ -26,7 +26,7 @@ export function DynamicIcon({ type }: { type: string | null }) {
   // field types
   if (type === "number" || type === "float" || type === "double") return <Binary />;
   if (type === "object") return <Braces />;
-  if (type === "keyword") return <Tag />;
+  if (type === "keyword" || type === "tag") return <Tag />;
   if (type === "date") return <CalendarDays />;
   if (type === "text") return <FileText />;
   if (type === "url") return <Link />;

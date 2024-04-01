@@ -19,7 +19,7 @@ export function filterLabel(name: string, field: AmcatField | undefined, filter:
   if (filter == null) return name;
 
   let values = "";
-  if (field?.type_group === "date") {
+  if (field?.type === "date") {
     if (filter.gte && filter.lte) values = `${filter.gte} / ${filter.lte}`;
     if (filter.gte && !filter.lte) values = `from ${filter.gte}`;
     if (filter.lte && !filter.gte) values = `until ${filter.lte}`;
@@ -47,8 +47,8 @@ export function filterLabel(name: string, field: AmcatField | undefined, filter:
 export function FilterPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   if (field == null || value == null) return null;
 
-  if (field.type_group === "date") return DateRangePopup({ user, indexId, field, value, onChange });
-  if (field.type_group === "number") return NumberRangePopup({ user, indexId, field, value, onChange });
+  if (field.type === "date") return DateRangePopup({ user, indexId, field, value, onChange });
+  if (field.type === "number") return NumberRangePopup({ user, indexId, field, value, onChange });
   return KeywordPopup({ user, indexId, field, value, onChange });
 }
 

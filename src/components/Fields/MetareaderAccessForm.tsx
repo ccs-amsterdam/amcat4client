@@ -48,7 +48,7 @@ export default function MetareaderAccessForm({ field, metareader_access, onChang
           <DropdownMenuItem onClick={() => onChangeAccess("none")} className="flex gap-4">
             {noneIcon}
           </DropdownMenuItem>
-          {field.type_group === "text" ? (
+          {field.type === "text" ? (
             <DropdownMenuItem onClick={() => onChangeAccess("snippet")} className="flex gap-4">
               {snippetIcon}
             </DropdownMenuItem>

@@ -214,13 +214,13 @@ function MetricPicker({ user, indexId, value, onChange }: MetricPickerProps) {
       },
     ];
     for (let field of fields) {
-      const options = METRIC_FUNCTIONS.filter((f) => !f.types || f.types?.includes(field.type_group));
+      const options = METRIC_FUNCTIONS.filter((f) => !f.types || f.types?.includes(field.type));
       if (options.length === 0) continue;
 
       metricFieldOptions.push({
         text: field.name,
         value: field.name,
-        icon: <DynamicIcon type={field.type_group} />,
+        icon: <DynamicIcon type={field.type} />,
         options,
       });
     }
@@ -276,13 +276,13 @@ function AxisPicker({
 
   const fieldoptions = useMemo(() => {
     const fieldoptions = (fields ?? [])
-      .filter((f) => ["date", "keyword", "tag"].includes(f.type_group))
+      .filter((f) => ["date", "keyword", "tag"].includes(f.type))
       .filter((f) => f.name !== skipField)
       .map((f) => ({
         text: f.name,
         value: f.name,
-        icon: <DynamicIcon type={f.type_group} />,
-        options: f.type_group === "date" ? INTERVALS : undefined,
+        icon: <DynamicIcon type={f.type} />,
+        options: f.type === "date" ? INTERVALS : undefined,
       }));
 
     if (query.queries) {
@@ -305,7 +305,7 @@ function AxisPicker({
         name: value?.name || "",
         interval: value?.interval,
       };
-      const ftype = field === "_query" ? "_query" : getField(fields, field)?.type_group;
+      const ftype = field === "_query" ? "_query" : getField(fields, field)?.type;
       result.field = field;
       if (ftype !== "date") delete result.interval;
       else if (result.interval == null) result.interval = "day";

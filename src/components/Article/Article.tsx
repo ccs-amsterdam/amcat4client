@@ -67,7 +67,7 @@ interface BodyProps {
 
 const Body = ({ article, fields, metareader }: BodyProps) => {
   const titleFields = fields.filter((f) => f.client_settings.isHeading);
-  const textFields = fields.filter((f) => f.type_group === "text" && !f.client_settings.isHeading);
+  const textFields = fields.filter((f) => f.type === "text" && !f.client_settings.isHeading);
 
   return (
     <>

@@ -12,7 +12,7 @@ interface Props {
 const IconClass = "h-5 w-5";
 
 export default function VisibilityForm({ field, client_settings, onChange }: Props) {
-  const canVisualize = field.type_group !== "text";
+  const canVisualize = field.type !== "text";
   const [newClientSettings, setNewClientSettings] = useState(client_settings);
   useEffect(() => setNewClientSettings(client_settings), [client_settings]);
 

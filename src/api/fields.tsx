@@ -89,9 +89,10 @@ export async function mutateFields(
   fields.forEach((f) => {
     if (!f.name) return;
     fieldsObject[f.name] = {};
-    if (f.type) {
-      if (action !== "create") throw new Error("Cannot change type of existing field");
-      fieldsObject[f.name].type = f.type;
+    if (f.type) fieldsObject[f.name].type = f.type;
+    if (f.elastic_type) {
+      if (action !== "create") throw new Error("Cannot change elastic_type of existing field");
+      fieldsObject[f.name].type = f.elastic_type;
     }
     if (f.identifier) {
       if (action !== "create") throw new Error("Cannot change identifier of existing field");
@@ -101,7 +102,6 @@ export async function mutateFields(
     if (f.metareader) fieldsObject[f.name].metareader = f.metareader;
     if (f.client_settings) fieldsObject[f.name].client_settings = f.client_settings;
   });
-  console.log(fieldsObject);
 
   if (action === "delete") {
     return await user.api.delete(`/index/${indexId}/fields`, { data: fields.map((f) => f.name) });
