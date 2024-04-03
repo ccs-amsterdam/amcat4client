@@ -49,7 +49,7 @@ export default function MultilineQueryForm({
           </div>
         </div>
         <Textarea
-          className="min-h-[100px] flex-auto"
+          className="min-h-[100px] flex-auto focus-visible:ring-transparent"
           placeholder={`Enter multiple (labeled) queries:\n\nLabel1 = query1\nLabel2 = query2`}
           onChange={(e) => {
             updateQuery({ ...query, queries: queriesFromString(e.target.value) }, "never");

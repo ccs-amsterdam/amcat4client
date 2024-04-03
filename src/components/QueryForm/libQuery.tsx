@@ -5,8 +5,13 @@ export function queriesToString(queries: AmcatQueryTerm[], multiline?: boolean):
   const sep = multiline ? "\n" : ";";
   let str = queries
     .map((query) => {
-      if (query.label) return `${query.label} = ${query.query}`;
-      if (multiline) return query.query.trimStart();
+      console.log(query);
+      if (query.label) {
+        if (!query.query) return query.label + "=";
+        return `${query.label}=${query.query}`;
+      }
+
+      if (multiline) return query.query;
       return query.query;
     })
     .join(sep);
@@ -18,6 +23,7 @@ export function queriesToString(queries: AmcatQueryTerm[], multiline?: boolean):
 export function queriesFromString(q: string): AmcatQueryTerm[] {
   if (!q?.trim()) return [];
   const queries = q.split(/;\s+;|[\n;]+/g);
+  const labels: Record<string, number> = {};
   return queries.map((s, i) => queryfromString(s));
 }
 
@@ -26,7 +32,7 @@ function queryfromString(q: string): AmcatQueryTerm {
   const m = q.match(labelRE);
   if (!m?.index) return { query: q };
   return {
-    label: q.slice(0, m.index).trim(),
-    query: q.slice(m.index + m.length).trim(),
+    label: q.slice(0, m.index),
+    query: q.slice(m.index + m.length),
   };
 }
