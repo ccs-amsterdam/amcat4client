@@ -27,7 +27,7 @@ interface Props {
 export default function CreateUser({ children, ownRole, roles, changeRole }: Props) {
   const [open, setOpen] = useState(false);
   const doCreateUser = async (email: string, role: string) => {
-    await changeRole(email, role, "create");
+    changeRole(email, role, "create");
     setOpen(false);
   };
   return (
