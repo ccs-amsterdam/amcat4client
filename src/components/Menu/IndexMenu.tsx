@@ -2,7 +2,7 @@
 
 import { useIndex, useMutateIndex } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
-import { useMyGlobalRole } from "@/api/userDetails";
+import { useHasGlobalRole, useMyGlobalRole } from "@/api/userDetails";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,11 +35,10 @@ export default function IndexMenu() {
   const router = useRouter();
   const indexId = decodeURI(params?.index || "");
   const { data: index } = useIndex(user, indexId);
-
+  const isServerAdmin = useHasGlobalRole(user, "ADMIN");
   if (loading || !user) return null;
   if (!index) return <IndicesLink />;
 
-  const isServerAdmin = role === "ADMIN";
   return (
     <>
       <DropdownMenu>
@@ -126,8 +125,8 @@ function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string
 function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const role = useMyGlobalRole(user);
   const { mutate: mutateUser } = useMutateIndexUser(user, index?.id);
-
-  if (role !== "ADMIN") return null;
+  const isAdmin = useHasGlobalRole(user, "ADMIN");
+  if (!isAdmin) return null;
 
   function onChangeRole(role: string) {
     if (role === "NONE") {
