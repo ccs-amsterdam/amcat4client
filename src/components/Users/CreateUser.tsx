@@ -26,7 +26,10 @@ interface Props {
 
 export default function CreateUser({ children, ownRole, roles, changeRole }: Props) {
   const [open, setOpen] = useState(false);
-
+  const doCreateUser = async (email: string, role: string) => {
+    await changeRole(email, role, "create");
+    setOpen(false);
+  };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -34,13 +37,20 @@ export default function CreateUser({ children, ownRole, roles, changeRole }: Pro
         <DialogHeader>
           <DialogTitle>Add Users</DialogTitle>
         </DialogHeader>
-        <CreateUserForm ownRole={ownRole} roles={roles} changeRole={changeRole} />
+        <CreateUserForm ownRole={ownRole} roles={roles} createUser={doCreateUser} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function CreateUserForm({ ownRole, roles, changeRole }: Props) {
+interface CreateUserProps {
+  ownRole: string;
+  roles: string[];
+  createUser: (email: string, role: string) => void;
+  children?: React.ReactNode;
+}
+
+function CreateUserForm({ ownRole, roles, createUser }: CreateUserProps) {
   const [emails, setEmails] = useState("");
   const [role, setRole] = useState("READER");
 
@@ -62,7 +72,7 @@ function CreateUserForm({ ownRole, roles, changeRole }: Props) {
     }
 
     for (const email of emailList) {
-      await changeRole(email, role, "create");
+      createUser(email, role);
     }
   }
 
