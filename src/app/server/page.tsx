@@ -21,8 +21,7 @@ export default function Index() {
 
   if (loading || loadingUserDetails || loadingUsers || loadingConfig) return <Loading />;
 
-  let ownRole = userDetails?.role;
-  if (ownRole == null && config?.authorization === "no_auth") ownRole = "ADMIN";
+  const ownRole = config?.authorization === "no_auth" ? "ADMIN" : userDetails?.role;
   async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
     mutate.mutateAsync({ email, role, action }).catch(console.error);
   }
