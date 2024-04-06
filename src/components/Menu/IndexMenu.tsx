@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndex, useMutateIndex } from "@/api/index";
+import { useHasIndexRole, useIndex, useMutateIndex } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
 import { useHasGlobalRole, useMyGlobalRole } from "@/api/userDetails";
 import {
@@ -48,7 +48,7 @@ export default function IndexMenu() {
             "flex h-full select-none items-center gap-3 border-primary px-3  outline-none hover:bg-foreground/10"
           }
         >
-          <Menu />
+          <LibraryIcon />
           <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap lg:block ">
             {index.name}{" "}
           </div>
@@ -68,7 +68,7 @@ export default function IndexMenu() {
       </DropdownMenu>
 
       <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
-      <NavLink index={index} path="settings" label="Settings" icon={<Settings />} />
+      <NavLink index={index} path="settings" label="Index Setup" icon={<Settings />} />
     </>
   );
 }
@@ -100,11 +100,13 @@ function IndicesLink() {
 function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string; label: string; icon: JSX.Element }) {
   const router = useRouter();
   const currentPath = useCurrentPath();
+  const { data: serverConfig } = useAmcatConfig();
+  const no_auth = serverConfig?.authorization === "no_auth";
+
   const active = path === currentPath;
   const href = `/index/${index.id}/${path}`;
   const indexRole = index?.user_role || "NONE";
-
-  const writer = indexRole === "WRITER" || indexRole === "ADMIN";
+  const writer = no_auth || indexRole === "WRITER" || indexRole === "ADMIN";
   if (!writer) {
     if (path === "users" || path === "settings") return null;
     if (path === "dashboard" && active) return null;
@@ -124,7 +126,6 @@ function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string
 }
 
 function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
-  const role = useMyGlobalRole(user);
   const { mutate: mutateUser } = useMutateIndexUser(user, index?.id);
   const isAdmin = useHasGlobalRole(user, "ADMIN");
   if (!isAdmin) return null;

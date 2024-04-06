@@ -20,6 +20,7 @@ import Upload from "@/components/Upload/Upload";
 import { Dialog } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { set } from "date-fns";
+import { useAmcatConfig } from "@/api/config";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -139,10 +140,11 @@ function Fields({ index }: { index: AmcatIndex }) {
   const { user, loading } = useMiddlecat();
   const { data: fields, isLoading: loadingFields } = useFields(user, index.id);
   const { mutate } = useMutateFields(user, index.id);
+  const { data: config } = useAmcatConfig();
 
   if (loading || loadingFields) return <Loading />;
 
-  const ownRole = index?.user_role;
+  const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
   if (!user || !ownRole || !mutate) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
   if (ownRole !== "ADMIN" && ownRole !== "WRITER")
     return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index fields</ErrorMsg>;
@@ -153,10 +155,12 @@ function Users({ index }: { index: AmcatIndex }) {
   const { user, loading } = useMiddlecat();
   const { data: users, isLoading: loadingUsers } = useIndexUsers(user, index.id);
   const mutate = useMutateIndexUser(user, index.id);
+  const { data: config } = useAmcatConfig();
 
   if (loading || loadingUsers) return <Loading />;
 
-  const ownRole = index?.user_role;
+  const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
+
   async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
     mutate.mutateAsync({ email, role, action }).catch(console.error);
   }
