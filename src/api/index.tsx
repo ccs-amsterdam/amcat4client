@@ -15,14 +15,14 @@ export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
 }
 
 export function useMyIndexrole(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+  const { data: serverConfig } = useAmcatConfig();
   const { data: index } = useIndex(user, indexId);
+  if (serverConfig?.authorization === "no_auth") return "ADMIN";
   return index?.user_role;
 }
 
 export function useHasIndexRole(user: MiddlecatUser, indexId: AmcatIndexId, role: AmcatUserRole) {
-  const { data: serverConfig } = useAmcatConfig();
   const index_role = useMyIndexrole(user, indexId);
-  if (serverConfig?.authorization === "no_auth") return true;
   if (!index_role) return undefined;
   const actual_role_index = amcatUserRoles.indexOf(index_role);
   const required_role_index = amcatUserRoles.indexOf(role);
