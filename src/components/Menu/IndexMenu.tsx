@@ -25,6 +25,7 @@ import MenuRouting from "./MenuRouting";
 import useAmcatIndices from "@/api/indices";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { CommandEmpty } from "cmdk";
+import { useAmcatConfig } from "@/api/config";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -127,7 +128,6 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
   const { mutate: mutateUser } = useMutateIndexUser(user, index?.id);
   const isAdmin = useHasGlobalRole(user, "ADMIN");
   if (!isAdmin) return null;
-
   function onChangeRole(role: string) {
     if (role === "NONE") {
       mutateUser({ email: user.email, role, action: "delete" });
@@ -155,7 +155,12 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
           >
             {roles.map((role) => {
               return (
-                <DropdownMenuRadioItem key={role} value={role} onSelect={(e) => e.preventDefault()}>
+                <DropdownMenuRadioItem
+                  key={role}
+                  value={role}
+                  onSelect={(e) => e.preventDefault()}
+                  disabled={!user.authenticated}
+                >
                   {role}
                 </DropdownMenuRadioItem>
               );
