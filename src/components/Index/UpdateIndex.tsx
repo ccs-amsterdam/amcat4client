@@ -97,7 +97,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
             </DropdownMenu>
           </div>
 
-          <Button className="mt-2 w-full">Create</Button>
+          <Button className="mt-2 w-full">Update</Button>
         </form>
       </DialogContent>
     </Dialog>
