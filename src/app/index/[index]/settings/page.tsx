@@ -29,17 +29,17 @@ interface Props {
 }
 
 enum Tab {
-  Index = "t1",
-  Fields = "t2",
-  Users = "t3",
-  Upload = "t4",
+  Fields = "t1",
+  Users = "t2",
+  Upload = "t3",
+  Index = "t4",
 }
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
-  const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Index));
+  const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Fields));
 
   if (loading || loadingIndex) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
@@ -58,9 +58,6 @@ export default function Index({ params }: Props) {
           })}
         </TabsList>
         <div className="mx-auto w-full max-w-6xl">
-          <TabsContent value={Tab.Index}>
-            <Settings user={user} index={index} />
-          </TabsContent>
           <TabsContent value={Tab.Fields}>
             <Fields index={index} />
           </TabsContent>
@@ -69,6 +66,9 @@ export default function Index({ params }: Props) {
           </TabsContent>
           <TabsContent value={Tab.Upload}>
             <Upload indexId={index.id} user={user} />
+          </TabsContent>
+          <TabsContent value={Tab.Index}>
+            <Settings user={user} index={index} />
           </TabsContent>
         </div>
       </Tabs>
