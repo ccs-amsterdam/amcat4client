@@ -45,13 +45,13 @@ export default function IndexMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           className={
-            "flex h-full select-none items-center gap-3 border-primary px-3  outline-none hover:bg-foreground/10"
+            "flex h-full select-none items-center gap-3 border-primary bg-primary px-3 text-primary-foreground outline-none "
           }
         >
-          <LibraryIcon />
-          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap lg:block ">
+          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap  lg:block ">
             {index.name}{" "}
           </div>
+          <ChevronDown className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
           <DropdownMenuGroup>
