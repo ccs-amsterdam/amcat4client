@@ -18,6 +18,8 @@ import ArticleTable from "@/components/Articles/ArticleTable";
 import DownloadArticles from "@/components/Articles/DownloadArticles";
 import Upload from "@/components/Upload/Upload";
 import Update from "@/components/Update/Update";
+import { useMyGlobalRole } from "@/api/userDetails";
+import { Info } from "lucide-react";
 
 interface Props {
   params: { index: string };
@@ -34,6 +36,7 @@ export default function Index({ params }: Props) {
   const indexId = decodeURI(params.index);
   const { user, loading: loadingUser } = useMiddlecat();
   const indexRole = useMyIndexrole(user, indexId);
+  const globalRole = useMyGlobalRole(user);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
   const [query, setQuery] = useState<AmcatQuery>(() => deserializeQuery(queryState));
@@ -45,7 +48,17 @@ export default function Index({ params }: Props) {
   }, [query]);
 
   if (loadingUser || !user) return <Loading />;
-  if (indexRole === "NONE") return <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>;
+  if (indexRole === "NONE")
+    return globalRole === "ADMIN" ? (
+      <ErrorMsg type="Not Allowed">
+        <div className="text-center">
+          You do not have access to this index. <br />
+          However, as server administrator, you can give yourself access through the <em>index</em> menu
+        </div>
+      </ErrorMsg>
+    ) : (
+      <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>
+    );
   const isWriter = indexRole === "WRITER" || indexRole === "ADMIN";
   return (
     <div>
