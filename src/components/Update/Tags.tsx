@@ -20,6 +20,7 @@ import { useMutateTags } from "@/api/tags";
 import { useEffect, useState } from "react";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Button } from "../ui/button";
+import { create } from "domain";
 
 interface Props {
   user: MiddlecatUser;
@@ -84,7 +85,8 @@ function AddOrRemoveTag({ user, indexId, query, field }: PropsWithField) {
   const [createNew, setCreateNew] = useState(false);
   const canOnlyCreate = !fieldValues?.length;
   const tag = createNew || canOnlyCreate ? newTag : selectedTag;
-  const { mutate } = useMutateTags(user, indexId);
+  const tagExists = tag && fieldValues?.includes(tag);
+  const { mutateAsync } = useMutateTags(user, indexId);
   if (fieldsLoading || fieldValuesLoading) return <Loading />;
   if (!fields) return null;
 
@@ -103,7 +105,10 @@ function AddOrRemoveTag({ user, indexId, query, field }: PropsWithField) {
       return;
     }
     // TODO validate
-    mutate({ tag, action, field, query });
+    mutateAsync({ tag, action, field, query }).then(() => {
+      setNewTag("");
+      setSelectedTag(undefined);
+    });
   };
 
   const renderExistingTags = () => {
@@ -126,13 +131,20 @@ function AddOrRemoveTag({ user, indexId, query, field }: PropsWithField) {
     );
   };
 
+  const renderTrigger = () => {
+    if (createNew || canOnlyCreate) return "new";
+    if (tag) return tag;
+    return "Create or select tag";
+  };
+
   return (
     <div className="flex flex-col gap-3 ">
       <div className="flex gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild disabled={canOnlyCreate}>
             <Button className="flex w-max items-center gap-2">
-              {createNew || canOnlyCreate ? "new" : tag || "Create or select tag"}
+              <Tag />
+              {renderTrigger()}
               <ChevronDown className="h-5 w-5" />{" "}
             </Button>
           </DropdownMenuTrigger>
@@ -154,14 +166,14 @@ function AddOrRemoveTag({ user, indexId, query, field }: PropsWithField) {
 
       <div className={tag ? "" : "hidden"}>
         <div className={`flex gap-3`}>
-          <Button className="flex items-center gap-3" disabled={!tag} onClick={() => onSubmit("add")}>
+          <Button className="flex items-center gap-3" onClick={() => onSubmit("add")}>
             <MessageCircle />
             Add tag to documents
           </Button>
           <Button
             className="flex items-center gap-3"
             variant="destructive"
-            disabled={!tag}
+            disabled={!tagExists}
             onClick={() => onSubmit("remove")}
           >
             <Trash2 />
@@ -179,6 +191,7 @@ function TagGraph({ user, indexId, query, field }: PropsWithField) {
     display: "barchart",
     title: "Tags",
   };
+  if (!field) return null;
   return (
     <div>
       <h4 className="text-right text-lg font-bold">Number of documents per tag</h4>

@@ -5,6 +5,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { asPostAmcatQuery } from "./query";
 import { toast } from "sonner";
+import { z } from "zod";
 
 interface MutateTagsParams {
   tag: string;
@@ -21,15 +22,17 @@ export function useMutateTags(user: MiddlecatUser, indexId: AmcatIndexId) {
       const amcatQuery = asPostAmcatQuery(query);
       return user.api.post(`/index/${indexId}/tags_update`, { ...amcatQuery, tag, action, field });
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["article", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["fieldValues", user, indexId, variables.field] });
       queryClient.invalidateQueries({ queryKey: ["aggregate", user, indexId] });
 
-      if (variables.action === "add") toast.success(`Added tag: ${variables.tag}`);
-      if (variables.action === "remove") toast.success(`Removed tag: ${variables.tag}`);
+      const result = z.object({ updated: z.number(), total: z.number() }).parse(data.data);
+      if (variables.action === "add") toast.success(`Added tag "${variables.tag}" to ${result.updated} documents`);
+      if (variables.action === "remove")
+        toast.success(`Removed tag "${variables.tag}" from ${result.updated} documents`);
     },
   });
 }

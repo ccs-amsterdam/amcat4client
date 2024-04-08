@@ -27,6 +27,10 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
 
         if (!article[field.name] && !noAccessMessage) return null;
 
+        let value = article[field.name];
+        if (Array.isArray(value)) value = value.join(", ");
+        value = String(value);
+
         return (
           <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
             <Badge

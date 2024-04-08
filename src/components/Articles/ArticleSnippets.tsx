@@ -94,19 +94,23 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                 <div className="flex gap-1 pt-2">
                   {listFields
                     .filter((field) => !layout.text.includes(field.name) && !layout.title.includes(field.name))
-                    .map(
-                      (field) =>
+                    .map((field) => {
+                      let value = row[field.name];
+                      if (Array.isArray(value)) value = value.join(", ");
+                      value = String(value);
+                      return (
                         !!row[field.name] && (
                           <Badge
                             key={field.name}
                             className="max-w-[15rem]"
                             tooltip={<span>{field.name}</span>}
-                            variant={String(row[field.name]).includes("<em>") ? "secondary" : "default"}
+                            variant={value.includes("<em>") ? "secondary" : "default"}
                           >
-                            {removeElasticTags(row[field.name])}
+                            {removeElasticTags(value)}
                           </Badge>
-                        ),
-                    )}
+                        )
+                      );
+                    })}
                 </div>
               </article>
             </button>

@@ -11,6 +11,7 @@ import { AmcatArticle, AmcatField } from "@/interfaces";
 export const formatField = (article: AmcatArticle, field: AmcatField, setArticle?: (id: string) => void) => {
   const value = article[field.name];
   if (value == null) return null;
+
   switch (field.type) {
     case "date":
       // Only remove 'T' for now. But not sure why that's a great idea
