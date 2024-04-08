@@ -45,6 +45,7 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import { Input } from "../ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { useHasIndexRole } from "@/api/index";
+import { CreateFieldInfoDialog, CreateFieldNameInput, CreateFieldSelectType } from "../Fields/CreateField";
 
 interface Props {
   user: MiddlecatUser;
@@ -206,16 +207,20 @@ export default function Upload({ user, indexId }: Props) {
     }
   }
 
-  function renderExistingField(fields: AmcatField[]) {
+  function renderExistingField(fields: AmcatField[], identifier = false) {
+    let anyNotUsed = false;
     return (
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-3">
         {fields.map((field) => {
-          const color = !field.identifier
-            ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-secondary-foreground";
           const used = columns.find((c) => c.field === field.name);
+          if (!used) anyNotUsed = true;
           return (
-            <div key={field.name} className={`${!!used ? "" : color} flex gap-3 rounded-lg border  p-2  `}>
+            <div
+              key={field.name}
+              className={`${
+                !!used ? "" : "bg-destructive text-destructive-foreground"
+              } flex gap-3 rounded-lg border  p-2  `}
+            >
               <DynamicIcon type={field.type} />
               <div className="flex w-full justify-between gap-3">
                 <div className="font-bold ">{field.name}</div>
@@ -223,6 +228,12 @@ export default function Upload({ user, indexId }: Props) {
             </div>
           );
         })}
+        {anyNotUsed ? (
+          <div className="flex gap-3">
+            <AlertCircleIcon className="h-6 w-6 text-warn" />
+            <div>Some {identifier ? "identifiers" : "fields"} are not used</div>
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -356,21 +367,6 @@ export default function Upload({ user, indexId }: Props) {
                       that are not in the uploaded data will not not be removed)
                     </span>
                   </DropdownMenuItem>
-
-                  {/* <DropdownMenuItem
-                    disabled={!isAdmin}
-                    onClick={() => setOperation("index")}
-                    className="flex-col items-start justify-start"
-                  >
-                    <span className="">
-                      Create or replace{" "}
-                      {isAdmin ? "" : <span className="rounded bg-warn px-1 text-warn-foreground">admin only</span>}
-                    </span>
-                    <span className="text-foreground/60">
-                      If identifier already exists, replace the entire document. This will also delete fields that are
-                      not in the uploaded data
-                    </span>
-                  </DropdownMenuItem> */}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -468,8 +464,10 @@ function SelectAmcatField({
                 }`}
               />
               <DynamicIcon type={column.type} />
-              <span className="text-primary">{column.field}</span>
-              <span className="text-sm italic text-foreground/60">{column.type}</span>
+              <div className="text-left leading-3">
+                <div className="text-primary">{column.field}</div>
+                <div className="text-sm italic text-foreground/60">{column.type}</div>
+              </div>
             </>
           ) : (
             <>
@@ -544,6 +542,7 @@ function SelectAmcatField({
         column={column}
         setColumn={setColumn}
         disabled={validating}
+        fields={fields}
       />
     </div>
   );
@@ -555,40 +554,20 @@ function CreateFieldDialog({
   column,
   setColumn,
   disabled,
+  fields,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   column: Column;
   setColumn: (column: Column) => void;
   disabled?: boolean;
+  fields: AmcatField[];
 }) {
   const [newColumn, setNewColumn] = useState(() => ({ ...column, field: column.field || column.name }));
-
+  const [error, setError] = useState("");
   useEffect(() => {
     setNewColumn({ ...column, field: column.field || column.name });
   }, [column]);
-
-  function Item({
-    label,
-    type,
-    elastic_type,
-  }: {
-    type: AmcatFieldType | null;
-    elastic_type: AmcatElasticFieldType | null;
-    label?: string;
-  }) {
-    return (
-      <DropdownMenuItem
-        className="flex gap-2"
-        onClick={() => setNewColumn({ ...newColumn, type, elastic_type, status: "Validating" })}
-      >
-        <DynamicIcon type={type} />
-        {label || type}
-      </DropdownMenuItem>
-    );
-  }
-
-  const invalidFieldName = newColumn.field === "_id";
 
   return (
     <Dialog
@@ -605,41 +584,15 @@ function CreateFieldDialog({
             this after the data has been uploaded.
           </p> */}
         </DialogHeader>
-        <div className="flex flex-col gap-4 overflow-auto">
+        <div className="flex flex-col gap-4 overflow-auto p-1">
           <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr,10rem]">
-            <Input
-              placeholder="Field name"
-              value={newColumn.field || ""}
-              onChange={(e) => setNewColumn({ ...newColumn, field: e.target.value })}
+            <CreateFieldNameInput
+              name={newColumn.field}
+              setName={(name) => setNewColumn({ ...newColumn, field: name })}
+              setError={setError}
+              fields={fields}
             />
-            <DropdownMenu>
-              <DropdownMenuTrigger disabled={disabled} className="flex gap-2 rounded sm:ml-auto">
-                {newColumn.type ? (
-                  <div className="flex gap-3">
-                    <DynamicIcon type={newColumn.type} /> {newColumn.type}
-                  </div>
-                ) : (
-                  "Select type"
-                )}
-                <ChevronDown className="h-5 w-5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <Item label="Text" type="text" elastic_type="text" />
-                <Item label="Keyword" type="keyword" elastic_type="keyword" />
-                <Item label="Date" type="date" elastic_type="date" />
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="flex gap-2">
-                    <DynamicIcon type="number" />
-                    Number
-                  </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <Item label="Real number (double)" type="number" elastic_type="double" />
-                    <Item label="Integer (long)" type="number" elastic_type="integer" />
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <Item label="Boolean" type="boolean" elastic_type="boolean" />
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CreateFieldSelectType type={newColumn.type} setType={(type) => setNewColumn({ ...newColumn, type })} />
           </div>
           <div
             className=" flex items-center gap-3 "
@@ -655,35 +608,13 @@ function CreateFieldDialog({
           </div>
         </div>
         <div className="mt-2 flex items-center gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <HelpCircle className="cursor-pointer text-primary" />
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>Creating a new index field</DialogHeader>
-              <p className="text-sm">
-                When creating a new index field, you need to pick a name and type. The type indicates how the data will
-                be stored in Elasticsearch. Make sure to pick a suitable type, because you won't be able to change this
-                after the data has been uploaded.
-              </p>
-              <p className="text-sm">
-                If a field is marked as an <i>identifier</i>, it will be used to prevent duplicate documents (like a
-                primary key in SQL). Use a unique identifier (e.g., URL) if available. Use multiple identifiers for
-                unique combinations (e.g., author & timestamp). If no identifier is set, only documents that are
-                entirely identical will be considered duplicates.
-              </p>
-            </DialogContent>
-          </Dialog>
-
-          {invalidFieldName ? <div className="ml-auto text-destructive">Invalid field name</div> : null}
+          <CreateFieldInfoDialog />
+          {error ? <div className="ml-auto text-destructive">{error}</div> : null}
           <div className="ml-auto flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
             <Button
-              disabled={!newColumn.field || !newColumn.type || !newColumn.elastic_type || invalidFieldName}
+              disabled={!newColumn.field || !newColumn.type || !newColumn.elastic_type || !!error}
               onClick={() => {
-                if (!invalidFieldName) setColumn(newColumn);
+                if (!error) setColumn(newColumn);
                 setOpen(false);
               }}
             >

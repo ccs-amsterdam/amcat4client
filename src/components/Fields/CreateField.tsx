@@ -1,21 +1,19 @@
-import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useState } from "react";
-import { Input } from "../ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AmcatField, AmcatFieldType, UpdateAmcatField } from "@/interfaces";
+import { ChevronDown, HelpCircle, Key } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
-  DropdownMenuTrigger,
   DropdownMenuRadioItem,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
-import { amcatFieldTypeSchema } from "@/schemas";
 import { DynamicIcon } from "../ui/dynamic-icon";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { z } from "zod";
-import { useFields } from "@/api/fields";
-import { AmcatField, UpdateAmcatField } from "@/interfaces";
+import { Input } from "../ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface Props {
   fields: AmcatField[];
@@ -47,31 +45,75 @@ interface CreateFieldProps {
   children?: React.ReactNode;
 }
 
-type FieldType = z.infer<typeof amcatFieldTypeSchema>;
-
 function CreateFieldForm({ fields, createField }: CreateFieldProps) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [type, setType] = useState<FieldType>("keyword");
-  const types = new Map<FieldType, string>([
-    ["keyword", "A keyword field is useful for shorter labels or categories that should not be analysed"],
-    ["text", "Text fields are used for longer texts; They are analysed so individual words can be searched"],
-    ["date", "Field for date or date/time values"],
-    ["boolean", "For boolean (true or false) values"],
-    ["number", "For numeric values"],
-    ["object", "General objects that will not be parsed"],
-    ["vector", "Dense vectors, i.e. document embeddings"],
-    ["geo", "Geolocations, i.e. longitude and lattitude"],
-    ["integer", "For integer values, i.e. numbers without decimals"],
-    ["tag", "Tag fields can contain multiple tags for each document"],
-  ]);
-  const existingFields = fields.map((f) => f.name);
+  const [identifier, setIdentifier] = useState(false);
+  const [type, setType] = useState<AmcatFieldType | null>(null);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    createField({ name, type });
+  const disabled = !name || error !== "" || !type;
+
+  async function onSubmit() {
+    if (disabled) return;
+    createField({ name, type, identifier });
   }
 
+  return (
+    <div className="prose flex max-w-none flex-col gap-4 overflow-auto p-1 dark:prose-invert">
+      <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr,10rem]">
+        <div>
+          <CreateFieldNameInput name={name} setName={setName} setError={setError} fields={fields} />
+        </div>
+        <CreateFieldSelectType type={type} setType={setType} />
+      </div>
+      <div
+        className=" flex w-max select-none items-center gap-3"
+        onClick={() => {
+          console.log("clicked");
+          setIdentifier(!identifier);
+        }}
+      >
+        <Key className="h-6 w-6" />
+        <label className="">Use as identifier</label>
+        <Checkbox className="ml-[2px] h-5 w-5" checked={identifier}>
+          Field exists
+        </Checkbox>
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <CreateFieldInfoDialog />
+        <span className="text-destructive">{error}</span>
+        <Button className="" onClick={onSubmit} disabled={disabled}>
+          Create
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+const types = new Map<AmcatFieldType, string>([
+  ["keyword", "A keyword field is useful for shorter labels or categories that should not be analysed"],
+  ["text", "Text fields are used for longer texts; They are analysed so individual words can be searched"],
+  ["date", "Field for date or date/time values"],
+  ["boolean", "For boolean (true or false) values"],
+  ["number", "For numeric values"],
+  ["object", "General objects that will not be parsed"],
+  ["vector", "Dense vectors, i.e. document embeddings"],
+  ["geo", "Geolocations, i.e. longitude and lattitude"],
+  ["integer", "For integer values, i.e. numbers without decimals"],
+  ["tag", "Tag fields can contain multiple tags for each document"],
+]);
+
+export function CreateFieldNameInput({
+  name,
+  setName,
+  setError,
+  fields,
+}: {
+  name: string;
+  setName: (name: string) => void;
+  setError: (error: string) => void;
+  fields: AmcatField[];
+}) {
   const validateFieldName = (value: string) => {
     // see https://github.com/elastic/elasticsearch/issues/9059 (why is this not properly documented?)
     // Field names should not start with underscore, and should not contain dots or backslashes
@@ -79,7 +121,7 @@ function CreateFieldForm({ fields, createField }: CreateFieldProps) {
     let error = "";
     value = value.replace(/[ \\.\\]/, "");
     value = value.replace(/^_+/, "");
-    if (existingFields.includes(value)) error = `Field ${value} already exists`;
+    if (fields.find((f) => f.name === value)) error = `Field ${value} already exists`;
     return [value, error];
   };
 
@@ -89,37 +131,78 @@ function CreateFieldForm({ fields, createField }: CreateFieldProps) {
     setName(value);
   };
 
-  return (
-    <form onSubmit={onSubmit} className="prose flex max-w-none flex-col gap-3 dark:prose-invert">
-      <Input required value={name} onChange={doSetField} placeholder="Field name" />
-      <span className="text-red-600">{error}</span>
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex h-full items-center justify-between gap-3 rounded border border-primary px-3 text-primary outline-none">
-          <DynamicIcon type={type} />
-          {type}
-          <ChevronDown className="h-5 w-5" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuRadioGroup value={type} onValueChange={(value) => setType(value as FieldType)}>
-            {Array.from(types.entries()).map(([x, help]) => {
-              return (
-                <Tooltip key={x}>
-                  <TooltipTrigger asChild>
-                    <DropdownMenuRadioItem value={x}>
-                      <DynamicIcon type={x} /> &nbsp;{x}
-                    </DropdownMenuRadioItem>
-                  </TooltipTrigger>{" "}
-                  <TooltipContent side="right" className="bg-white">
-                    {help}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+  useEffect(() => {
+    const [value, error] = validateFieldName(name);
+    setError(error);
+    setName(value);
+  }, [fields, name]);
 
-      <Button disabled={!name || error !== ""}>Create</Button>
-    </form>
+  return <Input required value={name} onChange={doSetField} placeholder="Field name" />;
+}
+
+export function CreateFieldSelectType({
+  type,
+  setType,
+}: {
+  type: AmcatFieldType | null;
+  setType: (type: AmcatFieldType) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex h-full items-center justify-between gap-3 rounded border border-primary px-3 text-primary outline-none">
+        {type ? (
+          <>
+            <DynamicIcon type={type} /> {type}
+          </>
+        ) : (
+          "Select type"
+        )}
+        <ChevronDown className="h-5 w-5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuRadioGroup value={type ?? undefined} onValueChange={(value) => setType(value as AmcatFieldType)}>
+          {Array.from(types.entries()).map(([x, help]) => {
+            return (
+              <Tooltip key={x}>
+                <TooltipTrigger asChild>
+                  <DropdownMenuRadioItem value={x}>
+                    <DynamicIcon type={x} /> &nbsp;{x}
+                  </DropdownMenuRadioItem>
+                </TooltipTrigger>{" "}
+                <TooltipContent side="right" className="w-44 bg-white">
+                  {help}
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function CreateFieldInfoDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <HelpCircle className="cursor-pointer text-primary" />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>Creating a new index field</DialogHeader>
+        <p className="text-sm">
+          When creating a new index field, you need to pick a name and type. The type indicates how the data will be
+          stored in Elasticsearch. Make sure to pick a suitable type, because you won't be able to change this after the
+          field has been created.
+        </p>
+        <p className="text-sm">
+          If a field is marked as an <i>identifier</i>, it will be used to prevent duplicate documents (like a primary
+          key in SQL). Use a unique identifier (e.g., URL) if available. Use multiple identifiers for unique
+          combinations (e.g., author & timestamp).{" "}
+          <span className="text-primary">
+            You won't be able to change this afterwards, and identifiers are also immutable (i.e. cannot be updated).
+          </span>
+        </p>
+      </DialogContent>
+    </Dialog>
   );
 }
