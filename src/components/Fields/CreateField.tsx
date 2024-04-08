@@ -55,7 +55,6 @@ function CreateFieldForm({ fields, createField }: CreateFieldProps) {
   const [type, setType] = useState<FieldType>("keyword");
   const types = new Map<FieldType, string>([
     ["keyword", "A keyword field is useful for shorter labels or categories that should not be analysed"],
-    ["id", "???"],
     ["text", "Text fields are used for longer texts; They are analysed so individual words can be searched"],
     ["date", "Field for date or date/time values"],
     ["boolean", "For boolean (true or false) values"],

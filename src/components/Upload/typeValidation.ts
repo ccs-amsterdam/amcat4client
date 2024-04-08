@@ -99,13 +99,6 @@ export async function validateColumns(columns: Column[], data: Record<string, js
       }
     }
 
-    if (column.type === "id") {
-      const uniquevalues = new Set(data.map((d) => d[column.name]));
-      if (uniquevalues.size !== data.length) {
-        return { ...column, status: "Type mismatch", typeWarning: "Duplicate values" };
-      }
-    }
-
     if (column.type === "date") {
       const invalidDates = countInvalid(data, column.name, coerceDate);
       if (invalidDates > 0) {

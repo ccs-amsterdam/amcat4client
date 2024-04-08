@@ -35,7 +35,6 @@ export const amcatUserDetailsSchema = z.object({
 });
 
 export const amcatFieldTypeSchema = z.enum([
-  "id",
   "text",
   "date",
   "boolean",
