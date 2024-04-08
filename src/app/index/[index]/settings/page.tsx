@@ -32,7 +32,7 @@ enum Tab {
   Fields = "t1",
   Users = "t2",
   Upload = "t3",
-  Index = "t4",
+  Settings = "t4",
 }
 
 export default function Index({ params }: Props) {
@@ -67,7 +67,7 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Upload}>
             <Upload indexId={index.id} user={user} />
           </TabsContent>
-          <TabsContent value={Tab.Index}>
+          <TabsContent value={Tab.Settings}>
             <Settings user={user} index={index} />
           </TabsContent>
         </div>
