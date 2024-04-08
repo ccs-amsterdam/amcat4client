@@ -147,7 +147,8 @@ function TagGraph({ user, indexId, query, field }: TagDetailsProps) {
   };
   return (
     <div>
-      <AggregateResult user={user} indexId={indexId} query={query} options={TagGraphOptions} />
+      <h4>Tag distribution in all documents</h4>
+      <AggregateResult user={user} indexId={indexId} query={{}} options={TagGraphOptions} />
     </div>
   );
 }
