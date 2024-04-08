@@ -24,12 +24,6 @@ interface Props {
   query: AmcatQuery;
 }
 
-const TagGraphOptions: AggregationOptions = {
-  axes: [{ name: "tag", field: "tag" }],
-  display: "barchart",
-  title: "Tags",
-};
-
 export default function Tags({ user, indexId, query }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const [field, setField] = useState("");
@@ -140,12 +134,17 @@ function TagDetails({ user, indexId, query, field }: TagDetailsProps) {
           Remove tag from documents
         </Button>
       </div>
-      {hasTags ? <TagGraph user={user} indexId={indexId} query={query} /> : null}
+      <TagGraph user={user} indexId={indexId} query={query} field={field} />
     </div>
   );
 }
 
-function TagGraph({ user, indexId, query }: Props) {
+function TagGraph({ user, indexId, query, field }: TagDetailsProps) {
+  const TagGraphOptions: AggregationOptions = {
+    axes: [{ name: "tag", field: field }],
+    display: "barchart",
+    title: "Tags",
+  };
   return (
     <div>
       <AggregateResult user={user} indexId={indexId} query={query} options={TagGraphOptions} />
