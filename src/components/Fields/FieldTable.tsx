@@ -8,7 +8,9 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import MetareaderAccessForm from "./MetareaderAccessForm";
 import VisibilityForm from "./VisibilityForm";
 import { Input } from "../ui/input";
-import { Key, Search } from "lucide-react";
+import { Key, ListPlus, Search, UserPlus } from "lucide-react";
+import CreateField from "./CreateField";
+import { Button } from "../ui/button";
 
 interface Row extends AmcatField {
   onChange?: ({ name, type, metareader, client_settings }: UpdateAmcatField) => void;
@@ -105,6 +107,12 @@ export default function FieldTable({ fields, mutate }: Props) {
     [fields],
   );
 
+  const onCreate = useCallback(
+    (newField: UpdateAmcatField) => {
+      mutate("create", [newField]);
+    },
+    [fields],
+  );
   const data: Row[] =
     fields?.map((field) => {
       const row: Row = {
@@ -119,12 +127,12 @@ export default function FieldTable({ fields, mutate }: Props) {
       <div className="flex items-center justify-between pb-4">
         <div className="prose-xl flex gap-1 md:gap-3">
           <h3 className="">Fields</h3>
-          {/* <CreateUser ownRole={ownRole} roles={roles} changeRole={changeRole}>
+          <CreateField fields={fields} onCreate={onCreate}>
             <Button variant="ghost" className="flex gap-2 p-4">
-              <UserPlus />
-              <span className="hidden sm:inline">Add user</span>
+              <ListPlus />
+              <span className="hidden sm:inline">Add field</span>
             </Button>
-          </CreateUser> */}
+          </CreateField>
         </div>
         <div className="relative ml-auto flex items-center">
           <Input
