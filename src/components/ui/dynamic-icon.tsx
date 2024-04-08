@@ -14,6 +14,8 @@ import {
   ToggleLeft,
   Binary,
   Tally5,
+  MoveUpRight,
+  Tags,
 } from "lucide-react";
 
 export function DynamicIcon({ type }: { type: string | null }) {
@@ -26,7 +28,8 @@ export function DynamicIcon({ type }: { type: string | null }) {
   // field types
   if (type === "number" || type === "float" || type === "double") return <Binary />;
   if (type === "object") return <Braces />;
-  if (type === "keyword" || type === "tag") return <Tag />;
+  if (type === "keyword") return <Tag />;
+  if (type === "tag") return <Tags />;
   if (type === "date") return <CalendarDays />;
   if (type === "text") return <FileText />;
   if (type === "url") return <Link />;
@@ -34,6 +37,7 @@ export function DynamicIcon({ type }: { type: string | null }) {
   if (type === "id") return <Fingerprint />;
   if (type === "boolean") return <ToggleLeft />;
   if (type === "integer") return <Tally5 />;
+  if (type === "vector") return <MoveUpRight />;
 
   console.error(`Unknown icon type ${type}`);
   return <X />;
