@@ -1,6 +1,6 @@
 "use client";
 
-import { useHasIndexRole, useIndex, useMutateIndex } from "@/api/index";
+import { useHasIndexRole, useIndex, useMutateIndex, useMyIndexrole } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
 import { useHasGlobalRole, useMyGlobalRole } from "@/api/userDetails";
 import {
@@ -31,7 +31,6 @@ const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
 export default function IndexMenu() {
   const { user, loading } = useMiddlecat();
-  const role = useMyGlobalRole(user);
   const params = useParams<{ index: string }>();
   const router = useRouter();
   const indexId = decodeURI(params?.index || "");
@@ -63,6 +62,8 @@ export default function IndexMenu() {
               <SelectIndex user={user} indexId={indexId} />
             </DropdownMenuSub>
           </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Your index role: {index.user_role}</DropdownMenuLabel>
           {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -139,14 +140,10 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
 
   return (
     <DropdownMenuGroup>
-      <DropdownMenuSeparator />
-
-      <DropdownMenuLabel className="">Server admin actions</DropdownMenuLabel>
-
       <DropdownMenuSub>
         <DropdownMenuSubTrigger className={!index ? "hidden" : ""}>
           <User className="mr-2 h-4 w-4" />
-          <span>My index role</span>
+          <span>Change your index role</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent className="">
           <DropdownMenuRadioGroup
