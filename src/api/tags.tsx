@@ -1,8 +1,6 @@
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { D } from "@tanstack/react-query-devtools/build/legacy/devtools-ZdlRR-0P";
 import { MiddlecatUser } from "middlecat-react";
-import { Dispatch, SetStateAction, useState } from "react";
 import { asPostAmcatQuery } from "./query";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,9 +28,12 @@ export function useMutateTags(user: MiddlecatUser, indexId: AmcatIndexId) {
       queryClient.invalidateQueries({ queryKey: ["aggregate", user, indexId] });
 
       const result = z.object({ updated: z.number(), total: z.number() }).parse(data.data);
-      if (variables.action === "add") toast.success(`Added tag "${variables.tag}" to ${result.updated} documents`);
+      console.log(variables);
+      if (variables.action === "add")
+        toast.success(`Added tag "${variables.field}:${variables.tag}" to ${result.updated} documents`);
       if (variables.action === "remove")
-        toast.success(`Removed tag "${variables.tag}" from ${result.updated} documents`);
+        toast.success(`Removed tag "${variables.field}:${variables.tag}" from ${result.updated} documents`);
+      console.log(3);
     },
   });
 }

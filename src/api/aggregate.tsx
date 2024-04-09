@@ -5,6 +5,13 @@ import { MiddlecatUser } from "middlecat-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { amcatAggregateDataSchema } from "@/schemas";
 
+export function useCount(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery) {
+  const result = useAggregate(user, indexId, query, { axes: [], display: "list" });
+  const count = result.data == null ? null : result.data.pages[0].data[0].n;
+
+  return { count, ...result };
+}
+
 export function useAggregate(
   user: MiddlecatUser,
   indexId: AmcatIndexId,
@@ -19,7 +26,7 @@ export function useAggregate(
       return lastPage?.meta?.after;
     },
 
-    enabled: !!user && !!indexId && !!query && !!options?.axes && options.axes.length > 0,
+    enabled: !!user && !!indexId && !!query && !!options?.axes,
   });
 }
 

@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Button } from "../ui/button";
 import { create } from "domain";
+import { useAggregate, useCount } from "@/api/aggregate";
 
 interface Props {
   user: MiddlecatUser;
@@ -31,14 +32,14 @@ interface Props {
 export default function Tags({ user, indexId, query }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const [field, setField] = useState("");
-  if (fieldsLoading) return <Loading />;
-  if (!fields) return null;
+  const { count, isLoading: countLoading } = useCount(user, indexId, query);
+  if (fieldsLoading || countLoading) return <Loading />;
+  if (!fields || !count) return null;
   const tagFields = fields.filter((f) => f.type === "tag");
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2">
       <div className="flex flex-col gap-3 ">
-        <h4>Select tag field to update</h4>
+        <h4>Select options below to update {count} documents</h4>
         {tagFields.length === 0 ? (
           <div>There are no tag fields in this index. Create a tag field in index setup</div>
         ) : (
