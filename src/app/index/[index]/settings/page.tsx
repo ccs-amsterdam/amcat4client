@@ -21,6 +21,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { set } from "date-fns";
 import { useAmcatConfig } from "@/api/config";
+import Multimedia from "@/components/Multimedia/Multimedia";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -29,10 +30,11 @@ interface Props {
 }
 
 enum Tab {
-  Fields = "t1",
-  Users = "t2",
-  Upload = "t3",
-  Settings = "t4",
+  Fields = "fields",
+  Users = "users",
+  Upload = "upload",
+  Multimedia = "multimedia",
+  Settings = "settings",
 }
 
 export default function Index({ params }: Props) {
@@ -66,6 +68,9 @@ export default function Index({ params }: Props) {
           </TabsContent>
           <TabsContent value={Tab.Upload}>
             <Upload indexId={index.id} user={user} />
+          </TabsContent>
+          <TabsContent value={Tab.Multimedia}>
+            <Multimedia indexId={index.id} user={user} />
           </TabsContent>
           <TabsContent value={Tab.Settings}>
             <Settings user={user} index={index} />

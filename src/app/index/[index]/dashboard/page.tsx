@@ -26,10 +26,10 @@ interface Props {
 }
 
 enum Tab {
-  Summary = "t1",
-  Aggregate = "t2",
-  Update = "t3",
-  Download = "t4",
+  Summary = "summary",
+  Aggregate = "aggregate",
+  Update = "update",
+  Download = "download",
 }
 
 export default function Index({ params }: Props) {

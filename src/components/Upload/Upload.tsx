@@ -42,7 +42,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { DynamicIcon } from "../ui/dynamic-icon";
-import { Input } from "../ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { useHasIndexRole } from "@/api/index";
 import { CreateFieldInfoDialog, CreateFieldNameInput, CreateFieldSelectType } from "../Fields/CreateField";

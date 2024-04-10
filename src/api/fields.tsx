@@ -5,6 +5,7 @@ import { amcatFieldSchema } from "@/schemas";
 import { AmcatField, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
 
+// TODO: make function, use types
 const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   date: {
     inDocument: true,
