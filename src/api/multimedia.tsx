@@ -7,31 +7,24 @@ import { toast } from "sonner";
 import { FileWithPath } from "react-dropzone";
 import axios from "axios";
 
-export function useMultimediaList(
-  user?: MiddlecatUser,
-  indexId?: AmcatIndexId | undefined,
-  prefix?: string,
-  start_after?: string,
-  n: number = 10,
-) {
+interface MultimediaParams {
+  prefix?: string;
+  start_after?: string;
+  n?: number;
+  presigned_get?: boolean;
+  metadata?: boolean;
+}
+
+export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, params?: MultimediaParams) {
   return useQuery({
     queryKey: ["multimediaList", user, indexId],
-    queryFn: () => getMultimediaList(user, indexId || "", prefix, start_after, n),
+    queryFn: () => getMultimediaList(user, indexId, params),
     enabled: user != null && indexId != null,
   });
 }
-async function getMultimediaList(
-  user?: MiddlecatUser,
-  indexId?: AmcatIndexId,
-  prefix?: string,
-  start_after?: string,
-  n: number = 10,
-) {
+async function getMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId, params?: MultimediaParams) {
   if (!user || !indexId) return undefined;
-  const params: Record<string, string | number> = { n };
-  if (prefix) params.prefix = prefix;
-  if (start_after) params.start_after = start_after;
-  const res = await user.api.get(`/index/${indexId}/multimedia/list`);
+  const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
   return z.array(amcatMultimediaListItem).parse(res.data);
 }
 

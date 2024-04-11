@@ -186,11 +186,12 @@ export const amcatAggregateDataSchema = z.object({
 });
 
 export const amcatMultimediaListItem = z.object({
-  id: z.string(),
-  filename: z.string(),
-  mimetype: z.string(),
-  size: z.number(),
-  url: z.string(),
+  key: z.string(),
+  presigned_get: z.optional(z.string()),
+  content_type: z.string().nullish(),
+  is_dir: z.boolean(),
+  last_modified: z.optional(z.coerce.date()),
+  size: z.number().nullish(),
 });
 
 export const amcatMultimediaPresignedPost = z.object({
