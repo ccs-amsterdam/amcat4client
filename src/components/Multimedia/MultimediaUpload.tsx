@@ -22,7 +22,21 @@ interface UploadQueue {
   progress: number;
 }
 
-const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml", "image/webp", "image/tiff"];
+// Explicitly require extension to match the mime type.
+// For zipped files it seems (?) we don't get the mime types
+// so there we use the extension to determine the mime type.
+const extensionMapping: Record<string, string> = {
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+  webp: "image/webp",
+  tiff: "image/tiff",
+  mp4: "video/mp4",
+  webm: "video/webm",
+  ogg: "video/ogg",
+};
 
 export default function MultimediaUpload({ indexId, user }: Props) {
   const [data, setData] = useState<FileWithPath[]>();
@@ -162,11 +176,18 @@ function createValidator() {
   const validator = (file: FileWithPath) => {
     if (file.name && /\.zip$/.test(file.name.toLowerCase())) return null; // zip files are processed and filtered in createFiles
     if (file.size && file.size > 100000000) return { code: "file-too-large", message: "File is too large" };
-    if (allowedMimeTypes.includes(file.type)) return null;
-    return {
-      code: "file-not-allowed",
-      message: "File doesn't match any of the allowed filenames",
-    };
+
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    if (!extension) return { code: "file-extension-missing", message: "File extension missing" };
+
+    const mimeBasedOnExtension = extensionMapping[extension];
+    if (!mimeBasedOnExtension)
+      return { code: "file-extension-not-supported", message: "File extension not supported " };
+
+    if (file.type !== mimeBasedOnExtension)
+      return { code: "file-mime-type-mismatch", message: "File mime type mismatch" };
+
+    return null;
   };
 
   return validator;
@@ -196,8 +217,20 @@ const listZippedFiles = async (file: FileWithPath) => {
     if (zobj.dir) continue;
     const zblob = await zobj.async("blob");
     const name = zobj.name.split("/").splice(-1)[0];
+    const extension = name.split(".").pop()?.toLowerCase();
+
+    if (!extension) {
+      console.log("Extension is missing for file: ", name);
+      continue;
+    }
+    const mime = extensionMapping[extension];
+    if (!mime) {
+      console.log("extension is not supported: ", extension);
+      continue;
+    }
+
     const zfile = new File([zblob], name, {
-      type: "image/jpeg",
+      type: mime,
       lastModified: zobj.date.getTime(),
     });
     const fileWithPath: FileWithPath = new FileWithPathClass(zfile, zobj.name);
