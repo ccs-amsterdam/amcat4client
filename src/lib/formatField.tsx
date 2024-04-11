@@ -18,9 +18,16 @@ export const formatField = (article: AmcatArticle, field: AmcatField, setArticle
       return value.replace("T", " ").substring(0, 19);
 
     case "keyword":
-      if (field.name === "id" && setArticle) return <Link onClick={() => setArticle(value)} />;
-      if (field.name === "url") return <a href={value}>{value}</a>;
-      if (Array.isArray(value)) return value.map((v) => <span>{highlightableValue(String(v))}</span>);
+      // if value contains http or https, make it a link
+      if (
+        typeof value === "string" &&
+        (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("www."))
+      )
+        return <a href={value}>{value}</a>;
+      if (Array.isArray(value)) return highlightableValue(value.join(", "));
+      else return value ? <span>{highlightableValue(String(value))}</span> : null;
+    case "tag":
+      if (Array.isArray(value)) return highlightableValue(value.join(", "));
       else return value ? <span>{highlightableValue(String(value))}</span> : null;
     case "number":
       return <i>{value}</i>;

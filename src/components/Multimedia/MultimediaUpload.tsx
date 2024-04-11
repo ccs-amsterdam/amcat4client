@@ -6,6 +6,10 @@ import { FileWithPath, useDropzone } from "react-dropzone";
 import { ArrowLeft, ArrowRight, Dot } from "lucide-react";
 import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
+import { list } from "postcss";
+import JSZip from "jszip";
+import { Exo_2 } from "next/font/google";
+import { z } from "zod";
 
 interface Props {
   indexId: string;
@@ -17,6 +21,8 @@ interface UploadQueue {
   files: FileWithPath[];
   progress: number;
 }
+
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml", "image/webp", "image/tiff"];
 
 export default function MultimediaUpload({ indexId, user }: Props) {
   const [data, setData] = useState<FileWithPath[]>();
@@ -69,7 +75,14 @@ export default function MultimediaUpload({ indexId, user }: Props) {
 }
 
 function Dropzope({ data, onChange }: { data?: FileWithPath[]; onChange: (files: File[] | undefined) => void }) {
-  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => onChange([...(data || []), ...acceptedFiles]), [data]);
+  const onDrop = useCallback(
+    async (acceptedFiles: FileWithPath[]) => {
+      const files = await listFiles(acceptedFiles);
+      console.log(files);
+      onChange([...(data || []), ...files]);
+    },
+    [data],
+  );
   const onClear = () => onChange(undefined);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, validator: createValidator() });
 
@@ -146,8 +159,6 @@ function ItemPreview({ data }: { data?: FileWithPath[] }) {
 }
 
 function createValidator() {
-  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/svg+xml", "image/webp", "image/tiff"];
-
   const validator = (file: FileWithPath) => {
     if (file.name && /\.zip$/.test(file.name.toLowerCase())) return null; // zip files are processed and filtered in createFiles
     if (file.size && file.size > 100000000) return { code: "file-too-large", message: "File is too large" };
@@ -159,4 +170,46 @@ function createValidator() {
   };
 
   return validator;
+}
+
+const listFiles = async (acceptedFiles: FileWithPath[]) => {
+  const files = [];
+  for (let af of acceptedFiles) {
+    if (/\.zip$/.test(af.name.toLowerCase())) {
+      const zippedfiles = await listZippedFiles(af);
+      for (let zfile of zippedfiles) files.push(zfile);
+    } else {
+      files.push(af);
+    }
+  }
+
+  return files;
+};
+
+const listZippedFiles = async (file: FileWithPath) => {
+  let newZip = new JSZip();
+
+  const zipped = await newZip.loadAsync(file);
+  const zippedfiles = Object.values(zipped.files);
+  const files: FileWithPath[] = [];
+  for (let zobj of zippedfiles) {
+    if (zobj.dir) continue;
+    const zblob = await zobj.async("blob");
+    const name = zobj.name.split("/").splice(-1)[0];
+    const zfile = new File([zblob], name, {
+      type: "image/jpeg",
+      lastModified: zobj.date.getTime(),
+    });
+    const fileWithPath: FileWithPath = new FileWithPathClass(zfile, zobj.name);
+    files.push(fileWithPath);
+  }
+  return files;
+};
+
+class FileWithPathClass extends File {
+  path: string;
+  constructor(file: File, path: string) {
+    super([file], file.name, { type: file.type });
+    this.path = path;
+  }
 }

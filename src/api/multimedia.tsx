@@ -25,6 +25,7 @@ export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId |
 async function getMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId, params?: MultimediaParams) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
+  console.log(res.data);
   return z.array(amcatMultimediaListItem).parse(res.data);
 }
 
@@ -64,7 +65,6 @@ export function useMutateMultimedia(
         body,
       });
       if (!res.ok) throw new Error(`Failed to upload file: ${res.statusText}`);
-      //   await axios.post(presignedPost.url, body);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["multimediaList", user || "", indexId || ""] });
