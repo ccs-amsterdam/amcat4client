@@ -63,11 +63,9 @@ export function useMutateMultimedia(
       if (!user || !indexId || !presignedPost) throw new Error("Missing user, indexId or presignedPost");
       const body = new FormData();
       body.append("key", file.path || file.name);
-      body.append("file", file);
       for (const [key, value] of Object.entries(presignedPost.form_data)) body.append(key, value);
+      body.append("file", file);
 
-      // cant get this to work.
-      // complain is that the X-Amz-Credential parameter is mallformed
       const res = await fetch(presignedPost.url, {
         method: "POST",
         body,
