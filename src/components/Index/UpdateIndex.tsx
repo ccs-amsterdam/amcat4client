@@ -82,7 +82,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <div className="flex flex-col gap-2">
-                  {["NONE", "METAREADER", "READER", "WRITER", "ADMIN"].map((role) => (
+                  {["NONE", "METAREADER", "READER", "WRITER"].map((role) => (
                     <DropdownMenuItem
                       key={role}
                       onClick={() => {

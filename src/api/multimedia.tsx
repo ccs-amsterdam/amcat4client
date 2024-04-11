@@ -13,6 +13,7 @@ interface MultimediaParams {
   n?: number;
   presigned_get?: boolean;
   metadata?: boolean;
+  recursive?: boolean;
 }
 
 export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, params?: MultimediaParams) {
@@ -25,7 +26,6 @@ export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId |
 async function getMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId, params?: MultimediaParams) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
-  console.log(res.data);
   return z.array(amcatMultimediaListItem).parse(res.data);
 }
 

@@ -79,8 +79,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
   }
 
   return (
-    <div className="prose flex min-h-[20rem] flex-col gap-3 p-3 dark:prose-invert ">
-      <h3>Upload multimedia</h3>
+    <div className="flex flex-col gap-3">
       <Dropzope data={data} onChange={setData} />
       {data ? <Button onClick={startUpload}>Start upload</Button> : null}
       <ItemPreview data={data} />
