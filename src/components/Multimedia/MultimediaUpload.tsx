@@ -1,15 +1,11 @@
 import { MiddlecatUser } from "middlecat-react";
-import { Loading } from "../ui/loading";
 import { useMultimediaPresignedPost, useMutateMultimedia } from "@/api/multimedia";
 import { useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { ArrowLeft, ArrowRight, Dot } from "lucide-react";
 import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
-import { list } from "postcss";
 import JSZip from "jszip";
-import { Exo_2 } from "next/font/google";
-import { z } from "zod";
 
 interface Props {
   indexId: string;
@@ -49,6 +45,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
     if (!uploadQueue.uploading) return;
     if (uploadQueue.progress >= data.length) {
       setUploadQueue({ files: [], progress: 0, uploading: false });
+      setData(undefined);
       return;
     }
     mutateAsync(uploadQueue.files[uploadQueue.progress])
@@ -71,33 +68,34 @@ export default function MultimediaUpload({ indexId, user }: Props) {
 
   if (uploadQueue.uploading) {
     return (
-      <div>
+      <div className="flex flex-col gap-3">
         <Progress value={(100 * uploadQueue.progress) / uploadQueue.files.length - 1} />
-        <Button onClick={cancelUpload}>Cancel</Button>
+        <Button className="ml-auto" onClick={cancelUpload}>
+          Cancel
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
-      <Dropzope data={data} onChange={setData} />
+      <Dropzone data={data} onChange={setData} />
       {data ? <Button onClick={startUpload}>Start upload</Button> : null}
       <ItemPreview data={data} />
     </div>
   );
 }
 
-function Dropzope({ data, onChange }: { data?: FileWithPath[]; onChange: (files: File[] | undefined) => void }) {
+function Dropzone({ data, onChange }: { data?: FileWithPath[]; onChange: (files: File[] | undefined) => void }) {
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[]) => {
       const files = await listFiles(acceptedFiles);
-      console.log(files);
       onChange([...(data || []), ...files]);
     },
     [data],
   );
   const onClear = () => onChange(undefined);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, validator: createValidator() });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, validator });
 
   return (
     <div className=" flex gap-3">
@@ -171,26 +169,26 @@ function ItemPreview({ data }: { data?: FileWithPath[] }) {
   );
 }
 
-function createValidator() {
-  const validator = (file: FileWithPath) => {
-    if (file.name && /\.zip$/.test(file.name.toLowerCase())) return null; // zip files are processed and filtered in createFiles
-    if (file.size && file.size > 100000000) return { code: "file-too-large", message: "File is too large" };
-
-    const extension = file.name.split(".").pop()?.toLowerCase();
-    if (!extension) return { code: "file-extension-missing", message: "File extension missing" };
-
-    const mimeBasedOnExtension = extensionMapping[extension];
-    if (!mimeBasedOnExtension)
-      return { code: "file-extension-not-supported", message: "File extension not supported " };
-
-    if (file.type !== mimeBasedOnExtension)
-      return { code: "file-mime-type-mismatch", message: "File mime type mismatch" };
-
+const validator = (file: FileWithPath | DataTransferItem) => {
+  if (file instanceof DataTransferItem) {
+    // this is a on drag (hover over) event. Not sure why dropzone sends this to validator, but we can ignore it
     return null;
-  };
+  }
 
-  return validator;
-}
+  if (file.name && /\.zip$/.test(file.name.toLowerCase())) return null; // zip files are processed and filtered in createFiles
+  if (file.size && file.size > 100000000) return { code: "file-too-large", message: "File is too large" };
+
+  const extension = file.name.split(".").pop()?.toLowerCase();
+  if (!extension) return { code: "file-extension-missing", message: "File extension missing" };
+
+  const mimeBasedOnExtension = extensionMapping[extension];
+  if (!mimeBasedOnExtension) return { code: "file-extension-not-supported", message: "File extension not supported " };
+
+  if (file.type !== mimeBasedOnExtension)
+    return { code: "file-mime-type-mismatch", message: "File mime type mismatch" };
+
+  return null;
+};
 
 const listFiles = async (acceptedFiles: FileWithPath[]) => {
   const files = [];

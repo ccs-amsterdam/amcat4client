@@ -188,7 +188,7 @@ export const amcatAggregateDataSchema = z.object({
 export const amcatMultimediaListItem = z.object({
   key: z.string(),
   presigned_get: z.optional(z.string()),
-  content_type: z.array(z.string().nullish()),
+  content_type: z.array(z.string().nullish()).nullish(),
   is_dir: z.boolean(),
   last_modified: z.optional(z.coerce.date()),
   size: z.number().nullish(),

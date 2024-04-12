@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { amcatFieldSchema, amcatMultimediaListItem, amcatMultimediaPresignedPost } from "@/schemas";
-import { AmcatField, AmcatIndexId, MultimediaPresignedPost, UpdateAmcatField } from "@/interfaces";
+import { AmcatField, AmcatIndexId, MultimediaListItem, MultimediaPresignedPost, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
 import { FileWithPath } from "react-dropzone";
 import axios from "axios";
+import { get } from "http";
 
 interface MultimediaParams {
   prefix?: string;
@@ -18,13 +19,17 @@ interface MultimediaParams {
 
 export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, params?: MultimediaParams) {
   return useQuery({
-    queryKey: ["multimediaList", user, indexId],
+    queryKey: ["multimediaList", user, indexId, params],
     queryFn: () => getMultimediaList(user, indexId, params),
     enabled: user != null && indexId != null,
   });
 }
-async function getMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId, params?: MultimediaParams) {
-  if (!user || !indexId) return undefined;
+async function getMultimediaList(
+  user?: MiddlecatUser,
+  indexId?: AmcatIndexId,
+  params?: MultimediaParams,
+): Promise<MultimediaListItem[]> {
+  if (!user || !indexId) throw new Error("Missing user or indexId");
   const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
   return z.array(amcatMultimediaListItem).parse(res.data);
 }
@@ -68,9 +73,38 @@ export function useMutateMultimedia(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["multimediaList", user || "", indexId || ""] });
+      queryClient.invalidateQueries({ queryKey: ["multimediaFullList", user || "", indexId || ""] });
       toast.success("File uploaded");
     },
   });
 }
 
-function mutateMultimedia(file: File, presignedPost: MultimediaPresignedPost) {}
+export function useMultimediaFullList(
+  user?: MiddlecatUser,
+  indexId?: AmcatIndexId | undefined,
+  prefix: string[] | string = "",
+) {
+  return useQuery({
+    queryKey: ["multimediaFullList", user, indexId, prefix],
+    queryFn: async () => {
+      let data: MultimediaListItem[] = [];
+      let start_after: string | undefined = undefined;
+
+      const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+      for (const prefix of prefixes) {
+        while (true) {
+          const params: MultimediaParams = { n: 10000 };
+          if (prefix) params.prefix = prefix;
+          if (start_after) params.start_after = start_after;
+          const batch = await getMultimediaList(user, indexId, params);
+          data = [...data, ...batch];
+          if (batch.length < 10000) break;
+          start_after = batch[batch.length - 1].key;
+        }
+      }
+      return data;
+    },
+    retry: false,
+    enabled: user != null && indexId != null,
+  });
+}
