@@ -17,7 +17,7 @@ interface Props {
 // - We can remove the regular useMultimediaList and just get the presigned get links
 //   for paginated items from multimediaFullList. (main reason being that in the page from
 //   multimediaList some of the 6 items can be directories, which we don't want to show)
-// - The DirectoryBrowser is just a quick draw-up. Maybe use Chadcns breadcrump component
+// - The DirectoryBrowser is just a quick draw-up. Might be clunky
 
 export default function Multimedia({ indexId, user }: Props) {
   const [prefix, setPrefix] = useState<string>("");
@@ -35,15 +35,6 @@ export default function Multimedia({ indexId, user }: Props) {
     prefix,
   });
 
-  const directories = useMemo(() => {
-    if (!multimediaFullList) return [];
-    return multimediaFullList.filter((item) => item.is_dir);
-  }, [multimediaFullList]);
-
-  const canGoBack = prefix.split("/").length > 1;
-  function goBack() {
-    setPrefix(prefix.split("/").slice(0, -1).join("/"));
-  }
   const fileCount = multimediaFullList?.filter((item) => !item.is_dir).length;
   const showItems = multimediaList?.filter((item) => !item.is_dir);
 
@@ -114,7 +105,7 @@ function DirectoryBrowser({
 
   function selectPath(i: number) {
     if (i === 0) return setPrefix("");
-    setPrefix(path.slice(0, i).join("/"));
+    setPrefix(path.slice(0, i).join("/") + "/");
   }
 
   const breadcrumb = [indexId, ...path];
@@ -135,13 +126,11 @@ function DirectoryBrowser({
           </Button>
         ))}
       </div>
-      <div>
+      <div className="flex gap-2">
         {directories.map((dir) => (
-          <div key={dir} className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => setPrefix(`${prefix}${dir}/`)}>
-              {dir}
-            </Button>
-          </div>
+          <Button className="h-8 px-2" onClick={() => setPrefix(`${prefix}${dir}/`)}>
+            {dir}
+          </Button>
         ))}
       </div>
     </div>
@@ -149,7 +138,7 @@ function DirectoryBrowser({
 }
 
 function RenderMultimedia({ item }: { item: MultimediaListItem }) {
-  const type = item.content_type.join(" ");
+  const type = item?.content_type?.join(" ") || "";
   if (/video/.test(type)) return <RenderVideo item={item} />;
   if (/image/.test(type)) return <RenderImage item={item} />;
   return null;
