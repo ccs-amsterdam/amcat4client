@@ -1,7 +1,13 @@
-import { AmcatElasticFieldType, UpdateAmcatField, UploadOperation } from "@/interfaces";
+import { AmcatElasticFieldType, MultimediaListItem, UpdateAmcatField, UploadOperation } from "@/interfaces";
 import { Column, jsType } from "./Upload";
+import { extensionMapping } from "../Multimedia/MultimediaUpload";
 
-export function prepareUploadData(data: Record<string, jsType>[], columns: Column[], operation: UploadOperation) {
+export function prepareUploadData(
+  data: Record<string, jsType>[],
+  columns: Column[],
+  operation: UploadOperation,
+  multimedia?: MultimediaListItem[],
+) {
   const documents = data.map((row) => {
     const newRow: Record<string, jsType> = {};
     for (const column of columns) {
@@ -12,8 +18,13 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
       if (column.type === "date") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceDate);
       else if (column.type === "number") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceNumeric);
       else if (column.type === "boolean") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceBoolean);
+      else if (column.type === "image")
+        setCoercedValueOrSkip(newRow, row[column.name], column.field, (v) => coerceMultimedia(v, "image", multimedia));
+      else if (column.type === "video")
+        setCoercedValueOrSkip(newRow, row[column.name], column.field, (v) => coerceMultimedia(v, "video", multimedia));
       else newRow[column.field] = row[column.name];
     }
+
     return newRow;
   });
 
@@ -22,12 +33,12 @@ export function prepareUploadData(data: Record<string, jsType>[], columns: Colum
 
   const fields: Record<string, UpdateAmcatField> = {};
   columns.forEach((c) => {
-    if (c.field && !c.exists && c.type && c.elastic_type) {
+    if (c.field && !c.exists && c.type) {
       fields[c.field] = {
         type: c.type,
-        elastic_type: c.elastic_type,
         identifier: !!c.identifier,
       };
+      if (c.elastic_type) fields[c.field].elastic_type = c.elastic_type;
     }
   });
   return { documents: documents, fields, operation };
@@ -71,7 +82,11 @@ function setCoercedValueOrSkip(
   row[field] = coerced;
 }
 
-export async function validateColumns(columns: Column[], data: Record<string, jsType>[]): Promise<Column[]> {
+export async function validateColumns(
+  columns: Column[],
+  data: Record<string, jsType>[],
+  multimedia?: MultimediaListItem[],
+): Promise<Column[]> {
   return columns.map((column) => {
     if (column.status !== "Validating") return column;
 
@@ -132,6 +147,30 @@ export async function validateColumns(columns: Column[], data: Record<string, js
       }
     }
 
+    if (column.type === "image") {
+      const invalidImages = invalidMultimedia(data, column.name, "image", multimedia);
+      if (invalidImages.length > 0) {
+        return {
+          ...column,
+          status: "Type mismatch",
+          typeWarning: `${invalidImages.length} invalid image links`,
+          invalidExamples: invalidImages.slice(0, 5),
+        };
+      }
+    }
+
+    if (column.type === "video") {
+      const invalidVideos = invalidMultimedia(data, column.name, "video", multimedia);
+      if (invalidVideos.length > 0) {
+        return {
+          ...column,
+          status: "Type mismatch",
+          typeWarning: `${invalidVideos.length} invalid video links`,
+          invalidExamples: invalidVideos.slice(0, 5),
+        };
+      }
+    }
+
     return { ...column, status: "Ready" };
   });
 }
@@ -186,6 +225,35 @@ function coerceBoolean(value: jsType) {
   return null;
 }
 
+function coerceMultimedia(value: jsType, type: "image" | "video", multimedia?: MultimediaListItem[]) {
+  const str = String(value);
+
+  // if its a url, we don't (can't) check if it's a valid image of video
+  // (or maybe we can, but I need to find out how to do that first)
+  if (/^https?:\/\//.test(str)) return str;
+
+  const ext = str.split(".").pop()?.toLowerCase();
+  if (!ext) return null;
+  const mime = extensionMapping[ext];
+  if (!mime) return null;
+  if (!mime.includes(type)) return null;
+  return validateMultimediaLinks(str, multimedia);
+}
+
+function validateMultimediaLinks(filename: string, multimedia?: MultimediaListItem[]) {
+  if (!multimedia) return null;
+
+  let partialMatch: string | null = null;
+  for (const m of multimedia) {
+    if (m.key === filename) return m.key;
+    if (m.key.includes(filename)) {
+      if (partialMatch) return null;
+      partialMatch = m.key;
+    }
+  }
+  return partialMatch;
+}
+
 function signedIntegerType(elastic_type: AmcatElasticFieldType | null) {
   return elastic_type && ["long", "integer", "short", "byte"].includes(elastic_type);
 }
@@ -195,6 +263,15 @@ function unsignedIntegerType(elastic_type: AmcatElasticFieldType | null) {
 
 function countInvalid(data: Record<string, jsType>[], column: string, validator: (value: jsType) => jsType | null) {
   return data.filter((d) => validator(d[column]) === null).length;
+}
+
+function invalidMultimedia(
+  data: Record<string, jsType>[],
+  column: string,
+  type: "image" | "video",
+  multimedia?: MultimediaListItem[],
+) {
+  return data.filter((d) => coerceMultimedia(d[column], type, multimedia) === null).map((d) => String(d[column]));
 }
 
 function countEmpty(data: Record<string, jsType>[], column: string) {

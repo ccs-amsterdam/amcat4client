@@ -96,10 +96,12 @@ const types = new Map<AmcatFieldType, string>([
   ["date", "Field for date or date/time values"],
   ["boolean", "For boolean (true or false) values"],
   ["number", "For numeric values"],
+  ["integer", "For integer values, i.e. numbers without decimals"],
+  ["image", "Links to image files. (You can upload images to AmCAT on the multimedia page)"],
+  ["video", "Links to video files. (You can upload videos to AmCAT on the multimedia page)"],
   ["object", "General objects that will not be parsed"],
   ["vector", "Dense vectors, i.e. document embeddings"],
   ["geo", "Geolocations, i.e. longitude and lattitude"],
-  ["integer", "For integer values, i.e. numbers without decimals"],
   ["tag", "Tag fields can contain multiple tags for each document"],
 ]);
 
@@ -159,7 +161,7 @@ export function CreateFieldSelectType({
         )}
         <ChevronDown className="h-5 w-5" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="h-64 overflow-auto">
         <DropdownMenuRadioGroup value={type ?? undefined} onValueChange={(value) => setType(value as AmcatFieldType)}>
           {Array.from(types.entries()).map(([x, help]) => {
             return (

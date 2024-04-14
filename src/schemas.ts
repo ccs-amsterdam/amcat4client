@@ -45,6 +45,8 @@ export const amcatFieldTypeSchema = z.enum([
   "geo",
   "integer",
   "tag",
+  "image",
+  "video",
 ]);
 export const amcatElasticFieldTypeSchema = z.enum([
   "text",

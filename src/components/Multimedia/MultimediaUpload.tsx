@@ -22,7 +22,7 @@ interface UploadQueue {
 // Explicitly require extension to match the mime type.
 // For zipped files it seems (?) we don't get the mime types
 // so there we use the extension to determine the mime type.
-const extensionMapping: Record<string, string> = {
+export const extensionMapping: Record<string, string> = {
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   png: "image/png",

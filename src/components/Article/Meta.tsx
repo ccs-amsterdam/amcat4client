@@ -19,6 +19,8 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
     <div className="flex flex-col gap-2">
       {fields.map((field) => {
         if (field.type === "text") return null;
+        if (field.type === "image") return null;
+        if (field.name === "video") return null;
 
         const noAccessMessage =
           metareader && field.metareader.access !== "read" ? (

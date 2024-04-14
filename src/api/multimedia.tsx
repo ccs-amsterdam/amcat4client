@@ -22,11 +22,16 @@ interface MultimediaParams {
   recursive?: boolean;
 }
 
-export function useMultimediaList(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, params?: MultimediaParams) {
+export function useMultimediaList(
+  user?: MiddlecatUser,
+  indexId?: AmcatIndexId | undefined,
+  params?: MultimediaParams,
+  enabled: boolean = true,
+) {
   return useQuery({
     queryKey: ["multimediaList", user, indexId, params],
     queryFn: () => getMultimediaList(user, indexId, params),
-    enabled: user != null && indexId != null,
+    enabled: user != null && indexId != null && enabled,
   });
 }
 async function getMultimediaList(
@@ -35,8 +40,21 @@ async function getMultimediaList(
   params?: MultimediaParams,
 ): Promise<MultimediaListItem[]> {
   if (!user || !indexId) throw new Error("Missing user or indexId");
-  const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
-  return z.array(amcatMultimediaListItem).parse(res.data);
+
+  const batchsize = 100000;
+  let data: MultimediaListItem[] = [];
+  let start_after: string | undefined = params?.start_after;
+
+  while (true) {
+    const p: MultimediaParams = { ...(params || {}), n: params?.n || batchsize };
+    if (start_after) p.start_after = start_after;
+    const res = await user.api.get(`/index/${indexId}/multimedia/list`, { params });
+    const batch = z.array(amcatMultimediaListItem).parse(res.data);
+    data = [...data, ...batch];
+    if (batch.length < batchsize) break;
+    start_after = batch[batch.length - 1].key;
+  }
+  return data;
 }
 
 export function useMultimediaPresignedPost(
@@ -94,36 +112,5 @@ export function useMutateMultimedia(
       queryClient.invalidateQueries({ queryKey: ["multimediaFullList", user || "", indexId || ""] });
       toast.success("File uploaded");
     },
-  });
-}
-
-export function useMultimediaFullList(
-  user?: MiddlecatUser,
-  indexId?: AmcatIndexId | undefined,
-  prefix: string[] | string = "",
-) {
-  return useQuery({
-    queryKey: ["multimediaFullList", user, indexId, prefix],
-    queryFn: async () => {
-      const batchsize = 100000;
-      let data: MultimediaListItem[] = [];
-      let start_after: string | undefined = undefined;
-
-      const prefixes = Array.isArray(prefix) ? prefix : [prefix];
-      for (const prefix of prefixes) {
-        while (true) {
-          const params: MultimediaParams = { n: batchsize };
-          if (prefix) params.prefix = prefix;
-          if (start_after) params.start_after = start_after;
-          const batch = await getMultimediaList(user, indexId, params);
-          data = [...data, ...batch];
-          if (batch.length < batchsize) break;
-          start_after = batch[batch.length - 1].key;
-        }
-      }
-      return data;
-    },
-    retry: false,
-    enabled: user != null && indexId != null,
   });
 }

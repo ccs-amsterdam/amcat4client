@@ -6,6 +6,9 @@ import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElas
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import usePaginatedArticles from "./usePaginatedArticles";
+import { DynamicIcon } from "../ui/dynamic-icon";
+import { remove } from "jszip";
+import { ReactNode } from "react";
 
 interface Props {
   user: MiddlecatUser;
@@ -97,7 +100,13 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                     .map((field) => {
                       let value = row[field.name];
                       if (Array.isArray(value)) value = value.join(", ");
+
                       value = String(value);
+                      let showValue: ReactNode = removeElasticTags(value);
+
+                      const type = fields.find((f) => f.name === field.name)?.type;
+                      if (type === "image") showValue = DynamicIcon({ type: "image", className: "h-4 w-4" });
+
                       return (
                         !!row[field.name] && (
                           <Badge
@@ -106,7 +115,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                             tooltip={<span>{field.name}</span>}
                             variant={value.includes("<em>") ? "secondary" : "default"}
                           >
-                            {removeElasticTags(value)}
+                            {showValue}
                           </Badge>
                         )
                       );

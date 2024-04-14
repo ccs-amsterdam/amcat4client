@@ -21,7 +21,6 @@ export default function RenderMultimedia({
     if (/image/.test(type)) return <RenderImage item={item} url={presigned.url} />;
     return null;
   }
-  console.log(presigned);
 
   return (
     <div key={item.key} className="relative m-0 flex h-44 flex-col gap-2 rounded">

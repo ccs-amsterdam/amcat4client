@@ -1,19 +1,13 @@
-import {
-  useMultimediaFullList,
-  useMultimediaList,
-  useMultimediaPresignedGet,
-  useMultimediaPresignedPost,
-} from "@/api/multimedia";
+import { useMultimediaList } from "@/api/multimedia";
 import { MiddlecatUser } from "middlecat-react";
 import { Loading } from "../ui/loading";
 import MultimediaUpload from "./MultimediaUpload";
 import { MultimediaListItem } from "@/interfaces";
 import { useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { ChevronDown, ChevronLeft, ChevronRight, Dot, Folder, LayoutGrid, List } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Database, Dot, Folder, LayoutGrid, List, Undo2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import RenderMultimedia from "./RenderMultimedia";
-import { Item } from "@radix-ui/react-dropdown-menu";
 
 interface Props {
   indexId: string;
@@ -24,7 +18,8 @@ export default function Multimedia({ indexId, user }: Props) {
   const [prefix, setPrefix] = useState<string>("");
   const [page, setPage] = useState(0);
   const [format, setFormat] = useState<"list" | "panes">("list");
-  const { data: multimediaList, isLoading: loadingMultimediaList } = useMultimediaFullList(user, indexId, prefix);
+
+  const { data: multimediaList, isLoading: loadingMultimediaList } = useMultimediaList(user, indexId, { prefix });
 
   const items = multimediaList?.filter((item) => !item.is_dir) || [];
   const pageSize = format === "list" ? 20 : 4;
@@ -35,7 +30,9 @@ export default function Multimedia({ indexId, user }: Props) {
       return showItems?.map((item) => (
         <div key={item.key} className="flex items-center gap-2">
           <Dot className="h-4 w-4" />
-          {item.key.split("/").slice(-1)[0]}
+          <span title={item.key} className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {item.key}
+          </span>
         </div>
       ));
     }
@@ -106,7 +103,9 @@ function ItemPagination({
 }) {
   return (
     <div className="flex select-none items-center justify-between gap-3">
-      <h3 className="m-0 text-secondary">{items.length} files found</h3>
+      <h3 className="m-0 text-secondary">
+        {items.length} file{items.length === 1 ? "" : "s"}
+      </h3>
       <div className={` flex gap-2 ${items.length <= pageSize ? "hidden" : ""} `}>
         <Button
           variant="secondary"
@@ -145,6 +144,7 @@ function DirectoryBrowser({
     const split = prefix.split("/");
     return split.slice(0, split.length - 1);
   }, [indexId, prefix]);
+
   const directories = useMemo(() => {
     if (!multimediaList) return [];
     return multimediaList
@@ -157,18 +157,18 @@ function DirectoryBrowser({
   }, [multimediaList]);
 
   function selectPath(i: number) {
-    if (i === 0) return setPrefix("");
-    setPrefix(path.slice(0, i).join("/") + "/");
+    setPrefix(path.slice(0, i + 1).join("/") + "/");
   }
-
-  const breadcrumb = [indexId, ...path];
 
   return (
     <div className="">
       <div className="flex items-center">
-        <Folder className="mr-3 h-6 w-6" />
-        {breadcrumb.map((dir, i) => {
-          const current = i === breadcrumb.length - 1;
+        <Button variant="link" className="px-3 py-1 text-lg" onClick={() => setPrefix("")}>
+          {path.length > 0 ? <Undo2 className="h-6 w-6" /> : null}
+        </Button>
+
+        {path.map((dir, i) => {
+          const current = i === path.length - 1;
           return (
             <Button
               key={dir}
@@ -184,8 +184,8 @@ function DirectoryBrowser({
         })}
         <DropdownMenu>
           <DropdownMenuTrigger asChild className={directories.length ? "" : "hidden"}>
-            <Button variant="ghost" className="px-1 text-lg font-bold text-secondary">
-              {" / "} {directories.length} director{directories.length === 1 ? "y" : "ies"}
+            <Button variant="ghost" className="gap-1 px-1 text-lg font-bold text-secondary">
+              {path.length ? " / " : ""} {directories.length} director{directories.length === 1 ? "y" : "ies"}
               <ChevronDown className="h-5 w-5" />
             </Button>
           </DropdownMenuTrigger>

@@ -16,28 +16,32 @@ import {
   Tally5,
   MoveUpRight,
   Tags,
+  Image,
+  MonitorPlay,
 } from "lucide-react";
 
-export function DynamicIcon({ type }: { type: string | null }) {
+export function DynamicIcon({ type, className = "" }: { type: string | null; className?: string }) {
   // display types
-  if (type === "line graph") return <LineChart />;
-  if (type === "bar chart") return <BarChart3 />;
-  if (type === "list") return <List />;
-  if (type === "table") return <Table2 />;
+  if (type === "line graph") return <LineChart className={className} />;
+  if (type === "bar chart") return <BarChart3 className={className} />;
+  if (type === "list") return <List className={className} />;
+  if (type === "table") return <Table2 className={className} />;
 
   // field types
-  if (type === "number" || type === "float" || type === "double") return <Binary />;
-  if (type === "object") return <Braces />;
-  if (type === "keyword") return <Tag />;
-  if (type === "tag") return <Tags />;
-  if (type === "date") return <CalendarDays />;
-  if (type === "text") return <FileText />;
-  if (type === "url") return <Link />;
-  if (type === "geo") return <Globe />;
-  if (type === "id") return <Fingerprint />;
-  if (type === "boolean") return <ToggleLeft />;
-  if (type === "integer") return <Tally5 />;
-  if (type === "vector") return <MoveUpRight />;
+  if (type === "number" || type === "float" || type === "double") return <Binary className={className} />;
+  if (type === "object") return <Braces className={className} />;
+  if (type === "keyword") return <Tag className={className} />;
+  if (type === "tag") return <Tags className={className} />;
+  if (type === "date") return <CalendarDays className={className} />;
+  if (type === "text") return <FileText className={className} />;
+  if (type === "url") return <Link className={className} />;
+  if (type === "geo") return <Globe className={className} />;
+  if (type === "id") return <Fingerprint className={className} />;
+  if (type === "boolean") return <ToggleLeft className={className} />;
+  if (type === "integer") return <Tally5 className={className} />;
+  if (type === "vector") return <MoveUpRight className={className} />;
+  if (type === "image") return <Image className={className} />;
+  if (type === "video") return <MonitorPlay className={className} />;
 
   console.error(`Unknown icon type ${type}`);
   return <X />;

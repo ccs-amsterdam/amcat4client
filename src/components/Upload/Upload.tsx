@@ -45,6 +45,8 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { useHasIndexRole } from "@/api/index";
 import { CreateFieldInfoDialog, CreateFieldNameInput, CreateFieldSelectType } from "../Fields/CreateField";
+import { useMultimediaList } from "@/api/multimedia";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 interface Props {
   user: MiddlecatUser;
@@ -76,6 +78,7 @@ export interface Column {
   exists: boolean;
   typeWarning?: string;
   identifier?: boolean;
+  invalidExamples?: string[];
 }
 
 // TODO: Operation is currently not working (always uses index)
@@ -103,6 +106,14 @@ export default function Upload({ user, indexId }: Props) {
   });
   const [noIdentifierWarning, setNoIdentifierWarning] = useState(false);
 
+  const hasMultimedia = columns.some((c) => c.field === "image" || c.field === "video");
+  const { data: multimedia, isLoading: loadingMultimedia } = useMultimediaList(
+    user,
+    indexId,
+    { recursive: true },
+    hasMultimedia,
+  );
+
   useEffect(() => {
     const needsValidation = columns.filter((c) => c.status === "Validating");
     if (needsValidation.length === 0) {
@@ -110,10 +121,14 @@ export default function Upload({ user, indexId }: Props) {
       return;
     }
     setValidating(true);
-    validateColumns(columns, data).then((newColumns) => {
+
+    // need to wait until multimedia is collected to perform validation
+    if (loadingMultimedia && !multimedia) return;
+
+    validateColumns(columns, data, multimedia).then((newColumns) => {
       setColumns(newColumns);
     });
-  }, [columns, data]);
+  }, [columns, data, multimedia, loadingMultimedia]);
 
   useEffect(() => {
     // upload batches
@@ -157,7 +172,7 @@ export default function Upload({ user, indexId }: Props) {
       status: "uploading",
       error: null,
       batch_index: 0,
-      batches: batches.map((batch) => prepareUploadData(batch, columns, operation)),
+      batches: batches.map((batch) => prepareUploadData(batch, columns, operation, multimedia)),
       successes: 0,
       failures: 0,
     });
@@ -228,7 +243,7 @@ export default function Upload({ user, indexId }: Props) {
           );
         })}
         {anyNotUsed ? (
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             <AlertCircleIcon className="h-6 w-6 text-warn" />
             <div>Some {identifier ? "identifiers" : "fields"} are not used</div>
           </div>
@@ -318,14 +333,15 @@ export default function Upload({ user, indexId }: Props) {
             <DialogContent>
               <DialogHeader className="text-lg font-bold">Are you sure you don't need identifiers?</DialogHeader>
               <p>
-                If you select one or multiple identifiers, they will be used to uniquely identify documents. It can be a
-                unique field like a <b>URL</b>, but also a combination of fields like <b>author + timestamp</b>.
-                Identifiers prevent accidentally uploading duplicate documents, and you can use them to update existing
-                documents.
+                If you select one or multiple identifiers (by clicking on the key button), they will be used to uniquely
+                identify documents. It can be a unique field like a <b>URL</b>, but also a combination of fields like{" "}
+                <b>author + timestamp</b>. Identifiers prevent accidentally uploading duplicate documents, and you can
+                use them to update existing documents.
               </p>
               <p>
-                If no identifiers are specified, only documents that are entirely identical will be considered
-                duplicates.
+                If no identifiers are specified before uploading the first data, you will not be able to add them later.
+                Each document will then get a unique ID, and you will only be able to update documents by this internal
+                ID.
               </p>
               <div className="mt-5 flex justify-end gap-3">
                 <Button variant="outline" onClick={() => setNoIdentifierWarning(false)}>
@@ -412,10 +428,31 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
       icon = <Square className="h-6 w-6 text-secondary" />;
   }
 
+  let examples: ReactNode = null;
+  if (column.invalidExamples) {
+    examples = (
+      <TooltipContent className="bg-background">
+        <div className="flex flex-col gap-2">
+          <div className="font-bold">Invalid examples</div>
+          <div className="flex flex-col gap-1">
+            {column.invalidExamples.map((ex) => (
+              <div key={ex} className="max-w-[80vw] overflow-hidden text-ellipsis text-foreground/60">
+                {ex}
+              </div>
+            ))}
+          </div>
+        </div>
+      </TooltipContent>
+    );
+  }
+
   return (
     <div className="flex items-center gap-2">
       {icon}
-      {text}
+      <Tooltip>
+        <TooltipTrigger>{text}</TooltipTrigger>
+        {examples}
+      </Tooltip>
     </div>
   );
 }
@@ -565,7 +602,7 @@ function CreateFieldDialog({
   const [newColumn, setNewColumn] = useState(() => ({ ...column, field: column.field || column.name }));
   const [error, setError] = useState("");
   useEffect(() => {
-    setNewColumn({ ...column, field: column.field || column.name });
+    setNewColumn({ ...column, field: column.field || column.name, exists: false });
   }, [column]);
 
   return (
@@ -591,7 +628,10 @@ function CreateFieldDialog({
               setError={setError}
               fields={fields}
             />
-            <CreateFieldSelectType type={newColumn.type} setType={(type) => setNewColumn({ ...newColumn, type })} />
+            <CreateFieldSelectType
+              type={newColumn.type}
+              setType={(type) => setNewColumn({ ...newColumn, status: "Validating", type })}
+            />
           </div>
           <div
             className=" flex items-center gap-3 "
@@ -611,7 +651,7 @@ function CreateFieldDialog({
           {error ? <div className="ml-auto text-destructive">{error}</div> : null}
           <div className="ml-auto flex gap-2">
             <Button
-              disabled={!newColumn.field || !newColumn.type || !newColumn.elastic_type || !!error}
+              disabled={!newColumn.field || !newColumn.type || !!error}
               onClick={() => {
                 if (!error) setColumn(newColumn);
                 setOpen(false);
@@ -642,6 +682,7 @@ function CSVUploader({
   return (
     <div className="flex">
       <CSVReader
+        skipEmptyLines
         dynamicTyping
         onUploadAccepted={(res: any) => {
           setZoneHover(false);
@@ -723,13 +764,19 @@ function prepareData({
     };
   });
 
-  const data = importedData.slice(1).map((row) => {
-    const obj: Record<string, jsType> = {};
-    row.forEach((cell, i) => {
-      obj[columns[i].name] = cell;
+  const data = importedData
+    .slice(1)
+    .map((row) => {
+      const obj: Record<string, jsType> = {};
+      row.forEach((cell, i) => {
+        obj[columns[i].name] = cell;
+      });
+      return obj;
+    })
+    .filter((row) => {
+      // remove row if all cells are empty (because papaparse  sometimes fails to remove them)
+      return Object.values(row).some((cell) => cell !== null && cell !== undefined && cell !== "");
     });
-    return obj;
-  });
 
   setData(data);
   setColumns(columns);
