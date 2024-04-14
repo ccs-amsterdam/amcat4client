@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
-import { amcatFieldSchema, amcatMultimediaListItem, amcatMultimediaPresignedPost } from "@/schemas";
+import {
+  amcatFieldSchema,
+  amcatMultimediaListItem,
+  amcatMultimediaPresignedGet,
+  amcatMultimediaPresignedPost,
+} from "@/schemas";
 import { AmcatField, AmcatIndexId, MultimediaListItem, MultimediaPresignedPost, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
 import { FileWithPath } from "react-dropzone";
@@ -50,6 +55,19 @@ export function useMultimediaPresignedPost(
   });
 }
 
+export function useMultimediaPresignedGet(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, key?: string) {
+  return useQuery({
+    queryKey: ["presignedUrl", user, indexId, key],
+    queryFn: async () => {
+      if (!user || !indexId || !key) return undefined;
+      const res = await user.api.get(`/index/${indexId}/multimedia/presigned_get`, { params: { key } });
+      console.log(res.data);
+      return amcatMultimediaPresignedGet.parse(res.data);
+    },
+    enabled: user != null && indexId != null && key != null,
+  });
+}
+
 export function useMutateMultimedia(
   user?: MiddlecatUser,
   indexId?: AmcatIndexId | undefined,
@@ -87,18 +105,19 @@ export function useMultimediaFullList(
   return useQuery({
     queryKey: ["multimediaFullList", user, indexId, prefix],
     queryFn: async () => {
+      const batchsize = 100000;
       let data: MultimediaListItem[] = [];
       let start_after: string | undefined = undefined;
 
       const prefixes = Array.isArray(prefix) ? prefix : [prefix];
       for (const prefix of prefixes) {
         while (true) {
-          const params: MultimediaParams = { n: 10000 };
+          const params: MultimediaParams = { n: batchsize };
           if (prefix) params.prefix = prefix;
           if (start_after) params.start_after = start_after;
           const batch = await getMultimediaList(user, indexId, params);
           data = [...data, ...batch];
-          if (batch.length < 10000) break;
+          if (batch.length < batchsize) break;
           start_after = batch[batch.length - 1].key;
         }
       }

@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Dot } from "lucide-react";
 import { Button } from "../ui/button";
 import { Progress } from "../ui/progress";
 import JSZip from "jszip";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   indexId: string;
@@ -39,6 +40,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
   const [uploadQueue, setUploadQueue] = useState<UploadQueue>({ uploading: false, files: [], progress: 0 });
   const { data: presignedPost, isLoading: loadingPresignedPost } = useMultimediaPresignedPost(user, indexId, !!data);
   const { mutateAsync } = useMutateMultimedia(user, indexId, presignedPost);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!presignedPost || !data) return;
@@ -46,6 +48,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
     if (uploadQueue.progress >= data.length) {
       setUploadQueue({ files: [], progress: 0, uploading: false });
       setData(undefined);
+      queryClient.invalidateQueries({ queryKey: ["multimediaList"] });
       return;
     }
     mutateAsync(uploadQueue.files[uploadQueue.progress])
@@ -56,7 +59,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
         console.error(e);
         setUploadQueue({ files: [], progress: 0, uploading: false });
       });
-  }, [uploadQueue, mutateAsync, presignedPost]);
+  }, [uploadQueue, mutateAsync, presignedPost, queryClient]);
 
   function startUpload() {
     if (!data) return;
@@ -64,6 +67,7 @@ export default function MultimediaUpload({ indexId, user }: Props) {
   }
   function cancelUpload() {
     setUploadQueue({ files: [], progress: 0, uploading: false });
+    queryClient.invalidateQueries({ queryKey: ["multimediaList"] });
   }
 
   if (uploadQueue.uploading) {
@@ -230,7 +234,9 @@ const listZippedFiles = async (file: FileWithPath) => {
       type: mime,
       lastModified: zobj.date.getTime(),
     });
-    const fileWithPath: FileWithPath = new FileWithPathClass(zfile, zobj.name);
+
+    const zipfile_name = file.name.split(".").slice(0, -1).join(".");
+    const fileWithPath: FileWithPath = new FileWithPathClass(zfile, zipfile_name + "/" + zobj.name);
     files.push(fileWithPath);
   }
   return files;

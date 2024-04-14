@@ -204,3 +204,9 @@ export const amcatMultimediaPresignedPost = z.object({
     "x-amz-signature": z.string(),
   }),
 });
+
+export const amcatMultimediaPresignedGet = z.object({
+  url: z.string(),
+  content_type: z.array(z.string()),
+  size: z.number(),
+});
