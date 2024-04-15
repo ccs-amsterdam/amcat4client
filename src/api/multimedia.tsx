@@ -1,20 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
-import {
-  amcatFieldSchema,
-  amcatMultimediaListItem,
-  amcatMultimediaPresignedGet,
-  amcatMultimediaPresignedPost,
-} from "@/schemas";
-import { AmcatField, AmcatIndexId, MultimediaListItem, MultimediaPresignedPost, UpdateAmcatField } from "@/interfaces";
+import { amcatMultimediaListItem, amcatMultimediaPresignedGet, amcatMultimediaPresignedPost } from "@/schemas";
+import { AmcatIndexId, MultimediaListItem, MultimediaPresignedPost } from "@/interfaces";
 import { toast } from "sonner";
 import { FileWithPath } from "react-dropzone";
-import axios from "axios";
-import { get } from "http";
+import { useMemo } from "react";
 
 interface MultimediaParams {
-  prefix?: string;
+  prefix?: string | string[];
   start_after?: string;
   n?: number;
   presigned_get?: boolean;
@@ -34,6 +28,30 @@ export function useMultimediaList(
     enabled: user != null && indexId != null && enabled,
   });
 }
+
+export function useMultimediaConcatenatedList(
+  user?: MiddlecatUser,
+  indexId?: AmcatIndexId | undefined,
+  prefixes?: string[],
+) {
+  // special case of useMultimediaList.
+  // get all items with one of the specified prefixes
+
+  console.log(prefixes);
+  const results = useQueries({
+    queries: (prefixes || []).map((prefix) => ({
+      queryKey: ["multimediaList", user, indexId, { prefix }],
+      queryFn: () => getMultimediaList(user, indexId, { prefix }),
+    })),
+  });
+
+  // flatten the results
+  return useMemo(() => {
+    if (!prefixes || prefixes.length === 0) return undefined;
+    return results.flatMap((r) => r.data || []);
+  }, [prefixes, results]);
+}
+
 async function getMultimediaList(
   user?: MiddlecatUser,
   indexId?: AmcatIndexId,

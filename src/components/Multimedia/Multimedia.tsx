@@ -57,15 +57,15 @@ export default function Multimedia({ indexId, user }: Props) {
         <div className={` flex items-center justify-between ${showItems.length ? "" : "hidden"} `}>
           <div className="flex items-center ">
             <Button
-              className="px-1 disabled:text-primary"
+              className="px-1 disabled:text-secondary"
               variant="ghost"
               onClick={() => setFormat("list")}
               disabled={format === "list"}
             >
-              <List className={` h-7 w-7`} />
+              <List className={` h-8 w-8`} />
             </Button>
             <Button
-              className="px-1 disabled:text-primary"
+              className="px-1 disabled:text-secondary"
               variant="ghost"
               onClick={() => setFormat("panes")}
               disabled={format === "panes"}

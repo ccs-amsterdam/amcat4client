@@ -1,7 +1,7 @@
 import { useFields } from "@/api/fields";
 import {
-  AmcatField,
   AmcatElasticFieldType,
+  AmcatField,
   AmcatFieldType,
   AmcatIndexId,
   UpdateAmcatField,
@@ -12,7 +12,6 @@ import {
   CheckSquare,
   ChevronDown,
   Edit,
-  HelpCircle,
   Key,
   List,
   Loader,
@@ -28,10 +27,13 @@ import { Button } from "../ui/button";
 import { autoTypeColumn, prepareUploadData, validateColumns } from "./typeValidation";
 
 import { useMutateArticles } from "@/api/articles";
+import { useHasIndexRole } from "@/api/index";
+import { useMultimediaConcatenatedList } from "@/api/multimedia";
 import { splitIntoBatches } from "@/api/util";
 import { toast } from "sonner";
+import { CreateFieldInfoDialog, CreateFieldNameInput, CreateFieldSelectType } from "../Fields/CreateField";
 import { Checkbox } from "../ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,10 +45,8 @@ import {
 } from "../ui/dropdown-menu";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { useHasIndexRole } from "@/api/index";
-import { CreateFieldInfoDialog, CreateFieldNameInput, CreateFieldSelectType } from "../Fields/CreateField";
-import { useMultimediaList } from "@/api/multimedia";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import SimpleTooltip from "../ui/simple-tooltip";
 
 interface Props {
   user: MiddlecatUser;
@@ -106,13 +106,24 @@ export default function Upload({ user, indexId }: Props) {
   });
   const [noIdentifierWarning, setNoIdentifierWarning] = useState(false);
 
-  const hasMultimedia = columns.some((c) => c.field === "image" || c.field === "video");
-  const { data: multimedia, isLoading: loadingMultimedia } = useMultimediaList(
-    user,
-    indexId,
-    { recursive: true },
-    hasMultimedia,
-  );
+  const multimediaPrefixes = useMemo(() => {
+    // If there are multimedia columns, grab all prefixes from the keys
+    // (not external urls). This is used to fetch the list of existing
+    // multimedia items, but only within the specified prefixes (aka directories)
+    const prefixes = new Set<string>();
+    for (const column of columns) {
+      if (column.type === "image" || column.type === "video") {
+        for (const row of data) {
+          const value = String(row[column.name]);
+          if (/^https?:\/\//.test(value)) continue;
+          const prefix = value?.replace(/\/[^/]*$/, "/");
+          prefixes.add(prefix);
+        }
+      }
+    }
+    return Array.from(prefixes);
+  }, [data, columns]);
+  const multimedia = useMultimediaConcatenatedList(user, indexId, multimediaPrefixes);
 
   useEffect(() => {
     const needsValidation = columns.filter((c) => c.status === "Validating");
@@ -123,12 +134,12 @@ export default function Upload({ user, indexId }: Props) {
     setValidating(true);
 
     // need to wait until multimedia is collected to perform validation
-    if (loadingMultimedia && !multimedia) return;
+    if (multimediaPrefixes.length > 0 && !multimedia) return;
 
     validateColumns(columns, data, multimedia).then((newColumns) => {
       setColumns(newColumns);
     });
-  }, [columns, data, multimedia, loadingMultimedia]);
+  }, [columns, data, multimedia, multimediaPrefixes]);
 
   useEffect(() => {
     // upload batches
@@ -139,6 +150,8 @@ export default function Upload({ user, indexId }: Props) {
         if (uploadStatus.batch_index === uploadStatus.batches.length - 1) {
           setUploadStatus((uploadStatus) => ({ ...uploadStatus, status: "success" }));
           let operationMessage = operation === "index" ? "created or updated" : "created";
+          setData([]);
+          setColumns([]);
           toast.success(
             `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${
               uploadStatus.successes + result.successes + uploadStatus.failures + result.failures
@@ -221,7 +234,7 @@ export default function Upload({ user, indexId }: Props) {
     }
   }
 
-  function renderExistingField(fields: AmcatField[], identifier = false) {
+  function renderExistingField(fields: AmcatField[] | Column[], identifier = false, newField = false) {
     let anyNotUsed = false;
     return (
       <div className="flex flex-wrap gap-3">
@@ -281,19 +294,23 @@ export default function Upload({ user, indexId }: Props) {
 
   const identifiers = fields.filter((f) => f.identifier);
   const otherFields = fields.filter((f) => !f.identifier);
+  const newIdentifiers = columns.filter((c) => c.identifier && !c.exists && c.field);
+  const newFields = columns.filter((c) => !c.identifier && !c.exists && c.field);
 
   return (
     <div className="flex flex-col gap-4">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
       <div className={`flex flex-col gap-8 ${data.length === 0 ? "hidden" : ""}`}>
-        <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
-          <div className={` ${identifiers.length === 0 ? "hidden" : ""}`}>
-            <h3 className="prose-xl w-full">Index identifiers</h3>
-            {renderExistingField(identifiers)}
-          </div>
-          <div className={` ${otherFields.length === 0 ? "hidden" : ""}`}>
-            <h3 className="prose-xl w-full">Index fields</h3>
-            {renderExistingField(otherFields)}
+        <div>
+          <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
+            <div className={` ${identifiers.length === 0 ? "hidden" : ""}`}>
+              <h3 className="prose-xl w-full">Existing index identifiers</h3>
+              {renderExistingField(identifiers)}
+            </div>
+            <div className={` ${otherFields.length === 0 ? "hidden" : ""}`}>
+              <h3 className="prose-xl w-full">Existing index fields</h3>
+              {renderExistingField(otherFields)}
+            </div>
           </div>
         </div>
         <Table className="table-auto whitespace-nowrap">
@@ -325,6 +342,16 @@ export default function Upload({ user, indexId }: Props) {
             })}
           </TableBody>
         </Table>
+        <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
+          <div className={` ${newIdentifiers.length === 0 ? "hidden" : ""}`}>
+            <h3 className="prose-xl w-full">Creating Index identifiers</h3>
+            {renderExistingField(newIdentifiers)}
+          </div>
+          <div className={` ${newFields.length === 0 ? "hidden" : ""}`}>
+            <h3 className="prose-xl w-full">Creating Index fields</h3>
+            {renderExistingField(newFields)}
+          </div>
+        </div>
         <div className="flex items-center">
           <Button disabled={!ready} onClick={onUpload}>
             Upload {data.length || ""} documents
@@ -386,6 +413,7 @@ export default function Upload({ user, indexId }: Props) {
               </DropdownMenu>
             </div>
           </div>
+
           <div className="flex flex-col gap-2">
             {warn ? (
               <div className="ml-4 flex items-center gap-2">
@@ -432,9 +460,9 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   if (column.invalidExamples) {
     examples = (
       <TooltipContent className="bg-background">
-        <div className="flex flex-col gap-2">
-          <div className="font-bold">Invalid examples</div>
-          <div className="flex flex-col gap-1">
+        <div className="flex max-h-56 flex-col gap-2 overflow-auto">
+          <div className="font-bold">Examples of invalid values</div>
+          <div className="flex flex-col gap-1 ">
             {column.invalidExamples.map((ex) => (
               <div key={ex} className="max-w-[80vw] overflow-hidden text-ellipsis text-foreground/60">
                 {ex}
@@ -481,27 +509,35 @@ function SelectAmcatField({
     setColumn(autoTypeColumn(data, column.name));
   }
 
-  function toggleIdentifier() {
-    setColumn({ ...column, identifier: !column.identifier });
-  }
-
   const isNew = column.field && !column.exists;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2">
+      {/* {isNew ? <div className="h-6 rounded bg-secondary px-1 py-[2px] text-secondary-foreground">NEW</div> : null} */}
+      <SimpleTooltip text={column.exists ? "This is an identifier field" : "Should new column be used as identifier?"}>
+        <Button
+          variant="ghost"
+          className={` mr-2 h-min rounded-full p-0 ${
+            !column.type || (column.exists && !column.identifier) ? "hidden" : ""
+          }`}
+        >
+          <Key
+            onClick={(e) => {
+              if (!column.exists) setColumn({ ...column, identifier: !column.identifier });
+            }}
+            className={` cursor-target text-secondary-foregroundf h-7 w-7  rounded-full p-1 ${
+              column.identifier ? "bg-secondary" : "border bg-gray-100 text-transparent"
+            }`}
+          />
+        </Button>
+      </SimpleTooltip>
       <DropdownMenu>
-        <DropdownMenuTrigger className={`flex items-center gap-2 rounded p-2 `}>
-          {isNew ? <div className="h-6 rounded bg-secondary px-1 py-[2px] text-secondary-foreground">NEW</div> : null}
+        <DropdownMenuTrigger className={`flex items-center gap-2 rounded p-2 pl-0 `}>
           {column.field ? (
             <>
-              <Key
-                className={` h-6 w-6 rounded bg-secondary p-1 text-secondary-foreground ${
-                  column.identifier ? "" : "hidden"
-                }`}
-              />
-              <DynamicIcon type={column.type} />
+              <DynamicIcon type={column.type} className="h-7 w-7" />
               <div className="text-left leading-3">
-                <div className="text-primary">{column.field}</div>
+                <div className="font-bold text-primary">{column.field}</div>
                 <div className="text-sm italic text-foreground/60">{column.type}</div>
               </div>
             </>
@@ -565,13 +601,7 @@ function SelectAmcatField({
       <Button variant="outline" onClick={autoType} className={`${column.field ? "hidden" : ""} ml-3 h-6 px-2 py-0`}>
         automate
       </Button>
-      <Button
-        variant="outline"
-        onClick={toggleIdentifier}
-        className={`${column.field && !column.exists ? "" : "hidden"} ml-3 h-6 px-2 py-0`}
-      >
-        {column.identifier ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />} <Key className="h-4 w-4" />
-      </Button>
+
       <CreateFieldDialog
         open={createField}
         setOpen={setCreateField}

@@ -1,6 +1,7 @@
 import { AmcatElasticFieldType, MultimediaListItem, UpdateAmcatField, UploadOperation } from "@/interfaces";
 import { Column, jsType } from "./Upload";
 import { extensionMapping } from "../Multimedia/MultimediaUpload";
+import { list } from "postcss";
 
 export function prepareUploadData(
   data: Record<string, jsType>[],
@@ -18,10 +19,6 @@ export function prepareUploadData(
       if (column.type === "date") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceDate);
       else if (column.type === "number") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceNumeric);
       else if (column.type === "boolean") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceBoolean);
-      else if (column.type === "image")
-        setCoercedValueOrSkip(newRow, row[column.name], column.field, (v) => coerceMultimedia(v, "image", multimedia));
-      else if (column.type === "video")
-        setCoercedValueOrSkip(newRow, row[column.name], column.field, (v) => coerceMultimedia(v, "video", multimedia));
       else newRow[column.field] = row[column.name];
     }
 
@@ -52,17 +49,17 @@ export function autoTypeColumn(data: Record<string, jsType>[], name: string): Co
 
   const column: Column = { name, field, type: null, elastic_type: null, status: "Validating", exists: false };
 
-  const isDate = countInvalid(data, name, coerceDate) / data.length < 0.2;
+  const isDate = listInvalid(data, name, coerceDate).length / data.length < 0.2;
   if (isDate) return { ...column, type: "date", elastic_type: "date" };
 
-  const isNumber = countInvalid(data, name, coerceNumeric) / data.length < 0.2;
+  const isNumber = listInvalid(data, name, coerceNumeric).length / data.length < 0.2;
   if (isNumber) {
-    const isInt = countInvalid(data, name, coerceInteger) === 0;
+    const isInt = listInvalid(data, name, coerceInteger).length === 0;
     if (isInt) return { ...column, type: "integer", elastic_type: "integer" };
     return { ...column, type: "number", elastic_type: "double" };
   }
 
-  const isBoolean = countInvalid(data, name, coerceBoolean) === 0;
+  const isBoolean = listInvalid(data, name, coerceBoolean).length === 0;
   if (isBoolean) return { ...column, type: "boolean", elastic_type: "boolean" };
 
   const pctUnique = percentUnique(data, name);
@@ -87,6 +84,9 @@ export async function validateColumns(
   data: Record<string, jsType>[],
   multimedia?: MultimediaListItem[],
 ): Promise<Column[]> {
+  const multimediaDict: Record<string, boolean> = {};
+  for (const m of multimedia || []) multimediaDict[m.key] = true;
+
   return columns.map((column) => {
     if (column.status !== "Validating") return column;
 
@@ -105,68 +105,95 @@ export async function validateColumns(
       if (empty > 0) {
         return { ...column, status: "Type mismatch", typeWarning: `${empty} empty values` };
       }
-      if (countInvalid(data, column.name, coerceNumeric) === 0) {
+      const invalid = listInvalid(data, column.name, coerceNumeric);
+      if (invalid.length === 0) {
         return {
           ...column,
           status: "Type mismatch",
           typeWarning: "Contains only numeric values. Are you sure this isn't a number type?",
+          invalidExamples: invalid.slice(0, 100),
         };
       }
     }
 
     if (column.type === "date") {
-      const invalidDates = countInvalid(data, column.name, coerceDate);
-      if (invalidDates > 0) {
-        return { ...column, status: "Type mismatch", typeWarning: `${invalidDates} invalid dates` };
+      const invalidDates = listInvalid(data, column.name, coerceDate);
+      if (invalidDates.length > 0) {
+        return {
+          ...column,
+          status: "Type mismatch",
+          typeWarning: `${invalidDates.length} invalid dates`,
+          invalidExamples: invalidDates.slice(0, 100),
+        };
       }
     }
 
     if (column.type === "number") {
       if (signedIntegerType(column.elastic_type)) {
-        const invalidIntegers = countInvalid(data, column.name, coerceInteger);
-        if (invalidIntegers > 0) {
-          return { ...column, status: "Type mismatch", typeWarning: `${invalidIntegers} invalid integers` };
+        const invalidIntegers = listInvalid(data, column.name, coerceInteger);
+        if (invalidIntegers.length > 0) {
+          return {
+            ...column,
+            status: "Type mismatch",
+            typeWarning: `${invalidIntegers.length} invalid integers`,
+            invalidExamples: invalidIntegers.slice(0, 100),
+          };
         }
       } else if (unsignedIntegerType(column.elastic_type)) {
-        const invalidIntegers = countInvalid(data, column.name, coerceUnsignedInteger);
-        if (invalidIntegers > 0) {
-          return { ...column, status: "Type mismatch", typeWarning: `${invalidIntegers} invalid unsigned integers` };
+        const invalidIntegers = listInvalid(data, column.name, coerceUnsignedInteger);
+        if (invalidIntegers.length > 0) {
+          return {
+            ...column,
+            status: "Type mismatch",
+            typeWarning: `${invalidIntegers.length} invalid unsigned integers`,
+            invalidExamples: invalidIntegers.slice(0, 100),
+          };
         }
       } else {
-        const invalidDoubles = countInvalid(data, column.name, coerceNumeric);
-        if (invalidDoubles > 0) {
-          return { ...column, status: "Type mismatch", typeWarning: `${invalidDoubles} invalid numbers` };
+        const invalidDoubles = listInvalid(data, column.name, coerceNumeric);
+        if (invalidDoubles.length > 0) {
+          return {
+            ...column,
+            status: "Type mismatch",
+            typeWarning: `${invalidDoubles.length} invalid numbers`,
+            invalidExamples: invalidDoubles.slice(0, 100),
+          };
         }
       }
     }
 
     if (column.type === "boolean") {
-      const invalidBooleans = countInvalid(data, column.name, coerceBoolean);
-      if (invalidBooleans > 0) {
-        return { ...column, status: "Type mismatch", typeWarning: `${invalidBooleans} invalid booleans` };
+      const invalidBooleans = listInvalid(data, column.name, coerceBoolean);
+      if (invalidBooleans.length > 0) {
+        return {
+          ...column,
+          status: "Type mismatch",
+          typeWarning: `${invalidBooleans.length} invalid booleans`,
+          invalidExamples: invalidBooleans,
+        };
       }
     }
 
     if (column.type === "image") {
-      const invalidImages = invalidMultimedia(data, column.name, "image", multimedia);
+      const invalidImages = invalidMultimedia(data, column.name, "image", multimediaDict);
       if (invalidImages.length > 0) {
         return {
           ...column,
           status: "Type mismatch",
-          typeWarning: `${invalidImages.length} invalid image links`,
+          typeWarning: `${invalidImages.length} links to missing images`,
           invalidExamples: invalidImages.slice(0, 5),
         };
       }
     }
 
     if (column.type === "video") {
-      const invalidVideos = invalidMultimedia(data, column.name, "video", multimedia);
+      const invalidVideos = invalidMultimedia(data, column.name, "video", multimediaDict);
       if (invalidVideos.length > 0) {
         return {
           ...column,
           status: "Type mismatch",
-          typeWarning: `${invalidVideos.length} invalid video links`,
-          invalidExamples: invalidVideos.slice(0, 5),
+          typeWarning: `${invalidVideos.length} links to missing videos`,
+          invalidExamples: invalidVideos.slice(0, 100),
         };
       }
     }
@@ -225,35 +252,6 @@ function coerceBoolean(value: jsType) {
   return null;
 }
 
-function coerceMultimedia(value: jsType, type: "image" | "video", multimedia?: MultimediaListItem[]) {
-  const str = String(value);
-
-  // if its a url, we don't (can't) check if it's a valid image of video
-  // (or maybe we can, but I need to find out how to do that first)
-  if (/^https?:\/\//.test(str)) return str;
-
-  const ext = str.split(".").pop()?.toLowerCase();
-  if (!ext) return null;
-  const mime = extensionMapping[ext];
-  if (!mime) return null;
-  if (!mime.includes(type)) return null;
-  return validateMultimediaLinks(str, multimedia);
-}
-
-function validateMultimediaLinks(filename: string, multimedia?: MultimediaListItem[]) {
-  if (!multimedia) return null;
-
-  let partialMatch: string | null = null;
-  for (const m of multimedia) {
-    if (m.key === filename) return m.key;
-    if (m.key.includes(filename)) {
-      if (partialMatch) return null;
-      partialMatch = m.key;
-    }
-  }
-  return partialMatch;
-}
-
 function signedIntegerType(elastic_type: AmcatElasticFieldType | null) {
   return elastic_type && ["long", "integer", "short", "byte"].includes(elastic_type);
 }
@@ -261,17 +259,34 @@ function unsignedIntegerType(elastic_type: AmcatElasticFieldType | null) {
   return elastic_type && ["unsigned_long"].includes(elastic_type);
 }
 
-function countInvalid(data: Record<string, jsType>[], column: string, validator: (value: jsType) => jsType | null) {
-  return data.filter((d) => validator(d[column]) === null).length;
+function listInvalid(data: Record<string, jsType>[], column: string, validator: (value: jsType) => jsType | null) {
+  return data.filter((d) => validator(d[column]) === null).map((d) => String(d[column]));
 }
 
 function invalidMultimedia(
   data: Record<string, jsType>[],
   column: string,
   type: "image" | "video",
-  multimedia?: MultimediaListItem[],
+  multimediaDict: Record<string, boolean>,
 ) {
-  return data.filter((d) => coerceMultimedia(d[column], type, multimedia) === null).map((d) => String(d[column]));
+  return data
+    .filter((d) => {
+      const value = String(d[column]);
+
+      // we cannot validate external links (or maybe we can, but not now)
+      if (/^https?:\/\//.test(value)) return false;
+
+      // check if the extension is valid
+      const ext = value.split(".").pop()?.toLowerCase();
+      if (!ext) return true;
+      const mime = extensionMapping[ext];
+      if (!mime || !mime.includes(type)) return true;
+
+      // check if the multimedia exists
+      if (!multimediaDict[value]) return true;
+      return false;
+    })
+    .map((d) => String(d[column]));
 }
 
 function countEmpty(data: Record<string, jsType>[], column: string) {
