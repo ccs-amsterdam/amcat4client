@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Preprocessing from "@/components/Preprocessing/Preprocessing";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -40,6 +41,7 @@ enum Tab {
   Users = "users",
   Upload = "upload",
   Multimedia = "multimedia",
+  Preprocessing = "preprocessing",
   Settings = "settings",
 }
 
@@ -55,7 +57,7 @@ export default function Index({ params }: Props) {
   return (
     <div className="flex w-full  flex-col gap-10">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px] w-full flex-col">
-        <TabsList className="mb-12">
+        <TabsList className="mb-12 overflow-x-auto">
           {Object.keys(Tab).map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];
             return (
@@ -77,6 +79,9 @@ export default function Index({ params }: Props) {
           </TabsContent>
           <TabsContent value={Tab.Multimedia}>
             <Multimedia indexId={index.id} user={user} />
+          </TabsContent>
+          <TabsContent value={Tab.Preprocessing}>
+            <Preprocessing indexId={index.id} user={user} />
           </TabsContent>
           <TabsContent value={Tab.Settings}>
             <Settings user={user} index={index} />

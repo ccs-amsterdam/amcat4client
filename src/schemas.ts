@@ -213,3 +213,61 @@ export const amcatMultimediaPresignedGet = z.object({
   content_type: z.array(z.string()),
   size: z.number(),
 });
+
+export const amcatPreprocessingInstructionArgumentValue = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.array(z.string()),
+  z.array(z.number()),
+  z.array(z.boolean()),
+]);
+
+export const amcatPreprocessingInstructionArgument = z.object({
+  name: z.string(),
+  field: z.string().nullish(),
+  value: amcatPreprocessingInstructionArgumentValue,
+});
+
+export const amcatPreprocessingInstructionOutput = z.object({
+  name: z.string(),
+  field: z.string(),
+});
+
+export const amcatPreprocessingInstruction = z.object({
+  field: z.string(),
+  task: z.string(),
+  endpoint: z.string(),
+  arguments: z.array(amcatPreprocessingInstructionArgument),
+  outputs: z.array(amcatPreprocessingInstructionOutput),
+});
+
+export const amcatPreprocessingTaskRequest = z.object({
+  body: z.enum(["json", "binary"]),
+  template: z.any(),
+});
+
+export const amcatPreprocessingTaskEndpoint = z.object({
+  placeholder: z.string(),
+  domain: z.array(z.string()),
+});
+
+export const amcatPreprocessingTaskOutput = z.object({
+  name: z.string(),
+  type: z.string(),
+  path: z.string(),
+});
+
+export const amcatPreprocessingTaskParameters = amcatPreprocessingTaskOutput.extend({
+  use_field: z.enum(["yes", "no"]),
+  default: z.union([z.boolean(), z.string(), z.number()]).nullish(),
+  placeholder: z.string().nullish(),
+});
+
+export const amcatPreprocessingTask = z.object({
+  name: z.string(),
+  endpoint: amcatPreprocessingTaskEndpoint,
+  parameters: z.array(amcatPreprocessingTaskParameters),
+  outputs: z.array(amcatPreprocessingTaskOutput),
+  request: amcatPreprocessingTaskRequest,
+});

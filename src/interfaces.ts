@@ -26,6 +26,8 @@ import {
   amcatAggregateDataSchema,
   amcatMultimediaPresignedPost,
   amcatMultimediaListItem,
+  amcatPreprocessingInstruction,
+  amcatPreprocessingTask,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -53,6 +55,8 @@ export type AggregationMetric = z.infer<typeof amcatAggregationMetricSchema>;
 export type AggregateData = z.infer<typeof amcatAggregateDataSchema>;
 export type MultimediaListItem = z.infer<typeof amcatMultimediaListItem>;
 export type MultimediaPresignedPost = z.infer<typeof amcatMultimediaPresignedPost>;
+export type PreprocessingInstruction = z.infer<typeof amcatPreprocessingInstruction>;
+export type PreprocessingTask = z.infer<typeof amcatPreprocessingTask>;
 
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 
