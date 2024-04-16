@@ -33,6 +33,10 @@ export const extensionMapping: Record<string, string> = {
   mp4: "video/mp4",
   webm: "video/webm",
   ogg: "video/ogg",
+  mp3: "audio/mpeg",
+  aac: "audio/aac",
+  wav: "audio/wav",
+  flac: "audio/flac",
 };
 
 export default function MultimediaUpload({ indexId, user }: Props) {

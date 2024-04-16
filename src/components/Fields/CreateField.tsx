@@ -99,6 +99,7 @@ const types = new Map<AmcatFieldType, string>([
   ["integer", "For integer values, i.e. numbers without decimals"],
   ["image", "Links to image files. (You can upload images to AmCAT on the multimedia page)"],
   ["video", "Links to video files. (You can upload videos to AmCAT on the multimedia page)"],
+  ["audio", "Links to audio files. (You can upload audio to AmCAT on the multimedia page)"],
   ["object", "General objects that will not be parsed"],
   ["vector", "Dense vectors, i.e. document embeddings"],
   ["geo", "Geolocations, i.e. longitude and lattitude"],
