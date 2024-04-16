@@ -132,7 +132,7 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
       content.push(
         <Button
           key="showmore"
-          className="mt-4 w-full rounded-none border-t border-dotted border-primary text-primary"
+          className="mb-4 w-full rounded bg-foreground/10 text-base text-primary"
           variant="ghost"
           onClick={() => setMaxLength(Infinity)}
         >
@@ -169,7 +169,11 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
 
   return (
     <div key={field.name} className="pb-1">
-      {!label ? null : <div className="mb-2 border-b border-foreground/30 pr-1 text-foreground/60">{field.name}</div>}
+      {!label ? null : (
+        <div className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/80">
+          {field.name.toUpperCase()}
+        </div>
+      )}
       {renderContent()}
     </div>
   );

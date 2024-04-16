@@ -9,6 +9,7 @@ import usePaginatedArticles from "./usePaginatedArticles";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { remove } from "jszip";
 import { ReactNode } from "react";
+import { formatField } from "@/lib/formatField";
 
 interface Props {
   user: MiddlecatUser;
@@ -56,9 +57,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
         </div>
       </div>
       <div className="relative rounded ">
-        <div
-          className={`relative grid max-h-full grid-cols-1 gap-2 overflow-auto pr-3 ${isFetching ? "opacity-80" : ""}`}
-        >
+        <div className={`relative grid max-h-full grid-cols-1 gap-2  pr-3 ${isFetching ? "opacity-80" : ""}`}>
           {articles.map((row, i: number) => (
             <button
               key={row._id + i}
@@ -112,7 +111,14 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                           <Badge
                             key={field.name}
                             className="max-w-[15rem]"
-                            tooltip={<span>{field.name}</span>}
+                            tooltip={
+                              <div className="grid grid-cols-[auto,1fr] items-center gap-x-3">
+                                <b>FIELD</b>
+                                <span>{field.name}</span>
+                                <b>TYPE</b>
+                                <span className="">{type}</span>
+                              </div>
+                            }
                             variant={value.includes("<em>") ? "secondary" : "default"}
                           >
                             {showValue}
