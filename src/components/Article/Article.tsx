@@ -11,7 +11,7 @@ import { Loading } from "../ui/loading";
 
 import { highlightElasticTags } from "@/lib/highlightElasticTags";
 import Meta from "./Meta";
-import { Badge } from "../ui/badge";
+import ArticleMultimedia from "./ArticleMultimedia";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -43,14 +43,20 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
 
   return (
     <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
-      <div>
-        <h2 className=" mt-0">Meta data</h2>
-        <Meta
-          article={article}
-          fields={documentFields}
-          setArticle={changeArticle}
-          metareader={indexRole === "METAREADER"}
-        />
+      <div className="overflow-x-hidden">
+        <div>
+          <h2 className=" mt-0">Meta data</h2>
+          <Meta
+            article={article}
+            fields={documentFields}
+            setArticle={changeArticle}
+            metareader={indexRole === "METAREADER"}
+          />
+        </div>
+        <div className="mt-10 overflow-hidden">
+          <h2 className="mb-0 mt-4">Multimedia</h2>
+          <ArticleMultimedia user={user} indexId={indexId} article={article} fields={documentFields} />
+        </div>
       </div>
       <div className="h-full overflow-auto">
         <Body article={article} fields={documentFields} metareader={indexRole === "METAREADER"} />
@@ -71,7 +77,7 @@ const Body = ({ article, fields, metareader }: BodyProps) => {
 
   return (
     <>
-      <h2 className="mt-2">
+      <h2 className="mt-0">
         {titleFields.map((f, i) => (
           <span key={f.name}>
             {i > 0 ? <span className="mx-1 text-primary"> | </span> : ""}

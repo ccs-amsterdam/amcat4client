@@ -40,7 +40,7 @@ export default function Multimedia({ indexId, user }: Props) {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {showItems?.map((item) => {
-          return <RenderMultimedia user={user} indexId={indexId} key={item.key} item={item} />;
+          return <RenderMultimedia user={user} indexId={indexId} url={item.key} height={240} />;
         })}
       </div>
     );

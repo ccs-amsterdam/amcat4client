@@ -167,3 +167,5 @@ export interface MenuRoute {
 }
 
 export type UploadOperation = "create" | "update" | "index";
+
+export type MultimediaType = "image" | "video" | "audio";

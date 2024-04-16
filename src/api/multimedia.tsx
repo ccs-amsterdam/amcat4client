@@ -101,6 +101,7 @@ export function useMultimediaPresignedGet(user?: MiddlecatUser, indexId?: AmcatI
       return amcatMultimediaPresignedGet.parse(res.data);
     },
     enabled: user != null && indexId != null && key != null,
+    retry: false, // because
   });
 }
 
