@@ -1,5 +1,5 @@
 {
-  "name": "vu-societal-analytics-lab",
+  "name": "amcat4client",
   "private": true,
   "scripts": {
     "dev": "next dev",
