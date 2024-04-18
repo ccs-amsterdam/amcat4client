@@ -54,7 +54,7 @@ export function getField(fields: AmcatField[] | undefined, fieldname: string): A
   return fields?.find((f) => f.name === fieldname);
 }
 
-interface MutateFieldsParams {
+export interface MutateFieldsParams {
   fields: UpdateAmcatField[];
   action: "create" | "delete" | "update";
 }

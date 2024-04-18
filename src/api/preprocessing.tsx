@@ -1,6 +1,7 @@
 import { amcatPreprocessingInstruction, amcatPreprocessingTask } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export function usePreprocessingTasks(user: MiddlecatUser) {
@@ -30,7 +31,11 @@ export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: 
   return useMutation({
     mutationFn: async (instruction: any) => {
       await user.api.post(`/index/${indexId}/preprocessing`, instruction);
+    },
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["preprocessingInstructions", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
+      toast.success("Preprocessing instruction submitted");
     },
   });
 }

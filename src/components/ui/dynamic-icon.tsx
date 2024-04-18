@@ -20,6 +20,7 @@ import {
   MonitorPlay,
   Volume,
   Volume2,
+  Settings,
 } from "lucide-react";
 
 export function DynamicIcon({ type, className = "" }: { type: string | null; className?: string }) {
@@ -45,6 +46,7 @@ export function DynamicIcon({ type, className = "" }: { type: string | null; cla
   if (type === "image") return <Image className={className} />;
   if (type === "video") return <MonitorPlay className={className} />;
   if (type === "audio") return <Volume2 className={className} />;
+  if (type === "preprocess") return <Settings className={className} />;
   console.error(`Unknown icon type ${type}`);
   return <X />;
 }

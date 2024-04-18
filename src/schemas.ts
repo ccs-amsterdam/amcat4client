@@ -48,6 +48,7 @@ export const amcatFieldTypeSchema = z.enum([
   "image",
   "video",
   "audio",
+  "preprocess",
 ]);
 export const amcatElasticFieldTypeSchema = z.enum([
   "text",
@@ -227,6 +228,7 @@ export const amcatPreprocessingInstructionArgument = z.object({
   name: z.string(),
   field: z.string().nullish(),
   value: amcatPreprocessingInstructionArgumentValue,
+  secret: z.boolean().default(false),
 });
 
 export const amcatPreprocessingInstructionOutput = z.object({
@@ -252,16 +254,21 @@ export const amcatPreprocessingTaskEndpoint = z.object({
   domain: z.array(z.string()),
 });
 
-export const amcatPreprocessingTaskOutput = z.object({
+export const amcatPreprocessingTaskSetting = z.object({
   name: z.string(),
   type: z.string(),
-  path: z.string(),
+  path: z.string().nullish(),
 });
 
-export const amcatPreprocessingTaskParameters = amcatPreprocessingTaskOutput.extend({
+export const amcatPreprocessingTaskOutput = amcatPreprocessingTaskSetting.extend({
+  recommended_type: amcatFieldTypeSchema,
+});
+
+export const amcatPreprocessingTaskParameters = amcatPreprocessingTaskSetting.extend({
   use_field: z.enum(["yes", "no"]),
   default: z.union([z.boolean(), z.string(), z.number()]).nullish(),
   placeholder: z.string().nullish(),
+  secret: z.boolean().default(false),
 });
 
 export const amcatPreprocessingTask = z.object({
