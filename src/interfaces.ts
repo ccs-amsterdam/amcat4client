@@ -28,6 +28,7 @@ import {
   amcatMultimediaListItem,
   amcatPreprocessingInstruction,
   amcatPreprocessingTask,
+  amcatPreprocessingInstructionStatus,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -57,7 +58,7 @@ export type MultimediaListItem = z.infer<typeof amcatMultimediaListItem>;
 export type MultimediaPresignedPost = z.infer<typeof amcatMultimediaPresignedPost>;
 export type PreprocessingInstruction = z.infer<typeof amcatPreprocessingInstruction>;
 export type PreprocessingTask = z.infer<typeof amcatPreprocessingTask>;
-
+export type PreprocessingInstructionStatus = z.infer<typeof amcatPreprocessingInstructionStatus>;
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 
 export type AmcatIndexId = string;

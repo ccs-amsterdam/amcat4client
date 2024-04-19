@@ -244,6 +244,16 @@ export const amcatPreprocessingInstruction = z.object({
   outputs: z.array(amcatPreprocessingInstructionOutput),
 });
 
+export const amcatPreprocessingInstructionStatus = z.object({
+  instruction: amcatPreprocessingInstruction,
+  status: z.string(),
+  counts: z.object({
+    total: z.number(),
+    done: z.number().optional(),
+    error: z.number().optional(),
+  }),
+});
+
 export const amcatPreprocessingTaskRequest = z.object({
   body: z.enum(["json", "binary"]),
   template: z.any(),
