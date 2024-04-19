@@ -126,14 +126,14 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
   const paragraphs = String(article?.[field.name])?.split("\n") || [];
   let nchars = 0;
 
+  let paragraph_i = 0;
   for (let paragraph of paragraphs) {
     const truncated = paragraph.length > maxLength - nchars;
     if (truncated) paragraph = paragraph.slice(0, maxLength - nchars);
     const text = highlightableValue(paragraph);
     nchars += paragraph.length;
-
     content.push(
-      <p className="mb-3 mt-0" key={paragraph}>
+      <p className="mb-3 mt-0" key={paragraph_i++}>
         {text}
         {truncated ? <span className="text-primary">...</span> : null}
       </p>,
@@ -155,18 +155,18 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
   }
 
   function renderContent() {
-    if (!metareader || field.metareader.access === "read") return <div>{content}</div>;
+    if (!metareader || field.metareader.access === "read") return <div key="content">{content}</div>;
 
     if (field.metareader.access === "none")
       return (
-        <div className="text-secondary">
+        <div key="content" className="text-secondary">
           METAREADER limitation: cannot view the <b>{field.name}</b>
         </div>
       );
 
     if (field.metareader.access === "snippet") {
       return (
-        <div>
+        <div key="content">
           <div>
             <span className=" text-secondary">
               METAREADER limitation: can only view snippet of <b>{field.name}</b>:
@@ -181,7 +181,7 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
   return (
     <div key={field.name} className="pb-1">
       {!label ? null : (
-        <div className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/80">
+        <div key="label" className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/80">
           {field.name.toUpperCase()}
         </div>
       )}

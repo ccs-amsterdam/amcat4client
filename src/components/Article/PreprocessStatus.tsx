@@ -19,13 +19,12 @@ export default function PreprocessStatus({ article, fields }: Props) {
         let error = "";
 
         if (value) {
-          status =
-            value.status === "error" ? (
-              <AlertTriangle className="text-destructive" />
-            ) : (
-              <CheckCircle className="text-check" />
-            );
-          error = value.error;
+          if (value.status === "error") {
+            error = value.error;
+            status = <AlertTriangle className="text-destructive" />;
+          } else {
+            status = <CheckCircle className="text-check" />;
+          }
         }
 
         return (

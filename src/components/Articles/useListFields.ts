@@ -17,7 +17,7 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
       name: field.name,
     };
     if (field.client_settings?.isHeading) layout.title.push(field.name);
-    if (field.type === "text") {
+    if (field.type === "text" && field.client_settings?.inList) {
       if (!field.client_settings?.isHeading) layout.text.push(field.name);
 
       const max_snippet = role === "METAREADER" ? field.metareader.max_snippet : undefined;
@@ -30,11 +30,10 @@ function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippet
         };
       }
     } else {
-      layout.meta.push(field.name);
+      if (field.client_settings?.inList) layout.meta.push(field.name);
     }
     listFields.push(listField);
   });
-
   return { listFields, layout };
 }
 

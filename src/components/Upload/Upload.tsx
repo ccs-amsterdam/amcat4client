@@ -240,12 +240,13 @@ export default function Upload({ user, indexId }: Props) {
       <div className="flex flex-wrap gap-3">
         {fields.map((field) => {
           const used = columns.find((c) => c.field === field.name);
-          if (!used) anyNotUsed = true;
+          if (!used && !newField) anyNotUsed = true;
+          console.log(used, newField, field.name);
           return (
             <div
               key={field.name}
               className={`${
-                !!used ? "" : "bg-destructive text-destructive-foreground"
+                newField || !!used ? "" : "bg-destructive text-destructive-foreground"
               } flex gap-3 rounded-lg border  p-2  `}
             >
               <DynamicIcon type={field.type} />
@@ -305,11 +306,11 @@ export default function Upload({ user, indexId }: Props) {
           <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
             <div className={` ${identifiers.length === 0 ? "hidden" : ""}`}>
               <h3 className="prose-xl w-full">Existing index identifiers</h3>
-              {renderExistingField(identifiers)}
+              {renderExistingField(identifiers, true)}
             </div>
             <div className={` ${otherFields.length === 0 ? "hidden" : ""}`}>
               <h3 className="prose-xl w-full">Existing index fields</h3>
-              {renderExistingField(otherFields)}
+              {renderExistingField(otherFields, false)}
             </div>
           </div>
         </div>
@@ -345,11 +346,11 @@ export default function Upload({ user, indexId }: Props) {
         <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
           <div className={` ${newIdentifiers.length === 0 ? "hidden" : ""}`}>
             <h3 className="prose-xl w-full">Creating Index identifiers</h3>
-            {renderExistingField(newIdentifiers)}
+            {renderExistingField(newIdentifiers, true, true)}
           </div>
           <div className={` ${newFields.length === 0 ? "hidden" : ""}`}>
             <h3 className="prose-xl w-full">Creating Index fields</h3>
-            {renderExistingField(newFields)}
+            {renderExistingField(newFields, false, true)}
           </div>
         </div>
         <div className="flex items-center">

@@ -26,6 +26,7 @@ const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   },
   __DEFAULT__: {
     inDocument: true,
+    inList: true,
   },
 };
 
