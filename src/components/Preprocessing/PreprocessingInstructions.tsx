@@ -27,7 +27,7 @@ export default function PreprocessingInstructions({ indexId, user }: Props) {
               <div className="ml-6 grid grid-cols-[max-content,1fr] gap-x-6">
                 {i.arguments.map((arg) => (
                   <>
-                    <div> {arg.name}</div>
+                    <div>{arg.name}</div>
                     <div>{arg.value}</div>
                   </>
                 ))}

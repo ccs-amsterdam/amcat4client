@@ -62,7 +62,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
             <button
               key={row._id + i}
               onClick={() => onClick && onClick(row)}
-              className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary text-left shadow-foreground/50  
+              className={`prose prose-sm max-w-full animate-fade-in rounded-t border-b border-primary text-left shadow-foreground/50
                         transition-all dark:prose-invert hover:translate-x-1    ${onClick ? "cursor-pointer" : ""}`}
             >
               <article className={`my-1 min-h-[5rem] py-1  `}>
@@ -105,7 +105,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
 
                       const type = fields.find((f) => f.name === field.name)?.type;
                       if (type === "image") showValue = DynamicIcon({ type: "image", className: "h-4 w-4" });
-
+                      if (type === "preprocess") showValue = row[field.name] && row[field.name].status;
                       return (
                         !!row[field.name] && (
                           <Badge

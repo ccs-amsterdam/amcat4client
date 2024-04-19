@@ -115,7 +115,14 @@ function TaskForm({
       setInstruction({ ...instruction, arguments: args });
     };
   }
-
+  function argFieldValueHandler(name: string) {
+    return (value: string) => {
+      const args = [...instruction.arguments];
+      const index = args.findIndex((arg) => arg.name === name);
+      args[index].field = value;
+      setInstruction({ ...instruction, arguments: args });
+    };
+  }
   function outputFieldHandler(name: string) {
     return (field: string) => {
       const outputs = [...instruction.outputs];
@@ -165,7 +172,16 @@ function TaskForm({
                 <label className={labelStyle} htmlFor={par.name}>
                   {par.name}
                 </label>
-                <ArgumentInput fields={fields} parameter={par} value={arg.value} onChange={argValueHandler(arg.name)} />
+                {par.use_field === "yes" ? (
+                  <ArgumentFieldInput
+                    fields={fields}
+                    parameter={par}
+                    value={arg.field || null}
+                    onChange={argFieldValueHandler(arg.name)}
+                  />
+                ) : (
+                  <ArgumentInput value={arg.value} onChange={argValueHandler(arg.name)} />
+                )}
               </div>
             );
           })}
@@ -240,17 +256,7 @@ function OutputField({
   );
 }
 
-function ArgumentInput({
-  fields,
-  parameter,
-  value,
-  onChange,
-}: {
-  fields: AmcatField[];
-  parameter: PreprocessingTask["parameters"][0];
-  value: ArgumentValue;
-  onChange: (value: ArgumentValue) => void;
-}) {
+function ArgumentInput({ value, onChange }: { value: ArgumentValue; onChange: (value: ArgumentValue) => void }) {
   const [values, setValues] = useState(() => (Array.isArray(value) ? [...value, undefined] : [value]));
   useEffect(() => setValues(Array.isArray(value) ? [...value, undefined] : [value]), [value]);
 
@@ -272,18 +278,6 @@ function ArgumentInput({
     // had to resort to type coercion, because typescript is driving me mad
     onChange(isArray ? (v as ArgumentValue) : v[0] ?? value);
   }
-
-  if (parameter.use_field === "yes")
-    return (
-      <div className="grid grid-cols-2 gap-2 ">
-        <SelectField
-          selectedField={String(value)}
-          setSelectedField={(field) => onChange(field)}
-          fields={fields}
-          preprocessorType={parameter.type}
-        />
-      </div>
-    );
 
   return (
     <div className={` grid ${values.length > 1 ? "grid-cols-2" : "grid-cols-1"} gap-2 `}>
@@ -328,6 +322,29 @@ function ArgumentInput({
   );
 }
 
+function ArgumentFieldInput({
+  fields,
+  parameter,
+  value,
+  onChange,
+}: {
+  fields: AmcatField[];
+  parameter: PreprocessingTask["parameters"][0];
+  value: string | null;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-2 ">
+      <SelectField
+        selectedField={value}
+        setSelectedField={onChange}
+        fields={fields}
+        preprocessorType={parameter.type}
+      />
+    </div>
+  );
+}
+
 function getAllowedFieldType(preprocessorType: string): AmcatFieldType[] {
   const isArray = /\[\]/.test(preprocessorType);
   if (/string/.test(preprocessorType)) {
@@ -355,7 +372,7 @@ function SelectField({
   preprocessorType,
   disabled,
 }: {
-  selectedField: string;
+  selectedField: string | null;
   setSelectedField: (field: string) => void;
   fields: AmcatField[];
   preprocessorType: string;

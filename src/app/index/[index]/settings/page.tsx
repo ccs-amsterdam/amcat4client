@@ -37,19 +37,15 @@ interface Props {
 }
 
 enum Tab {
-  Fields = "fields",
-  Users = "users",
-  Upload = "upload",
-  Multimedia = "multimedia",
-  Preprocessing = "preprocessing",
   Settings = "settings",
+  Users = "users",
 }
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
-  const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Fields));
+  const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Settings));
 
   if (loading || loadingIndex) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
@@ -68,23 +64,11 @@ export default function Index({ params }: Props) {
           })}
         </TabsList>
         <div className="mx-auto w-full ">
-          <TabsContent value={Tab.Fields}>
-            <Fields index={index} />
+          <TabsContent value={Tab.Settings}>
+            <Settings user={user} index={index} />
           </TabsContent>
           <TabsContent value={Tab.Users}>
             <Users index={index} />
-          </TabsContent>
-          <TabsContent value={Tab.Upload}>
-            <Upload indexId={index.id} user={user} />
-          </TabsContent>
-          <TabsContent value={Tab.Multimedia}>
-            <Multimedia indexId={index.id} user={user} />
-          </TabsContent>
-          <TabsContent value={Tab.Preprocessing}>
-            <Preprocessing indexId={index.id} user={user} />
-          </TabsContent>
-          <TabsContent value={Tab.Settings}>
-            <Settings user={user} index={index} />
           </TabsContent>
         </div>
       </Tabs>
@@ -148,26 +132,6 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
           This project was archived on {index.archived?.split(".")[0]}
         </p>
       </div>
-    </div>
-  );
-}
-
-function Fields({ index }: { index: AmcatIndex }) {
-  const { user, loading } = useMiddlecat();
-  const { data: fields, isLoading: loadingFields } = useFields(user, index.id);
-  const { mutate } = useMutateFields(user, index.id);
-  const { data: config } = useAmcatConfig();
-
-  if (loading || loadingFields) return <Loading />;
-
-  const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
-  if (!user || !ownRole || !mutate) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
-  if (ownRole !== "ADMIN" && ownRole !== "WRITER")
-    return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index fields</ErrorMsg>;
-
-  return (
-    <div className="p-3">
-      <FieldTable fields={fields || []} mutate={(action, fields) => mutate({ action, fields })} />
     </div>
   );
 }

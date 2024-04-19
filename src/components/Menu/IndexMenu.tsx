@@ -18,7 +18,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex, AmcatIndexId, MenuRoute } from "@/interfaces";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { Book, ChevronDown, LayoutDashboard, LibraryIcon, Menu, Settings, User, Users, X } from "lucide-react";
+import {
+  Book,
+  ChevronDown,
+  DatabaseZap,
+  LayoutDashboard,
+  LibraryIcon,
+  Menu,
+  Settings,
+  User,
+  Users,
+  X,
+} from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import MenuRouting from "./MenuRouting";
@@ -69,6 +80,7 @@ export default function IndexMenu() {
       </DropdownMenu>
 
       <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
+      <NavLink index={index} path="data" label="Data" icon={<DatabaseZap />} />
       <NavLink index={index} path="settings" label="Index Setup" icon={<Settings />} />
     </>
   );
@@ -107,9 +119,14 @@ function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string
   const active = path === currentPath;
   const href = `/index/${index.id}/${path}`;
   const indexRole = index?.user_role || "NONE";
-  const writer = no_auth || indexRole === "WRITER" || indexRole === "ADMIN";
-  if (!writer) {
+  const admin = no_auth || indexRole === "ADMIN";
+  const writer = admin || indexRole === "WRITER";
+
+  if (!admin) {
     if (path === "users" || path === "settings") return null;
+  }
+  if (!writer) {
+    if (path === "users" || path === "settings" || path === "data") return null;
     if (path === "dashboard" && active) return null;
   }
 
