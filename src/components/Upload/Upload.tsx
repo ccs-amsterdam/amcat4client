@@ -174,7 +174,8 @@ export default function Upload({ user, indexId }: Props) {
 
   const duplicates = useMemo(() => hasDuplicates(data, columns), [data, columns]);
   const nonePending = columns.length > 0 && columns.every((c) => !["Validating", "Type not set"].includes(c.status));
-  const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready");
+  console.log(duplicates, nonePending, columns);
+  const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready" || c.status === "Type mismatch");
   const warn = columns.some((c) => c.status === "Type mismatch");
 
   async function startUpload() {
@@ -241,7 +242,6 @@ export default function Upload({ user, indexId }: Props) {
         {fields.map((field) => {
           const used = columns.find((c) => c.field === field.name);
           if (!used && !newField) anyNotUsed = true;
-          console.log(used, newField, field.name);
           return (
             <div
               key={field.name}

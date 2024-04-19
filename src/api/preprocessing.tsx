@@ -9,7 +9,6 @@ export function usePreprocessingTasks(user: MiddlecatUser) {
     queryKey: ["preprocessingTasks"],
     queryFn: async () => {
       const res = await user.api.get("/preprocessing_tasks");
-      console.log(res.data);
       return z.array(amcatPreprocessingTask).parse(res.data);
     },
   });

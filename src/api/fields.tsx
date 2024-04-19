@@ -70,6 +70,8 @@ export function useMutateFields(user?: MiddlecatUser, indexId?: AmcatIndexId | u
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["article", user, indexId] });
 
       const fieldnames = variables.fields.map((f) => f.name).join(", ");
       if (variables.action === "create") toast.success(`Created fields: ${fieldnames}`);
