@@ -1,5 +1,5 @@
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interfaces";
-import { Link as LinkIcon, SkipBack, SkipForward } from "lucide-react";
+import { AlertTriangle, Link as LinkIcon, SkipBack, SkipForward } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import Link from "next/link";
 import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
@@ -101,11 +101,24 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                       if (Array.isArray(value)) value = value.join(", ");
 
                       value = String(value);
+                      let variant: "secondary" | "default" | "destructive" = value.includes("<em>")
+                        ? "secondary"
+                        : "default";
                       let showValue: ReactNode = removeElasticTags(value);
 
                       const type = fields.find((f) => f.name === field.name)?.type;
                       if (type === "image") showValue = DynamicIcon({ type: "image", className: "h-4 w-4" });
-                      if (type === "preprocess") showValue = row[field.name] && row[field.name].status;
+                      if (type === "preprocess") {
+                        if (row[field.name].status === "error") {
+                          variant = "destructive";
+                          showValue = <AlertTriangle className="h-4 w-4" />;
+                        } else if (row[field.name].status === "done") {
+                          return null;
+                        } else {
+                          variant = "secondary";
+                          showValue = <DynamicIcon type="preprocess" className="h-4 w-4" />;
+                        }
+                      }
                       return (
                         !!row[field.name] && (
                           <Badge
@@ -119,7 +132,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                                 <span className="">{type}</span>
                               </div>
                             }
-                            variant={value.includes("<em>") ? "secondary" : "default"}
+                            variant={variant}
                           >
                             {showValue}
                           </Badge>

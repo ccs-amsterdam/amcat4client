@@ -69,12 +69,11 @@ function TaskForm({
   const [instruction, setInstruction] = useState(() => createInstructionTemplate(task));
   const router = useRouter();
   useEffect(() => setInstruction(createInstructionTemplate(task)), [task]);
-  console.log(instruction);
   function instructionReady() {
     return (
       instruction.field &&
       instruction.endpoint &&
-      instruction.arguments.every((arg) => arg.value !== undefined) &&
+      instruction.arguments.every((arg) => (arg.value !== undefined && arg.value !== "") || arg.field) &&
       instruction.outputs.every((output) => output.field)
     );
   }
@@ -138,25 +137,7 @@ function TaskForm({
   const nameTaken = fields.find((field) => field.name === instruction.field);
 
   return (
-    <div className="prose flex  flex-col rounded dark:prose-invert">
-      <div className=" flex flex-col gap-1 rounded-t py-3">
-        <div className="flex items-center gap-3">
-          <h4 className="m-0 whitespace-nowrap ">Preprocessor name</h4>
-          <Input
-            className={`  focus-visible:ring-transparent ${
-              nameTaken ? "bg-destructive text-destructive-foreground" : ""
-            }`}
-            id="field"
-            value={instruction.field}
-            onChange={keyHandler("field")}
-          />
-        </div>
-        {nameTaken && (
-          <div className="ml-auto flex items-center gap-3 px-3 py-1 text-sm text-destructive">
-            <AlertTriangle /> Name already exists
-          </div>
-        )}
-      </div>
+    <div className="prose flex  flex-col gap-1 rounded dark:prose-invert">
       <div className="rounded-t bg-primary p-6 text-primary-foreground">
         <h3 className="mt-0 text-primary-foreground">API Endpoint</h3>
         <Input className={inputStyle} id="endpoint" value={instruction.endpoint} onChange={keyHandler("endpoint")} />
@@ -203,7 +184,25 @@ function TaskForm({
           })}
         </div>
       </div>
-      <div className="flex justify-end gap-2 py-6">
+      <div className=" flex flex-col gap-1 rounded-t py-3">
+        <div className="flex items-center gap-3">
+          <h4 className="m-0 whitespace-nowrap ">Status field</h4>
+          <Input
+            className={`  focus-visible:ring-transparent ${
+              nameTaken ? "bg-destructive text-destructive-foreground" : ""
+            }`}
+            id="field"
+            value={instruction.field}
+            onChange={keyHandler("field")}
+          />
+        </div>
+        {nameTaken && (
+          <div className="ml-auto flex items-center gap-3 px-3 py-1 text-sm text-destructive">
+            <AlertTriangle /> Field name already exists
+          </div>
+        )}
+      </div>
+      <div className="flex justify-end gap-2 py-2">
         <Button
           disabled={!instructionReady()}
           variant="secondary"
@@ -384,7 +383,10 @@ function SelectField({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild disabled={disabled}>
-        <Button className="flex h-10 items-center justify-between gap-2 text-left disabled:text-transparent">
+        <Button
+          variant={selectedField ? "default" : "outline"}
+          className="flex h-10 items-center justify-between gap-2 text-left disabled:text-transparent"
+        >
           {selectedField ? selectedField : "Select field"}
           <ChevronDown className="h-5 w-5" />
         </Button>

@@ -21,7 +21,7 @@ const defaultOptions = {
       return doRetry;
     },
     cacheTime: 1000 * 60 * 60,
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5, // the lower the better the UX, but the higher the server load
   },
 };
 

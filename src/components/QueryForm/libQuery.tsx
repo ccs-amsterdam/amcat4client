@@ -5,7 +5,6 @@ export function queriesToString(queries: AmcatQueryTerm[], multiline?: boolean):
   const sep = multiline ? "\n" : ";";
   let str = queries
     .map((query) => {
-      console.log(query);
       if (query.label) {
         if (!query.query) return query.label + "=";
         return `${query.label}=${query.query}`;

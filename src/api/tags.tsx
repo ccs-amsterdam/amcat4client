@@ -28,12 +28,10 @@ export function useMutateTags(user: MiddlecatUser, indexId: AmcatIndexId) {
       queryClient.invalidateQueries({ queryKey: ["aggregate", user, indexId] });
 
       const result = z.object({ updated: z.number(), total: z.number() }).parse(data.data);
-      console.log(variables);
       if (variables.action === "add")
         toast.success(`Added tag "${variables.field}:${variables.tag}" to ${result.updated} documents`);
       if (variables.action === "remove")
         toast.success(`Removed tag "${variables.field}:${variables.tag}" from ${result.updated} documents`);
-      console.log(3);
     },
   });
 }

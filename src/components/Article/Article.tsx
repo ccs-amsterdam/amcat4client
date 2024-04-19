@@ -12,6 +12,7 @@ import { Loading } from "../ui/loading";
 import { highlightElasticTags } from "@/lib/highlightElasticTags";
 import Meta from "./Meta";
 import ArticleMultimedia from "./ArticleMultimedia";
+import PreprocessStatus from "./PreprocessStatus";
 
 export interface ArticleProps {
   user: MiddlecatUser;
@@ -41,10 +42,16 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
   if (fieldsLoading || articleLoading) return <Loading />;
   if (!article || !documentFields) return null;
 
+  const hasMeta = documentFields.some((f) => f.type !== "text" && f.client_settings.inDocument);
+  const hasMultimedia = documentFields.some(
+    (f) => ["image", "video", "audio"].includes(f.type) && f.client_settings.inDocument,
+  );
+  const hasPreprocess = documentFields.some((f) => f.type === "preprocess" && f.client_settings.inDocument);
+
   return (
     <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
       <div className="overflow-x-hidden">
-        <div>
+        <div className={`${hasMeta ? "" : "hidden"}`}>
           <h2 className=" mt-0">Meta data</h2>
           <Meta
             article={article}
@@ -53,9 +60,13 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
             metareader={indexRole === "METAREADER"}
           />
         </div>
-        <div className="mt-10 overflow-hidden">
+        <div className={` mt-10 overflow-hidden ${hasMultimedia ? "" : "hidden"}`}>
           <h2 className="mb-0 mt-4">Multimedia</h2>
           <ArticleMultimedia user={user} indexId={indexId} article={article} fields={documentFields} />
+        </div>
+        <div className={` mt-10 overflow-hidden ${hasPreprocess ? "" : "hidden"}`}>
+          <h2 className="mb-0 mt-4">Preprocessing status</h2>
+          <PreprocessStatus article={article} fields={documentFields} />
         </div>
       </div>
       <div className="h-full overflow-auto">

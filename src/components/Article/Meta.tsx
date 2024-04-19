@@ -10,17 +10,13 @@ interface MetaProps {
 }
 
 export default function Meta({ article, fields, setArticle, metareader }: MetaProps) {
-  const metaFields = fields.filter(
-    (f) => f.type !== "text" && !["title", "text"].includes(f.name) && f.client_settings.inDocument,
-  );
+  const metaFields = fields.filter((f) => f.type !== "text" && f.client_settings.inDocument);
   if (metaFields.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-2">
       {fields.map((field) => {
-        if (field.type === "text") return null;
-        if (field.type === "image") return null;
-        if (field.name === "video") return null;
+        if (["text", "image", "video", "preprocess"].includes(field.type)) return null;
 
         const noAccessMessage =
           metareader && field.metareader.access !== "read" ? (
@@ -52,7 +48,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
             >
               {field.name}
             </Badge>
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+            <span className="line-clamp-3 overflow-hidden text-ellipsis">
               {noAccessMessage || formatField(article, field, setArticle) || <span className="text-primary">NA</span>}
             </span>
           </div>

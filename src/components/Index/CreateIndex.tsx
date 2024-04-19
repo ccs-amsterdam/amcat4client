@@ -30,7 +30,7 @@ export function CreateIndex() {
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     mutateAsync({ id, name, description, action: "create" })
-      .then(() => router.push(`/index/${id}/settings?tab=upload`))
+      .then(() => router.push(`/index/${id}/data?tab=upload`))
       .catch(console.error);
   }
 

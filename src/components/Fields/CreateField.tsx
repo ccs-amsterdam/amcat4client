@@ -69,7 +69,6 @@ function CreateFieldForm({ fields, createField }: CreateFieldProps) {
       <div
         className=" flex w-max select-none items-center gap-3"
         onClick={() => {
-          console.log("clicked");
           setIdentifier(!identifier);
         }}
       >

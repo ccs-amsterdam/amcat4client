@@ -26,7 +26,6 @@ export default function Summary({ user, indexId, query }: Props) {
       return <KeywordSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
   }
   const visualizations = (fields || []).map(renderVisualization).filter((el) => el != null);
-  console.log(visualizations);
   return (
     <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] gap-1 overflow-auto md:grid-cols-2 md:gap-3 md:overflow-visible">
       <div className="border-foreground/31 snap-center  rounded-l">

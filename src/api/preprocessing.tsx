@@ -35,6 +35,9 @@ export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["preprocessingInstructions", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["fields", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["articles", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["aggregate", user, indexId] });
+      queryClient.invalidateQueries({ queryKey: ["article", user, indexId] });
       toast.success("Preprocessing instruction submitted");
     },
   });

@@ -37,7 +37,6 @@ export function useMultimediaConcatenatedList(
   // special case of useMultimediaList.
   // get all items with one of the specified prefixes
 
-  console.log(prefixes);
   const results = useQueries({
     queries: (prefixes || []).map((prefix) => ({
       queryKey: ["multimediaList", user, indexId, { prefix }],
@@ -97,7 +96,6 @@ export function useMultimediaPresignedGet(user?: MiddlecatUser, indexId?: AmcatI
     queryFn: async () => {
       if (!user || !indexId || !key) return undefined;
       const res = await user.api.get(`/index/${indexId}/multimedia/presigned_get`, { params: { key } });
-      console.log(res.data);
       return amcatMultimediaPresignedGet.parse(res.data);
     },
     enabled: user != null && indexId != null && key != null,
