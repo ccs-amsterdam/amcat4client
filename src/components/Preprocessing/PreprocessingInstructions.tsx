@@ -6,7 +6,7 @@ import {
 import { Loading } from "../ui/loading";
 import { AmcatIndexId, PreprocessingInstruction, PreprocessingTask } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
 
 interface Props {
@@ -88,19 +88,61 @@ function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetai
   if (data == null) return null;
 
   return (
-    <div className="ml-6 grid grid-cols-[12rem,1fr] gap-x-6">
-      <div>Status field</div>
-      <div>{instruction.field}</div>
-      <div>Preprocessor status</div>
-      <div>{data.status}</div>
-      <div>Total documents</div>
-      <div>{data.counts.total}</div>
-      <div>Done</div>
-      <div>{data.counts.done || 0}</div>
-      <div>Errors</div>
-      <div>{data.counts.error || 0}</div>
-      <div>Todo</div>
-      <div>{data.counts.total - (data.counts.done || 0) - (data.counts.error || 0)}</div>
-    </div>
+    <>
+      <h3 className="mb-0 mt-2 font-semibold text-primary">
+        {instruction.field}: {instruction.task}
+      </h3>
+      <div className="mt-3">
+        <h3 className="my-0">Arguments:</h3>
+        <div className="ml-6 grid grid-cols-[12rem,1fr] gap-x-6">
+          <span>Endpoint</span>
+          <span title={instruction.endpoint} className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {instruction.endpoint}
+          </span>
+          {instruction.arguments.map((arg) => {
+            const value =
+              arg.value == null ? arg.field : Array.isArray(arg.value) ? arg.value.join(", ") : String(arg.value);
+            return (
+              <Fragment key={arg.name}>
+                <span title={arg.name} className="overflow-hidden text-ellipsis whitespace-nowrap ">
+                  {arg.name}
+                </span>
+                <span title={value || ""} className="overflow-hidden text-ellipsis whitespace-nowrap ">
+                  {value}
+                </span>
+              </Fragment>
+            );
+          })}
+        </div>
+      </div>
+      <div className="mt-3">
+        <h3 className="my-0">Output:</h3>
+        <div className="ml-6 grid grid-cols-[12rem,1fr] gap-x-6">
+          {instruction.outputs.map((output) => (
+            <Fragment key={output.name}>
+              <span title={output.name} className="overflow-hidden text-ellipsis whitespace-nowrap ">
+                {output.name}
+              </span>
+              <div>{output.field}</div>
+            </Fragment>
+          ))}
+        </div>
+      </div>
+      <div className="mt-3">
+        <h3 className="my-0">Status: </h3>
+        <div className="ml-6 grid grid-cols-[12rem,1fr] gap-x-6">
+          <div>Preprocessor status</div>
+          <div>{data.status}</div>
+          <div>Total documents</div>
+          <div>{data.counts.total}</div>
+          <div>Done</div>
+          <div>{data.counts.done || 0}</div>
+          <div>Errors</div>
+          <div>{data.counts.error || 0}</div>
+          <div>Todo</div>
+          <div>{data.counts.total - (data.counts.done || 0) - (data.counts.error || 0)}</div>
+        </div>
+      </div>
+    </>
   );
 }
