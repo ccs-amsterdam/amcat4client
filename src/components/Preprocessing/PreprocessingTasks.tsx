@@ -161,7 +161,7 @@ function TaskForm({
                     onChange={argFieldValueHandler(arg.name)}
                   />
                 ) : (
-                  <ArgumentInput value={arg.value} onChange={argValueHandler(arg.name)} />
+                  <ArgumentInput value={arg.value || ""} onChange={argValueHandler(arg.name)} />
                 )}
               </div>
             );
