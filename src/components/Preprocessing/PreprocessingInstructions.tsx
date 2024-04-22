@@ -26,13 +26,14 @@ export default function PreprocessingInstructions({ indexId, user }: Props) {
               <h3 className="my-0">Arguments:</h3>
               <div className="ml-6 grid grid-cols-[12rem,1fr] gap-x-6">
                 {i.arguments.map((arg) => {
-                  const value = Array.isArray(arg.value) ? arg.value.join(", ") : String(arg.value);
+                  const value =
+                    arg.value == null ? arg.field : Array.isArray(arg.value) ? arg.value.join(", ") : String(arg.value);
                   return (
                     <Fragment key={arg.name}>
                       <span title={arg.name} className="overflow-hidden text-ellipsis whitespace-nowrap ">
                         {arg.name}
                       </span>
-                      <div>{value || arg.field}</div>
+                      <div>{value}</div>
                     </Fragment>
                   );
                 })}
