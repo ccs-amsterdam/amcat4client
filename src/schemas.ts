@@ -227,7 +227,7 @@ export const amcatPreprocessingInstructionArgumentValue = z.union([
 export const amcatPreprocessingInstructionArgument = z.object({
   name: z.string(),
   field: z.string().nullish(),
-  value: amcatPreprocessingInstructionArgumentValue,
+  value: amcatPreprocessingInstructionArgumentValue.nullish(),
   secret: z.boolean().default(false),
 });
 
