@@ -26,7 +26,7 @@ export default function ArticleMultimedia({ user, indexId, article, fields }: Pr
         const fields = multimediaByType[typeGroup];
         if (fields.length === 0) return null;
         return (
-          <div>
+          <div key={typeGroup}>
             <h4>{typeGroup}</h4>
             {fields.map((field) => {
               if (!article[field.name]) return null;
