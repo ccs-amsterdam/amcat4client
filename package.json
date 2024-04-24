@@ -41,7 +41,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.279.0",
     "lz-string": "^1.5.0",
-    "middlecat-react": "^0.3.17",
+    "middlecat-react": "^0.3.20",
     "next": "^14.0.4",
     "next-themes": "^0.2.1",
     "next-usequerystate": "^1.13.2",
