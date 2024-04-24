@@ -112,10 +112,10 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                       const type = fields.find((f) => f.name === field.name)?.type;
                       if (type === "image") showValue = DynamicIcon({ type: "image", className: "h-4 w-4" });
                       if (type === "preprocess") {
-                        if (row[field.name].status === "error") {
+                        if (row[field.name]?.status === "error") {
                           variant = "destructive";
                           showValue = <AlertTriangle className="h-4 w-4" />;
-                        } else if (row[field.name].status === "done") {
+                        } else if (row[field.name]?.status === "done") {
                           return null;
                         } else {
                           variant = "secondary";

@@ -1,4 +1,9 @@
-import { amcatPreprocessingInstruction, amcatPreprocessingInstructionStatus, amcatPreprocessingTask } from "@/schemas";
+import {
+  amcatPreprocessingInstruction,
+  amcatPreprocessingInstructionDetails,
+  amcatPreprocessingInstructionStatus,
+  amcatPreprocessingTask,
+} from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { toast } from "sonner";
@@ -44,10 +49,37 @@ export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: 
 
 export function usePreprocessingInstructionDetails(user: MiddlecatUser, indexId: string, field: string) {
   return useQuery({
-    queryKey: ["preprocessingInstruction", user, indexId, field],
+    queryKey: ["usePreprocessingInstructionDetails", user, indexId, field],
     queryFn: async () => {
       const res = await user.api.get(`/index/${indexId}/preprocessing/${field}`);
+      return amcatPreprocessingInstructionDetails.parse(res.data);
+    },
+    staleTime: 1000,
+  });
+}
+
+export function usePreprocessingInstructionStatus(user: MiddlecatUser, indexId: string, field: string) {
+  return useQuery({
+    queryKey: ["preprocessingInstructionStatus", user, indexId, field],
+    queryFn: async () => {
+      const res = await user.api.get(`/index/${indexId}/preprocessing/${field}/status`);
       return amcatPreprocessingInstructionStatus.parse(res.data);
+    },
+    staleTime: 1000,
+  });
+}
+
+export function useMutatePreprocessingInstructionAction(user: MiddlecatUser, indexId: string, field: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (action: any) => {
+      await user.api.post(`/index/${indexId}/preprocessing/${field}/status`, { action });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["usePreprocessingInstructionDetails", user, indexId, field] });
+      queryClient.invalidateQueries({ queryKey: ["usePreprocessingInstructionStatus", user, indexId, field] });
+      toast.success(`Sent preprocessing action ${variables} to ${field}`);
     },
   });
 }

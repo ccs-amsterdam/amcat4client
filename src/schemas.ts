@@ -244,9 +244,15 @@ export const amcatPreprocessingInstruction = z.object({
   outputs: z.array(amcatPreprocessingInstructionOutput),
 });
 
+const PreprocessingStatus = z.enum(["Active", "Paused", "Unknown", "Error", "Stopped", "Done"]);
+
 export const amcatPreprocessingInstructionStatus = z.object({
+  status: PreprocessingStatus,
+});
+
+export const amcatPreprocessingInstructionDetails = z.object({
   instruction: amcatPreprocessingInstruction,
-  status: z.string(),
+  status: PreprocessingStatus,
   counts: z.object({
     total: z.number(),
     done: z.number().optional(),

@@ -1,5 +1,7 @@
 import {
+  useMutatePreprocessingInstructionAction,
   usePreprocessingInstructionDetails,
+  usePreprocessingInstructionStatus,
   usePreprocessingInstructions,
   usePreprocessingTasks,
 } from "@/api/preprocessing";
@@ -8,6 +10,21 @@ import { AmcatIndexId, PreprocessingInstruction, PreprocessingTask } from "@/int
 import { MiddlecatUser } from "middlecat-react";
 import { Fragment, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
+import {
+  AlertCircle,
+  CircleSlash2Icon,
+  HelpCircle,
+  Pause,
+  PauseCircle,
+  PauseCircleIcon,
+  Play,
+  PlayCircle,
+  PlayCircleIcon,
+  RotateCcw,
+  StopCircle,
+  StopCircleIcon,
+} from "lucide-react";
+import { Button } from "../ui/button";
 
 interface Props {
   indexId: AmcatIndexId;
@@ -45,6 +62,7 @@ export default function PreprocessingInstructions({ indexId, user }: Props) {
                     onClick={() => setActiveInstruction(i)}
                   >
                     <div className="font-semibold text-primary">
+                      <PreprocessingStatus indexId={indexId} user={user} instruction={i} />
                       {i.outputs.map((f) => f.field).join(", ")} &larr; {i.field}(
                       {i.arguments
                         .filter((f) => f.field)
@@ -59,10 +77,6 @@ export default function PreprocessingInstructions({ indexId, user }: Props) {
       </div>
     </div>
   );
-}
-
-interface PreprocessingDetailsProps extends Props {
-  instruction: PreprocessingInstruction;
 }
 
 interface PreprocessingDetailsDialogProps extends Props {
@@ -82,10 +96,18 @@ function PreprocessingDetailsDialog({ onClose, indexId, instruction, user }: Pre
   );
 }
 
+interface PreprocessingDetailsProps extends Props {
+  instruction: PreprocessingInstruction;
+}
 function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetailsProps) {
   const { isLoading, data } = usePreprocessingInstructionDetails(user, indexId, instruction.field);
+  const { mutateAsync: mutateAaction } = useMutatePreprocessingInstructionAction(user, indexId, instruction.field);
   if (isLoading) return <Loading />;
   if (data == null) return null;
+
+  const doAction = (action: string) => {
+    mutateAaction(action);
+  };
 
   return (
     <>
@@ -100,8 +122,13 @@ function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetai
             {instruction.endpoint}
           </span>
           {instruction.arguments.map((arg) => {
+            console.log(arg);
             const value =
-              arg.value == null ? arg.field : Array.isArray(arg.value) ? arg.value.join(", ") : String(arg.value);
+              arg.value == null || arg.value === ""
+                ? arg.field
+                : Array.isArray(arg.value)
+                  ? arg.value.join(", ")
+                  : String(arg.value);
             return (
               <Fragment key={arg.name}>
                 <span title={arg.name} className="overflow-hidden text-ellipsis whitespace-nowrap ">
@@ -143,6 +170,44 @@ function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetai
           <div>{data.counts.total - (data.counts.done || 0) - (data.counts.error || 0)}</div>
         </div>
       </div>
+      <div className="mt-3 grid grid-cols-3 gap-x-6">
+        {data.status == "Active" ? (
+          <Button onClick={() => doAction("Stop")}>
+            <Pause />
+            Pause
+          </Button>
+        ) : null}
+        {data.status == "Stopped" ? (
+          <Button onClick={() => doAction("Start")}>
+            <Play />
+            Start
+          </Button>
+        ) : null}
+        {data.counts.error && data.counts.error > 0 ? (
+          <Button onClick={() => doAction("Reassign")}>
+            <RotateCcw />
+            Retry errors
+          </Button>
+        ) : null}
+      </div>
     </>
   );
+}
+
+function PreprocessingStatus({ user, indexId, instruction }: PreprocessingDetailsProps) {
+  const { isLoading, data } = usePreprocessingInstructionStatus(user, indexId, instruction.field);
+  if (isLoading || data == null) return <Loading />;
+  switch (data["status"]) {
+    case "Active":
+      return <PlayCircle />;
+    case "Paused":
+    case "Stopped":
+      return <PauseCircle color="#aaaa00" />;
+    case "Done":
+      return <StopCircle color="darkgreen" />;
+    case "Error":
+      return <AlertCircle color="red" />;
+    case "Unknown":
+      return <HelpCircle />;
+  }
 }
