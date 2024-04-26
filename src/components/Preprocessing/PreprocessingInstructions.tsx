@@ -12,17 +12,14 @@ import { Fragment, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
 import {
   AlertCircle,
-  CircleSlash2Icon,
+  CheckCircle,
   HelpCircle,
   Pause,
   PauseCircle,
-  PauseCircleIcon,
   Play,
   PlayCircle,
-  PlayCircleIcon,
   RotateCcw,
   StopCircle,
-  StopCircleIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 
@@ -61,14 +58,16 @@ export default function PreprocessingInstructions({ indexId, user }: Props) {
                     className="flex flex-col gap-1 rounded border p-3"
                     onClick={() => setActiveInstruction(i)}
                   >
-                    <div className="font-semibold text-primary">
+                    <div className="flex gap-2 font-semibold text-primary">
                       <PreprocessingStatus indexId={indexId} user={user} instruction={i} />
-                      {i.outputs.map((f) => f.field).join(", ")} &larr; {i.field}(
-                      {i.arguments
-                        .filter((f) => f.field)
-                        .map((f) => f.field)
-                        .join(", ")}
-                      )
+                      <div>
+                        {i.outputs.map((f) => f.field).join(", ")} &larr; {i.field}(
+                        {i.arguments
+                          .filter((f) => f.field)
+                          .map((f) => f.field)
+                          .join(", ")}
+                        )
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -99,8 +98,15 @@ function PreprocessingDetailsDialog({ onClose, indexId, instruction, user }: Pre
 interface PreprocessingDetailsProps extends Props {
   instruction: PreprocessingInstruction;
 }
+function shouldRefetchStatus(input: any) {
+  const refetch = input?.state?.data?.status === "Active";
+  return refetch ? 1000 : null;
+}
+
 function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetailsProps) {
-  const { isLoading, data } = usePreprocessingInstructionDetails(user, indexId, instruction.field);
+  const { isLoading, data } = usePreprocessingInstructionDetails(user, indexId, instruction.field, {
+    refetchInterval: shouldRefetchStatus,
+  });
   const { mutateAsync: mutateAaction } = useMutatePreprocessingInstructionAction(user, indexId, instruction.field);
   if (isLoading) return <Loading />;
   if (data == null) return null;
@@ -122,7 +128,6 @@ function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetai
             {instruction.endpoint}
           </span>
           {instruction.arguments.map((arg) => {
-            console.log(arg);
             const value =
               arg.value == null || arg.value === ""
                 ? arg.field
@@ -195,7 +200,9 @@ function PreprocessingDetails({ indexId, instruction, user }: PreprocessingDetai
 }
 
 function PreprocessingStatus({ user, indexId, instruction }: PreprocessingDetailsProps) {
-  const { isLoading, data } = usePreprocessingInstructionStatus(user, indexId, instruction.field);
+  const { isLoading, data } = usePreprocessingInstructionStatus(user, indexId, instruction.field, {
+    refetchInterval: shouldRefetchStatus,
+  });
   if (isLoading || data == null) return <Loading />;
   switch (data["status"]) {
     case "Active":
@@ -204,7 +211,7 @@ function PreprocessingStatus({ user, indexId, instruction }: PreprocessingDetail
     case "Stopped":
       return <PauseCircle color="#aaaa00" />;
     case "Done":
-      return <StopCircle color="darkgreen" />;
+      return <CheckCircle color="darkgreen" />;
     case "Error":
       return <AlertCircle color="red" />;
     case "Unknown":

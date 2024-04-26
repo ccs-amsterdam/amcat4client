@@ -4,7 +4,7 @@ import {
   amcatPreprocessingInstructionStatus,
   amcatPreprocessingTask,
 } from "@/schemas";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -47,18 +47,29 @@ export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: 
   });
 }
 
-export function usePreprocessingInstructionDetails(user: MiddlecatUser, indexId: string, field: string) {
+export function usePreprocessingInstructionDetails(
+  user: MiddlecatUser,
+  indexId: string,
+  field: string,
+  extra_options = {},
+) {
   return useQuery({
-    queryKey: ["usePreprocessingInstructionDetails", user, indexId, field],
+    queryKey: ["preprocessingInstructionDetails", user, indexId, field],
     queryFn: async () => {
       const res = await user.api.get(`/index/${indexId}/preprocessing/${field}`);
       return amcatPreprocessingInstructionDetails.parse(res.data);
     },
     staleTime: 1000,
+    ...extra_options,
   });
 }
 
-export function usePreprocessingInstructionStatus(user: MiddlecatUser, indexId: string, field: string) {
+export function usePreprocessingInstructionStatus(
+  user: MiddlecatUser,
+  indexId: string,
+  field: string,
+  extra_options = {},
+) {
   return useQuery({
     queryKey: ["preprocessingInstructionStatus", user, indexId, field],
     queryFn: async () => {
@@ -66,6 +77,7 @@ export function usePreprocessingInstructionStatus(user: MiddlecatUser, indexId: 
       return amcatPreprocessingInstructionStatus.parse(res.data);
     },
     staleTime: 1000,
+    ...extra_options,
   });
 }
 
@@ -77,8 +89,8 @@ export function useMutatePreprocessingInstructionAction(user: MiddlecatUser, ind
       await user.api.post(`/index/${indexId}/preprocessing/${field}/status`, { action });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["usePreprocessingInstructionDetails", user, indexId, field] });
-      queryClient.invalidateQueries({ queryKey: ["usePreprocessingInstructionStatus", user, indexId, field] });
+      queryClient.invalidateQueries({ queryKey: ["preprocessingInstructionDetails", user, indexId, field] });
+      queryClient.invalidateQueries({ queryKey: ["preprocessingInstructionStatus", user, indexId, field] });
       toast.success(`Sent preprocessing action ${variables} to ${field}`);
     },
   });
