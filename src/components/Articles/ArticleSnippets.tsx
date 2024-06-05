@@ -93,7 +93,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                 </div>
 
                 <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
-                <div className="flex gap-1 pt-2">
+                <div className="flex-wrap flex gap-1 pt-2">
                   {listFields
                     .filter(
                       (field) => layout.meta.includes(field.name) && !layout.text.includes(field.name),
