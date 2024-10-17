@@ -13,6 +13,7 @@ import { AmcatConfig } from "@/interfaces";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { AlertCircle, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { useRouter } from "next/navigation";
 
 const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_infinite] text-primary" />;
 
@@ -20,7 +21,7 @@ export default function AccountMenu() {
   const { user, loading: loadingUser, signIn, signOut } = useMiddlecat();
   const { data: config, isLoading: loadingConfig } = useAmcatConfig();
   const globalRole = useMyGlobalRole(user);
-
+  const router = useRouter();
   function renderAuthStatus() {
     if (config?.authorization === "no_auth") return "Authorization disabled";
     if (!user) return "not signed in";
@@ -39,7 +40,7 @@ export default function AccountMenu() {
     if (config?.authorization === "no_auth") return null;
     if (user?.authenticated) {
       return (
-        <DropdownMenuItem onClick={() => signOut(true)}>
+        <DropdownMenuItem onClick={() => signOut(true).then(() => router.push("/"))}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign-out</span>
         </DropdownMenuItem>
