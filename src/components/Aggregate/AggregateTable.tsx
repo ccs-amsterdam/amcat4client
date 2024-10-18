@@ -40,8 +40,8 @@ export default function AggregateTable({ data, createZoom, limit }: AggregateVis
       <TableBody>
         {data.rows.map((row) => {
           return (
-            <TableRow key={row[primary.field]}>
-              <TableCell>{row[primary.field]}</TableCell>
+            <TableRow key={row[primary.name]}>
+              <TableCell>{row[primary.name]}</TableCell>
               {data.columns.map((column) => {
                 return (
                   <TableCell className="hover:bg-primary" key={column.name}>
