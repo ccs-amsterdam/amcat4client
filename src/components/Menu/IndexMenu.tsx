@@ -55,7 +55,7 @@ export default function IndexMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           className={
-            "flex h-full select-none items-center gap-3 border-primary bg-primary px-5 text-primary-foreground outline-none "
+            "flex h-full select-none items-center border-primary bg-primary px-5 text-primary-foreground outline-none "
           }
         >
           <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap lg:block">
@@ -66,7 +66,7 @@ export default function IndexMenu() {
         <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
           <DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuItem className="flex gap-2" onClick={() => router.push("/")}>
+              <DropdownMenuItem className="flex" onClick={() => router.push("/")}>
                 <X className="h-4 w-4" />
                 <span className="">Close index</span>
               </DropdownMenuItem>
@@ -101,7 +101,7 @@ function IndicesLink() {
   return (
     <button
       onClick={() => router.push("/indices")}
-      className={`${active ? "text-primary" : "text-foreground/80"}
+      className={`${active ? "text-primary" : "text-header-foreground"}
       flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
     >
       <LibraryIcon />

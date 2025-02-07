@@ -32,12 +32,12 @@ export default function Index() {
   if (loading || serverBranding == null) return null;
 
   return (
-    <>
-      <div className="col-span-4 flex-1 whitespace-nowrap text-right"> {serverBranding.server_name}</div>
+    <div className="flex items-center ">
+      <div className="hidden whitespace-nowrap text-right sm:block"> {serverBranding.server_name}</div>
       <Dialog>
         <DialogTrigger>
           {serverBranding.server_icon ? (
-            <img src={serverBranding.server_icon} width={30} height={30} />
+            <img src={serverBranding.server_icon} className="h-10" />
           ) : (
             <Server className="h-7 w-7 text-primary hover:text-primary/70" />
           )}
@@ -50,7 +50,7 @@ export default function Index() {
           <ServerSettings />
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
 

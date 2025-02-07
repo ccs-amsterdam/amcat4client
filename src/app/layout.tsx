@@ -39,14 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={font.className} suppressHydrationWarning>
       <body className="relative flex min-h-screen flex-col scroll-smooth ">
-        <Script src="//cdn.jsdelivr.net/npm/eruda">eruda.init()</Script>
         <ClientProviders>
           <Navbar />
-          <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-6">
-            <div className="flex justify-center">
-              <div className="flex w-full max-w-[1500px] flex-col px-5 py-5 sm:px-10">{children}</div>
-            </div>
-          </div>
+          {children}
           <Toaster />
         </ClientProviders>
       </body>
