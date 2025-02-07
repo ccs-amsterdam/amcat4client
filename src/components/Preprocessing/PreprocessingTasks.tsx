@@ -94,7 +94,7 @@ function TaskForm({
         });
       }
     }
-    const onReady = () => router.push(`/index/${indexId}/settings`);
+    const onReady = () => router.push(`/indices/${indexId}/settings`);
     if (newFields.length > 0) {
       mutateFields({ fields: newFields, action: "create" })
         .then(() => mutatePreprocessing(instruction))

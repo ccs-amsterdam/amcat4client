@@ -15,7 +15,7 @@ export default function Index() {
   const { data: indices, isLoading: loadingIndices, error } = useAmcatIndices(user);
 
   function onSelectIndex(indexId: string) {
-    router.push(`/index/${indexId}/dashboard`);
+    router.push(`/indices/${indexId}/dashboard`);
   }
 
   if (loading || loadingIndices)

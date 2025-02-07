@@ -96,11 +96,11 @@ function useCurrentPath() {
 function IndicesLink() {
   const router = useRouter();
   const currentPath = useCurrentPath();
-  const active = currentPath === "";
+  const active = currentPath === "indices";
 
   return (
     <button
-      onClick={() => router.push("/")}
+      onClick={() => router.push("/indices")}
       className={`${active ? "text-primary" : "text-foreground/80"}
       flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
     >
@@ -117,7 +117,7 @@ function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string
   const no_auth = serverConfig?.authorization === "no_auth";
 
   const active = path === currentPath;
-  const href = `/index/${index.id}/${path}`;
+  const href = `/indices/${index.id}/${path}`;
   const indexRole = index?.user_role || "NONE";
   const admin = no_auth || indexRole === "ADMIN";
   const writer = admin || indexRole === "WRITER";
@@ -192,7 +192,7 @@ function SelectIndex({ user, indexId }: { user: MiddlecatUser; indexId: AmcatInd
   const router = useRouter();
 
   function onSelectIndex(index: string) {
-    router.push(`/index/${index}/dashboard`);
+    router.push(`/indices/${index}/dashboard`);
   }
 
   return (

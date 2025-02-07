@@ -48,7 +48,7 @@ export function SelectIndex() {
   }, [nPages]);
 
   function onSelectIndex(indexId: string) {
-    router.push(`/index/${indexId}/dashboard`);
+    router.push(`/indices/${indexId}/dashboard`);
   }
 
   function nextPage() {
