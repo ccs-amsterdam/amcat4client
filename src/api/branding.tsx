@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { amcatBrandingSchema } from "@/schemas";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { z } from "zod";
 
 export function useAmcatBranding() {
   const { fixedResource: host } = useMiddlecat();
@@ -22,7 +23,7 @@ export function useMutateBranding(user?: MiddlecatUser) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (value: typeof amcatBrandingSchema) => {
+    mutationFn: (value: z.input<typeof amcatBrandingSchema>) => {
       if (!user) throw new Error("Not logged in");
       return mutateBranding(user, value);
     },
@@ -31,6 +32,6 @@ export function useMutateBranding(user?: MiddlecatUser) {
     },
   });
 }
-export async function mutateBranding(user: MiddlecatUser, value: typeof amcatBrandingSchema) {
+export async function mutateBranding(user: MiddlecatUser, value: z.input<typeof amcatBrandingSchema>) {
   return await user.api.put(`config/branding`, value);
 }

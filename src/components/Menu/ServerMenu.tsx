@@ -1,7 +1,7 @@
 "use client";
 
 import { Server } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "../ui/dialog";
 import { useMiddlecat } from "middlecat-react";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { useAmcatConfig } from "@/api/config";
@@ -21,6 +21,7 @@ import { amcatBrandingSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -41,7 +42,11 @@ export default function Index() {
             <Server className="h-7 w-7 text-primary hover:text-primary/70" />
           )}
         </DialogTrigger>
-        <DialogContent className="top-20 min-h-[50vh] w-[1500px] max-w-[95vw] translate-y-0 pt-12 lg:p-12">
+        <DialogContent
+          aria-describedby={undefined}
+          className="top-20 min-h-[50vh] w-[1500px] max-w-[95vw] translate-y-0 pt-12 lg:p-12"
+        >
+          <DialogTitle>Server Settings</DialogTitle>
           <ServerSettings />
         </DialogContent>
       </Dialog>
@@ -94,17 +99,20 @@ function ServerSettings() {
             </p>
             <div className="mt-4 grid grid-cols-[8rem,1fr]">
               <div className="font-bold">Resource</div>
-              <div className="font-mono text-primary">{config.resource}</div>
+              <div className="font-mono text-primary">{config?.resource}</div>
 
               <div className="font-bold">MiddleCat</div>
-              <div className="font-mono text-primary">{config.middlecat_url}</div>
+              <div className="font-mono text-primary">{config?.middlecat_url}</div>
               <div className="font-bold">Authorization</div>
-              <div className="font-mono text-primary">{config.authorization}</div>
+              <div className="font-mono text-primary">{config?.authorization}</div>
             </div>
           </TabsContent>
           <TabsContent value={Tab.Users}>
-            {" "}
-            <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
+            {user == null || ownRole == null || users == null ? (
+              <span>You don't have permission to see this</span>
+            ) : (
+              <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
+            )}
           </TabsContent>
           <TabsContent value={Tab.Branding}>
             <ServerBrandingForm />
@@ -127,15 +135,12 @@ function ServerBrandingForm() {
     defaultValues: branding,
   });
 
-  function brandingFormSubmit(values: z.infer<typeof amcatBrandingSchema>) {
-    console.log(values);
+  function brandingFormSubmit(values: z.input<typeof amcatBrandingSchema>) {
     mutateBranding.mutateAsync(values).catch(console.error);
   }
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
 
-  // Note that typescript doesn't like the ...field.
-  // https://stackoverflow.com/questions/77182890/problem-with-types-when-using-shadcn-formfield-component
   return (
     <Form {...brandingForm}>
       <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-2">
@@ -147,7 +152,7 @@ function ServerBrandingForm() {
             <FormItem>
               <FormLabel>Server Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ""} />
               </FormControl>
             </FormItem>
           )}
@@ -160,7 +165,7 @@ function ServerBrandingForm() {
             <FormItem>
               <FormLabel>Welcome Text (Mardown)</FormLabel>
               <FormControl>
-                <Textarea {...field} />
+                <Textarea {...field} value={field.value ?? ""} />
               </FormControl>
             </FormItem>
           )}
@@ -173,7 +178,7 @@ function ServerBrandingForm() {
             <FormItem>
               <FormLabel>Server Icon URL</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ""} />
               </FormControl>
             </FormItem>
           )}

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "ts:watch": "tsc --w"
+    "watch": "tsc --w"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
