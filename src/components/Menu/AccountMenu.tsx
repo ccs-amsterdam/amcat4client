@@ -14,6 +14,7 @@ import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { AlertCircle, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_infinite] text-primary" />;
 
@@ -71,6 +72,9 @@ export default function AccountMenu() {
             <DropdownMenuLabel>Your server role: {globalRole}</DropdownMenuLabel>
           </>
         )}
+        <DropdownMenuLabel>
+          <ThemeToggle label={true} />
+        </DropdownMenuLabel>
       </DropdownMenuContent>
     </DropdownMenu>
   );

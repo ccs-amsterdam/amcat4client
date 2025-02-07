@@ -22,31 +22,31 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import Refresh from "./Refresh";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
 export default function Index() {
-  const { user, loading } = useMiddlecat();
-  const { data: serverBranding } = useAmcatBranding();
-
-  if (loading || serverBranding == null) return null;
-
   return (
     <div className="flex items-center ">
-      <div className="hidden whitespace-nowrap text-right sm:block"> {serverBranding.server_name}</div>
+      {" "}
       <Dialog>
         <DialogTrigger>
-          {serverBranding.server_icon ? (
-            <img src={serverBranding.server_icon} className="h-10" />
-          ) : (
-            <Server className="h-7 w-7 text-primary hover:text-primary/70" />
-          )}
+          <Server className="h-7 w-7 text-primary hover:text-primary/70" />
         </DialogTrigger>
         <DialogContent
           aria-describedby={undefined}
           className="top-20 min-h-[50vh] w-[1500px] max-w-[95vw] translate-y-0 pt-12 lg:p-12"
         >
-          <DialogTitle>Server Settings</DialogTitle>
+          <DialogTitle>
+            <div className="flex items-center">
+              <div className="flex-1">Server Settings</div>
+              <div className="flex-1 justify-end text-right">
+                <Refresh />
+              </div>
+            </div>
+          </DialogTitle>
+
           <ServerSettings />
         </DialogContent>
       </Dialog>

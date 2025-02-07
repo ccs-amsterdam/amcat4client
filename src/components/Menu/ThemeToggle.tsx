@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useTheme } from "next-themes";
 
-export default function ThemeToggle() {
+interface ThemeToggleProps {
+  label?: boolean;
+}
+
+export default function ThemeToggle({ label }: ThemeToggleProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -20,11 +24,9 @@ export default function ThemeToggle() {
   }
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="flex items-center gap-2 text-primary hover:text-primary/80"
-    >
+    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center gap-2 ">
       {renderIcon()}
+      {label ? (theme === "dark" ? "Light mode" : "Dark mode") : ""}
     </button>
   );
 }

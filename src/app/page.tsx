@@ -25,12 +25,11 @@ export default function Index() {
   return (
     <>
       <main className="flex-grow">
-        <SplashNav />
         <BigBanner />
         <FeatureCards />
         <ReadyBanner />
         <div className="flex h-full flex-auto flex-col items-center   p-5">
-          <ReactMarkdown>{serverBranding.welcome_text}</ReactMarkdown>
+          {/*<ReactMarkdown>{serverBranding.welcome_text}</ReactMarkdown>*/}
         </div>
         <SplashFooter />
       </main>
@@ -104,17 +103,17 @@ function FeatureCards() {
         <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">Key Features</h2>
         <div className="grid gap-8 md:grid-cols-3">
           <FeatureCard
-            icon={<Search className="h-10 w-10 text-blue-500" />}
+            icon={<Search className="h-10 w-10 text-primary" />}
             title="Advanced Text Search"
             description="Powerful search capabilities to find relevant information quickly and efficiently."
           />
           <FeatureCard
-            icon={<BarChart2 className="h-10 w-10 text-blue-500" />}
+            icon={<BarChart2 className="h-10 w-10 text-primary" />}
             title="In-depth Analysis"
             description="Comprehensive tools for content analysis, including sentiment analysis and topic modeling."
           />
           <FeatureCard
-            icon={<Zap className="h-10 w-10 text-blue-500" />}
+            icon={<Zap className="h-10 w-10 text-primary" />}
             title="Fast Processing"
             description="High-performance algorithms to handle large volumes of text data with speed and accuracy."
           />
@@ -131,7 +130,7 @@ interface FeatureCardProps {
 }
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="rounded-lg bg-white p-6 shadow-md">
+    <div className="rounded-lg bg-primary/15 p-6 shadow-md">
       <div className="mb-4">{icon}</div>
       <h3 className="mb-2 text-xl font-semibold text-gray-900">{title}</h3>
       <p className="text-gray-600">{description}</p>

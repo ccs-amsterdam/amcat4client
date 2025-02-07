@@ -25,7 +25,7 @@ export default function Refresh() {
         queryClient.invalidateQueries();
         toast.loading("Refreshing data...");
       }}
-      className="flex items-center gap-2 text-primary hover:text-primary/80 disabled:text-foreground/50"
+      className="text-primary hover:text-primary/80 disabled:text-foreground/50"
     >
       <RefreshCw className="h-7 w-7" />
     </button>
