@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { amcatQueryResultSchema } from "@/schemas";
-import { AmcatIndexId, AmcatQuery, AmcatQueryParams } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
 import { addFilter } from "@/api/util";
+import { AmcatIndexId, AmcatQuery, AmcatQueryParams } from "@/interfaces";
+import { amcatQueryResultSchema } from "@/schemas";
+import { useQuery } from "@tanstack/react-query";
+import { MiddlecatUser } from "middlecat-react";
 import { postQuery } from "./query";
 
 export function useArticle(

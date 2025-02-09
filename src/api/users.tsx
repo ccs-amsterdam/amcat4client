@@ -1,9 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { amcatUserDetailsSchema, amcatUserRoleSchema } from "@/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 
-import { z } from "zod";
 import { toast } from "sonner";
+import { z } from "zod";
 
 export function useUsers(user?: MiddlecatUser) {
   return useQuery({

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { amcatIndicesSchema } from "@/schemas";
+import { useQuery } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 
 export default function useAmcatIndices(user: MiddlecatUser | undefined) {

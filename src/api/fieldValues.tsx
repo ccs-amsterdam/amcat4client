@@ -2,7 +2,6 @@ import { AmcatFieldValues, AmcatIndexId } from "@/interfaces";
 import { amcatFieldValuesSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
-import { z } from "zod";
 
 export function useFieldValues(user: MiddlecatUser, indexId: AmcatIndexId, field: string | undefined) {
   return useQuery({

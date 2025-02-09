@@ -1,9 +1,9 @@
-import { AmcatQuery, AggregationOptions, AmcatIndexId } from "@/interfaces";
-import { postAggregateQuery, postQuery } from "./query";
+import { AggregationOptions, AmcatIndexId, AmcatQuery } from "@/interfaces";
+import { postAggregateQuery } from "./query";
 
-import { MiddlecatUser } from "middlecat-react";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { amcatAggregateDataSchema } from "@/schemas";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { MiddlecatUser } from "middlecat-react";
 
 export function useCount(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery) {
   const result = useAggregate(user, indexId, query, { axes: [], display: "list" });

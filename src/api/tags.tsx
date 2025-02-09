@@ -1,9 +1,9 @@
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
-import { asPostAmcatQuery } from "./query";
 import { toast } from "sonner";
 import { z } from "zod";
+import { asPostAmcatQuery } from "./query";
 
 interface MutateTagsParams {
   tag: string;

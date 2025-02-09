@@ -2,15 +2,12 @@
 
 import Image from "next/image";
 
-import useAutoSignin from "@/lib/useAutoSignin";
-import AccountMenu from "./AccountMenu";
-import ServerMenu from "./ServerMenu";
-import ThemeToggle from "./ThemeToggle";
-import IndexMenu from "./IndexMenu";
-import Refresh from "./Refresh";
-import Link from "next/link";
 import { useAmcatBranding } from "@/api/branding";
-import ReactMarkdown from "react-markdown";
+import useAutoSignin from "@/lib/useAutoSignin";
+import Link from "next/link";
+import AccountMenu from "./AccountMenu";
+import IndexMenu from "./IndexMenu";
+import ServerMenu from "./ServerMenu";
 
 export default function Navbar() {
   useAutoSignin();

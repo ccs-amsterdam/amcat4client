@@ -1,8 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { useAmcatConfig } from "./config";
-import { MiddlecatUser } from "middlecat-react";
-import { amcatUserDetailsSchema, amcatUserRoles } from "@/schemas";
 import { AmcatUserRole } from "@/interfaces";
+import { amcatUserDetailsSchema, amcatUserRoles } from "@/schemas";
+import { useQuery } from "@tanstack/react-query";
+import { MiddlecatUser } from "middlecat-react";
+import { useAmcatConfig } from "./config";
 
 export function useCurrentUserDetails(user?: MiddlecatUser) {
   return useQuery({

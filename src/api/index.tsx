@@ -1,10 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { amcatUserRoles, amcatIndexSchema } from "@/schemas";
 import { AmcatIndexId, AmcatUserRole } from "@/interfaces";
-import { useHasGlobalRole } from "./userDetails";
-import { useAmcatConfig } from "./config";
+import { amcatIndexSchema, amcatUserRoles } from "@/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { toast } from "sonner";
+import { useAmcatConfig } from "./config";
 
 export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   return useQuery({

@@ -1,27 +1,25 @@
 "use client";
 
-import { Server } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "../ui/dialog";
-import { useMiddlecat } from "middlecat-react";
-import { useCurrentUserDetails } from "@/api/userDetails";
-import { useAmcatConfig } from "@/api/config";
-import { useMutateUser, useUsers } from "@/api/users";
-import { Loading } from "../ui/loading";
-import { ErrorMsg } from "../ui/error-message";
-import UserRoleTable from "../Users/UserRoleTable";
 import { useAmcatBranding, useMutateBranding } from "@/api/branding";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useAmcatConfig } from "@/api/config";
+import { useCurrentUserDetails } from "@/api/userDetails";
+import { useMutateUser, useUsers } from "@/api/users";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Server } from "lucide-react";
+import { useMiddlecat } from "middlecat-react";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Loading } from "../ui/loading";
+import UserRoleTable from "../Users/UserRoleTable";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "../ui/input";
-import { z } from "zod";
 import { amcatBrandingSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "../ui/textarea";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "../ui/button";
-import { DialogDescription } from "@radix-ui/react-dialog";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 import Refresh from "./Refresh";
 
 const roles = ["READER", "WRITER", "ADMIN"];

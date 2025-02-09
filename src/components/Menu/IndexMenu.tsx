@@ -1,8 +1,10 @@
 "use client";
 
-import { useHasIndexRole, useIndex, useMutateIndex, useMyIndexrole } from "@/api/index";
+import { useAmcatConfig } from "@/api/config";
+import { useIndex } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
-import { useHasGlobalRole, useMyGlobalRole } from "@/api/userDetails";
+import useAmcatIndices from "@/api/indices";
+import { useHasGlobalRole } from "@/api/userDetails";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,27 +18,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { AmcatIndex, AmcatIndexId, MenuRoute } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId } from "@/interfaces";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import {
-  Book,
-  ChevronDown,
-  DatabaseZap,
-  LayoutDashboard,
-  LibraryIcon,
-  Menu,
-  Settings,
-  User,
-  Users,
-  X,
-} from "lucide-react";
+import { CommandEmpty } from "cmdk";
+import { ChevronDown, DatabaseZap, LayoutDashboard, LibraryIcon, Settings, User, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import MenuRouting from "./MenuRouting";
-import useAmcatIndices from "@/api/indices";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
-import { CommandEmpty } from "cmdk";
-import { useAmcatConfig } from "@/api/config";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 

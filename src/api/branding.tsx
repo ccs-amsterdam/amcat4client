@@ -1,6 +1,6 @@
+import { amcatBrandingSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { amcatBrandingSchema } from "@/schemas";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { z } from "zod";
 

@@ -4,7 +4,7 @@ import {
   amcatPreprocessingInstructionStatus,
   amcatPreprocessingTask,
 } from "@/schemas";
-import { UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { toast } from "sonner";
 import { z } from "zod";

@@ -1,15 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
+import Link from "next/link";
 
-import { useHasGlobalRole } from "@/api/userDetails";
 import { useAmcatConfig } from "@/api/config";
+import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-import ReactMarkdown from "react-markdown";
 import { useAmcatBranding } from "@/api/branding";
 import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
 

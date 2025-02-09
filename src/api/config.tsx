@@ -1,6 +1,6 @@
+import { amcatConfigSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { amcatConfigSchema } from "@/schemas";
 import { useMiddlecat } from "middlecat-react";
 
 export function useAmcatConfig() {

@@ -1,6 +1,5 @@
-import { AmcatQuery, AmcatFilters, AmcatUserRole } from "@/interfaces";
+import { AmcatFilters, AmcatQuery, AmcatUserRole } from "@/interfaces";
 import { amcatUserRoles } from "@/schemas";
-import { useQuery } from "@tanstack/react-query";
 
 export function addFilter(q: AmcatQuery, filters: AmcatFilters): AmcatQuery {
   const currentQueries = q.queries ?? [];

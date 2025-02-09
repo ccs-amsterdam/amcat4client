@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import { AmcatUserRole, MenuRoute } from "@/interfaces";
-import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { roleAtLeast } from "@/api/util";
+import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
+import { AmcatUserRole, MenuRoute } from "@/interfaces";
 
 export default function MenuRouting({
   routes,

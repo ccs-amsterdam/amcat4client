@@ -1,9 +1,9 @@
+import { AmcatField, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
+import { amcatFieldSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
-import { z } from "zod";
-import { amcatFieldSchema } from "@/schemas";
-import { AmcatField, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { toast } from "sonner";
+import { z } from "zod";
 
 // TODO: make function, use types
 const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {

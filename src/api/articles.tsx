@@ -1,7 +1,4 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { amcatQueryResultSchema } from "@/schemas";
 import {
-  AmcatField,
   AmcatIndexId,
   AmcatQuery,
   AmcatQueryParams,
@@ -9,10 +6,12 @@ import {
   UpdateAmcatField,
   UploadOperation,
 } from "@/interfaces";
+import { amcatQueryResultSchema } from "@/schemas";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { useEffect } from "react";
-import { postQuery } from "./query";
 import { z } from "zod";
+import { postQuery } from "./query";
 
 export function useArticles(
   user: MiddlecatUser,

@@ -1,4 +1,4 @@
-import { AmcatQuery, AmcatIndexId, AmcatFilters, AmcatQueryParams, AggregationOptions } from "@/interfaces";
+import { AggregationOptions, AmcatFilters, AmcatIndexId, AmcatQuery, AmcatQueryParams } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 
 export interface PostAmcatQuery {

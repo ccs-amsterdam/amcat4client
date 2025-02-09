@@ -1,12 +1,10 @@
-import { absoluteUrl } from "@/lib/utils";
-import "./globals.css";
-import { Metadata } from "next";
-import Navbar from "@/components/Menu/Navbar";
-import Link from "next/link";
-import { Poppins, Roboto } from "next/font/google";
 import ClientProviders from "@/components/ClientProviders";
+import Navbar from "@/components/Menu/Navbar";
 import { Toaster } from "@/components/ui/sonner";
-import Script from "next/script";
+import { absoluteUrl } from "@/lib/utils";
+import { Metadata } from "next";
+import { Poppins } from "next/font/google";
+import "./globals.css";
 
 const font = Poppins({
   subsets: ["latin"],
