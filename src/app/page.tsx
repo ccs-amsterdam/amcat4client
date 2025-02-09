@@ -1,49 +1,26 @@
 "use client";
 
-import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 
 import { useAmcatConfig } from "@/api/config";
-import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 import { useAmcatBranding } from "@/api/branding";
+import { BrandingMenuSchema } from "@/schemas";
 import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
+import Markdown from "react-markdown";
 
 export default function Index() {
-  const { user, loading, signIn } = useMiddlecat();
-  const canCreate = useHasGlobalRole(user, "WRITER");
-  const { data: serverConfig } = useAmcatConfig();
-  const { data: serverBranding } = useAmcatBranding();
-  const router = useRouter();
-
-  if (loading || serverConfig == null || serverBranding == null || user == null) return <Loading />;
-
   return (
     <>
       <main className="flex-grow">
         <BigBanner />
         <FeatureCards />
         <ReadyBanner />
-        <div className="flex h-full flex-auto flex-col items-center   p-5">
-          {/*<ReactMarkdown>{serverBranding.welcome_text}</ReactMarkdown>*/}
-        </div>
         <SplashFooter />
       </main>
-    </>
-  );
-}
-
-function SplashNav() {
-  return (
-    <>
-      <nav className="border-b-[1px] border-foreground/30 bg-background text-foreground">
-        <div className="flex  h-16 items-center justify-between ">
-          <div className="flex h-full items-center">Splash</div>
-        </div>
-      </nav>
     </>
   );
 }
@@ -51,20 +28,21 @@ function SplashNav() {
 function BigBanner() {
   const { user, signIn } = useMiddlecat();
   const { data: serverConfig } = useAmcatConfig();
-  if (user == null || serverConfig == null) return null;
+  const { data: serverBranding } = useAmcatBranding();
+  if (user == null || serverConfig == null || serverBranding == null) return null;
   const router = useRouter();
 
+  const message_md =
+    serverBranding.welcome_text ??
+    "# Unlock the Power of Text Analysis\n\nAmCAT is an open-source platform for advanced content analysis and text mining. Discover insights from your textual data with ease.";
+  console.log(message_md);
   const require_login =
     serverConfig.authorization === "allow_authenticated_guests" ||
     serverConfig.authorization === "authorized_users_only";
   return (
     <section className="bg-primary/15 py-20">
-      <div className="container prose-xl mx-auto px-4 text-center dark:prose-invert ">
-        <h1 className="">Unlock the Power of Text Analysis</h1>
-        <p className="mx-auto mb-8 max-w-2xl text-xl text-foreground/70">
-          AmCAT is an open-source platform for advanced content analysis and text mining. Discover insights from your
-          textual data with ease.
-        </p>
+      <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">
+        <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
           {user.authenticated ? (
             <Button size="lg" onClick={() => router.push("/indices")}>
@@ -152,11 +130,25 @@ function ReadyBanner() {
     </section>
   );
 }
+
 function SplashFooter() {
+  const { data: serverBranding } = useAmcatBranding();
+  if (serverBranding == null) return null;
+  let links = null;
+  try {
+    links =
+      serverBranding.client_data?.information_links == null
+        ? null
+        : BrandingMenuSchema.parse(JSON.parse(serverBranding.client_data?.information_links));
+  } catch (error) {
+    console.log(error);
+  }
+  console.log(links);
+  const n_cols = 2 + (links == null ? 0 : links.length);
   return (
     <footer className="bg-gray-100 py-8">
       <div className="container mx-auto px-4">
-        <div className="grid gap-8 md:grid-cols-4">
+        <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
           <div>
             <h3 className="mb-2 font-semibold text-gray-900">AmCAT</h3>
             <p className="text-sm text-gray-600">Open-source text analysis software for researchers and analysts.</p>
@@ -165,57 +157,33 @@ function SplashFooter() {
             <h3 className="mb-2 font-semibold text-gray-900">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/docs" className="text-gray-600 hover:text-blue-600">
+                <Link href="https://amcat.nl/book/" className="text-gray-600 hover:text-blue-600">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="/tutorials" className="text-gray-600 hover:text-blue-600">
-                  Tutorials
-                </Link>
-              </li>
-              <li>
-                <Link href="/api" className="text-gray-600 hover:text-blue-600">
-                  API Reference
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Community</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/forum" className="text-gray-600 hover:text-blue-600">
-                  Forum
-                </Link>
-              </li>
-              <li>
-                <Link href="https://github.com/amcat/amcat" className="text-gray-600 hover:text-blue-600">
+                <Link href="https://github.com/ccs-amsterdam/amcat4" className="text-gray-600 hover:text-blue-600">
                   GitHub
                 </Link>
               </li>
-              <li>
-                <Link href="/contribute" className="text-gray-600 hover:text-blue-600">
-                  Contribute
-                </Link>
-              </li>
             </ul>
           </div>
-          <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/privacy" className="text-gray-600 hover:text-blue-600">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link href="/terms" className="text-gray-600 hover:text-blue-600">
-                  Terms of Service
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {links == null
+            ? null
+            : links.map((link, i) => (
+                <div key={i}>
+                  <h3 className="mb-2 font-semibold text-gray-900">{link.title}</h3>
+                  <ul className="space-y-2 text-sm">
+                    {link.links.map((item, j) => (
+                      <li key={j}>
+                        <Link href={item.href as string} className="text-gray-600 hover:text-blue-600">
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
         </div>
         <div className="mt-8 border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
           <p>&copy; {new Date().getFullYear()} AmCAT. All rights reserved.</p>

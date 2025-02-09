@@ -61,7 +61,7 @@ export default function AccountMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="min-w-[2.5rem] outline-none">
-        <UserIcon user={user} config={config} className="h-7 w-7  text-primary" />
+        <UserIcon user={user} config={config} className="h-8 w-8  text-primary" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="bottom" sideOffset={13} className="mr-2  border-[1px] border-foreground">
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
@@ -99,7 +99,7 @@ function UserIcon({
       <img
         src={user.image}
         alt="profile"
-        className="h-7 w-7 rounded-full shadow-sm shadow-foreground/50"
+        className="h-8 w-8 rounded-full border-2 border-primary"
         referrerPolicy="no-referrer"
       />
     );

@@ -12,7 +12,7 @@ import { Loading } from "../ui/loading";
 import UserRoleTable from "../Users/UserRoleTable";
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { amcatBrandingSchema } from "@/schemas";
+import { amcatBrandingSchema, BrandingMenuSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -30,7 +30,7 @@ export default function Index() {
       {" "}
       <Dialog>
         <DialogTrigger>
-          <Server className="h-7 w-7 text-primary hover:text-primary/70" />
+          <Server className="h-8 w-8 text-primary hover:text-primary/70" />
         </DialogTrigger>
         <DialogContent
           aria-describedby={undefined}
@@ -134,11 +134,30 @@ function ServerBrandingForm() {
   });
 
   function brandingFormSubmit(values: z.input<typeof amcatBrandingSchema>) {
+    // Validate the manual json input. Maybe there's a better way to do this?
+    if (values.client_data?.information_links != null) {
+      let links = null;
+      try {
+        links = JSON.parse(values.client_data.information_links);
+      } catch (error) {
+        brandingForm.setError("client_data.information_links", { type: "validation", message: error as string });
+        console.log(error);
+        return;
+      }
+      const r = BrandingMenuSchema.safeParse(links);
+      if (!r.success) {
+        console.error(r.error);
+        brandingForm.setError("client_data.information_links", { type: "validation", message: r.error.message });
+        return;
+      }
+    }
+
     mutateBranding.mutateAsync(values).catch(console.error);
   }
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
-
+  const errors = brandingForm.formState.errors;
+  console.log(errors);
   return (
     <Form {...brandingForm}>
       <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-2">
@@ -157,17 +176,17 @@ function ServerBrandingForm() {
         ></FormField>
         <FormField
           control={brandingForm.control}
-          name="welcome_text"
+          name="server_url"
           disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Welcome Text (Mardown)</FormLabel>
+              <FormLabel>External Project URL</FormLabel>
               <FormControl>
-                <Textarea {...field} value={field.value ?? ""} />
+                <Input {...field} value={field.value ?? ""} />
               </FormControl>
             </FormItem>
           )}
-        ></FormField>{" "}
+        ></FormField>
         <FormField
           control={brandingForm.control}
           name="server_icon"
@@ -181,8 +200,37 @@ function ServerBrandingForm() {
             </FormItem>
           )}
         ></FormField>
+        <FormField
+          control={brandingForm.control}
+          name="welcome_text"
+          disabled={!isAdmin}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Welcome Text (Mardown)</FormLabel>
+              <FormControl>
+                <Textarea placeholder="# Title and text using **MarkDown**" {...field} value={field.value ?? ""} />
+              </FormControl>
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={brandingForm.control}
+          name="client_data.information_links"
+          disabled={!isAdmin}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Additional Homepage Links </FormLabel>
+              <FormControl>
+                <Textarea {...field} value={field.value ?? ""} placeholder={LINKS_PLACEHOLDER} />
+              </FormControl>
+              <p>{errors.client_data?.information_links?.message}</p>
+            </FormItem>
+          )}
+        ></FormField>
         {!isAdmin ? null : <Button type="submit">Save changes</Button>}
       </form>
     </Form>
   );
 }
+
+const LINKS_PLACEHOLDER = '[{"title": "Menu title", "links": [{"href": "https://", "label": "label"}, ...]}, ...]';

@@ -5,10 +5,29 @@ export const amcatConfigSchema = z.object({
   authorization: z.enum(["allow_guests", "no_auth", "allow_authenticated_guests", "authorized_users_only"]),
   resource: z.string().url(),
 });
+
+export const BrandingMenuSchema = z.array(
+  z.object({
+    title: z.string(),
+    links: z.array(
+      z.object({
+        href: z.string(),
+        label: z.string(),
+      }),
+    ),
+  }),
+);
+
 export const amcatBrandingSchema = z.object({
   server_name: z.string().nullable(),
+  server_url: z.string().nullable(),
   server_icon: z.string().nullable(),
   welcome_text: z.string().nullable(),
+  client_data: z
+    .object({
+      information_links: z.string().nullable(),
+    })
+    .nullable(),
 });
 export const amcatUserRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
 export const amcatUserRoleSchema = z

@@ -43,19 +43,19 @@ export default function IndexMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           className={
-            "flex h-full select-none items-center border-primary bg-primary px-5 text-primary-foreground outline-none "
+            "flex h-full select-none items-center whitespace-nowrap border-primary bg-primary px-5 text-primary-foreground outline-none"
           }
         >
-          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap lg:block">
-            {index.name}{" "}
-          </div>
+          <LibraryIcon className="mr-2" />
+
+          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis lg:block">{index.name}</div>
           <ChevronDown className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
           <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuItem className="flex" onClick={() => router.push("/")}>
-                <X className="h-4 w-4" />
+                <X className="mr-2 h-4 w-4" />
                 <span className="">Close index</span>
               </DropdownMenuItem>
               <SelectIndex user={user} indexId={indexId} />
