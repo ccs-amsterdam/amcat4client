@@ -1,8 +1,8 @@
 import { AmcatIndexId, AmcatUserRole } from "@/interfaces";
-import { amcatIndexSchema, amcatUserRoles } from "@/schemas";
+import { amcatIndexSchema, amcatIndexUpdateSchema, amcatUserRoles } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
-import { toast } from "sonner";
+import { z } from "zod";
 import { useAmcatConfig } from "./config";
 
 export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
@@ -33,54 +33,52 @@ async function getIndex(user?: MiddlecatUser, indexId?: string) {
   const res = await user.api.get(`/index/${indexId}`);
   return amcatIndexSchema.parse(res.data);
 }
-interface MutateIndexParams {
-  id: AmcatIndexId;
-  action: "create" | "delete" | "update" | "archive" | "unarchive";
-  name?: string;
-  description?: string;
-  summary_field?: string;
-  guest_role?: AmcatUserRole;
-  archive?: boolean;
+
+export function useCreateIndex(user: MiddlecatUser | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (value: z.input<typeof amcatIndexSchema>) => {
+      if (!user) throw new Error("Not logged in");
+      return createIndex(user, value);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["indices", user] });
+      return variables.id;
+    },
+  });
+}
+
+export async function createIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexSchema>) {
+  if (!user) throw new Error("Not logged in");
+  if (value.guest_role === "NONE") value.guest_role = undefined;
+  return await user.api.post(`index`, value);
 }
 
 export function useMutateIndex(user: MiddlecatUser | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, name, description, summary_field, guest_role, archive, action }: MutateIndexParams) => {
+    mutationFn: (value: z.input<typeof amcatIndexUpdateSchema>) => {
       if (!user) throw new Error("Not logged in");
-      return mutateIndex(user, id, action, name, description, summary_field, guest_role, archive);
+      return mutateIndex(user, value);
     },
     onSuccess: (_, variables) => {
       const indexId = variables.id;
       queryClient.invalidateQueries({ queryKey: ["index", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["indices", user] });
-
-      if (variables.action === "create") toast.success(`Created index ${variables.id}`);
-      if (variables.action === "update") toast.success(`Updated index ${variables.id}`);
-      if (variables.action === "delete") toast.success(`Deleted index ${variables.id}`);
-
       return variables.id;
     },
   });
 }
 
-export async function mutateIndex(
-  user: MiddlecatUser | undefined,
-  id: AmcatIndexId,
-  action: "create" | "delete" | "update" | "archive" | "unarchive",
-  name?: string,
-  description?: string,
-  summary_field?: string,
-  guest_role?: AmcatUserRole,
-  archive?: boolean,
-) {
+export async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexUpdateSchema>) {
   if (!user) throw new Error("Not logged in");
-  if (action === "delete") {
+  /*if (action === "delete") {
     return await user.api.delete(`index/${id}`);
   } else if (action === "create") {
     return await user.api.post(`index`, { id, name, description, summary_field, guest_role, archive });
   } else if (action === "update") {
-    return await user.api.put(`index/${id}`, { name, description, summary_field, guest_role, archive });
-  }
+   */
+  console.log(value);
+  return await user.api.put(`index/${value.id}`, value);
 }

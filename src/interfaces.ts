@@ -1,40 +1,39 @@
-import { Axios } from "axios";
 import { ReactNode } from "react";
 import { z } from "zod";
 import {
-  amcatConfigSchema,
-  amcatUserRoleSchema,
-  amcatIndexSchema,
-  amcatIndicesSchema,
-  amcatUserDetailsSchema,
-  amcatFieldTypeSchema,
-  amcatFieldSchema,
+  amcatAggregateDataPointSchema,
+  amcatAggregateDataSchema,
+  amcatAggregationAxisSchema,
+  amcatAggregationIntervalSchema,
+  amcatAggregationMetricSchema,
   amcatArticleSchema,
+  amcatClientSettingsSchema,
+  amcatConfigSchema,
+  amcatElasticFieldTypeSchema,
+  amcatFieldSchema,
+  amcatFieldStatsSchema,
+  amcatFieldTypeSchema,
+  amcatFieldValuesSchema,
+  amcatIndexSchema,
+  amcatIndexUpdateSchema,
+  amcatMetareaderAccessSchema,
+  amcatMetricFunctionSchema,
+  amcatMultimediaListItem,
+  amcatMultimediaPresignedPost,
+  amcatPreprocessingInstruction,
+  amcatPreprocessingInstructionStatus,
+  amcatPreprocessingTask,
   amcatQueryResultMetaSchema,
   amcatQueryResultSchema,
-  amcatFieldValuesSchema,
-  amcatFieldStatsSchema,
-  amcatClientSettingsSchema,
-  amcatMetareaderAccessSchema,
   amcatSnippetSchema,
-  amcatElasticFieldTypeSchema,
-  amcatAggregationIntervalSchema,
-  amcatMetricFunctionSchema,
-  amcatAggregateDataPointSchema,
-  amcatAggregationAxisSchema,
-  amcatAggregationMetricSchema,
-  amcatAggregateDataSchema,
-  amcatMultimediaPresignedPost,
-  amcatMultimediaListItem,
-  amcatPreprocessingInstruction,
-  amcatPreprocessingTask,
-  amcatPreprocessingInstructionStatus,
+  amcatUserDetailsSchema,
+  amcatUserRoleSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
 export type AmcatUserRole = z.infer<typeof amcatUserRoleSchema>;
 export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
-export type AmcatIndices = z.infer<typeof amcatIndicesSchema>;
+export type amcatIndexUpdate = z.infer<typeof amcatIndexUpdateSchema>;
 export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
 export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
 export type AmcatElasticFieldType = z.infer<typeof amcatElasticFieldTypeSchema>;

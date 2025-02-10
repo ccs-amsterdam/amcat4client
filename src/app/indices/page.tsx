@@ -23,7 +23,7 @@ export default function Index() {
 
   return (
     <div className="prose-xl w-full  max-w-7xl animate-fade-in px-4 dark:prose-invert">
-      <div className=" flex h-10 justify-end">{canCreate ? <CreateIndex /> : null}</div>
+      <div className="flex h-10">{canCreate ? <CreateIndex /> : null}</div>
       <div className="mt-[10vh]">
         <SelectIndex />
       </div>

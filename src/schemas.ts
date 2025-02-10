@@ -38,19 +38,17 @@ export const amcatUserRoleSchema = z
 export const amcatIndexSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string(),
+  description: z.string().nullish(),
   guest_role: amcatUserRoleSchema,
   user_role: amcatUserRoleSchema,
-  archived: z.string().nullable(),
+  archived: z.string().nullish(),
+  image_url: z.string().nullish(),
+  folder: z.string().nullish(),
 });
 
-export const amcatIndicesItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  guest_role: amcatUserRoleSchema,
-  archived: z.string().nullable(),
+export const amcatIndexUpdateSchema = amcatIndexSchema.partial().required({ id: true }).extend({
+  archived: z.boolean().optional(),
 });
-export const amcatIndicesSchema = z.array(amcatIndicesItemSchema);
 
 export const amcatUserDetailsSchema = z.object({
   email: z.string(),
@@ -130,9 +128,9 @@ export const amcatFieldValuesSchema = z.array(z.string());
 export const amcatFieldStatsSchema = z
   .object({
     count: z.number(),
-    min: z.number(),
-    max: z.number(),
-    avg: z.number(),
+    min: z.number().nullable(),
+    max: z.number().nullable(),
+    avg: z.number().nullable(),
     sum: z.number(),
     min_as_string: z.string().nullish(),
     max_as_string: z.string().nullish(),

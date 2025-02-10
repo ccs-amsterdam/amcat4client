@@ -3,29 +3,65 @@
 import useAmcatIndices from "@/api/indices";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
-import { AmcatIndices } from "@/interfaces";
+import { AmcatIndex } from "@/interfaces";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { ArrowLeft, ArrowRight, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Trash2 } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
 import { Tooltip, TooltipContent } from "../ui/tooltip";
 
 const PAGESIZE = 16;
 
+interface Folder {
+  folders: Map<string, Folder>;
+  indices: AmcatIndex[];
+}
+
+function get_root(indices: AmcatIndex[] | undefined, path: string[]): Folder | undefined {
+  if (indices == null) return undefined;
+  const root: Folder = { folders: new Map(), indices: [] };
+  function get_folder(parent: Folder, children: string[]) {
+    const head = children.shift();
+    if (head == null) return parent;
+    let f = parent.folders.get(head);
+    if (f == null) {
+      f = { folders: new Map(), indices: [] };
+      parent.folders.set(head, f);
+    }
+    return get_folder(f, children);
+  }
+  indices.forEach((ix) => get_folder(root, ix.folder ? ix.folder.split("/") : []).indices.push(ix));
+
+  let result: Folder | undefined = root;
+  path
+    .filter((f) => f)
+    .forEach((f) => {
+      result = result?.folders.get(f);
+    });
+  if (result == null) console.error(`Cannot find folder ${path}`);
+  return result;
+}
+
 export function SelectIndex() {
   const router = useRouter();
+  const params = useSearchParams();
+  const pathname = usePathname();
   const { user, loading } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const [indices, setIndices] = useState<AmcatIndices | undefined>(undefined);
+  const [indices, setIndices] = useState<AmcatIndex[] | undefined>(undefined);
   const [archived, setArchived] = useState(false);
 
-  const nPages = Math.ceil((indices?.length || 1) / PAGESIZE);
+  const currentPath = (params?.get("folder") ?? "").split("/").filter((x) => x);
+  const folder = get_root(indices, currentPath);
+
+  const nPages = Math.ceil((folder?.indices.length || 1) / PAGESIZE);
   const offset = page * PAGESIZE;
-  const pageIndices = indices?.slice(offset, offset + PAGESIZE);
+  const pageIndices = folder?.indices.slice(offset, offset + PAGESIZE);
 
   useEffect(() => {
     if (!allIndices) return;
@@ -57,6 +93,12 @@ export function SelectIndex() {
   function prevPage() {
     setPage((page) => Math.max(page - 1, 0));
   }
+  function toSubfolder(subfolder: string) {
+    const newParams = new URLSearchParams(params ?? undefined);
+    currentPath.push(subfolder);
+    newParams.set("folder", currentPath.join("/"));
+    router.push(`${pathname}?${newParams?.toString()}`);
+  }
 
   if (loading || loadingIndices)
     return (
@@ -65,7 +107,8 @@ export function SelectIndex() {
       </div>
     );
   if (indices === undefined) return null;
-
+  const subfolders = [...(folder?.folders.keys() ?? [])];
+  console.log(subfolders);
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
@@ -107,6 +150,22 @@ export function SelectIndex() {
             </TooltipContent>
           </Tooltip>
         </div>
+      </div>
+      <div>
+        <Link href="?folder=">My indices</Link>
+        {currentPath.map((folder, ix) => (
+          <>
+            <ChevronRight className="inline text-sm text-foreground/60" />
+            <Link href={`?folder=${currentPath.slice(0, ix + 1).join("/")}`}>{folder}</Link>
+          </>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-2 py-2 sm:grid-cols-2 lg:grid-cols-4">
+        {subfolders.map((folder) => (
+          <Button className="bg-secondary hover:bg-secondary/60" key={folder} onClick={() => toSubfolder(folder)}>
+            {folder}/
+          </Button>
+        ))}
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
         {pageIndices?.map((index) => {

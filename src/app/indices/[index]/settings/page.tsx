@@ -1,34 +1,27 @@
 "use client";
 
+import { useAmcatConfig } from "@/api/config";
 import { useIndex, useMutateIndex } from "@/api/index";
-import { ErrorMsg } from "@/components/ui/error-message";
-import { Loading } from "@/components/ui/loading";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { AmcatIndex, AmcatUserRole } from "@/interfaces";
-import { useEffect, useState } from "react";
-import { UpdateIndex } from "@/components/Index/UpdateIndex";
-import FieldTable from "@/components/Fields/FieldTable";
-import { useFields, useMutateFields } from "@/api/fields";
 import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
+import { UpdateIndex } from "@/components/Index/UpdateIndex";
 import UserRoleTable from "@/components/Users/UserRoleTable";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { Edit, Trash2 } from "lucide-react";
-import { parseAsStringEnum, useQueryState } from "next-usequerystate";
-import Upload from "@/components/Upload/Upload";
-import { Dialog } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { set } from "date-fns";
-import { useAmcatConfig } from "@/api/config";
-import Multimedia from "@/components/Multimedia/Multimedia";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Preprocessing from "@/components/Preprocessing/Preprocessing";
+import { ErrorMsg } from "@/components/ui/error-message";
+import { Loading } from "@/components/ui/loading";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AmcatIndex, AmcatUserRole } from "@/interfaces";
+import { TabsContent } from "@radix-ui/react-tabs";
+import { Edit, Trash2 } from "lucide-react";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { parseAsStringEnum, useQueryState } from "next-usequerystate";
+import { useState } from "react";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -102,7 +95,7 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
                 <Button
                   onClick={() => {
                     if (mutate) {
-                      mutate({ id: index.id, action: "update", archive: !index.archived });
+                      mutate({ id: index.id, archived: !index.archived });
                     }
                     setArchiveOpen(false);
                   }}
@@ -119,13 +112,19 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
             </UpdateIndex>
           </div>
         </div>
-        <p className=" mt-0 break-all text-[clamp(0.8rem,3.5vw,1.4rem)]">{index.description}</p>
+        <p className=" mt-0 break-all text-[clamp(0.8rem,3.5vw,1.4rem)]">
+          {index.description || <i className="text-sm text-foreground/60">(No description)</i>}
+        </p>
       </div>
       <div className="grid grid-cols-[auto,1fr] gap-x-5 text-lg   ">
         <div className="font-bold">Guest role</div>
         <div className="text-primary">{index.guest_role}</div>
         <div className="font-bold">Own role</div>
         <div className=" text-primary">{index.user_role}</div>
+        <div className="font-bold">Folder</div>
+        <div className=" text-primary">{index.folder}</div>
+        <div className="font-bold">Image</div>
+        <div className=" text-primary">{index.image_url}</div>
       </div>
       <div className={`${index.archived ? "" : "hidden"}`}>
         <p className="w-max rounded border border-destructive p-2 text-destructive">
@@ -173,7 +172,7 @@ function Users({ index }: { index: AmcatIndex }) {
                 <DropdownMenuItem
                   key={role}
                   onClick={() => {
-                    mutateIndex({ id: index.id, guest_role: role as AmcatUserRole, action: "update" });
+                    mutateIndex({ id: index.id, guest_role: role as AmcatUserRole });
                   }}
                 >
                   {role}

@@ -1,18 +1,19 @@
 "use client";
 
-import { useMiddlecat } from "middlecat-react";
+import { useCreateIndex } from "@/api";
 import { Button } from "@/components/ui/button";
-import { useMutateIndex } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { amcatIndexSchema } from "@/schemas";
+import { useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function CreateIndex() {
   const router = useRouter();
   const { user } = useMiddlecat();
-  const { mutateAsync } = useMutateIndex(user);
+  const { mutateAsync: createIndexAsync } = useCreateIndex(user);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [id, setId] = useState("");
@@ -29,7 +30,7 @@ export function CreateIndex() {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    mutateAsync({ id, name, description, action: "create" })
+    createIndexAsync(amcatIndexSchema.parse({ id, name, description }))
       .then(() => router.push(`/indices/${id}/data?tab=upload`))
       .catch(console.error);
   }
@@ -39,7 +40,7 @@ export function CreateIndex() {
       <DialogTrigger asChild className="min-w-[12rem] text-lg">
         <Button variant="outline">Create Index</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Create Index</DialogTitle>
         </DialogHeader>

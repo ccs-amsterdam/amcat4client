@@ -1,104 +1,98 @@
 "use client";
 
-import { useMiddlecat } from "middlecat-react";
-import { Button } from "@/components/ui/button";
 import { useMutateIndex } from "@/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Edit } from "lucide-react";
-import { AmcatIndex, AmcatUserRole } from "@/interfaces";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Checkbox } from "../ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { AmcatIndex } from "@/interfaces";
+import { amcatIndexUpdateSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMiddlecat } from "middlecat-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
   const { user } = useMiddlecat();
-  const { mutate } = useMutateIndex(user);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [guestRole, setGuestRole] = useState<AmcatUserRole>("METAREADER");
+  const { mutateAsync } = useMutateIndex(user);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!index) return;
-    setName(index.name);
-    setDescription(index.description);
-    setGuestRole(index.guest_role);
-  }, [index]);
-
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    mutate({ id: index.id, name, description, guest_role: guestRole, action: "update" });
-    setOpen(false);
-  }
-  async function onArchive(archive: boolean) {
-    mutate({ id: index.id, archive, action: "update" });
-  }
-
+  const form = useForm<z.input<typeof amcatIndexUpdateSchema>>({
+    resolver: zodResolver(amcatIndexUpdateSchema),
+    defaultValues: { ...index, archived: undefined },
+  });
   if (!index) return null;
 
+  function onSubmit(values: z.input<typeof amcatIndexUpdateSchema>) {
+    console.log(values);
+    mutateAsync(amcatIndexUpdateSchema.parse(values)).then(() => setOpen(false));
+  }
+  console.log(form.formState.errors);
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild className="text-lg">
         {children}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Edit Index</DialogTitle>
         </DialogHeader>
-        <form className="flex flex-col gap-3" onSubmit={onSubmit}>
-          <div>
-            <label htmlFor="name">Name</label>
-            <Input
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-              }}
-              id="name"
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
               name="name"
-              autoComplete="off"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="description">Description</label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              id="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Server Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </FormItem>
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
               name="description"
-            />
-          </div>
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </FormItem>
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="folder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Folder</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </FormItem>
+              )}
+            ></FormField>
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link to Image</FormLabel>
+                  <FormControl>
+                    <Input {...field} value={field.value ?? ""} />
+                  </FormControl>
+                </FormItem>
+              )}
+            ></FormField>
 
-          <div className="flex flex-col">
-            <label>Guest role</label>
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className="flex gap-3">
-                  <div>{guestRole}</div>
-                  <Edit className="h-5 w-5" />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <div className="flex flex-col gap-2">
-                  {["NONE", "METAREADER", "READER", "WRITER"].map((role) => (
-                    <DropdownMenuItem
-                      key={role}
-                      onClick={() => {
-                        setGuestRole(role as AmcatUserRole);
-                      }}
-                    >
-                      {role}
-                    </DropdownMenuItem>
-                  ))}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <Button className="mt-2 w-full">Update</Button>
-        </form>
+            <Button type="submit">Update Index Settings</Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
