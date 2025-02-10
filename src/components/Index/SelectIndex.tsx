@@ -2,15 +2,17 @@
 
 import useAmcatIndices from "@/api/indices";
 import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { ArrowLeft, ArrowRight, ChevronRight, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Folder, Grid, List, Trash2 } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Input } from "../ui/input";
+import { Toggle } from "../ui/toggle";
 import { Tooltip, TooltipContent } from "../ui/tooltip";
 
 const PAGESIZE = 16;
@@ -52,6 +54,7 @@ export function SelectIndex() {
   const { user, loading } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
   const [search, setSearch] = useState("");
+  const [isListView, setIsListView] = useState(false);
   const [page, setPage] = useState(0);
   const [indices, setIndices] = useState<AmcatIndex[] | undefined>(undefined);
   const [archived, setArchived] = useState(false);
@@ -83,8 +86,8 @@ export function SelectIndex() {
     if (page >= nPages) setPage(nPages - 1);
   }, [nPages]);
 
-  function onSelectIndex(indexId: string) {
-    router.push(`/indices/${indexId}/dashboard`);
+  function onSelectIndex(index: AmcatIndex) {
+    router.push(`/indices/${index.id}/dashboard`);
   }
 
   function nextPage() {
@@ -112,9 +115,16 @@ export function SelectIndex() {
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="m-0">
-          {allIndices?.length ? "Select an Index" : "This server does not have any indices you can view"}
-        </h2>
+        <h3 className="m-0">
+          <Link href="?folder=">My indices</Link>
+          {currentPath.map((folder, ix) => (
+            <>
+              <ChevronRight className="inline text-sm text-foreground/60" />
+              <Link href={`?folder=${currentPath.slice(0, ix + 1).join("/")}`}>{folder}</Link>
+            </>
+          ))}
+          {/*allIndices?.length ? "Select an Index" : "This server does not have any indices you can view"*/}
+        </h3>
         <div className={` Pagination flex items-center gap-3 ${allIndices?.length ? "" : "hidden"} `}>
           <div className="flex">
             <Button variant="ghost" onClick={prevPage} disabled={page === 0} className="px-2 disabled:opacity-50">
@@ -148,45 +158,90 @@ export function SelectIndex() {
             <TooltipContent>
               <span>Show archived projects</span>
             </TooltipContent>
+            <Toggle pressed={isListView} onPressedChange={setIsListView} className="text-xs" variant="outline">
+              {isListView ? <List className="mr-1 h-3 w-3" /> : <Grid className="mr-1 h-3 w-3" />}
+              {isListView ? "List" : "Grid"}
+            </Toggle>
           </Tooltip>
         </div>
       </div>
-      <div>
-        <Link href="?folder=">My indices</Link>
-        {currentPath.map((folder, ix) => (
-          <>
-            <ChevronRight className="inline text-sm text-foreground/60" />
-            <Link href={`?folder=${currentPath.slice(0, ix + 1).join("/")}`}>{folder}</Link>
-          </>
-        ))}
-      </div>
-      <div className="grid grid-cols-1 gap-2 py-2 sm:grid-cols-2 lg:grid-cols-4">
+      <div></div>
+      {/* Folders */}
+      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {subfolders.map((folder) => (
-          <Button className="bg-secondary hover:bg-secondary/60" key={folder} onClick={() => toSubfolder(folder)}>
-            {folder}/
-          </Button>
+          <ProjectFolder key={folder} folder={folder} onClick={toSubfolder} />
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        {pageIndices?.map((index) => {
-          // if (index.archived) return null;
-          return (
-            <Button
-              variant={index.archived ? "secondary" : "default"}
-              className="flex h-full w-full flex-col items-start text-left"
-              key={index.id}
-              onClick={() => onSelectIndex(index.id)}
-            >
-              <div className=" w-full overflow-hidden text-ellipsis whitespace-nowrap   text-lg font-semibold">
-                {index.name}
-              </div>
-              <div className=" w-full overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm">
-                {index.id}
-              </div>
-            </Button>
-          );
-        })}
+      {/* Projects */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        {pageIndices?.map((index) => <IndexCard key={index.id} index={index} />)}
       </div>
     </div>
   );
 }
+
+const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: (folder: string) => void }) => (
+  <Card className="cursor-pointer bg-secondary transition-colors hover:bg-secondary/75" onClick={() => onClick(folder)}>
+    <CardHeader className="flex flex-row items-center gap-2 px-3 py-2">
+      <Folder className="h-4 w-4" />
+      <CardTitle className="text-sm">{folder}</CardTitle>
+    </CardHeader>
+  </Card>
+);
+
+const IndexCard = ({ index }: { index: AmcatIndex }) => {
+  const style = index.image_url
+    ? {
+        backgroundImage: `url('${index.image_url}')`,
+        backgroundRepeat: "no-repeat",
+        backgroundPositionX: "center",
+        backgroundSize: "cover",
+        backgroundPositionY: "center",
+      }
+    : {};
+
+  console.log(style);
+  return (
+    <Link href={`/indices/${index.id}/dashboard`}>
+      <Card style={style} className="h-40 overflow-hidden bg-primary/50">
+        <CardHeader className="bg-background/70 p-3">
+          <CardTitle className=" text-base">{index.name}</CardTitle>
+          {index.description && (
+            <CardDescription className="line-clamp-2 h-8 text-xs">{index.description}</CardDescription>
+          )}
+        </CardHeader>
+
+        {/*project.externalUrl && (
+      <CardFooter className="p-2">
+        <Button variant="outline" size="sm" asChild className="w-full text-xs">
+          <a href={project.externalUrl} target="_blank" rel="noopener noreferrer">
+            <ExternalLink className="mr-1 h-3 w-3" />
+            Visit
+          </a>
+        </Button>
+      </CardFooter>
+    )*/}
+      </Card>
+    </Link>
+  );
+};
+
+const ProjectList = ({ projects }: { projects: AmcatIndex[] }) => (
+  <div className="space-y-1">
+    {projects.map((project) => (
+      <div key={project.id} className="flex items-center justify-between rounded-md p-1 text-sm hover:bg-accent">
+        <span>{project.name}</span>
+        {/*project.externalUrl && (
+          <a
+            href={project.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        )*/}
+      </div>
+    ))}
+  </div>
+);
