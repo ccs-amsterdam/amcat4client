@@ -1,11 +1,11 @@
-import { useFieldValues } from "@/api/fieldValues";
-import { AmcatField, AmcatFilter, AmcatIndexId, DateFilter } from "@/interfaces";
-import { Checkbox } from "@/components/ui/checkbox";
-import DatePicker from "./DatePicker";
-import { MiddlecatUser } from "middlecat-react";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { useFieldStats } from "@/api/fieldStats";
+import { useFieldValues } from "@/api/fieldValues";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AmcatField, AmcatFilter, AmcatIndexId, DateFilter } from "@/interfaces";
+import { MiddlecatUser } from "middlecat-react";
+import { useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
+import DatePicker from "./DatePicker";
 
 interface FilterPopupProps {
   user: MiddlecatUser;
@@ -63,8 +63,8 @@ export function NumberRangePopup({ user, indexId, field, value, onChange }: Filt
           <label>from</label>
           <Input
             type="number"
-            min={fieldStats.min}
-            value={Number(value.gte) || fieldStats.min}
+            min={fieldStats.min ?? undefined}
+            value={Number(value.gte) || (fieldStats.min ?? undefined)}
             onChange={(e) => onChange({ gte: String(e.target.value), lte: value.lte })}
           />
         </div>
@@ -72,8 +72,8 @@ export function NumberRangePopup({ user, indexId, field, value, onChange }: Filt
           <label>to</label>
           <Input
             type="number"
-            max={fieldStats.max || fieldStats.max}
-            value={Number(value.lte) || fieldStats.max}
+            max={fieldStats.max ?? undefined}
+            value={Number(value.lte) || (fieldStats.max ?? undefined)}
             onChange={(e) => onChange({ gte: value.gte, lte: String(e.target.value) })}
           />
         </div>
@@ -163,10 +163,10 @@ export function DateRangePopup({ user, indexId, field, value, onChange }: Filter
   const from = value.gte ? new Date(value.gte) : undefined;
   const to = value.lte ? new Date(value.lte) : undefined;
 
-  const fromMin = new Date(fieldStats.min);
-  const fromMax = to || new Date(fieldStats.max);
-  const toMin = from || new Date(fieldStats.min);
-  const toMax = new Date(fieldStats.max);
+  const fromMin = fieldStats.min == null ? undefined : new Date(fieldStats.min);
+  const fromMax = to || (fieldStats.max == null ? undefined : new Date(fieldStats.max));
+  const toMin = from || (fieldStats.min == null ? undefined : new Date(fieldStats.min));
+  const toMax = fieldStats.max == null ? undefined : new Date(fieldStats.max);
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
