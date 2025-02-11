@@ -12,11 +12,11 @@ import { Loading } from "../ui/loading";
 import UserRoleTable from "../Users/UserRoleTable";
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { amcatBrandingSchema, BrandingMenuSchema } from "@/schemas";
+import { amcatBrandingSchema, BrandingMenuSchema, LinkArraySchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z, ZodSchema } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -121,6 +121,21 @@ function ServerSettings() {
   );
 }
 
+function getJSONSchemaErrors<T extends ZodSchema>(input: string | null | undefined, schema: T): string | null {
+  if (input == null) return null;
+  let d;
+  try {
+    d = JSON.parse(input);
+  } catch (error) {
+    return error as string;
+  }
+  const r = schema.safeParse(d);
+  if (!r.success) {
+    return r.error.message;
+  }
+  return null;
+}
+
 function ServerBrandingForm() {
   const { user, loading } = useMiddlecat();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
@@ -134,30 +149,23 @@ function ServerBrandingForm() {
   });
 
   function brandingFormSubmit(values: z.input<typeof amcatBrandingSchema>) {
-    // Validate the manual json input. Maybe there's a better way to do this?
-    if (values.client_data?.information_links != null) {
-      let links = null;
-      try {
-        links = JSON.parse(values.client_data.information_links);
-      } catch (error) {
-        brandingForm.setError("client_data.information_links", { type: "validation", message: error as string });
-        console.log(error);
-        return;
-      }
-      const r = BrandingMenuSchema.safeParse(links);
-      if (!r.success) {
-        console.error(r.error);
-        brandingForm.setError("client_data.information_links", { type: "validation", message: r.error.message });
-        return;
-      }
+    let errors;
+    if ((errors = getJSONSchemaErrors(values.client_data?.information_links, BrandingMenuSchema))) {
+      brandingForm.setError("client_data.information_links", { type: "validation", message: errors });
+      console.log(errors);
+      return;
     }
 
+    if ((errors = getJSONSchemaErrors(values.client_data?.welcome_buttons, LinkArraySchema))) {
+      brandingForm.setError("client_data.welcome_buttons", { type: "validation", message: errors });
+      console.log(errors);
+      return;
+    }
     mutateBranding.mutateAsync(values).catch(console.error);
   }
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
   const errors = brandingForm.formState.errors;
-  console.log(errors);
   return (
     <Form {...brandingForm}>
       <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-2">
@@ -215,6 +223,20 @@ function ServerBrandingForm() {
         ></FormField>
         <FormField
           control={brandingForm.control}
+          name="client_data.welcome_buttons"
+          disabled={!isAdmin}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Action Buttons below Welcome Text </FormLabel>
+              <FormControl>
+                <Textarea {...field} value={field.value ?? ""} placeholder={LINKS_PLACEHOLDER} />
+              </FormControl>
+              <p>{errors.client_data?.welcome_buttons?.message?.toString()}</p>
+            </FormItem>
+          )}
+        ></FormField>
+        <FormField
+          control={brandingForm.control}
           name="client_data.information_links"
           disabled={!isAdmin}
           render={({ field }) => (
@@ -223,7 +245,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Textarea {...field} value={field.value ?? ""} placeholder={LINKS_PLACEHOLDER} />
               </FormControl>
-              <p>{errors.client_data?.information_links?.message}</p>
+              <p>{errors.client_data?.information_links?.message?.toString()}</p>
             </FormItem>
           )}
         ></FormField>
@@ -233,4 +255,5 @@ function ServerBrandingForm() {
   );
 }
 
-const LINKS_PLACEHOLDER = '[{"title": "Menu title", "links": [{"href": "https://", "label": "label"}, ...]}, ...]';
+const LINKARRAY_PLACEHOLDER = '[{"href": "https://", "label": "label"}, ...]';
+const LINKS_PLACEHOLDER = `[{"title": "Menu title", "links": ${LINKARRAY_PLACEHOLDER}}]`;

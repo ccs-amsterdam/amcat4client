@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 import { useAmcatBranding } from "@/api/branding";
-import { BrandingMenuSchema } from "@/schemas";
+import { BrandingMenuSchema, LinkArraySchema } from "@/schemas";
 import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
 import Markdown from "react-markdown";
+import { z, ZodSchema } from "zod";
 
 export default function Index() {
   return (
@@ -29,13 +30,14 @@ function BigBanner() {
   const { user, signIn } = useMiddlecat();
   const { data: serverConfig } = useAmcatConfig();
   const { data: serverBranding } = useAmcatBranding();
-  if (user == null || serverConfig == null || serverBranding == null) return null;
   const router = useRouter();
+  if (user == null || serverConfig == null || serverBranding == null) return null;
+
+  const actions = safeParseJsonSchema(serverBranding.client_data?.welcome_buttons, LinkArraySchema);
 
   const message_md =
     serverBranding.welcome_text ??
     "# Unlock the Power of Text Analysis\n\nAmCAT is an open-source platform for advanced content analysis and text mining. Discover insights from your textual data with ease.";
-  console.log(message_md);
   const require_login =
     serverConfig.authorization === "allow_authenticated_guests" ||
     serverConfig.authorization === "authorized_users_only";
@@ -45,10 +47,12 @@ function BigBanner() {
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
           {user.authenticated ? (
-            <Button size="lg" onClick={() => router.push("/indices")}>
-              Enter Server
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Link href="/indices">
+              <Button size="lg">
+                Enter Server
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           ) : (
             <>
               <Button size="lg" onClick={() => signIn()}>
@@ -57,16 +61,22 @@ function BigBanner() {
               </Button>
               &nbsp;
               {require_login ? null : (
-                <Button size="lg" onClick={() => router.push("/indices")}>
-                  Continue as Guest
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <Link href="/indices">
+                  <Button size="lg">
+                    Continue as Guest
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
               )}
             </>
           )}
-          <Button size="lg" variant="outline">
-            Learn More
-          </Button>
+          {(actions ?? []).map((action, i) => (
+            <Link href={action.href}>
+              <Button key={i} size="lg" variant="outline">
+                {action.label}
+              </Button>
+            </Link>
+          ))}
         </div>
       </div>
     </section>
@@ -131,19 +141,22 @@ function ReadyBanner() {
   );
 }
 
+function safeParseJsonSchema<T extends ZodSchema>(
+  input: string | null | undefined,
+  schema: T,
+): z.output<T> | undefined {
+  try {
+    return input == null ? null : schema.parse(JSON.parse(input));
+  } catch (error) {
+    console.log(error);
+    return undefined;
+  }
+}
+
 function SplashFooter() {
   const { data: serverBranding } = useAmcatBranding();
   if (serverBranding == null) return null;
-  let links = null;
-  try {
-    links =
-      serverBranding.client_data?.information_links == null
-        ? null
-        : BrandingMenuSchema.parse(JSON.parse(serverBranding.client_data?.information_links));
-  } catch (error) {
-    console.log(error);
-  }
-  console.log(links);
+  const links = safeParseJsonSchema(serverBranding.client_data?.information_links, BrandingMenuSchema);
   const n_cols = 2 + (links == null ? 0 : links.length);
   return (
     <footer className="bg-gray-100 py-8">

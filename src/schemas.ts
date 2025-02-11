@@ -6,28 +6,31 @@ export const amcatConfigSchema = z.object({
   resource: z.string().url(),
 });
 
+export const LinkArraySchema = z.array(
+  z.object({
+    href: z.string(),
+    label: z.string(),
+  }),
+);
+
 export const BrandingMenuSchema = z.array(
   z.object({
     title: z.string(),
-    links: z.array(
-      z.object({
-        href: z.string(),
-        label: z.string(),
-      }),
-    ),
+    links: LinkArraySchema,
   }),
 );
 
 export const amcatBrandingSchema = z.object({
-  server_name: z.string().nullable(),
-  server_url: z.string().nullable(),
-  server_icon: z.string().nullable(),
-  welcome_text: z.string().nullable(),
+  server_name: z.string().nullish(),
+  server_url: z.string().nullish(),
+  server_icon: z.string().nullish(),
+  welcome_text: z.string().nullish(),
   client_data: z
     .object({
-      information_links: z.string().nullable(),
+      information_links: z.string().nullish(),
+      welcome_buttons: z.string().nullish(),
     })
-    .nullable(),
+    .nullish(),
 });
 export const amcatUserRoles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"] as const;
 export const amcatUserRoleSchema = z
