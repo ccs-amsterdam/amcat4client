@@ -54,7 +54,10 @@ export default function IndexMenu() {
         <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
           <DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuItem className="flex" onClick={() => router.push("/")}>
+              <DropdownMenuItem
+                className="flex"
+                onClick={() => router.push(`/indices${!index.folder ? "" : "?folder=" + index.folder}`)}
+              >
                 <X className="mr-2 h-4 w-4" />
                 <span className="">Close index</span>
               </DropdownMenuItem>

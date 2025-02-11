@@ -63,6 +63,7 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
       return mutateIndex(user, value);
     },
     onSuccess: (_, variables) => {
+      console.log("Mutated!");
       const indexId = variables.id;
       queryClient.invalidateQueries({ queryKey: ["index", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["indices", user] });

@@ -1,21 +1,40 @@
 "use client";
 
+import { useMutateIndex } from "@/api";
 import useAmcatIndices from "@/api/indices";
+import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
-import { ArrowLeft, ArrowRight, ChevronRight, Folder, Grid, List, Trash2 } from "lucide-react";
+import {
+  ArchiveRestore,
+  ChevronRight,
+  CornerLeftUp,
+  FilePlus,
+  Folder,
+  FolderPlus,
+  MoreVertical,
+  Trash2,
+  UserCheck,
+  UserX,
+} from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
-import { Toggle } from "../ui/toggle";
-import { Tooltip, TooltipContent } from "../ui/tooltip";
-
-const PAGESIZE = 16;
+import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
+import { CreateIndex } from "./CreateIndex";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -48,59 +67,50 @@ function get_root(indices: AmcatIndex[] | undefined, path: string[]): Folder | u
 }
 
 export function SelectIndex() {
-  const router = useRouter();
   const params = useSearchParams();
-  const pathname = usePathname();
   const { user, loading } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
+  const [currentPath, setCurrentPath] = useState<string[]>(params?.get("folder")?.split("/") ?? []);
   const [search, setSearch] = useState("");
-  const [isListView, setIsListView] = useState(false);
-  const [page, setPage] = useState(0);
-  const [indices, setIndices] = useState<AmcatIndex[] | undefined>(undefined);
-  const [archived, setArchived] = useState(false);
+  const [seeArchived, setSeeArchived] = useState(false);
+  const [seeUnowned, setSeeUnowned] = useState(false);
+  const [visibleIndices, setVisibleIndices] = useState<AmcatIndex[]>([]);
+  const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
+  const canCreate = useHasGlobalRole(user, "WRITER");
 
-  const currentPath = (params?.get("folder") ?? "").split("/").filter((x) => x);
-  const folder = get_root(indices, currentPath);
-
-  const nPages = Math.ceil((folder?.indices.length || 1) / PAGESIZE);
-  const offset = page * PAGESIZE;
-  const pageIndices = folder?.indices.slice(offset, offset + PAGESIZE);
+  //const [isListView, setIsListView] = useState(false);
 
   useEffect(() => {
     if (!allIndices) return;
     const timeout = setTimeout(() => {
-      setIndices(
+      const prefix = currentPath.join("/").replace(/^\/|\/$/, "");
+      setVisibleIndices(
         allIndices.filter((index) => {
-          if (!!index.archived && !archived) return false;
+          if (!!index.archived && !seeArchived) return false;
+          if ((index.folder ?? "") !== prefix) return false;
+          if (!seeUnowned && index.user_role === "NONE") return false;
           if (!search) return true;
           if (index.name.toLowerCase().includes(search.toLowerCase())) return true;
           if (index.id.toLowerCase().includes(search.toLowerCase())) return true;
           return false;
         }),
       );
+      const folderSet = new Set<string>();
+      allIndices.forEach((ix) => {
+        if (!ix.folder) return;
+        const path = ix.folder.split("/");
+        const head = path.pop();
+        if (head == null || path.join("/") !== prefix) return;
+        folderSet.add(head);
+      });
+      setVisibleFolders([...folderSet]);
     }, 200);
     return () => clearTimeout(timeout);
-  }, [search, archived, allIndices]);
+  }, [allIndices, search, currentPath, seeArchived, seeUnowned]);
 
-  useEffect(() => {
-    if (page >= nPages) setPage(nPages - 1);
-  }, [nPages]);
-
-  function onSelectIndex(index: AmcatIndex) {
-    router.push(`/indices/${index.id}/dashboard`);
-  }
-
-  function nextPage() {
-    setPage((page) => Math.min(page + 1, nPages - 1));
-  }
-  function prevPage() {
-    setPage((page) => Math.max(page - 1, 0));
-  }
-  function toSubfolder(subfolder: string) {
-    const newParams = new URLSearchParams(params ?? undefined);
-    currentPath.push(subfolder);
-    newParams.set("folder", currentPath.join("/"));
-    router.push(`${pathname}?${newParams?.toString()}`);
+  function toFolder(folder: string[]) {
+    history.replaceState(null, "", `?folder=${folder.join("/")}`);
+    setCurrentPath(folder);
   }
 
   if (loading || loadingIndices)
@@ -109,72 +119,85 @@ export function SelectIndex() {
         <Loading />
       </div>
     );
-  if (indices === undefined) return null;
-  const subfolders = [...(folder?.folders.keys() ?? [])];
-  console.log(subfolders);
   return (
     <div>
       <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
         <h3 className="m-0">
-          <Link href="?folder=">My indices</Link>
-          {currentPath.map((folder, ix) => (
-            <>
-              <ChevronRight className="inline text-sm text-foreground/60" />
-              <Link href={`?folder=${currentPath.slice(0, ix + 1).join("/")}`}>{folder}</Link>
-            </>
-          ))}
-          {/*allIndices?.length ? "Select an Index" : "This server does not have any indices you can view"*/}
+          {[seeUnowned ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
+            folder == "" ? null : (
+              <React.Fragment key={ix}>
+                {ix == 0 ? null : <ChevronRight className="inline text-sm text-foreground/60" />}
+                <span className="cursor-pointer" onClick={() => toFolder(currentPath.slice(0, ix))}>
+                  {folder}
+                </span>
+              </React.Fragment>
+            ),
+          )}
         </h3>
         <div className={` Pagination flex items-center gap-3 ${allIndices?.length ? "" : "hidden"} `}>
-          <div className="flex">
-            <Button variant="ghost" onClick={prevPage} disabled={page === 0} className="px-2 disabled:opacity-50">
-              <ArrowLeft />
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={nextPage}
-              disabled={page === nPages - 1}
-              className="px-2 disabled:opacity-50"
-            >
-              <ArrowRight />
-            </Button>
-          </div>
           <Input
             className="w-36 border-foreground/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
           />
+          {!canCreate ? null : (
+            <Tooltip>
+              <TooltipTrigger>
+                <CreateIndex folder={currentPath.join("/")}>
+                  <Button variant="default">
+                    <FilePlus className="h-5 w-5" />
+                  </Button>
+                </CreateIndex>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>Create a new Index</span>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
-                className={` ${archived ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
-                onClick={() => setArchived(!archived)}
+                className={` ${seeUnowned ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
+                onClick={() => setSeeUnowned(!seeUnowned)}
               >
-                <Trash2 className={`h-5 w-5 ${archived ? "text-secondary-foreground" : "text-foreground/50"}`} />
+                <UserX className={`h-5 w-5 ${seeUnowned ? "text-secondary-foreground" : "text-foreground/50"}`} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>Also show projects that you have no role in</span>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className={` ${seeArchived ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
+                onClick={() => setSeeArchived(!seeArchived)}
+              >
+                <Trash2 className={`h-5 w-5 ${seeArchived ? "text-secondary-foreground" : "text-foreground/50"}`} />
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <span>Show archived projects</span>
             </TooltipContent>
-            <Toggle pressed={isListView} onPressedChange={setIsListView} className="text-xs" variant="outline">
-              {isListView ? <List className="mr-1 h-3 w-3" /> : <Grid className="mr-1 h-3 w-3" />}
-              {isListView ? "List" : "Grid"}
-            </Toggle>
           </Tooltip>
         </div>
       </div>
       <div></div>
       {/* Folders */}
       <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {subfolders.map((folder) => (
-          <ProjectFolder key={folder} folder={folder} onClick={toSubfolder} />
+        {visibleFolders.map((folder) => (
+          <ProjectFolder key={folder} folder={folder} onClick={() => toFolder([...currentPath, folder])} />
         ))}
       </div>
       {/* Projects */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {pageIndices?.map((index) => <IndexCard key={index.id} index={index} />)}
+        {visibleIndices?.map((index) => (
+          <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={toFolder} />
+        ))}
       </div>
     </div>
   );
@@ -189,7 +212,23 @@ const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: (folder: 
   </Card>
 );
 
-const IndexCard = ({ index }: { index: AmcatIndex }) => {
+const IndexCard = ({
+  index,
+  folders,
+  toFolder,
+}: {
+  index: AmcatIndex;
+  folders: string[];
+  toFolder: (folder: string[]) => void;
+}) => {
+  const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const { user } = useMiddlecat();
+  const { mutateAsync } = useMutateIndex(user);
+  if (user == null) return null;
+
   const style = index.image_url
     ? {
         backgroundImage: `url('${index.image_url}')`,
@@ -200,48 +239,124 @@ const IndexCard = ({ index }: { index: AmcatIndex }) => {
       }
     : {};
 
-  console.log(style);
+  function handleArchive(e: React.MouseEvent) {
+    e.preventDefault();
+    mutateAsync({ id: index.id, archive: !index.archived }).then(() => setIsDropdownOpen(false));
+  }
+  function doMoveToFolder(folder: string) {
+    const newFolder =
+      folder === ".."
+        ? index.folder?.split("/").slice(0, -1).join("/")
+        : index.folder
+          ? `${index.folder}/${folder}`
+          : folder;
+    mutateAsync({ id: index.id, folder: newFolder }).then(() => {
+      setIsDropdownOpen(false);
+      setIsNewFolderDialogOpen(false);
+      toFolder(newFolder?.split("/") ?? []);
+    });
+  }
+  function handleMoveToFolder(e: Event, folder: string) {
+    e.preventDefault();
+    doMoveToFolder(folder);
+  }
+
+  function handleCreateNewFolder(e: React.MouseEvent) {
+    e.preventDefault();
+    doMoveToFolder(newFolderName);
+  }
+
   return (
     <Link href={`/indices/${index.id}/dashboard`}>
-      <Card style={style} className="h-40 overflow-hidden bg-primary/50">
+      <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
         <CardHeader className="bg-background/70 p-3">
-          <CardTitle className=" text-base">{index.name}</CardTitle>
-          {index.description && (
-            <CardDescription className="line-clamp-2 h-8 text-xs">{index.description}</CardDescription>
-          )}
+          <div className="flex items-start justify-between">
+            <CardTitle className=" text-base">{index.name}</CardTitle>
+            <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onClick={handleArchive}>
+                  {index.archived ? <ArchiveRestore className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                  <span>{index.archived ? "Re-activate" : "Archive"}</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
+                  <Folder className="mr-2 h-4 w-4" />
+                  <span>Move to folder:</span>
+                </DropdownMenuItem>
+                {index.folder && (
+                  <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
+                    <CornerLeftUp className="ml-4 h-3 w-3" />
+                    <span className="ml-1">
+                      {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
+                    </span>
+                  </DropdownMenuItem>
+                )}
+                {folders.map((folder) => (
+                  <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
+                    <span className="ml-4">{folder}</span>
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <FolderPlus className="mr-2 h-4 w-4" />
+                      <span>To new folder</span>
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Move {index.name} to new folder</DialogTitle>
+                    </DialogHeader>
+                    <Input
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                      placeholder="Enter folder name"
+                    />
+                    <Button onClick={handleCreateNewFolder}>Create and Move</Button>
+                  </DialogContent>
+                </Dialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <CardDescription className="line-clamp-2 h-8 text-xs">
+            {index.description || <i>(No description)</i>}
+          </CardDescription>
         </CardHeader>
 
-        {/*project.externalUrl && (
-      <CardFooter className="p-2">
-        <Button variant="outline" size="sm" asChild className="w-full text-xs">
-          <a href={project.externalUrl} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="mr-1 h-3 w-3" />
-            Visit
-          </a>
-        </Button>
-      </CardFooter>
-    )*/}
+        <CardFooter className="absolute bottom-0 right-0 z-10 p-2">
+          <TooltipProvider>
+            <div className="flex space-x-2">
+              {index.archived && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Trash2 className="h-5 w-5 text-primary-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white">
+                    <p>This index is archived</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              {index.user_role !== "NONE" && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <UserCheck className="h-5 w-5 text-primary-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-white">
+                    <p>You have a role in this project</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </TooltipProvider>
+        </CardFooter>
       </Card>
     </Link>
   );
 };
-
-const ProjectList = ({ projects }: { projects: AmcatIndex[] }) => (
-  <div className="space-y-1">
-    {projects.map((project) => (
-      <div key={project.id} className="flex items-center justify-between rounded-md p-1 text-sm hover:bg-accent">
-        <span>{project.name}</span>
-        {/*project.externalUrl && (
-          <a
-            href={project.externalUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        )*/}
-      </div>
-    ))}
-  </div>
-);

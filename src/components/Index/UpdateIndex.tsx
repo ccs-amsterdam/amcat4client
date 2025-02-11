@@ -20,7 +20,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
   const [open, setOpen] = useState(false);
   const form = useForm<z.input<typeof amcatIndexUpdateSchema>>({
     resolver: zodResolver(amcatIndexUpdateSchema),
-    defaultValues: { ...index, archived: undefined },
+    defaultValues: { ...index, archive: undefined },
   });
   if (!index) return null;
 

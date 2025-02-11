@@ -95,7 +95,7 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
                 <Button
                   onClick={() => {
                     if (mutate) {
-                      mutate({ id: index.id, archived: !index.archived });
+                      mutate({ id: index.id, archive: !index.archived });
                     }
                     setArchiveOpen(false);
                   }}

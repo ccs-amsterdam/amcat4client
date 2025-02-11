@@ -46,9 +46,13 @@ export const amcatIndexSchema = z.object({
   folder: z.string().nullish(),
 });
 
-export const amcatIndexUpdateSchema = amcatIndexSchema.partial().required({ id: true }).extend({
-  archived: z.boolean().optional(),
-});
+export const amcatIndexUpdateSchema = amcatIndexSchema
+  .partial()
+  .required({ id: true })
+  .omit({ archived: true })
+  .extend({
+    archive: z.boolean().optional(),
+  });
 
 export const amcatUserDetailsSchema = z.object({
   email: z.string(),

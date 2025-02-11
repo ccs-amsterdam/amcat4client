@@ -8,15 +8,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { amcatIndexSchema } from "@/schemas";
 import { useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export function CreateIndex() {
+export function CreateIndex({ children, folder }: { children?: React.ReactNode; folder?: string }) {
   const router = useRouter();
   const { user } = useMiddlecat();
   const { mutateAsync: createIndexAsync } = useCreateIndex(user);
   const [name, setName] = useState("");
+  const [folderValue, setFolderValue] = useState(folder);
   const [description, setDescription] = useState("");
   const [id, setId] = useState("");
+
+  useEffect(() => {
+    setFolderValue(folder);
+  }, [folder]);
 
   function idFromName(name: string) {
     return name
@@ -30,16 +35,14 @@ export function CreateIndex() {
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    createIndexAsync(amcatIndexSchema.parse({ id, name, description }))
+    createIndexAsync(amcatIndexSchema.parse({ id, name, description, folder }))
       .then(() => router.push(`/indices/${id}/data?tab=upload`))
       .catch(console.error);
   }
 
   return (
     <Dialog>
-      <DialogTrigger asChild className="min-w-[12rem] text-lg">
-        <Button variant="outline">Create Index</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children ?? <Button variant="outline">Create Index</Button>}</DialogTrigger>
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Create Index</DialogTitle>
@@ -70,6 +73,19 @@ export function CreateIndex() {
               onChange={(e) => setDescription(e.target.value)}
               id="description"
               name="description"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="name">Folder</label>
+            <Input
+              value={folderValue}
+              onChange={(e) => {
+                setFolderValue(e.target.value);
+              }}
+              id="name"
+              name="name"
+              autoComplete="off"
             />
           </div>
           <Button className="mt-2 w-full">Create</Button>
