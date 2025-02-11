@@ -41,36 +41,11 @@ interface Folder {
   indices: AmcatIndex[];
 }
 
-function get_root(indices: AmcatIndex[] | undefined, path: string[]): Folder | undefined {
-  if (indices == null) return undefined;
-  const root: Folder = { folders: new Map(), indices: [] };
-  function get_folder(parent: Folder, children: string[]) {
-    const head = children.shift();
-    if (head == null) return parent;
-    let f = parent.folders.get(head);
-    if (f == null) {
-      f = { folders: new Map(), indices: [] };
-      parent.folders.set(head, f);
-    }
-    return get_folder(f, children);
-  }
-  indices.forEach((ix) => get_folder(root, ix.folder ? ix.folder.split("/") : []).indices.push(ix));
-
-  let result: Folder | undefined = root;
-  path
-    .filter((f) => f)
-    .forEach((f) => {
-      result = result?.folders.get(f);
-    });
-  if (result == null) console.error(`Cannot find folder ${path}`);
-  return result;
-}
-
 export function SelectIndex() {
   const params = useSearchParams();
   const { user, loading } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
-  const [currentPath, setCurrentPath] = useState<string[]>(params?.get("folder")?.split("/") ?? []);
+  const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [seeArchived, setSeeArchived] = useState(false);
   const [seeUnowned, setSeeUnowned] = useState(false);
@@ -79,6 +54,9 @@ export function SelectIndex() {
   const canCreate = useHasGlobalRole(user, "WRITER");
 
   //const [isListView, setIsListView] = useState(false);
+  useEffect(() => {
+    setCurrentPath(params?.get("folder")?.split("/") ?? []);
+  }, [params]);
 
   useEffect(() => {
     if (!allIndices) return;

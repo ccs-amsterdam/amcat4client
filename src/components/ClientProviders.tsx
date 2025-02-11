@@ -1,14 +1,13 @@
 "use client";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { MiddlecatProvider } from "middlecat-react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { useState } from "react";
+import { MiddlecatProvider } from "middlecat-react";
 import { ThemeProvider } from "next-themes";
+import { useState } from "react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TooltipProvider } from "./ui/tooltip";
-import { useSearchParams } from "next/navigation";
 
 const defaultOptions = {
   queries: {
@@ -41,11 +40,11 @@ function defaultErrorToast(e: any) {
 }
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
-  const params = useSearchParams();
+  //const params = useSearchParams();
 
   // allow signing in to local server on specific port. Useful for development,
   // or for running local amcat without having to run a new client
-  const [port] = useState(() => params?.get("port"));
+  //const [port] = useState(() => params?.get("port"));
 
   const mutationCache = new MutationCache({
     onError: (e: any) => {
@@ -71,7 +70,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
-  const host = port ? `http://localhost:${port}` : process.env.NEXT_PUBLIC_AMCAT_SERVER;
+  const host = process.env.NEXT_PUBLIC_AMCAT_SERVER || `http://localhost:5000`;
 
   return (
     <QueryClientProvider client={queryClient}>
