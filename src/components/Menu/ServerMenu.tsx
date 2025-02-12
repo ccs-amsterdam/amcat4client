@@ -16,12 +16,13 @@ import { amcatBrandingSchema, InformationLinksSchema, LinkArraySchema } from "@/
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z, ZodSchema } from "zod";
-import { ZodError } from "zod-validation-error";
+import { RefinementCtx, z, ZodSchema } from "zod";
+import { ZodError } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import Refresh from "./Refresh";
+import { fromZodError } from "zod-validation-error";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -129,66 +130,43 @@ function ServerBrandingForm() {
   const { data: branding, isLoading: loadingBranding } = useAmcatBranding();
   const { data: config } = useAmcatConfig();
 
+  function getJsonTransformer<S extends ZodSchema>(schema: S) {
+    return (val: string, ctx: RefinementCtx): z.infer<typeof schema> | null => {
+      if (!val) return null;
+      try {
+        return schema.parse(JSON.parse(val));
+      } catch (error) {
+        if (error instanceof ZodError) error = fromZodError(error);
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: String(error) });
+        return z.NEVER;
+      }
+    };
+  }
+
   const formSchema = amcatBrandingSchema.extend({
-    client_data: z.object({ information_links: z.string(), welcome_buttons: z.string() }),
+    client_data: z.object({
+      information_links: z.string().transform(getJsonTransformer(InformationLinksSchema)),
+      welcome_buttons: z.string().transform(getJsonTransformer(LinkArraySchema)),
+    }),
   });
 
   const stringify = (input: any) => (input ? JSON.stringify(input) : "");
-  const values: z.infer<typeof formSchema> = {
-    ...branding,
-    client_data: {
-      information_links: stringify(branding?.client_data?.information_links),
-      welcome_buttons: stringify(branding?.client_data?.welcome_buttons),
-    },
-  };
-
-  const brandingForm = useForm<z.infer<typeof formSchema>>({
+  const brandingForm = useForm<z.input<typeof formSchema>, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: values,
+    defaultValues: {
+      ...branding,
+      client_data: {
+        information_links: stringify(branding?.client_data?.information_links),
+        welcome_buttons: stringify(branding?.client_data?.welcome_buttons),
+      },
+    },
   });
 
-  function brandingFormSubmit(values: z.input<typeof formSchema>) {
-    // TODO can we validate/parse the json before going into the submit logic, i.e. in some validation step? or in the zod transform/refine?
-    // (this would also fix the other todos as this function would be trivial)
-    function format_zod_error(e: ZodError) {
-      return e.issues.map((i) => `${i.path.pop()}: ${i.message}`).join("; ");
-    }
-
-    function extract_json_from_form<S extends ZodSchema>(
-      field: keyof typeof values.client_data,
-      schema: S,
-    ): z.infer<S> {
-      const input = values.client_data[field];
-      if (!input) return null;
-      let d;
-      // TODO refactor with separate error handling for zod and json
-      try {
-        d = JSON.parse(input);
-      } catch (error) {
-        brandingForm.setError(`client_data.${field}`, { type: "validation", message: String(error) });
-        return undefined;
-      }
-      const r = schema.safeParse(d);
-      if (!r.success) {
-        brandingForm.setError(`client_data.${field}`, { type: "validation", message: format_zod_error(r.error) });
-        return undefined;
-      }
-      return r.data;
-    }
-    // TODO can we validate after constructing body and still get the validation at the right point
-    const body: z.infer<typeof amcatBrandingSchema> = {
-      ...values,
-      client_data: {
-        information_links: extract_json_from_form("information_links", InformationLinksSchema),
-        welcome_buttons: extract_json_from_form("welcome_buttons", LinkArraySchema),
-      },
-    };
-    if (Object.keys(brandingForm.formState.errors).length > 0) {
-      console.error(brandingForm.formState.errors);
-      return;
-    }
-    mutateBranding.mutateAsync(body).catch(console.error);
+  function brandingFormSubmit(values: z.output<typeof formSchema>) {
+    console.log(values);
+    mutateBranding.mutateAsync(values).catch(console.error);
   }
+
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
   const errors = brandingForm.formState.errors;
