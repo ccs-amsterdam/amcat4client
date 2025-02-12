@@ -124,14 +124,17 @@ function ReadyBanner() {
   return (
     <section className="bg-primary py-20 text-background">
       <div className="container mx-auto px-4 text-center">
-        <h2 className="mb-4 text-3xl font-bold">Ready to Get Started?</h2>
-        <p className="mx-auto mb-8 max-w-2xl text-xl">
-          Join the community of researchers and analysts using AmCAT to gain valuable insights from text data.
+        <h2 className="mb-4 text-3xl font-bold">AmCAT: Open, Accessible, Scalable</h2>
+        <p className="mx-auto mb-8 max-w-3xl text-xl">
+          AmCAT is a completely open and user friendly text storage and analysis system. Because it is built on
+          ElasticSearch, it is highly scalable and extremely fast.
         </p>
-        <Button size="lg" variant="secondary">
-          Sign Up for Free
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+        <Link href="https://amcat.nl/book/">
+          <Button size="lg" variant="secondary">
+            Learn more
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </Link>
       </div>
     </section>
   );

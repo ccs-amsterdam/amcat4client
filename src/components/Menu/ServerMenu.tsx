@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Loading } from "../ui/loading";
 import UserRoleTable from "../Users/UserRoleTable";
 
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { amcatBrandingSchema, InformationLinksSchema, LinkArraySchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -148,6 +148,8 @@ function ServerBrandingForm() {
   });
 
   function brandingFormSubmit(values: z.input<typeof formSchema>) {
+    // TODO can we validate/parse the json before going into the submit logic, i.e. in some validation step? or in the zod transform/refine?
+    // (this would also fix the other todos as this function would be trivial)
     function format_zod_error(e: ZodError) {
       return e.issues.map((i) => `${i.path.pop()}: ${i.message}`).join("; ");
     }
@@ -159,6 +161,7 @@ function ServerBrandingForm() {
       const input = values.client_data[field];
       if (!input) return null;
       let d;
+      // TODO refactor with separate error handling for zod and json
       try {
         d = JSON.parse(input);
       } catch (error) {
@@ -172,6 +175,7 @@ function ServerBrandingForm() {
       }
       return r.data;
     }
+    // TODO can we validate after constructing body and still get the validation at the right point
     const body: z.infer<typeof amcatBrandingSchema> = {
       ...values,
       client_data: {
@@ -201,6 +205,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Input {...field} value={field.value ?? ""} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>
@@ -214,6 +219,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Input {...field} value={field.value ?? ""} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>
@@ -227,6 +233,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Input {...field} value={field.value ?? ""} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>
@@ -240,6 +247,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Textarea placeholder="# Title and text using **MarkDown**" {...field} value={field.value ?? ""} />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>
@@ -253,7 +261,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Textarea {...field} value={field.value} placeholder={LINKARRAY_PLACEHOLDER} />
               </FormControl>
-              <p>{errors.client_data?.welcome_buttons?.message?.toString()}</p>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>
@@ -267,7 +275,7 @@ function ServerBrandingForm() {
               <FormControl>
                 <Textarea {...field} value={field.value} placeholder={LINKS_PLACEHOLDER} />
               </FormControl>
-              <p>{errors.client_data?.information_links?.message?.toString()}</p>
+              <FormMessage />
             </FormItem>
           )}
         ></FormField>

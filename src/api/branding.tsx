@@ -26,6 +26,7 @@ export async function getAmcatBranding(host?: string) {
 
   if (!host) return undefined;
   const res = await axios.get(`${host}/config/branding`, { timeout: 3000 });
+
   res.data.client_data = safeParseJson(res.data.client_data);
   const result = amcatBrandingSchema.safeParse(res.data);
   if (result.success) return result.data;

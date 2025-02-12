@@ -17,12 +17,12 @@ export default function Navbar() {
       <div className="flex h-16 items-center justify-between ">
         <div className="flex h-full flex-1 items-center">
           <Link href="/">
-            <Image className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
+            <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
           </Link>
           <IndexMenu />
         </div>
 
-        <div className="mx-auto hidden h-10 justify-center whitespace-nowrap sm:block">
+        <div className="hidden whitespace-nowrap sm:block">
           <ServerBranding />
         </div>
 
@@ -39,7 +39,7 @@ function ServerBranding() {
   const { data: serverBranding } = useAmcatBranding();
   if (serverBranding == null) return null;
   const logo = (
-    <div className="my-auto whitespace-nowrap">
+    <div className="flex items-center gap-1 whitespace-nowrap">
       {serverBranding.server_icon ? (
         <img alt="Server icon" src={serverBranding.server_icon} className="mr-2 inline h-8" />
       ) : null}
