@@ -122,24 +122,6 @@ function ServerSettings() {
   );
 }
 
-interface SafeJSONParseResult<T extends ZodSchema> {
-  success: boolean;
-  data?: z.infer<T>;
-  error?: string;
-}
-
-function safeParseJsonSchema<T extends ZodSchema>(input: string | null | undefined, schema: T): SafeJSONParseResult<T> {
-  if (!input) return { success: true };
-  let d;
-  try {
-    d = JSON.parse(input);
-  } catch (error) {
-    return { success: false, error: String(error) };
-  }
-  const r = schema.safeParse(d);
-  return { ...r, error: r.error?.message };
-}
-
 function ServerBrandingForm() {
   const { user, loading } = useMiddlecat();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
