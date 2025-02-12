@@ -12,11 +12,12 @@ import { Loading } from "../ui/loading";
 import UserRoleTable from "../Users/UserRoleTable";
 
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { amcatBrandingSchema, BrandingMenuSchema, LinkArraySchema } from "@/schemas";
+import { amcatBrandingSchema, InformationLinksSchema, LinkArraySchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z, ZodSchema } from "zod";
+import { ZodError } from "zod-validation-error";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -121,19 +122,22 @@ function ServerSettings() {
   );
 }
 
-function getJSONSchemaErrors<T extends ZodSchema>(input: string | null | undefined, schema: T): string | null {
-  if (input == null) return null;
+interface SafeJSONParseResult<T extends ZodSchema> {
+  success: boolean;
+  data?: z.infer<T>;
+  error?: string;
+}
+
+function safeParseJsonSchema<T extends ZodSchema>(input: string | null | undefined, schema: T): SafeJSONParseResult<T> {
+  if (!input) return { success: true };
   let d;
   try {
     d = JSON.parse(input);
   } catch (error) {
-    return error as string;
+    return { success: false, error: String(error) };
   }
   const r = schema.safeParse(d);
-  if (!r.success) {
-    return r.error.message;
-  }
-  return null;
+  return { ...r, error: r.error?.message };
 }
 
 function ServerBrandingForm() {
@@ -143,25 +147,61 @@ function ServerBrandingForm() {
   const { data: branding, isLoading: loadingBranding } = useAmcatBranding();
   const { data: config } = useAmcatConfig();
 
-  const brandingForm = useForm<z.infer<typeof amcatBrandingSchema>>({
-    resolver: zodResolver(amcatBrandingSchema),
-    defaultValues: branding,
+  const formSchema = amcatBrandingSchema.extend({
+    client_data: z.object({ information_links: z.string(), welcome_buttons: z.string() }),
   });
 
-  function brandingFormSubmit(values: z.input<typeof amcatBrandingSchema>) {
-    let errors;
-    if ((errors = getJSONSchemaErrors(values.client_data?.information_links, BrandingMenuSchema))) {
-      brandingForm.setError("client_data.information_links", { type: "validation", message: errors });
-      console.log(errors);
-      return;
+  const stringify = (input: any) => (input ? JSON.stringify(input) : "");
+  const values: z.infer<typeof formSchema> = {
+    ...branding,
+    client_data: {
+      information_links: stringify(branding?.client_data?.information_links),
+      welcome_buttons: stringify(branding?.client_data?.welcome_buttons),
+    },
+  };
+
+  const brandingForm = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: values,
+  });
+
+  function brandingFormSubmit(values: z.input<typeof formSchema>) {
+    function format_zod_error(e: ZodError) {
+      return e.issues.map((i) => `${i.path.pop()}: ${i.message}`).join("; ");
     }
 
-    if ((errors = getJSONSchemaErrors(values.client_data?.welcome_buttons, LinkArraySchema))) {
-      brandingForm.setError("client_data.welcome_buttons", { type: "validation", message: errors });
-      console.log(errors);
+    function extract_json_from_form<S extends ZodSchema>(
+      field: keyof typeof values.client_data,
+      schema: S,
+    ): z.infer<S> {
+      const input = values.client_data[field];
+      if (!input) return null;
+      let d;
+      try {
+        d = JSON.parse(input);
+      } catch (error) {
+        brandingForm.setError(`client_data.${field}`, { type: "validation", message: String(error) });
+        return undefined;
+      }
+      const r = schema.safeParse(d);
+      if (!r.success) {
+        brandingForm.setError(`client_data.${field}`, { type: "validation", message: format_zod_error(r.error) });
+        return undefined;
+      }
+      return r.data;
+    }
+    const body: z.infer<typeof amcatBrandingSchema> = {
+      ...values,
+      client_data: {
+        information_links: extract_json_from_form("information_links", InformationLinksSchema),
+        welcome_buttons: extract_json_from_form("welcome_buttons", LinkArraySchema),
+      },
+    };
+    if (Object.keys(brandingForm.formState.errors).length > 0) {
+      console.error(brandingForm.formState.errors);
       return;
     }
-    mutateBranding.mutateAsync(values).catch(console.error);
+    mutateBranding.mutateAsync(body).catch(console.error);
   }
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
@@ -229,7 +269,7 @@ function ServerBrandingForm() {
             <FormItem>
               <FormLabel>Action Buttons below Welcome Text </FormLabel>
               <FormControl>
-                <Textarea {...field} value={field.value ?? ""} placeholder={LINKS_PLACEHOLDER} />
+                <Textarea {...field} value={field.value} placeholder={LINKARRAY_PLACEHOLDER} />
               </FormControl>
               <p>{errors.client_data?.welcome_buttons?.message?.toString()}</p>
             </FormItem>
@@ -243,7 +283,7 @@ function ServerBrandingForm() {
             <FormItem>
               <FormLabel>Additional Homepage Links </FormLabel>
               <FormControl>
-                <Textarea {...field} value={field.value ?? ""} placeholder={LINKS_PLACEHOLDER} />
+                <Textarea {...field} value={field.value} placeholder={LINKS_PLACEHOLDER} />
               </FormControl>
               <p>{errors.client_data?.information_links?.message?.toString()}</p>
             </FormItem>

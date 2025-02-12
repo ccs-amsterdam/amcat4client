@@ -13,7 +13,7 @@ export const LinkArraySchema = z.array(
   }),
 );
 
-export const BrandingMenuSchema = z.array(
+export const InformationLinksSchema = z.array(
   z.object({
     title: z.string(),
     links: LinkArraySchema,
@@ -27,8 +27,8 @@ export const amcatBrandingSchema = z.object({
   welcome_text: z.string().nullish(),
   client_data: z
     .object({
-      information_links: z.string().nullish(),
-      welcome_buttons: z.string().nullish(),
+      information_links: InformationLinksSchema.nullish(),
+      welcome_buttons: LinkArraySchema.nullish(),
     })
     .nullish(),
 });

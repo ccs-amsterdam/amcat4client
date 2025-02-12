@@ -8,10 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 import { useAmcatBranding } from "@/api/branding";
-import { BrandingMenuSchema, LinkArraySchema } from "@/schemas";
 import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
 import Markdown from "react-markdown";
-import { z, ZodSchema } from "zod";
 
 export default function Index() {
   return (
@@ -32,8 +30,6 @@ function BigBanner() {
   const { data: serverBranding } = useAmcatBranding();
   const router = useRouter();
   if (user == null || serverConfig == null || serverBranding == null) return null;
-
-  const actions = safeParseJsonSchema(serverBranding.client_data?.welcome_buttons, LinkArraySchema);
 
   const message_md =
     serverBranding.welcome_text ??
@@ -70,9 +66,9 @@ function BigBanner() {
               )}
             </>
           )}
-          {(actions ?? []).map((action, i) => (
-            <Link href={action.href}>
-              <Button key={i} size="lg" variant="outline">
+          {(serverBranding.client_data?.welcome_buttons ?? []).map((action, i) => (
+            <Link key={i} href={action.href}>
+              <Button size="lg" variant="outline">
                 {action.label}
               </Button>
             </Link>
@@ -141,22 +137,10 @@ function ReadyBanner() {
   );
 }
 
-function safeParseJsonSchema<T extends ZodSchema>(
-  input: string | null | undefined,
-  schema: T,
-): z.output<T> | undefined {
-  try {
-    return input == null ? null : schema.parse(JSON.parse(input));
-  } catch (error) {
-    console.log(error);
-    return undefined;
-  }
-}
-
 function SplashFooter() {
   const { data: serverBranding } = useAmcatBranding();
   if (serverBranding == null) return null;
-  const links = safeParseJsonSchema(serverBranding.client_data?.information_links, BrandingMenuSchema);
+  const links = serverBranding.client_data?.information_links;
   const n_cols = 2 + (links == null ? 0 : links.length);
   return (
     <footer className="bg-gray-100 py-8">
