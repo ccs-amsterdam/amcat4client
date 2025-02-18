@@ -9,8 +9,9 @@ import { MiddlecatUser } from "middlecat-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { Dialog, DialogContent, DialogFooter, DialogHeader } from "../ui/dialog";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 interface Props {
   user: MiddlecatUser;
@@ -21,9 +22,9 @@ interface Props {
 export default function Reindex({ user, indexId, query }: Props) {
   const { count } = useCount(user, indexId, query);
   const { data: indices } = useAmcatIndices(user);
+  const [newIndexOpen, setNewIndexOpen] = useState(false);
   const [taskResult, setTaskResult] = useState<string | null>(null);
   const [newIndex, setNewIndex] = useState<AmcatIndex | undefined>(undefined);
-  //TODO: Check write access to indices
   //TODO: Add option to create a new index?
 
   function onSubmitNewIndex(e: React.FormEvent<HTMLFormElement>) {
@@ -38,6 +39,10 @@ export default function Reindex({ user, indexId, query }: Props) {
     }
   }
   const indexlabel = (ix: AmcatIndex) => `${ix.folder || ""}/${ix.name}`;
+  const onSelectNewIndex = (ix: AmcatIndex) => {
+    setNewIndex(ix);
+    setNewIndexOpen(false); // Close the dropdown
+  };
   if (count == null) return null;
   return (
     <>
@@ -52,22 +57,34 @@ export default function Reindex({ user, indexId, query }: Props) {
       </h4>
 
       <form onSubmit={onSubmitNewIndex} className="space-y-2">
-        <DropdownMenu modal={false}>
+        <DropdownMenu open={newIndexOpen} onOpenChange={setNewIndexOpen}>
           <DropdownMenuTrigger className="flex h-full items-center justify-between gap-3 rounded border border-primary px-3 text-primary outline-none">
             {newIndex?.name ?? "Select destination index"}
             <ChevronDown className="h-5 w-5" />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             align="start"
-            className="ml-2 h-96 min-w-[200px] overflow-y-scroll border-[1px] border-foreground bg-background"
+            className="ml-2 min-w-[200px] border-[1px] border-foreground bg-background"
           >
-            {indices
-              ?.sort((a, b) => indexlabel(a).localeCompare(indexlabel(b)))
-              .map((ix) => (
-                <DropdownMenuItem onSelect={() => setNewIndex(ix)} key={ix.id}>
-                  {indexlabel(ix).replace(/^\//, "")}
-                </DropdownMenuItem>
-              ))}
+            <Command>
+              <CommandInput placeholder="Filter indices" autoFocus={true} className="h-9" />
+              <CommandList>
+                <CommandEmpty>No index found</CommandEmpty>
+                <CommandGroup>
+                  {indices
+                    ?.sort((a, b) => indexlabel(a).localeCompare(indexlabel(b)))
+                    .filter((ix) => !user.authenticated || ix.user_role === "WRITER" || ix.user_role === "ADMIN")
+                    .filter((ix) => !ix.archived)
+                    .map((ix) => (
+                      <CommandItem key={ix.id} value={ix.id} onSelect={() => onSelectNewIndex(ix)}>
+                        {" "}
+                        <span>{indexlabel(ix).replace(/^\//, "")}</span>
+                      </CommandItem>
+                    ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
           </DropdownMenuContent>
         </DropdownMenu>
         <Button type="submit" disabled={newIndex == null}>
