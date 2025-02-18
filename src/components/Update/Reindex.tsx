@@ -37,7 +37,7 @@ export default function Reindex({ user, indexId, query }: Props) {
         });
     }
   }
-
+  const indexlabel = (ix: AmcatIndex) => `${ix.folder || ""}/${ix.name}`;
   if (count == null) return null;
   return (
     <>
@@ -52,20 +52,22 @@ export default function Reindex({ user, indexId, query }: Props) {
       </h4>
 
       <form onSubmit={onSubmitNewIndex} className="space-y-2">
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger className="flex h-full items-center justify-between gap-3 rounded border border-primary px-3 text-primary outline-none">
             {newIndex?.name ?? "Select destination index"}
             <ChevronDown className="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="start"
-            className="ml-2 min-w-[200px] border-[1px] border-foreground bg-background"
+            className="ml-2 h-96 min-w-[200px] overflow-y-scroll border-[1px] border-foreground bg-background"
           >
-            {indices?.map((ix) => (
-              <DropdownMenuItem onSelect={() => setNewIndex(ix)} key={ix.id}>
-                {ix.name}
-              </DropdownMenuItem>
-            ))}
+            {indices
+              ?.sort((a, b) => indexlabel(a).localeCompare(indexlabel(b)))
+              .map((ix) => (
+                <DropdownMenuItem onSelect={() => setNewIndex(ix)} key={ix.id}>
+                  {indexlabel(ix).replace(/^\//, "")}
+                </DropdownMenuItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
         <Button type="submit" disabled={newIndex == null}>
