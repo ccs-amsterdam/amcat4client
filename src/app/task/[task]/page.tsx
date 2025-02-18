@@ -3,12 +3,12 @@
 import { useTaskStatus } from "@/api/task";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
-import { useSearchParams } from "next/navigation";
-
-export default function Task() {
+interface Props {
+  params: { task: string };
+}
+export default function Task({ params }: Props) {
   //TODO: Make progress report nicer, maybe add progress bar?
-  const params = useSearchParams();
-  const taskId = params?.get("taskId");
+  const taskId = decodeURI(params.task);
   const { user } = useMiddlecat();
   const { data } = useTaskStatus(user, taskId);
   console.log({ user, data, taskId });

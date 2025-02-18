@@ -108,7 +108,7 @@ function CopyOperationDialog({ open, onOpenChange, newIndexId, taskResultId }: C
             </Link>
           </Button>
           <Button asChild variant="outline" className="justify-between">
-            <Link href={`/task?taskId=${taskResultId}`}>
+            <Link href={`/task/${taskResultId}`}>
               View Copy Progress
               <BarChart className="ml-2 h-4 w-4" />
             </Link>
