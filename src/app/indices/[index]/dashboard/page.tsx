@@ -2,24 +2,21 @@
 
 import QueryForm from "@/components/QueryForm/QueryForm";
 import { AmcatQuery } from "@/interfaces";
-import Articles from "@/components/Articles/Articles";
 import { useMiddlecat } from "middlecat-react";
 
-import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
-import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQueryState, parseAsStringEnum } from "next-usequerystate";
-import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
-import Summary from "@/components/Summary/Summary";
-import { Loading } from "@/components/ui/loading";
-import { ErrorMsg } from "@/components/ui/error-message";
 import { useMyIndexrole } from "@/api";
-import ArticleTable from "@/components/Articles/ArticleTable";
-import DownloadArticles from "@/components/Articles/DownloadArticles";
-import Upload from "@/components/Upload/Upload";
-import Update from "@/components/Update/Update";
 import { useMyGlobalRole } from "@/api/userDetails";
-import { Info } from "lucide-react";
+import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
+import DownloadArticles from "@/components/Articles/DownloadArticles";
+import Summary from "@/components/Summary/Summary";
+import { ErrorMsg } from "@/components/ui/error-message";
+import { Loading } from "@/components/ui/loading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Reindex from "@/components/Update/Reindex";
+import Update from "@/components/Update/Update";
+import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
+import { parseAsStringEnum, useQueryState } from "next-usequerystate";
+import { useEffect, useState } from "react";
 
 interface Props {
   params: { index: string };
@@ -28,6 +25,7 @@ interface Props {
 enum Tab {
   Summary = "summary",
   Aggregate = "aggregate",
+  Copy = "copy",
   Update = "update",
   Download = "download",
 }
@@ -91,6 +89,9 @@ export default function Index({ params }: Props) {
           </TabsContent>
           <TabsContent value={Tab.Update}>
             <Update user={user} indexId={indexId} query={query} />
+          </TabsContent>
+          <TabsContent value={Tab.Copy}>
+            <Reindex user={user} indexId={indexId} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Download}>
             <DownloadArticles user={user} indexId={indexId} query={query} />

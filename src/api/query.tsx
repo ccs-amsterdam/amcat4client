@@ -52,3 +52,11 @@ export function asPostAmcatQuery(query: AmcatQuery) {
 
   return postAmcatQuery;
 }
+
+export function postReindex(user: MiddlecatUser, source: AmcatIndexId, destination: AmcatIndexId, query: AmcatQuery) {
+  const query_body = asPostAmcatQuery(query);
+  return user.api.post(`index/${source}/reindex`, {
+    destination: destination,
+    ...query_body,
+  });
+}

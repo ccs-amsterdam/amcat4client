@@ -48,7 +48,7 @@ export function SelectIndex() {
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [seeArchived, setSeeArchived] = useState(false);
-  const [seeUnowned, setSeeUnowned] = useState(false);
+  const [seeUnowned, setSeeUnowned] = useState(!user?.authenticated);
   const [visibleIndices, setVisibleIndices] = useState<AmcatIndex[]>([]);
   const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
   const canCreate = useHasGlobalRole(user, "WRITER");

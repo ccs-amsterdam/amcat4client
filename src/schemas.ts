@@ -20,6 +20,8 @@ export const InformationLinksSchema = z.array(
   }),
 );
 
+export const taskSchema = z.any();
+
 export const amcatBrandingSchema = z.object({
   server_name: z.string().nullish(),
   server_url: z.string().nullish(),
