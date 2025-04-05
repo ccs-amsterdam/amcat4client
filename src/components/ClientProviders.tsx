@@ -3,7 +3,7 @@ import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@ta
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MiddlecatProvider } from "middlecat-react";
 import { ThemeProvider } from "next-themes";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
@@ -45,6 +45,25 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   // allow signing in to local server on specific port. Useful for development,
   // or for running local amcat without having to run a new client
   //const [port] = useState(() => params?.get("port"));
+  
+  const [serverUrl, setServerUrl] = useState<string | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch the server URL from our API endpoint
+    fetch('/api/config')
+      .then(response => response.json())
+      .then(data => {
+        setServerUrl(data.amcatServer);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Failed to fetch server URL:', error);
+        // Fallback to the public environment variable or default
+        setServerUrl(process.env.NEXT_PUBLIC_AMCAT_SERVER || 'http://localhost:5000');
+        setIsLoading(false);
+      });
+  }, []);
 
   const mutationCache = new MutationCache({
     onError: (e: any) => {
@@ -70,12 +89,14 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
-  const host = process.env.NEXT_PUBLIC_AMCAT_SERVER || `http://localhost:5000`;
+  if (isLoading) {
+    return <div>Loading configuration...</div>;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <MiddlecatProvider bff="/api/bffAuth" fixedResource={host}>
+        <MiddlecatProvider bff="/api/bffAuth" fixedResource={serverUrl}>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         </MiddlecatProvider>
         <ReactQueryDevtools initialIsOpen={false} />
