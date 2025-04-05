@@ -90,7 +90,17 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
   if (isLoading) {
-    return <div>Loading configuration...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <img
+          src="/logo.png"
+          alt="AmCAT"
+          width={500}
+          height={500}
+          className="animate-spin mx-2 px-1"
+        />
+      </div>
+    );
   }
 
   return (
