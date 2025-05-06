@@ -1,20 +1,24 @@
 "use client";
-
 import QueryForm from "@/components/QueryForm/QueryForm";
-import { AmcatQuery } from "@/interfaces";
-import { useMiddlecat } from "middlecat-react";
+import { Badge } from "@/components/ui/badge";
+import { AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 
 import { useMyIndexrole } from "@/api";
+import { useFields } from "@/api/fields";
+import { useFieldValues } from "@/api/fieldValues";
 import { useMyGlobalRole } from "@/api/userDetails";
 import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
 import DownloadArticles from "@/components/Articles/DownloadArticles";
 import Summary from "@/components/Summary/Summary";
+import { Button } from "@/components/ui/button";
+import { DynamicIcon } from "@/components/ui/dynamic-icon";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Reindex from "@/components/Update/Reindex";
-import Update from "@/components/Update/Update";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "next-usequerystate";
 import { useEffect, useState } from "react";
 
@@ -26,7 +30,7 @@ enum Tab {
   Summary = "summary",
   Aggregate = "aggregate",
   Copy = "copy",
-  Update = "update",
+  Tags = "update",
   Download = "download",
 }
 
@@ -67,7 +71,7 @@ export default function Index({ params }: Props) {
           </div>
         </div>
       </div>
-
+      <Values indexId={indexId} />
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full px-1">
         <TabsList className="mb-8 overflow-auto">
           {Object.keys(Tab).map((tab) => {
@@ -87,8 +91,8 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Aggregate}>
             <AggregateResultPanel user={user} indexId={indexId} query={query} />
           </TabsContent>
-          <TabsContent value={Tab.Update}>
-            <Update user={user} indexId={indexId} query={query} />
+          <TabsContent value={Tab.Tags}>
+            <Values user={user} indexId={indexId} query={query} />
           </TabsContent>
           <TabsContent value={Tab.Copy}>
             <Reindex user={user} indexId={indexId} query={query} />
@@ -98,6 +102,47 @@ export default function Index({ params }: Props) {
           </TabsContent>
         </div>
       </Tabs>
+    </div>
+  );
+}
+
+function Values({ indexId, user, query }: { indexId: AmcatIndexId; user: MiddlecatUser; query: AmcatQuery }) {
+  const { data: fields } = useFields(user, indexId);
+  const [expandedFields, setExpandedFields] = useState<AmcatField[]>([]);
+  const availableFields = fields == null ? [] : fields.filter((f) => f.type === "tag" || f.type === "keyword");
+  useFieldValues;
+  if (user == null || fields == null) return null;
+
+  const toggleField = (field: AmcatField) => {
+    setExpandedFields((prev) => (prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]));
+  };
+  console.log(fields);
+  return (
+    <div className="space-y-2">
+      {availableFields.map((field, index) => (
+        <div key={index} className="rounded-lg bg-primary/15">
+          <div
+            className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 hover:bg-primary/30"
+            onClick={() => toggleField(field)}
+          >
+            <h3 className="flex items-center text-sm font-medium">
+              <DynamicIcon type={field.type} className="h-4" />
+              {field.name}
+            </h3>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              {expandedFields.includes(field) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </div>
+          {expandedFields.includes(field) && (
+            <div className="px-3 pb-3">
+              {field.name && <p className="mb-2 text-xs text-muted-foreground">Description of this {field.type}</p>}
+              <div className="flex flex-wrap gap-1">
+                <Badge className="cursor-pointer text-xs">Pietje</Badge>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

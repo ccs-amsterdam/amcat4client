@@ -2,14 +2,12 @@ import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } fro
 import { AlertTriangle, Link as LinkIcon, SkipBack, SkipForward } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import Link from "next/link";
+import { ReactNode } from "react";
 import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import usePaginatedArticles from "./usePaginatedArticles";
 import { DynamicIcon } from "../ui/dynamic-icon";
-import { remove } from "jszip";
-import { ReactNode } from "react";
-import { formatField } from "@/lib/formatField";
+import usePaginatedArticles from "./usePaginatedArticles";
 
 interface Props {
   user: MiddlecatUser;
@@ -29,7 +27,6 @@ const defaultSnippets = {
 export default function ArticleSnippets({ user, indexId, indexRole, query, fields, onClick }: Props) {
   const { articles, layout, listFields, isFetching, pageIndex, pageCount, totalCount, prevPage, nextPage } =
     usePaginatedArticles({ user, indexId, query, fields, indexRole, highlight: true, defaultSnippets, pageSize: 6 });
-
   // if (isLoading) return <Loading msg="Loading articles" />;
   return (
     <div>
@@ -93,7 +90,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                 </div>
 
                 <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
-                <div className="flex-wrap flex gap-1 pt-2">
+                <div className="flex flex-wrap gap-1 pt-2">
                   {listFields
                     .filter(
                       (field) => layout.meta.includes(field.name) && !layout.text.includes(field.name),
@@ -101,6 +98,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                     )
                     .map((field) => {
                       let value = row[field.name];
+                      if (field.name == "section") console.log({ value, isa: Array.isArray(value) });
                       if (Array.isArray(value)) value = value.join(", ");
 
                       value = String(value);
@@ -110,6 +108,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                       let showValue: ReactNode = removeElasticTags(value);
 
                       const type = fields.find((f) => f.name === field.name)?.type;
+                      if (field.name == "section") console.log({ value, field, type });
                       if (type === "image") showValue = DynamicIcon({ type: "image", className: "h-4 w-4" });
                       if (type === "preprocess") {
                         if (row[field.name]?.status === "error") {

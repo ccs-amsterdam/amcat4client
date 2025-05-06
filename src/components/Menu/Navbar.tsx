@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import { useAmcatBranding } from "@/api/branding";
 import useAutoSignin from "@/lib/useAutoSignin";
 import Link from "next/link";
