@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutateIndex } from "@/api";
+import { useHasIndexRole, useMutateIndex, useMyIndexrole } from "@/api";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,9 @@ import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import {
+  Archive,
   ArchiveRestore,
+  ArchiveX,
   ChevronRight,
   CornerLeftUp,
   FilePlus,
@@ -35,6 +37,7 @@ import {
 import { Input } from "../ui/input";
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
+import Confirm from "../ui/confirm";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -202,9 +205,12 @@ const IndexCard = ({
   const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [confirmDeleteCallback, setConfirmDeleteCallback] = useState<() => void>();
 
   const { user } = useMiddlecat();
   const { mutateAsync } = useMutateIndex(user);
+  const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
+  const isWriter = useHasIndexRole(user, index.id, "WRITER");
   if (user == null) return null;
 
   const style = index.image_url
@@ -216,6 +222,12 @@ const IndexCard = ({
         backgroundPositionY: "center",
       }
     : {};
+
+  function handleDelete() {
+    console.log(new Error().stack);
+
+    console.log("Boem!");
+  }
 
   function handleArchive(e: React.MouseEvent) {
     e.preventDefault();
@@ -247,61 +259,87 @@ const IndexCard = ({
   return (
     <Link href={`/indices/${index.id}/dashboard`}>
       <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
+        <Confirm
+          onConfirm={confirmDeleteCallback}
+          onClose={() => {
+            setConfirmDeleteCallback(undefined);
+          }}
+        />
+
         <CardHeader className="bg-background/70 p-3">
           <div className="flex items-start justify-between">
             <CardTitle className=" text-base">{index.name}</CardTitle>
-            <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenuItem onClick={handleArchive}>
-                  {index.archived ? <ArchiveRestore className="mr-2 h-4 w-4" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                  <span>{index.archived ? "Re-activate" : "Archive"}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
-                  <Folder className="mr-2 h-4 w-4" />
-                  <span>Move to folder:</span>
-                </DropdownMenuItem>
-                {index.folder && (
-                  <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
-                    <CornerLeftUp className="ml-4 h-3 w-3" />
-                    <span className="ml-1">
-                      {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
-                    </span>
+            {!isWriter ? null : (
+              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                  {!isAdmin ? null : (
+                    <>
+                      <DropdownMenuItem onClick={handleArchive}>
+                        {index.archived ? (
+                          <ArchiveRestore className="mr-2 h-4 w-4" />
+                        ) : (
+                          <ArchiveX className="mr-2 h-4 w-4" />
+                        )}
+                        <span>{index.archived ? "Re-activate" : "Archive"}</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={(e) => {
+                          setConfirmDeleteCallback(() => handleDelete);
+                        }}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                        <span>Delete</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  )}
+                  <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
+                    <Folder className="mr-2 h-4 w-4" />
+                    <span>Move to folder:</span>
                   </DropdownMenuItem>
-                )}
-                {folders.map((folder) => (
-                  <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
-                    <span className="ml-4">{folder}</span>
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
-                  <DialogTrigger asChild>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      <FolderPlus className="mr-2 h-4 w-4" />
-                      <span>To new folder</span>
+                  {index.folder && (
+                    <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
+                      <CornerLeftUp className="ml-4 h-3 w-3" />
+                      <span className="ml-1">
+                        {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
+                      </span>
                     </DropdownMenuItem>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Move {index.name} to new folder</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      placeholder="Enter folder name"
-                    />
-                    <Button onClick={handleCreateNewFolder}>Create and Move</Button>
-                  </DialogContent>
-                </Dialog>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  )}
+                  {folders.map((folder) => (
+                    <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
+                      <span className="ml-4">{folder}</span>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
+                    <DialogTrigger asChild>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <FolderPlus className="mr-2 h-4 w-4" />
+                        <span>To new folder</span>
+                      </DropdownMenuItem>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Move {index.name} to new folder</DialogTitle>
+                      </DialogHeader>
+                      <Input
+                        value={newFolderName}
+                        onChange={(e) => setNewFolderName(e.target.value)}
+                        placeholder="Enter folder name"
+                      />
+                      <Button onClick={handleCreateNewFolder}>Create and Move</Button>
+                    </DialogContent>
+                  </Dialog>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
           <CardDescription className="line-clamp-2 h-8 text-xs">
             {index.description || <i>(No description)</i>}
@@ -314,7 +352,7 @@ const IndexCard = ({
               {index.archived && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Trash2 className="h-5 w-5 text-primary-foreground" />
+                    <Archive className="h-5 w-5 text-primary-foreground" />
                   </TooltipTrigger>
                   <TooltipContent className="bg-white">
                     <p>This index is archived</p>

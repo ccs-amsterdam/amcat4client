@@ -20,7 +20,7 @@ export function useMyIndexrole(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   return index?.user_role;
 }
 
-export function useHasIndexRole(user: MiddlecatUser, indexId: AmcatIndexId, role: AmcatUserRole) {
+export function useHasIndexRole(user: MiddlecatUser | undefined, indexId: AmcatIndexId, role: AmcatUserRole) {
   const index_role = useMyIndexrole(user, indexId);
   if (!index_role) return undefined;
   const actual_role_index = amcatUserRoles.indexOf(index_role);
@@ -63,7 +63,6 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
       return mutateIndex(user, value);
     },
     onSuccess: (_, variables) => {
-      console.log("Mutated!");
       const indexId = variables.id;
       queryClient.invalidateQueries({ queryKey: ["index", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["indices", user] });
@@ -74,12 +73,5 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
 
 export async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexUpdateSchema>) {
   if (!user) throw new Error("Not logged in");
-  /*if (action === "delete") {
-    return await user.api.delete(`index/${id}`);
-  } else if (action === "create") {
-    return await user.api.post(`index`, { id, name, description, summary_field, guest_role, archive });
-  } else if (action === "update") {
-   */
-  console.log(value);
   return await user.api.put(`index/${value.id}`, value);
 }
