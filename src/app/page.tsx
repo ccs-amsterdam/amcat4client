@@ -83,7 +83,7 @@ function FeatureCards() {
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
-        <h2 className="mb-12 text-center text-3xl font-bold text-gray-900">Key Features</h2>
+        <h2 className="mb-12 text-center text-3xl font-semibold text-gray-900">Key Features</h2>
         <div className="grid gap-8 md:grid-cols-3">
           <FeatureCard
             icon={<Search className="h-10 w-10 text-primary" />}
