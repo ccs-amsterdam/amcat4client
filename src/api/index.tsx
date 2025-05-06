@@ -51,7 +51,7 @@ export function useCreateIndex(user: MiddlecatUser | undefined) {
 export async function createIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexSchema>) {
   if (!user) throw new Error("Not logged in");
   if (value.guest_role === "NONE") value.guest_role = undefined;
-  return await user.api.post(`index`, value);
+  return await user.api.post(`/index/`, value);
 }
 
 export function useMutateIndex(user: MiddlecatUser | undefined) {
