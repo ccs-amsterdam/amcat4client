@@ -15,7 +15,6 @@ import {
   Key,
   List,
   Loader,
-  Minus,
   Plus,
   Square,
   X,
@@ -153,8 +152,7 @@ export default function Upload({ user, indexId }: Props) {
           setData([]);
           setColumns([]);
           toast.success(
-            `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${
-              uploadStatus.successes + result.successes + uploadStatus.failures + result.failures
+            `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${uploadStatus.successes + result.successes + uploadStatus.failures + result.failures
             } documents. `,
           );
         } else {
@@ -174,7 +172,6 @@ export default function Upload({ user, indexId }: Props) {
 
   const duplicates = useMemo(() => hasDuplicates(data, columns), [data, columns]);
   const nonePending = columns.length > 0 && columns.every((c) => !["Validating", "Type not set"].includes(c.status));
-  console.log(duplicates, nonePending, columns);
   const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready" || c.status === "Type mismatch");
   const warn = columns.some((c) => c.status === "Type mismatch");
 
@@ -245,9 +242,8 @@ export default function Upload({ user, indexId }: Props) {
           return (
             <div
               key={field.name}
-              className={`${
-                newField || !!used ? "" : "bg-destructive text-destructive-foreground"
-              } flex gap-3 rounded-lg border  p-2  `}
+              className={`${newField || !!used ? "" : "bg-destructive text-destructive-foreground"
+                } flex gap-3 rounded-lg border  p-2  `}
             >
               <DynamicIcon type={field.type} />
               <div className="flex w-full justify-between gap-3">
@@ -518,17 +514,15 @@ function SelectAmcatField({
       <SimpleTooltip text={column.exists ? "This is an identifier field" : "Should new column be used as identifier?"}>
         <Button
           variant="ghost"
-          className={` mr-2 h-min rounded-full p-0 ${
-            !column.type || (column.exists && !column.identifier) ? "hidden" : ""
-          }`}
+          className={` mr-2 h-min rounded-full p-0 ${!column.type || (column.exists && !column.identifier) ? "hidden" : ""
+            }`}
         >
           <Key
             onClick={(e) => {
               if (!column.exists) setColumn({ ...column, identifier: !column.identifier });
             }}
-            className={` cursor-target text-secondary-foregroundf h-7 w-7  rounded-full p-1 ${
-              column.identifier ? "bg-secondary" : "border bg-gray-100 text-transparent"
-            }`}
+            className={` cursor-target text-secondary-foregroundf h-7 w-7  rounded-full p-1 ${column.identifier ? "bg-secondary" : "border bg-gray-100 text-transparent"
+              }`}
           />
         </Button>
       </SimpleTooltip>

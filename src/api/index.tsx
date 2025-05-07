@@ -58,15 +58,11 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (value: z.input<typeof amcatIndexUpdateSchema>) => {
-      if (!user) throw new Error("Not logged in");
-      return mutateIndex(user, value);
-    },
-    onSuccess: (_, variables) => {
-      const indexId = variables.id;
-      queryClient.invalidateQueries({ queryKey: ["index", user, indexId] });
+    mutationFn: (value: z.input<typeof amcatIndexUpdateSchema>) => mutateIndex(user, value),
+    onSuccess: (_, value) => {
+      queryClient.invalidateQueries({ queryKey: ["index", user, value.id] });
       queryClient.invalidateQueries({ queryKey: ["indices", user] });
-      return variables.id;
+      return value.id;
     },
   });
 }
@@ -74,4 +70,20 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
 export async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexUpdateSchema>) {
   if (!user) throw new Error("Not logged in");
   return await user.api.put(`index/${value.id}`, value);
+}
+
+export function useDeleteIndex(user: MiddlecatUser | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (indexId: string) => deleteIndex(user, indexId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["indices", user] });
+    }
+  });
+}
+
+export async function deleteIndex(user: MiddlecatUser | undefined, indexId: string) {
+  if (!user) throw new Error("Not logged in");
+  return await user.api.delete(`index/${indexId}`);
 }

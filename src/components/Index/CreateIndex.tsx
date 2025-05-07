@@ -35,7 +35,7 @@ export function CreateIndex({ children, folder }: { children?: React.ReactNode; 
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    createIndexAsync(amcatIndexSchema.parse({ id, name, description, folder }))
+    createIndexAsync(amcatIndexSchema.parse({ id, name, description, folder: folderValue }))
       .then(() => router.push(`/indices/${id}/data?tab=upload`))
       .catch(console.error);
   }
@@ -77,14 +77,14 @@ export function CreateIndex({ children, folder }: { children?: React.ReactNode; 
           </div>
 
           <div>
-            <label htmlFor="name">Folder</label>
+            <label htmlFor="folder">Folder</label>
             <Input
               value={folderValue}
               onChange={(e) => {
                 setFolderValue(e.target.value);
               }}
-              id="name"
-              name="name"
+              id="folder"
+              name="folder"
               autoComplete="off"
             />
           </div>

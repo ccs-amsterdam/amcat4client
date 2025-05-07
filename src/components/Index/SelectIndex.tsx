@@ -1,6 +1,6 @@
 "use client";
 
-import { useHasIndexRole, useMutateIndex, useMyIndexrole } from "@/api";
+import { useDeleteIndex, useHasIndexRole, useMutateIndex, useMyIndexrole } from "@/api";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,8 @@ import {
 import { Input } from "../ui/input";
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
-import Confirm from "../ui/confirm";
+import { useConfirm } from "../ui/confirm";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -122,20 +123,23 @@ export function SelectIndex() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
           />
-          {!canCreate ? null : (
-            <Tooltip>
-              <TooltipTrigger>
-                <CreateIndex folder={currentPath.join("/")}>
-                  <Button variant="default">
-                    <FilePlus className="h-5 w-5" />
-                  </Button>
-                </CreateIndex>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span>Create a new Index</span>
-              </TooltipContent>
-            </Tooltip>
-          )}
+          {
+            // TODO: This gives a warning which I don't understand, but it seems to work fine. 
+            // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?'
+            !canCreate ? null : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CreateIndex folder={currentPath.join("/")}>
+                    <Button variant="default">
+                      <FilePlus className="h-5 w-5" />
+                    </Button>
+                  </CreateIndex>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span>Create a new Index</span>
+                </TooltipContent>
+              </Tooltip>
+            )}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -205,28 +209,28 @@ const IndexCard = ({
   const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [confirmDeleteCallback, setConfirmDeleteCallback] = useState<() => void>();
+  const { activate, confirmDialog } = useConfirm();
 
   const { user } = useMiddlecat();
   const { mutateAsync } = useMutateIndex(user);
+  const { mutateAsync: deleteAsync } = useDeleteIndex(user);
+
   const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
   const isWriter = useHasIndexRole(user, index.id, "WRITER");
   if (user == null) return null;
 
   const style = index.image_url
     ? {
-        backgroundImage: `url('${index.image_url}')`,
-        backgroundRepeat: "no-repeat",
-        backgroundPositionX: "center",
-        backgroundSize: "cover",
-        backgroundPositionY: "center",
-      }
+      backgroundImage: `url('${index.image_url}')`,
+      backgroundRepeat: "no-repeat",
+      backgroundPositionX: "center",
+      backgroundSize: "cover",
+      backgroundPositionY: "center",
+    }
     : {};
 
   function handleDelete() {
-    console.log(new Error().stack);
-
-    console.log("Boem!");
+    deleteAsync(index.id)
   }
 
   function handleArchive(e: React.MouseEvent) {
@@ -256,15 +260,10 @@ const IndexCard = ({
     doMoveToFolder(newFolderName);
   }
 
-  return (
+  return <>
+    {confirmDialog}
     <Link href={`/indices/${index.id}/dashboard`}>
       <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
-        <Confirm
-          onConfirm={confirmDeleteCallback}
-          onClose={() => {
-            setConfirmDeleteCallback(undefined);
-          }}
-        />
 
         <CardHeader className="bg-background/70 p-3">
           <div className="flex items-start justify-between">
@@ -290,9 +289,12 @@ const IndexCard = ({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-destructive"
-                        onClick={(e) => {
-                          setConfirmDeleteCallback(() => handleDelete);
-                        }}
+                        onClick={() => activate(handleDelete, {
+                          description: `You are about to delete index ${index.name}. This cannot be undone!`,
+                          challenge: index.id,
+                          confirmText: `Delete index ${index.name}`
+                        }
+                        )}
                       >
                         <Trash2 className="mr-2 h-4 w-4 text-destructive" />
                         <span>Delete</span>
@@ -319,6 +321,7 @@ const IndexCard = ({
                   ))}
                   <DropdownMenuSeparator />
                   <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
+                    <DialogDescription></DialogDescription>
                     <DialogTrigger asChild>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         <FolderPlus className="mr-2 h-4 w-4" />
@@ -329,6 +332,7 @@ const IndexCard = ({
                       <DialogHeader>
                         <DialogTitle>Move {index.name} to new folder</DialogTitle>
                       </DialogHeader>
+                      <DialogDescription>This will create a new folder and move the index to that folder</DialogDescription>
                       <Input
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
@@ -373,6 +377,5 @@ const IndexCard = ({
           </TooltipProvider>
         </CardFooter>
       </Card>
-    </Link>
-  );
+    </Link ></>;
 };
