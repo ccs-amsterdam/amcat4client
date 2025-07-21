@@ -1,5 +1,6 @@
 {
   "name": "amcat4client",
+  "version": "4.0.16",
   "private": true,
   "scripts": {
     "dev": "next dev",
