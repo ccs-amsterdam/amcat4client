@@ -1,13 +1,12 @@
-import Articles from "../Articles/Articles";
-import { MiddlecatUser } from "middlecat-react";
-import { AggregationAxis, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { useFields } from "@/api/fields";
-import AggregateResult from "../Aggregate/AggregateResult";
-import { useMemo } from "react";
-import { useFieldValues } from "@/api/fieldValues";
-import { useFieldStats } from "@/api/fieldStats";
-import { autoFormatDate } from "@/lib/autoFormatDate";
 import { useHasIndexRole } from "@/api";
+import { useFields } from "@/api/fields";
+import { useFieldStats } from "@/api/fieldStats";
+import { AggregationAxis, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
+import { autoFormatDate } from "@/lib/autoFormatDate";
+import { MiddlecatUser } from "middlecat-react";
+import { useMemo } from "react";
+import AggregateResult from "../Aggregate/AggregateResult";
+import Articles from "../Articles/Articles";
 
 interface Props {
   user: MiddlecatUser;
@@ -34,7 +33,7 @@ export default function Summary({ user, indexId, query }: Props) {
       <div className="mt-12 flex snap-center flex-col  gap-3 md:gap-6">
         {visualizations.length === 0 ? (
           <div className="w-full flex-auto px-10 py-14 text-xl text-primary">
-            {isWriter ? <a href="./settings">Enable visualizations in field settings</a> : null}
+            {isWriter ? <a href="./data?tab=fields">Enable visualizations in field settings</a> : null}
           </div>
         ) : (
           visualizations
