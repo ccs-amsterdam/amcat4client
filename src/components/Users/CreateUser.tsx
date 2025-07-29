@@ -1,21 +1,18 @@
-import { useMutateUser } from "@/api/users";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ChevronDown } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
-  DropdownMenuTrigger,
   DropdownMenuRadioItem,
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useMemo, useState } from "react";
-import { amcatUserRoles } from "@/schemas";
-import { ChevronDown } from "lucide-react";
-import { Dialog, DialogHeader, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "../ui/textarea";
-import { z } from "zod";
-import { toast } from "sonner";
 
 interface Props {
   ownRole: string;
@@ -65,7 +62,9 @@ function CreateUserForm({ ownRole, roles, createUser }: CreateUserProps) {
       .map((email) => email.trim())
       .filter((email) => email);
 
-    const invalidEmails = emailList.filter((email) => !z.string().email().safeParse(email).success);
+    const invalidEmails = emailList.filter(
+      (email) => !z.string().email().safeParse(email.replace(/^\*@/, "__EVERYONE__@")).success,
+    );
     if (invalidEmails.length > 0) {
       toast(`Invalid emails: ${invalidEmails.join(", ")}`);
       return;

@@ -74,7 +74,7 @@ export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId |
       return z
         .object({
           successes: z.number(),
-          failures: z.number(),
+          failures: z.array(z.string()),
         })
         .parse(res.data);
     },

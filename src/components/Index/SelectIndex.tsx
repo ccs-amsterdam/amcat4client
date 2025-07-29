@@ -1,12 +1,13 @@
 "use client";
 
-import { useDeleteIndex, useHasIndexRole, useMutateIndex, useMyIndexrole } from "@/api";
+import { useDeleteIndex, useHasIndexRole, useMutateIndex } from "@/api";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import {
   Archive,
@@ -26,6 +27,7 @@ import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { useConfirm } from "../ui/confirm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
@@ -37,8 +39,6 @@ import {
 import { Input } from "../ui/input";
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
-import { useConfirm } from "../ui/confirm";
-import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -116,7 +116,7 @@ export function SelectIndex() {
             ),
           )}
         </h3>
-        <div className={` Pagination flex items-center gap-3 ${allIndices?.length ? "" : "hidden"} `}>
+        <div className={` Pagination flex items-center gap-3  `}>
           <Input
             className="w-36 border-foreground/50"
             value={search}
@@ -124,7 +124,7 @@ export function SelectIndex() {
             placeholder="Search"
           />
           {
-            // TODO: This gives a warning which I don't understand, but it seems to work fine. 
+            // TODO: This gives a warning which I don't understand, but it seems to work fine.
             // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?'
             !canCreate ? null : (
               <Tooltip>
@@ -139,7 +139,8 @@ export function SelectIndex() {
                   <span>Create a new Index</span>
                 </TooltipContent>
               </Tooltip>
-            )}
+            )
+          }
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -221,16 +222,16 @@ const IndexCard = ({
 
   const style = index.image_url
     ? {
-      backgroundImage: `url('${index.image_url}')`,
-      backgroundRepeat: "no-repeat",
-      backgroundPositionX: "center",
-      backgroundSize: "cover",
-      backgroundPositionY: "center",
-    }
+        backgroundImage: `url('${index.image_url}')`,
+        backgroundRepeat: "no-repeat",
+        backgroundPositionX: "center",
+        backgroundSize: "cover",
+        backgroundPositionY: "center",
+      }
     : {};
 
   function handleDelete() {
-    deleteAsync(index.id)
+    deleteAsync(index.id);
   }
 
   function handleArchive(e: React.MouseEvent) {
@@ -260,122 +261,127 @@ const IndexCard = ({
     doMoveToFolder(newFolderName);
   }
 
-  return <>
-    {confirmDialog}
-    <Link href={`/indices/${index.id}/dashboard`}>
-      <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
-
-        <CardHeader className="bg-background/70 p-3">
-          <div className="flex items-start justify-between">
-            <CardTitle className=" text-base">{index.name}</CardTitle>
-            {!isWriter ? null : (
-              <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                  {!isAdmin ? null : (
-                    <>
-                      <DropdownMenuItem onClick={handleArchive}>
-                        {index.archived ? (
-                          <ArchiveRestore className="mr-2 h-4 w-4" />
-                        ) : (
-                          <ArchiveX className="mr-2 h-4 w-4" />
-                        )}
-                        <span>{index.archived ? "Re-activate" : "Archive"}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => activate(handleDelete, {
-                          description: `You are about to delete index ${index.name}. This cannot be undone!`,
-                          challenge: index.id,
-                          confirmText: `Delete index ${index.name}`
-                        }
-                        )}
-                      >
-                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                        <span>Delete</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  )}
-                  <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
-                    <Folder className="mr-2 h-4 w-4" />
-                    <span>Move to folder:</span>
-                  </DropdownMenuItem>
-                  {index.folder && (
-                    <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
-                      <CornerLeftUp className="ml-4 h-3 w-3" />
-                      <span className="ml-1">
-                        {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
-                      </span>
+  return (
+    <>
+      {confirmDialog}
+      <Link href={`/indices/${index.id}/dashboard`}>
+        <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
+          <CardHeader className="bg-background/70 p-3">
+            <div className="flex items-start justify-between">
+              <CardTitle className=" text-base">{index.name}</CardTitle>
+              {!isWriter ? null : (
+                <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                    {!isAdmin ? null : (
+                      <>
+                        <DropdownMenuItem onClick={handleArchive}>
+                          {index.archived ? (
+                            <ArchiveRestore className="mr-2 h-4 w-4" />
+                          ) : (
+                            <ArchiveX className="mr-2 h-4 w-4" />
+                          )}
+                          <span>{index.archived ? "Re-activate" : "Archive"}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() =>
+                            activate(handleDelete, {
+                              description: `You are about to delete index ${index.name}. This cannot be undone!`,
+                              challenge: index.id,
+                              confirmText: `Delete index ${index.name}`,
+                            })
+                          }
+                        >
+                          <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
+                      <Folder className="mr-2 h-4 w-4" />
+                      <span>Move to folder:</span>
                     </DropdownMenuItem>
-                  )}
-                  {folders.map((folder) => (
-                    <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
-                      <span className="ml-4">{folder}</span>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
-                    <DialogDescription></DialogDescription>
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        <FolderPlus className="mr-2 h-4 w-4" />
-                        <span>To new folder</span>
+                    {index.folder && (
+                      <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
+                        <CornerLeftUp className="ml-4 h-3 w-3" />
+                        <span className="ml-1">
+                          {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
+                        </span>
                       </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Move {index.name} to new folder</DialogTitle>
-                      </DialogHeader>
-                      <DialogDescription>This will create a new folder and move the index to that folder</DialogDescription>
-                      <Input
-                        value={newFolderName}
-                        onChange={(e) => setNewFolderName(e.target.value)}
-                        placeholder="Enter folder name"
-                      />
-                      <Button onClick={handleCreateNewFolder}>Create and Move</Button>
-                    </DialogContent>
-                  </Dialog>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-          <CardDescription className="line-clamp-2 h-8 text-xs">
-            {index.description || <i>(No description)</i>}
-          </CardDescription>
-        </CardHeader>
-
-        <CardFooter className="absolute bottom-0 right-0 z-10 p-2">
-          <TooltipProvider>
-            <div className="flex space-x-2">
-              {index.archived && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Archive className="h-5 w-5 text-primary-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-white">
-                    <p>This index is archived</p>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              {index.user_role !== "NONE" && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <UserCheck className="h-5 w-5 text-primary-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-white">
-                    <p>You have a role in this project</p>
-                  </TooltipContent>
-                </Tooltip>
+                    )}
+                    {folders.map((folder) => (
+                      <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
+                        <span className="ml-4">{folder}</span>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
+                      <DialogDescription></DialogDescription>
+                      <DialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <FolderPlus className="mr-2 h-4 w-4" />
+                          <span>To new folder</span>
+                        </DropdownMenuItem>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Move {index.name} to new folder</DialogTitle>
+                        </DialogHeader>
+                        <DialogDescription>
+                          This will create a new folder and move the index to that folder
+                        </DialogDescription>
+                        <Input
+                          value={newFolderName}
+                          onChange={(e) => setNewFolderName(e.target.value)}
+                          placeholder="Enter folder name"
+                        />
+                        <Button onClick={handleCreateNewFolder}>Create and Move</Button>
+                      </DialogContent>
+                    </Dialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               )}
             </div>
-          </TooltipProvider>
-        </CardFooter>
-      </Card>
-    </Link ></>;
+            <CardDescription className="line-clamp-2 h-8 text-xs">
+              {index.description || <i>(No description)</i>}
+            </CardDescription>
+          </CardHeader>
+
+          <CardFooter className="absolute bottom-0 right-0 z-10 p-2">
+            <TooltipProvider>
+              <div className="flex space-x-2">
+                {index.archived && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Archive className="h-5 w-5 text-primary-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white">
+                      <p>This index is archived</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {index.user_role !== "NONE" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <UserCheck className="h-5 w-5 text-primary-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white">
+                      <p>You have a role in this project</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+            </TooltipProvider>
+          </CardFooter>
+        </Card>
+      </Link>
+    </>
+  );
 };
