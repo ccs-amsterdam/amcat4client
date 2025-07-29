@@ -37,12 +37,29 @@ function BigBanner() {
   const require_login =
     serverConfig.authorization === "allow_authenticated_guests" ||
     serverConfig.authorization === "authorized_users_only";
+  const no_auth = serverConfig.authorization === "no_auth";
   return (
     <section className="bg-primary/15 py-20">
       <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
-          {user.authenticated ? (
+          {no_auth ? (
+            <>
+              <p>
+                This server does not use authentication. This is indented for using AmCAT on your own computer, but
+                please configure authentication if using AmCAT on a network or server.{" "}
+                <a href="https://amcat.nl/book/04._sharing">
+                  <b>More information</b>
+                </a>
+              </p>{" "}
+              <Link href="/indices">
+                <Button size="lg">
+                  Enter server
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </>
+          ) : user.authenticated ? (
             <Link href="/indices">
               <Button size="lg">
                 Enter Server
