@@ -65,8 +65,9 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  console.log(header.getSize());
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} style={{ width: `${header.getSize()}px` }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );

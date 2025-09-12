@@ -8,21 +8,25 @@ import Link from "next/link";
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
 import ServerMenu from "./ServerMenu";
+import { useParams } from "next/navigation";
 
 export default function Navbar() {
   useAutoSignin();
+
+  const params = useParams<{ index: string }>();
+  const showingIndex = params?.index !== undefined;
 
   return (
     <nav className="mainnav sticky gap-3 border-b-[1px] border-foreground/30 bg-background text-foreground">
       <div className="flex h-16 items-center justify-between ">
         <div className="flex h-full flex-1 items-center">
-          <Link href="/">
+          <Link href="/" className={showingIndex ? "hidden" : ""}>
             <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
           </Link>
           <IndexMenu />
         </div>
 
-        <div className="hidden whitespace-nowrap sm:block">
+        <div className={`hidden whitespace-nowrap ${showingIndex ? "" : "sm:block"} `}>
           <ServerBranding />
         </div>
 

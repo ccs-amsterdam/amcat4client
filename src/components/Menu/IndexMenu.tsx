@@ -71,8 +71,8 @@ export default function IndexMenu() {
       </DropdownMenu>
 
       <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
-      <NavLink index={index} path="data" label="Fields & Data" icon={<DatabaseZap />} />
-      <NavLink index={index} path="settings" label="Index Admin" icon={<Settings />} />
+      <NavLink index={index} path="data" label="Data" icon={<DatabaseZap />} />
+      <NavLink index={index} path="settings" label="Settings" icon={<Settings />} />
     </>
   );
 }

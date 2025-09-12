@@ -45,22 +45,22 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   // allow signing in to local server on specific port. Useful for development,
   // or for running local amcat without having to run a new client
   //const [port] = useState(() => params?.get("port"));
-  
+
   const [serverUrl, setServerUrl] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch the server URL from our API endpoint
-    fetch('/api/config')
-      .then(response => response.json())
-      .then(data => {
+    fetch("/api/config")
+      .then((response) => response.json())
+      .then((data) => {
         setServerUrl(data.amcatServer);
         setIsLoading(false);
       })
-      .catch(error => {
-        console.error('Failed to fetch server URL:', error);
+      .catch((error) => {
+        console.error("Failed to fetch server URL:", error);
         // Fallback to the public environment variable or default
-        setServerUrl(process.env.NEXT_PUBLIC_AMCAT_SERVER || 'http://localhost:5000');
+        setServerUrl(process.env.NEXT_PUBLIC_AMCAT_SERVER || "http://localhost:5000");
         setIsLoading(false);
       });
   }, []);
@@ -89,27 +89,28 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
-  if (isLoading) {
+  function renderIfLoaded() {
+    if (isLoading) {
+      return (
+        <div className="flex h-screen flex-col items-center justify-center gap-6">
+          <img src="/logo.png" alt="AmCAT" width={150} height={150} className="mx-2 animate-bounce px-1" />
+        </div>
+      );
+    }
     return (
-      <div className="flex items-center justify-center h-screen">
-        <img
-          src="/logo.png"
-          alt="AmCAT"
-          width={500}
-          height={500}
-          className="animate-spin mx-2 px-1"
-        />
-      </div>
+      <>
+        <MiddlecatProvider bff="/api/bffAuth" fixedResource={serverUrl}>
+          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+        </MiddlecatProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+      </>
     );
   }
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <MiddlecatProvider bff="/api/bffAuth" fixedResource={serverUrl}>
-          <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-        </MiddlecatProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {renderIfLoaded()}
       </ThemeProvider>
     </QueryClientProvider>
   );

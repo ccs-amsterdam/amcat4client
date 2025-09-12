@@ -1,3 +1,4 @@
+import { AmcatConfig } from "@/interfaces";
 import { amcatConfigSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -15,5 +16,6 @@ export function useAmcatConfig() {
 export async function getAmcatConfig(host?: string) {
   if (!host) return undefined;
   const res = await axios.get(`${host}/config`, { timeout: 3000 });
-  return amcatConfigSchema.parse(res.data);
+  const config: AmcatConfig = amcatConfigSchema.parse(res.data);
+  return config;
 }

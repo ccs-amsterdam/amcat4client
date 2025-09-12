@@ -10,24 +10,34 @@ import { useRouter } from "next/navigation";
 import { useAmcatBranding } from "@/api/branding";
 import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
 import Markdown from "react-markdown";
+import { AmcatBranding, AmcatConfig } from "@/interfaces";
+import { Loading } from "@/components/ui/loading";
 
 export default function Index() {
+  const { user, signIn, loading: userLoading } = useMiddlecat();
+  const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
+  const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
+
+  if (userLoading || configLoading || brandingLoading) return <Loading />;
+  console.log(serverBranding, serverConfig);
+
   return (
     <>
-      <main className="flex-grow">
-        <BigBanner />
+      <main className="flex flex-grow flex-col">
+        <BigBanner serverConfig={serverConfig} serverBranding={serverBranding} />
         <FeatureCards />
-        <ReadyBanner />
-        <SplashFooter />
+        <div className="max-h-60 flex-grow"></div>
+        <div className="">
+          <ReadyBanner />
+        </div>
+        <SplashFooter serverBranding={serverBranding} />
       </main>
     </>
   );
 }
 
-function BigBanner() {
+function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfig; serverBranding?: AmcatBranding }) {
   const { user, signIn } = useMiddlecat();
-  const { data: serverConfig } = useAmcatConfig();
-  const { data: serverBranding } = useAmcatBranding();
   const router = useRouter();
   if (user == null || serverConfig == null || serverBranding == null) return null;
 
@@ -100,7 +110,7 @@ function FeatureCards() {
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
-        <h2 className="mb-12 text-center text-3xl font-semibold text-gray-900">Key Features</h2>
+        <h2 className="mb-12 text-center text-3xl font-semibold">Key Features</h2>
         <div className="grid gap-8 md:grid-cols-3">
           <FeatureCard
             icon={<Search className="h-10 w-10 text-primary" />}
@@ -131,9 +141,11 @@ interface FeatureCardProps {
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
     <div className="rounded-lg bg-primary/15 p-6 shadow-md">
-      <div className="mb-4">{icon}</div>
-      <h3 className="mb-2 text-xl font-semibold text-gray-900">{title}</h3>
-      <p className="text-gray-600">{description}</p>
+      <div className="mb-4 flex items-center gap-6">
+        {icon}
+        <h3 className=" text-xl font-semibold ">{title}</h3>
+      </div>
+      <p className="text-foreground/70">{description}</p>
     </div>
   );
 }
@@ -157,29 +169,28 @@ function ReadyBanner() {
   );
 }
 
-function SplashFooter() {
-  const { data: serverBranding } = useAmcatBranding();
+function SplashFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {}) {
   if (serverBranding == null) return null;
   const links = serverBranding.client_data?.information_links;
   const n_cols = 2 + (links == null ? 0 : links.length);
   return (
-    <footer className="bg-gray-100 py-8">
+    <footer className="py-8">
       <div className="container mx-auto px-4">
         <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
           <div>
-            <h3 className="mb-2 font-semibold text-gray-900">AmCAT</h3>
-            <p className="text-sm text-gray-600">Open-source text analysis software for researchers and analysts.</p>
+            <h3 className="mb-2 font-semibold">AmCAT</h3>
+            <p className="text-sm ">Open-source text analysis software for researchers and analysts.</p>
           </div>
           <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Resources</h3>
+            <h3 className="mb-2 font-semibold">Resources</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="https://amcat.nl/book/" className="text-gray-600 hover:text-blue-600">
+                <Link href="https://amcat.nl/book/" className=" hover:text-blue-600">
                   Documentation
                 </Link>
               </li>
               <li>
-                <Link href="https://github.com/ccs-amsterdam/amcat4" className="text-gray-600 hover:text-blue-600">
+                <Link href="https://github.com/ccs-amsterdam/amcat4" className=" hover:text-blue-600">
                   GitHub
                 </Link>
               </li>
@@ -189,11 +200,11 @@ function SplashFooter() {
             ? null
             : links.map((link, i) => (
                 <div key={i}>
-                  <h3 className="mb-2 font-semibold text-gray-900">{link.title}</h3>
+                  <h3 className="mb-2 font-semibold ">{link.title}</h3>
                   <ul className="space-y-2 text-sm">
                     {link.links.map((item, j) => (
                       <li key={j}>
-                        <Link href={item.href as string} className="text-gray-600 hover:text-blue-600">
+                        <Link href={item.href as string} className=" hover:text-blue-600">
                           {item.label}
                         </Link>
                       </li>
@@ -202,7 +213,7 @@ function SplashFooter() {
                 </div>
               ))}
         </div>
-        <div className="mt-8 border-t border-gray-200 pt-8 text-center text-sm text-gray-600">
+        <div className="mt-8 border-t border-foreground/40 pt-8 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} AmCAT. All rights reserved.</p>
         </div>
       </div>

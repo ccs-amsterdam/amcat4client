@@ -1,3 +1,4 @@
+import { AmcatBranding } from "@/interfaces";
 import { amcatBrandingSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -33,7 +34,8 @@ export async function getAmcatBranding(host?: string) {
   toast("Error parsing branding data, see console for more details");
   console.error(result.error);
   res.data.client_data = undefined;
-  return amcatBrandingSchema.parse(res.data);
+  const branding: AmcatBranding = amcatBrandingSchema.parse(res.data);
+  return branding;
 }
 
 export function useMutateBranding(user?: MiddlecatUser) {

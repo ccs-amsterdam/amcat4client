@@ -7,6 +7,7 @@ import {
   amcatAggregationIntervalSchema,
   amcatAggregationMetricSchema,
   amcatArticleSchema,
+  amcatBrandingSchema,
   amcatClientSettingsSchema,
   amcatConfigSchema,
   amcatElasticFieldTypeSchema,
@@ -31,6 +32,7 @@ import {
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
+export type AmcatBranding = z.infer<typeof amcatBrandingSchema>;
 export type AmcatUserRole = z.infer<typeof amcatUserRoleSchema>;
 export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
 export type amcatIndexUpdate = z.infer<typeof amcatIndexUpdateSchema>;

@@ -62,6 +62,7 @@ export function SelectIndex() {
     setCurrentPath(params?.get("folder")?.split("/") ?? []);
   }, [params]);
 
+  console.log(allIndices);
   useEffect(() => {
     if (!allIndices) return;
     const timeout = setTimeout(() => {

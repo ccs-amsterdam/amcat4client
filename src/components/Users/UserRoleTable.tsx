@@ -102,7 +102,7 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
         </div>
       </div>
       <div>
-        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={50} />
+        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={10} />
         <AlertDialog open={changeOwnRole !== undefined} onOpenChange={() => setChangeOwnRole(undefined)}>
           <AlertDialogContent>
             <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>
@@ -133,10 +133,13 @@ function createTableColumns(roles: string[]): ColumnDef<Row>[] {
     {
       accessorKey: "email",
       header: "Email",
+      size: 400,
     },
     {
       accessorKey: "role",
       header: "Role",
+      enableResizing: false,
+      size: 100,
       cell: ({ row }) => {
         const { role, canCreateAdmin, onChange } = row.original;
         if (!onChange) return role;

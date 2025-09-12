@@ -36,7 +36,7 @@ export default function Index() {
         </DialogTrigger>
         <DialogContent
           aria-describedby={undefined}
-          className="top-20 min-h-[50vh] w-[1500px] max-w-[95vw] translate-y-0 pt-12 lg:p-12"
+          className=" top-[5rem] flex h-[calc(95vh-5rem)] w-[1200px] max-w-[95vw]  translate-y-0 flex-col  pt-12 lg:p-12"
         >
           <DialogTitle>
             <div className="flex items-center">
@@ -91,8 +91,8 @@ function ServerSettings() {
             );
           })}
         </TabsList>
-        <div className="mx-auto w-full ">
-          <TabsContent value={Tab.Info}>
+        <div className="w-full ">
+          <TabsContent value={Tab.Info} className="">
             <h2 className="text-lg font-semibold">Server configuration</h2>
             <p className="text-sm">
               These settings are configured at the server level, and cannot be changed via the client
@@ -221,9 +221,14 @@ function ServerBrandingForm() {
           disabled={!isAdmin}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Welcome Text (Mardown)</FormLabel>
+              <FormLabel>Welcome Text (Markdown)</FormLabel>
               <FormControl>
-                <Textarea placeholder="# Title and text using **MarkDown**" {...field} value={field.value ?? ""} />
+                <Textarea
+                  rows={6}
+                  placeholder="# Title and text using **MarkDown**"
+                  {...field}
+                  value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
