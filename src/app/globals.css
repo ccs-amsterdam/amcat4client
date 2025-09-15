@@ -1,22 +1,13 @@
 @tailwind base;
 @tailwind components;
 
-nav.mainnav {
-  --background: 0, 0%, 14%;
-  --foreground: 222.2, 84%, 90%;
-  --foreground-reverse: 222.2, 84%, 10%;
-
-  --primary: 174, 56%, 50%;
-  --primary-foreground: 222.2, 47.4%, 0%;
-
-  --secondary: 44, 64%, 53%;
-  --secondary-foreground: 222.2, 47.4%, 10%;
-}
-
 @tailwind utilities;
 
 @layer base {
   :root {
+    --background-fixed: 0, 0%, 14%;
+    --foreground-fixed: 222.2, 84%, 90%;
+
     --background: 0, 0%, 100%;
     --foreground: 222.2, 84%, 10%;
     --foreground-reverse: 222.2, 84%, 90%;
@@ -128,6 +119,10 @@ nav.mainnav {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: hsla(var(--foreground));
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 .spike-loader {

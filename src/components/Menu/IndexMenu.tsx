@@ -21,7 +21,7 @@ import {
 import { AmcatIndex, AmcatIndexId } from "@/interfaces";
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
 import { CommandEmpty } from "cmdk";
-import { ChevronDown, DatabaseZap, LayoutDashboard, LibraryIcon, Settings, User, X } from "lucide-react";
+import { ChevronDown, DatabaseZap, Eye, LayoutDashboard, LibraryIcon, Settings, Shield, User, X } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
@@ -36,43 +36,14 @@ export default function IndexMenu() {
   const { data: index } = useIndex(user, indexId);
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
   if (loading || !user) return null;
-  if (!index) return <IndicesLink />;
+  if (!index) return null;
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          className={
-            "flex h-full select-none items-center whitespace-nowrap border-primary bg-primary px-5 text-primary-foreground outline-none"
-          }
-        >
-          <LibraryIcon className="mr-2" />
-
-          <div className="hidden max-w-[45vw] overflow-hidden text-ellipsis lg:block">{index.name}</div>
-          <ChevronDown className="h-4 w-4" />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
-          <DropdownMenuGroup>
-            <DropdownMenuSub>
-              <DropdownMenuItem
-                className="flex"
-                onClick={() => router.push(`/indices${!index.folder ? "" : "?folder=" + index.folder}`)}
-              >
-                <X className="mr-2 h-4 w-4" />
-                <span className="">Close index</span>
-              </DropdownMenuItem>
-              <SelectIndex user={user} indexId={indexId} />
-            </DropdownMenuSub>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Your index role: {index.user_role}</DropdownMenuLabel>
-          {index && isServerAdmin && <IndexMenuServerAdmin user={user} index={index} />}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
       <NavLink index={index} path="dashboard" label="Dashboard" icon={<LayoutDashboard />} />
       <NavLink index={index} path="data" label="Data" icon={<DatabaseZap />} />
       <NavLink index={index} path="settings" label="Settings" icon={<Settings />} />
+      <IndexRoleMenu user={user} index={index} />
     </>
   );
 }
@@ -82,23 +53,6 @@ function useCurrentPath() {
   if (!path) return "";
   const pathParts = path.split("/");
   return pathParts[pathParts.length - 1] || "";
-}
-
-function IndicesLink() {
-  const router = useRouter();
-  const currentPath = useCurrentPath();
-  const active = currentPath === "indices";
-
-  return (
-    <button
-      onClick={() => router.push("/indices")}
-      className={`${active ? "text-primary" : "text-header-foreground"}
-      flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
-    >
-      <LibraryIcon />
-      <span>Indices</span>
-    </button>
-  );
 }
 
 function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string; label: string; icon: JSX.Element }) {
@@ -126,11 +80,37 @@ function NavLink({ index, path, label, icon }: { index: AmcatIndex; path: string
       onClick={() => router.push(href)}
       className={`${
         active ? "text-primary" : "text-foreground/80"
-      } flex h-full select-none items-center gap-3 border-primary px-4 outline-none hover:bg-foreground/10`}
+      } flex h-full select-none items-center gap-3 border-primary px-2 outline-none hover:bg-foreground/10 lg:px-4`}
     >
       {icon}
       <span className="hidden lg:inline">{label}</span>
     </button>
+  );
+}
+
+function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
+  const role = index?.user_role || "NONE";
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex h-full select-none items-center gap-3 border-primary px-2 outline-none hover:bg-foreground/10 lg:px-4">
+        <Shield />
+        Access
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>Current index role:</DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={index?.user_role}>
+          {roles.map((role) => {
+            return (
+              <DropdownMenuRadioItem key={role} value={role} disabled={index?.user_role !== role}>
+                {role}
+              </DropdownMenuRadioItem>
+            );
+          })}
+        </DropdownMenuRadioGroup>
+        <IndexMenuServerAdmin user={user} index={index} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -149,9 +129,11 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
   return (
     <DropdownMenuGroup>
       <DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel>Server admin action</DropdownMenuLabel>
         <DropdownMenuSubTrigger className={!index ? "hidden" : ""}>
           <User className="mr-2 h-4 w-4" />
-          <span>Change your index role</span>
+          <span>Change my index role</span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent className="">
           <DropdownMenuRadioGroup
@@ -172,45 +154,6 @@ function IndexMenuServerAdmin({ user, index }: { user: MiddlecatUser; index?: Am
               );
             })}
           </DropdownMenuRadioGroup>
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
-    </DropdownMenuGroup>
-  );
-}
-
-function SelectIndex({ user, indexId }: { user: MiddlecatUser; indexId: AmcatIndexId }) {
-  const { data: indices } = useAmcatIndices(user);
-  const router = useRouter();
-
-  function onSelectIndex(index: string) {
-    router.push(`/indices/${index}/dashboard`);
-  }
-
-  return (
-    <DropdownMenuGroup>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger className="">
-          <LibraryIcon className="mr-2 h-4 w-4" />
-          <span>Select index</span>
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="">
-          <Command>
-            <CommandInput placeholder="Filter indices" autoFocus={true} className="h-9" />
-            <CommandList>
-              <CommandEmpty>No index found</CommandEmpty>
-              <CommandGroup>
-                {indices?.map((index) => {
-                  if (index.id === indexId) return null;
-                  if (index.archived) return null;
-                  return (
-                    <CommandItem key={index.id} value={index.id} onSelect={(value) => onSelectIndex(value)}>
-                      <span>{index.name.replaceAll("_", " ")}</span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
-          </Command>
         </DropdownMenuSubContent>
       </DropdownMenuSub>
     </DropdownMenuGroup>

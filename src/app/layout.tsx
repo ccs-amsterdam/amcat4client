@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={font.className} suppressHydrationWarning>
-      <body className="relative flex min-h-screen flex-col scroll-smooth ">
+      <body className="no-scrollbar relative flex min-h-screen flex-col scroll-smooth ">
         <ClientProviders>
           <Navbar />
           {children}

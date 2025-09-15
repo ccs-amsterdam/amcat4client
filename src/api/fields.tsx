@@ -42,6 +42,7 @@ export async function getFields(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`/index/${indexId}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
+  console.log(fieldsArray);
   const fields = z.array(amcatFieldSchema).parse(fieldsArray);
   return fields.map((f) => {
     // set default values

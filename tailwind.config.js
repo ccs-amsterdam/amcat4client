@@ -28,9 +28,11 @@ module.exports = {
 
         background: {
           DEFAULT: "hsl(var(--background), <alpha-value>)",
+          fixed: "hsl(var(--background-fixed), <alpha-value>)",
         },
         foreground: {
           DEFAULT: "hsl(var(--foreground), <alpha-value>)",
+          fixed: "hsl(var(--foreground-fixed), <alpha-value>)",
         },
         primary: {
           DEFAULT: "hsl(var(--primary), <alpha-value>)",

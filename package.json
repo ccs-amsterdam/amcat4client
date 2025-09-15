@@ -42,7 +42,7 @@
     "eslint": "8.42.0",
     "gray-matter": "^4.0.3",
     "jszip": "^3.10.1",
-    "lucide-react": "^0.279.0",
+    "lucide-react": "^0.528.0",
     "lz-string": "^1.5.0",
     "middlecat-react": "^0.3.20",
     "next": "^14.0.4",

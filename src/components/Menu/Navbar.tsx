@@ -7,8 +7,9 @@ import useAutoSignin from "@/lib/useAutoSignin";
 import Link from "next/link";
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
-import ServerMenu from "./ServerMenu";
 import { useParams } from "next/navigation";
+import GoToMenu from "./GoTo";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   useAutoSignin();
@@ -17,22 +18,25 @@ export default function Navbar() {
   const showingIndex = params?.index !== undefined;
 
   return (
-    <nav className="mainnav sticky gap-3 border-b-[1px] border-foreground/30 bg-background text-foreground">
-      <div className="flex h-16 items-center justify-between ">
-        <div className="flex h-full flex-1 items-center">
-          <Link href="/" className={showingIndex ? "hidden" : ""}>
+    <nav className={`z-50 border-b-[1px] bg-background `}>
+      <div className={`select-none overflow-hidden bg-primary/0`}>
+        <div className="flex h-16 items-center justify-between ">
+          <div className="flex h-full  items-center">
+            {/*<Link href="/" className={showingIndex ? "hidden" : ""}>
             <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
-          </Link>
-          <IndexMenu />
-        </div>
+          </Link>*/}
+            <GoToMenu />
+          </div>
 
-        <div className={`hidden whitespace-nowrap ${showingIndex ? "" : "sm:block"} `}>
+          {/*<div className={`hidden whitespace-nowrap ${showingIndex ? "" : "sm:block"} `}>
           <ServerBranding />
-        </div>
+        </div>*/}
 
-        <div className="flex flex-1 items-center justify-end gap-3 px-2">
-          <AccountMenu />
-          <ServerMenu />
+          <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
+            <IndexMenu />
+            <AccountMenu />
+            {/*<ServerMenu />*/}
+          </div>
         </div>
       </div>
     </nav>

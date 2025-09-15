@@ -2,18 +2,21 @@
 
 import {
   ColumnDef,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./button";
 import { ArrowLeft, ArrowRight, StepBack, StepForward } from "lucide-react";
+import { useMemo, useState } from "react";
 
-interface DataTableProps<TData, TValue> {
+interface DataTableProps<TData extends Record<string, any>, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   globalFilter?: string;
@@ -25,9 +28,10 @@ interface DataTableProps<TData, TValue> {
   };
   loading?: boolean;
   pageSize?: number;
+  sortable?: boolean; // !!! only works if all data is known (so pagination not manual)
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends Record<string, any>, TValue>({
   columns,
   data,
   globalFilter,
@@ -36,6 +40,11 @@ export function DataTable<TData, TValue>({
   pageSize = 6,
 }: DataTableProps<TData, TValue>) {
   const manualPagination = !!pagination;
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: "role", desc: false },
+    { id: "email", desc: false },
+  ]);
+  console.log(sorting);
 
   const table = useReactTable({
     data,
@@ -44,9 +53,11 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     state: manualPagination
       ? { globalFilter, pagination: { pageIndex: pagination.pageIndex, pageSize } }
-      : { globalFilter },
+      : { globalFilter, sorting },
     initialState: {
       pagination: {
         pageIndex: 0,
@@ -65,7 +76,6 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  console.log(header.getSize());
                   return (
                     <TableHead key={header.id} style={{ width: `${header.getSize()}px` }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}

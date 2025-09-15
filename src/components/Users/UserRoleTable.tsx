@@ -12,7 +12,7 @@ import {
   DropdownMenuRadioGroup,
 } from "@/components/ui/dropdown-menu";
 import { amcatUserRoleSchema } from "@/schemas";
-import { ChevronDown, Search, UserMinus, UserPlus } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Search, UserMinus, UserPlus } from "lucide-react";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { roleHigherThan } from "@/api/util";
 import { useEffect, useState } from "react";
@@ -102,7 +102,7 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
         </div>
       </div>
       <div>
-        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={10} />
+        <DataTable columns={tableColumns} data={data} globalFilter={globalFilter} pageSize={50} />
         <AlertDialog open={changeOwnRole !== undefined} onOpenChange={() => setChangeOwnRole(undefined)}>
           <AlertDialogContent>
             <AlertDialogHeader>Are you sure you want to limit your own role?</AlertDialogHeader>
@@ -132,12 +132,34 @@ function createTableColumns(roles: string[]): ColumnDef<Row>[] {
   return [
     {
       accessorKey: "email",
-      header: "Email",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="active:transparent pl-0 hover:bg-transparent"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Email
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       size: 400,
     },
     {
       accessorKey: "role",
-      header: "Role",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            className="active:transparent pl-0 hover:bg-transparent"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Role
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
       enableResizing: false,
       size: 100,
       cell: ({ row }) => {

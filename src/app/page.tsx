@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 import { useAmcatBranding } from "@/api/branding";
-import { ArrowRight, BarChart2, Search, Zap } from "lucide-react";
+import { ArrowRight, BarChart2, HatGlasses, Search, Share, Zap } from "lucide-react";
 import Markdown from "react-markdown";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
 import { Loading } from "@/components/ui/loading";
@@ -25,11 +25,7 @@ export default function Index() {
     <>
       <main className="flex flex-grow flex-col">
         <BigBanner serverConfig={serverConfig} serverBranding={serverBranding} />
-        <FeatureCards />
-        <div className="max-h-60 flex-grow"></div>
-        <div className="">
-          <ReadyBanner />
-        </div>
+        <ReadyBanner />
         <SplashFooter serverBranding={serverBranding} />
       </main>
     </>
@@ -49,7 +45,10 @@ function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfi
     serverConfig.authorization === "authorized_users_only";
   const no_auth = serverConfig.authorization === "no_auth";
   return (
-    <section className="bg-primary/15 py-20">
+    <section
+      className="my-auto py-20
+  "
+    >
       <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
@@ -108,28 +107,28 @@ function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfi
 
 function FeatureCards() {
   return (
-    <section className="py-20">
-      <div className="container mx-auto px-4">
-        <h2 className="mb-12 text-center text-3xl font-semibold">Key Features</h2>
-        <div className="grid gap-8 md:grid-cols-3">
-          <FeatureCard
-            icon={<Search className="h-10 w-10 text-primary" />}
-            title="Advanced Text Search"
-            description="Powerful search capabilities to find relevant information quickly and efficiently."
-          />
-          <FeatureCard
-            icon={<BarChart2 className="h-10 w-10 text-primary" />}
-            title="In-depth Analysis"
-            description="Comprehensive tools for content analysis, including sentiment analysis and topic modeling."
-          />
-          <FeatureCard
-            icon={<Zap className="h-10 w-10 text-primary" />}
-            title="Fast Processing"
-            description="High-performance algorithms to handle large volumes of text data with speed and accuracy."
-          />
-        </div>
+    <div className="container mx-auto px-4">
+      {/*<h2 className="mb-12 text-center text-3xl font-semibold">Key Features</h2>*/}
+      <div className="grid gap-8 md:grid-cols-3">
+        <FeatureCard
+          icon={<Search className="h-10 w-10 " />}
+          title="Search"
+          description="Create searchable text and multimedia repositories"
+        />
+        <FeatureCard
+          icon={<BarChart2 className="h-10 w-10" />}
+          title="Process"
+          description="
+       Enrich content with advanced preprocessing and analysis tools
+        "
+        />
+        <FeatureCard
+          icon={<Share className="h-10 w-10 " />}
+          title="Share"
+          description="Fine-grained access control for collaboration and open-science"
+        />
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -140,18 +139,20 @@ interface FeatureCardProps {
 }
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="rounded-lg bg-primary/15 p-6 shadow-md">
+    <div className="rounded-lg bg-background/30 p-6 shadow-md">
       <div className="mb-4 flex items-center gap-6">
         {icon}
         <h3 className=" text-xl font-semibold ">{title}</h3>
       </div>
-      <p className="text-foreground/70">{description}</p>
+      <div className="mt-auto text-left">
+        <p>{description}</p>
+      </div>
     </div>
   );
 }
 function ReadyBanner() {
   return (
-    <section className="bg-primary py-20 text-background">
+    <section className=" bg-primary py-20 text-background">
       <div className="container mx-auto px-4 text-center">
         <h2 className="mb-4 text-3xl font-bold">AmCAT: Open, Accessible, Scalable</h2>
         <p className="mx-auto mb-8 max-w-3xl text-xl">
@@ -164,6 +165,9 @@ function ReadyBanner() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </Link>
+        <div className="mt-16">
+          <FeatureCards />
+        </div>
       </div>
     </section>
   );
@@ -174,12 +178,15 @@ function SplashFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {
   const links = serverBranding.client_data?.information_links;
   const n_cols = 2 + (links == null ? 0 : links.length);
   return (
-    <footer className="py-8">
-      <div className="container mx-auto px-4">
+    <footer className="mx-4 mt-auto pt-4">
+      <div className="container py-6">
+        <div className="mt-8 border-t border-foreground/20 pt-8" />
         <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
           <div>
-            <h3 className="mb-2 font-semibold">AmCAT</h3>
-            <p className="text-sm ">Open-source text analysis software for researchers and analysts.</p>
+            <h3 className="mb-2 text-sm font-semibold">AmCAT</h3>
+            <ul className="text-sm">
+              <li>Open-source text analysis software for researchers and analysts.</li>
+            </ul>
           </div>
           <div>
             <h3 className="mb-2 font-semibold">Resources</h3>
@@ -213,7 +220,7 @@ function SplashFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {
                 </div>
               ))}
         </div>
-        <div className="mt-8 border-t border-foreground/40 pt-8 text-center text-sm">
+        <div className="mt-8 border-t border-foreground/20 pt-4 text-center text-sm">
           <p>&copy; {new Date().getFullYear()} AmCAT. All rights reserved.</p>
         </div>
       </div>
