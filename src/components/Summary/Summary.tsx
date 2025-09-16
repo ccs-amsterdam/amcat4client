@@ -69,7 +69,7 @@ function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
       indexId={indexId}
       query={query}
       options={{ axes, display: "linechart", title: field.name.toUpperCase() }}
-      defaultPageSize={100}
+      defaultPageSize={200}
     />
   );
 }
@@ -87,7 +87,7 @@ function KeywordSummaryGraph({ user, indexId, query, field }: SummaryProps) {
       indexId={indexId}
       query={query}
       options={{ axes, display: "barchart", title: field.name.toUpperCase() }}
-      defaultPageSize={10}
+      defaultPageSize={20}
     />
   );
 }

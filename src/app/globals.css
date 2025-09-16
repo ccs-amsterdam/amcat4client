@@ -103,7 +103,7 @@
 ::-webkit-scrollbar {
   width: 10px;
   height: 6px;
-  background: hsla(var(--foreground), 0.2);
+  background: hsla(var(--primary), 0.5);
 }
 
 /* Track */
@@ -113,7 +113,7 @@
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: hsla(var(--foreground), 0.2);
+  background: hsla(var(--primary), 0.5);
 }
 
 /* Handle on hover */

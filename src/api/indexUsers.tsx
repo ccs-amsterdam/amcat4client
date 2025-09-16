@@ -32,7 +32,11 @@ export function useMutateIndexUser(user?: MiddlecatUser, indexId?: AmcatIndexId 
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["index", user, indexId] });
       queryClient.invalidateQueries({ queryKey: ["indexusers", user, indexId] });
-      toast.success(`Changed ${variables.email} role to ${variables.role}`);
+      if (variables.action === "delete") {
+        toast.success(`Removed ${variables.email} from index users`);
+      } else {
+        toast.success(`Changed ${variables.email} role to ${variables.role}`);
+      }
     },
   });
 }

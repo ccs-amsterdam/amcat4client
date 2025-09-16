@@ -17,6 +17,14 @@ interface Props {
 
 export default function AggregateResultPanel({ user, indexId, query }: Props) {
   const [options, setOptions] = useState<AggregationOptions>(initialState);
+  options.display;
+
+  function defaultPageSize() {
+    if (options.display === "linechart") return 200;
+    if (options.display === "barchart") return 20;
+    if (options.display === "table") return 50;
+    if (options.display === "list") return 20;
+  }
 
   if (!user || !indexId || !query) return null;
 
@@ -36,7 +44,13 @@ export default function AggregateResultPanel({ user, indexId, query }: Props) {
           />
         </div>
         <div className="w-full p-5">
-          <AggregateResult user={user} indexId={indexId} query={query} options={options} />
+          <AggregateResult
+            user={user}
+            indexId={indexId}
+            query={query}
+            options={options}
+            defaultPageSize={defaultPageSize()}
+          />
         </div>
       </div>
     </div>

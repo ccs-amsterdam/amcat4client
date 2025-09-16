@@ -79,7 +79,7 @@ export function useDeleteIndex(user: MiddlecatUser | undefined) {
     mutationFn: (indexId: string) => deleteIndex(user, indexId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["indices", user] });
-    }
+    },
   });
 }
 

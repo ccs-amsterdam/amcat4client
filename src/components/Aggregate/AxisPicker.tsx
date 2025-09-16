@@ -8,6 +8,7 @@ const date_intervals = [
   { key: "month", text: "Month", value: "month" },
   { key: "quarter", text: "Quarter", value: "quarter" },
   { key: "year", text: "Year", value: "year" },
+  { key: "decade", text: "Decade", value: "decade" },
   { key: "dayofweek", text: "Day of week", value: "dayofweek" },
   { key: "daypart", text: "Part of day", value: "daypart" },
   { key: "monthnr", text: "Month number", value: "monthnr" },

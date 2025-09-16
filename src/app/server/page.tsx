@@ -33,7 +33,7 @@ enum Tab {
 
 export default function Page() {
   return (
-    <div className="mx-auto mt-6 w-full max-w-3xl px-6 py-6">
+    <div className="mx-auto mt-6 w-full max-w-7xl px-6 py-6">
       <ServerSettings />
     </div>
   );

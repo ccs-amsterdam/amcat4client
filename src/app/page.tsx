@@ -19,7 +19,6 @@ export default function Index() {
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
 
   if (userLoading || configLoading || brandingLoading) return <Loading />;
-  console.log(serverBranding, serverConfig);
 
   return (
     <>
@@ -46,7 +45,7 @@ function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfi
   const no_auth = serverConfig.authorization === "no_auth";
   return (
     <section
-      className="my-auto py-20
+      className="my-auto py-32
   "
     >
       <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">

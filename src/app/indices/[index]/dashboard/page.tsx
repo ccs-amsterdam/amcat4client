@@ -49,10 +49,14 @@ export default function Index({ params }: Props) {
   if (indexRole === "NONE")
     return globalRole === "ADMIN" ? (
       <ErrorMsg type="Not Allowed">
-        <div className="text-center">
+        <p className="text-center">
           You do not have access to this index. <br />
-          However, as server administrator, you can give yourself access through the <em>index</em> menu
-        </div>
+        </p>
+        <br />
+        <p className="mx-auto w-96 text-center text-sm">
+          Since you are a server administrator, you can give yourself access to any index (see shield icon in menu).
+          Just use this power responsibly
+        </p>
       </ErrorMsg>
     ) : (
       <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>

@@ -257,7 +257,7 @@ function getZoomFilter(
   if (!interval) return { values: [value] };
 
   // For dates, currently only from/to intervalls supported, not cycles (e.g., day of the week)
-  if (!["day", "week", "month", "quarter", "year"].includes(interval)) return undefined;
+  if (!["day", "week", "month", "quarter", "year", "decade"].includes(interval)) return undefined;
 
   // For intervals/dates, we need to compute a start/end date
   // and then combine it with possible existing filters
@@ -297,6 +297,9 @@ function getEndDate(start: Date, interval: AggregationInterval) {
       break;
     case "year":
       result.setFullYear(result.getFullYear() + 1);
+      break;
+    case "decade":
+      result.setFullYear(result.getFullYear() + 10);
       break;
     default:
       throw new Error(`Unknown interval: ${interval}`);

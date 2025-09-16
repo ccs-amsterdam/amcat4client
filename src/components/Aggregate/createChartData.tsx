@@ -136,6 +136,7 @@ function incrementDate(date: Date, interval: AggregationInterval) {
   const y = date.getFullYear();
   const m = date.getMonth();
   const d = date.getDate();
+
   switch (interval) {
     case "year":
       return new Date(y + 1, m, d);
@@ -165,6 +166,7 @@ function daterange(values: string[], interval: AggregationInterval): string[] {
     result.push(ymd(d));
     d = incrementDate(d, interval);
   }
+  console.log(result);
   return result;
 }
 
@@ -235,6 +237,7 @@ const INTERVAL_LABELS = new Map([
   ["month", "Month"],
   ["quarter", "Quarter"],
   ["year", "Year"],
+  ["decade", "Decade"],
   ["dayofweek", "Day of week"],
   ["daypart", "Part of day"],
   ["monthnr", "Month number"],

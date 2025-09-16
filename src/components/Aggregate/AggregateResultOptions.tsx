@@ -160,6 +160,7 @@ const INTERVALS = [
   { value: "month", text: "Month" },
   { value: "quarter", text: "Quarter" },
   { value: "year", text: "Year" },
+  { value: "decade", text: "Decade" },
   { value: "daypart", text: "Daypart" },
   { value: "dayofweek", text: "Day of week" },
   { value: "monthnr", text: "Month number" },

@@ -26,7 +26,7 @@ import {
 import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useConfirm } from "../ui/confirm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import {
@@ -56,40 +56,52 @@ export function SelectIndex() {
   const [visibleIndices, setVisibleIndices] = useState<AmcatIndex[]>([]);
   const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
   const canCreate = useHasGlobalRole(user, "WRITER");
+  const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
   //const [isListView, setIsListView] = useState(false);
   useEffect(() => {
     setCurrentPath(params?.get("folder")?.split("/") ?? []);
   }, [params]);
 
-  console.log(allIndices);
+  const myIndices = useMemo(() => {
+    if (!allIndices) return undefined;
+    return allIndices.filter((ix) => {
+      if (!seeUnowned && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
+      if (!seeArchived && ix.archived) return false;
+      return true;
+    });
+  }, [allIndices, seeUnowned, seeArchived]);
+
   useEffect(() => {
-    if (!allIndices) return;
-    const timeout = setTimeout(() => {
+    function setVisible() {
+      if (!myIndices) return;
       const prefix = currentPath.join("/").replace(/^\/|\/$/, "");
-      setVisibleIndices(
-        allIndices.filter((index) => {
-          if (!!index.archived && !seeArchived) return false;
-          if ((index.folder ?? "") !== prefix) return false;
-          if (!seeUnowned && index.user_role === "NONE") return false;
-          if (!search) return true;
+      const filtered = myIndices.filter((index) => {
+        if ((index.folder ?? "") !== prefix) return false;
+        if (search) {
           if (index.name.toLowerCase().includes(search.toLowerCase())) return true;
           if (index.id.toLowerCase().includes(search.toLowerCase())) return true;
           return false;
-        }),
-      );
+        }
+        return true;
+      });
+
       const folderSet = new Set<string>();
-      allIndices.forEach((ix) => {
+      filtered.forEach((ix) => {
         if (!ix.folder) return;
         const path = ix.folder.split("/");
         const head = path.pop();
         if (head == null || path.join("/") !== prefix) return;
         folderSet.add(head);
       });
+
+      setVisibleIndices(filtered);
       setVisibleFolders([...folderSet]);
-    }, 200);
+    }
+
+    const timeout = setTimeout(setVisible, 200);
     return () => clearTimeout(timeout);
-  }, [allIndices, search, currentPath, seeArchived, seeUnowned]);
+  }, [myIndices, search, currentPath, seeArchived, seeUnowned]);
 
   function toFolder(folder: string[]) {
     history.replaceState(null, "", `?folder=${folder.join("/")}`);

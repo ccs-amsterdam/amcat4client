@@ -10,6 +10,7 @@ import IndexMenu from "./IndexMenu";
 import { useParams } from "next/navigation";
 import GoToMenu from "./GoTo";
 import { useEffect, useState } from "react";
+import IndexRole from "./IndexRole";
 
 export default function Navbar() {
   useAutoSignin();
@@ -26,6 +27,7 @@ export default function Navbar() {
             <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
           </Link>*/}
             <GoToMenu />
+            <IndexMenu />
           </div>
 
           {/*<div className={`hidden whitespace-nowrap ${showingIndex ? "" : "sm:block"} `}>
@@ -33,7 +35,7 @@ export default function Navbar() {
         </div>*/}
 
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
-            <IndexMenu />
+            <IndexRole />
             <AccountMenu />
             {/*<ServerMenu />*/}
           </div>
