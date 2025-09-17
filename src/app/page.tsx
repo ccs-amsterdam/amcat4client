@@ -44,10 +44,7 @@ function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfi
     serverConfig.authorization === "authorized_users_only";
   const no_auth = serverConfig.authorization === "no_auth";
   return (
-    <section
-      className="my-auto py-32
-  "
-    >
+    <section className="bg-gradient-to-r from-primary to-primary/80 py-20 text-background md:pb-32 md:pt-52">
       <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
@@ -69,7 +66,7 @@ function BigBanner({ serverConfig, serverBranding }: { serverConfig?: AmcatConfi
             </>
           ) : user.authenticated ? (
             <Link href="/indices">
-              <Button size="lg">
+              <Button size="lg" className="">
                 Enter Server
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -138,7 +135,7 @@ interface FeatureCardProps {
 }
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <div className="rounded-lg bg-background/30 p-6 shadow-md">
+    <div className="rounded-lg bg-gradient-to-t from-primary to-primary/90 p-6 text-primary-foreground shadow-md">
       <div className="mb-4 flex items-center gap-6">
         {icon}
         <h3 className=" text-xl font-semibold ">{title}</h3>
@@ -151,7 +148,7 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 }
 function ReadyBanner() {
   return (
-    <section className=" bg-primary py-20 text-background">
+    <section className="pb-20 pt-44">
       <div className="container mx-auto px-4 text-center">
         <h2 className="mb-4 text-3xl font-bold">AmCAT: Open, Accessible, Scalable</h2>
         <p className="mx-auto mb-8 max-w-3xl text-xl">
@@ -178,7 +175,7 @@ function SplashFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {
   const n_cols = 2 + (links == null ? 0 : links.length);
   return (
     <footer className="mx-4 mt-auto pt-4">
-      <div className="container py-6">
+      <div className="py-6">
         <div className="mt-8 border-t border-foreground/20 pt-8" />
         <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
           <div>

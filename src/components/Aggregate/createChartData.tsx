@@ -237,11 +237,11 @@ const INTERVAL_LABELS = new Map([
   ["month", "Month"],
   ["quarter", "Quarter"],
   ["year", "Year"],
-  ["decade", "Decade"],
   ["dayofweek", "Day of week"],
   ["daypart", "Part of day"],
   ["monthnr", "Month number"],
   ["yearnr", "Year Number"],
+  ["decade", "Decade"],
   ["dayofmonth", "Day of Month"],
   ["weeknr", "Week Number"],
 ]);

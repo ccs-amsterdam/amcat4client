@@ -35,10 +35,11 @@ export default function FilterPicker({
 
   return (
     <Popover
-      defaultOpen={value?.justAdded}
+      open={open}
+      modal={true}
       onOpenChange={(open) => {
-        setOpen(open);
         if (value?.justAdded) value.justAdded = false;
+        setOpen(open);
       }}
     >
       <PopoverTrigger asChild>

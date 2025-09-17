@@ -60,7 +60,7 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
       <DropdownMenu>
         <DropdownMenuTrigger className="flex h-full select-none items-center gap-3 border-primary px-2 outline-none hover:bg-foreground/10 lg:px-4">
           <Shield />
-          <span className="hidden lg:inline">Access</span>
+          <span className="hidden lg:inline">{index?.user_role}</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSub>
@@ -70,7 +70,7 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
               <DropdownMenuLabel></DropdownMenuLabel>
               {(index?.user_roles || []).map(({ match, role }) => {
                 return (
-                  <DropdownMenuItem className="cursor-default" disabled>
+                  <DropdownMenuItem key={match} className="cursor-default" disabled>
                     {match} : {role}
                   </DropdownMenuItem>
                 );

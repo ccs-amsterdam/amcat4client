@@ -52,8 +52,17 @@ function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
 
   const axes = useMemo(() => {
     if (!values?.max_as_string || !values.min_as_string) return [];
-    const minTime = new Date(values.min_as_string).getTime();
-    const maxTime = new Date(values.max_as_string).getTime();
+    let minTime = new Date(values.min_as_string).getTime();
+    let maxTime = new Date(values.max_as_string).getTime();
+
+    if (query.filters && field.name in query.filters) {
+      // if there is a filter on this field, use that to set the min and max time
+      const filter = query.filters[field.name];
+      if (filter.gt) minTime = Math.max(minTime, new Date(filter.gt).getTime());
+      if (filter.gte) minTime = Math.max(minTime, new Date(filter.gte).getTime());
+      if (filter.lt) maxTime = Math.min(maxTime, new Date(filter.lt).getTime());
+      if (filter.lte) maxTime = Math.min(maxTime, new Date(filter.lte).getTime());
+    }
     const interval = autoFormatDate(minTime, maxTime, 20);
     const axes: AggregationAxis[] = [{ name: field.name, field: field.name, interval }];
     if (query.queries && query.queries.length > 0) axes.push({ name: "_query", field: "_query" });
