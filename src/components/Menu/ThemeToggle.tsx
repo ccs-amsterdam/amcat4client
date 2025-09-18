@@ -3,6 +3,7 @@
 import { Moon, Sun, SunMoon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 interface ThemeToggleProps {
   label?: boolean;
@@ -14,19 +15,25 @@ export default function ThemeToggle({ label }: ThemeToggleProps) {
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return <SunMoon className="h-7 w-7" />;
+  if (!mounted) return <SunMoon className="mr-2 h-4 w-4" />;
 
   function renderIcon() {
     // if not on client
-    if (typeof window === "undefined") return <SunMoon className="h-7 w-7" />;
-    if (theme === "dark") return <Sun className="h-7 w-7" />;
-    return <Moon className="h-7 w-7" />;
+    if (typeof window === "undefined") return <SunMoon className="mr-2 h-4 w-4" />;
+    if (theme === "dark") return <Sun className="mr-2 h-4 w-4" />;
+    return <Moon className="mr-2 h-4 w-4" />;
   }
 
   return (
-    <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center gap-2 ">
+    <DropdownMenuItem
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setTheme(theme === "dark" ? "light" : "dark");
+      }}
+    >
       {renderIcon()}
       {label ? (theme === "dark" ? "Light mode" : "Dark mode") : ""}
-    </button>
+    </DropdownMenuItem>
   );
 }

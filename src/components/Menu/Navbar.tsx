@@ -8,7 +8,7 @@ import Link from "next/link";
 import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
 import { useParams } from "next/navigation";
-import GoToMenu from "./GoTo";
+import MainMenu from "./MainMenu";
 import { useEffect, useState } from "react";
 import IndexRole from "./IndexRole";
 
@@ -26,7 +26,7 @@ export default function Navbar() {
             {/*<Link href="/" className={showingIndex ? "hidden" : ""}>
             <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
           </Link>*/}
-            <GoToMenu />
+            <MainMenu />
             <IndexMenu />
           </div>
 

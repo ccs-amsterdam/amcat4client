@@ -36,10 +36,12 @@ import {
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { ServerInfo, ServerInfoDropdownItem } from "./ServerInfo";
+import { useState } from "react";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
-export default function GoToMenu() {
+export default function MainMenu() {
   const { user, loading } = useMiddlecat();
   const params = useParams<{ index: string }>();
   const router = useRouter();
@@ -48,6 +50,8 @@ export default function GoToMenu() {
 
   const { data: index, isLoading: indexLoading } = useIndex(user, indexId);
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
+
+  const [serverInfoOpen, setServerInfoOpen] = useState(false);
 
   if (loading || !user || (!!indexId && indexLoading)) return null;
 
@@ -76,14 +80,20 @@ export default function GoToMenu() {
         <DropdownMenuGroup>
           <DropdownMenuSub>
             <DropdownMenuLabel>Server</DropdownMenuLabel>
+            {/*<DropdownMenuItem disabled>{serverConfig?.resource}</DropdownMenuItem>*/}
             <DropdownMenuItem className="flex" onClick={() => router.push(`/`)}>
               <Home className="mr-2 h-4 w-4" />
               <span className="">Homepage</span>
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={!isServerAdmin} className={` flex`} onClick={() => router.push(`/server`)}>
+            <DropdownMenuItem
+              // disabled={!isServerAdmin}
+              className={`flex ${isServerAdmin ? "" : "hidden"}`}
+              onClick={() => router.push(`/server`)}
+            >
               <Settings className="mr-2 h-4 w-4" />
-              <span className="">Settings</span>
+              <span className="">Admin</span>
             </DropdownMenuItem>
+            <ServerInfoDropdownItem open={serverInfoOpen} setOpen={setServerInfoOpen} />
           </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuSub>
@@ -96,6 +106,8 @@ export default function GoToMenu() {
           </DropdownMenuSub>
         </DropdownMenuGroup>
       </DropdownMenuContent>
+
+      <ServerInfo open={serverInfoOpen} setOpen={setServerInfoOpen} />
     </DropdownMenu>
   );
 }

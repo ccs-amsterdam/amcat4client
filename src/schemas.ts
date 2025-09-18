@@ -4,6 +4,7 @@ export const amcatConfigSchema = z.object({
   middlecat_url: z.string().url(),
   authorization: z.enum(["allow_guests", "no_auth", "allow_authenticated_guests", "authorized_users_only"]),
   resource: z.string().url(),
+  minio: z.boolean().default(false),
 });
 
 export const LinkArraySchema = z.array(

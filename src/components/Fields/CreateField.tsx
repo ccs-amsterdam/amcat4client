@@ -171,7 +171,7 @@ export function CreateFieldSelectType({
                     <DynamicIcon type={x} /> &nbsp;{x}
                   </DropdownMenuRadioItem>
                 </TooltipTrigger>{" "}
-                <TooltipContent side="right" className="w-44 bg-white">
+                <TooltipContent side="right" className="w-44">
                   {help}
                 </TooltipContent>
               </Tooltip>

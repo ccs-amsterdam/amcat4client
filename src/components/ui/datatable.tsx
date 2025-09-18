@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "./button";
 import { ArrowLeft, ArrowRight, StepBack, StepForward } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 interface DataTableProps<TData extends Record<string, any>, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -40,11 +41,7 @@ export function DataTable<TData extends Record<string, any>, TValue>({
   pageSize = 6,
 }: DataTableProps<TData, TValue>) {
   const manualPagination = !!pagination;
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "role", desc: false },
-    { id: "email", desc: false },
-  ]);
-  console.log(sorting);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data,
@@ -129,4 +126,17 @@ export function DataTable<TData extends Record<string, any>, TValue>({
       </div>
     </div>
   );
+}
+
+export function tooltipHeader(name: string, tooltip: string) {
+  return () => {
+    return (
+      <Tooltip>
+        <TooltipTrigger>{name}</TooltipTrigger>
+        <TooltipContent sideOffset={20} className="max-w-80">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    );
+  };
 }

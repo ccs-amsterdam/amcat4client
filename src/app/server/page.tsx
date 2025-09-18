@@ -24,11 +24,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { fromZodError } from "zod-validation-error";
 import { Branding } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
+import { JSONForm } from "@/components/ui/jsonForm";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
 enum Tab {
-  Info = "info",
   Users = "users",
   Branding = "branding",
 }
@@ -65,7 +65,7 @@ function ServerSettings({ serverConfig, serverBranding }: ServerSettingsProps) {
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const { data: users, isLoading: loadingUsers } = useUsers(user);
   const mutate = useMutateUser(user);
-  const [tab, setTab] = useState(Tab.Info);
+  const [tab, setTab] = useState(Tab.Users);
 
   if (loadingUserDetails || loadingUsers) return <Loading />;
 
@@ -91,21 +91,6 @@ function ServerSettings({ serverConfig, serverBranding }: ServerSettingsProps) {
           })}
         </TabsList>
         <div className="w-full ">
-          <TabsContent value={Tab.Info} className="">
-            <h2 className="text-lg font-semibold">Server configuration</h2>
-            <p className="text-sm">
-              These settings are configured at the server level, and cannot be changed via the client
-            </p>
-            <div className="mt-4 grid grid-cols-[8rem,1fr]">
-              <div className="font-bold">Resource</div>
-              <div className="font-mono text-primary">{serverConfig?.resource}</div>
-
-              <div className="font-bold">MiddleCat</div>
-              <div className="font-mono text-primary">{serverConfig?.middlecat_url}</div>
-              <div className="font-bold">Authorization</div>
-              <div className="font-mono text-primary">{serverConfig?.authorization}</div>
-            </div>
-          </TabsContent>
           <TabsContent value={Tab.Users}>
             {user == null || ownRole == null || users == null ? (
               <span>You don't have permission to see this</span>
@@ -233,6 +218,16 @@ function ServerBrandingForm() {
             </FormItem>
           )}
         ></FormField>
+        {/*<JSONForm
+          control={brandingForm.control}
+          name="client_data.welcome_buttons"
+          schema={z.object({ href: z.string(), label: z.string() })}
+        />*/}
+        {/*<JSONForm
+          control={brandingForm.control}
+          name="client_data.information_links"
+          schema={z.object({ href: z.string(), label: z.string() })}
+        />*/}
         <FormField
           control={brandingForm.control}
           name="client_data.welcome_buttons"

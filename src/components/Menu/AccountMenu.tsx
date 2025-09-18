@@ -7,10 +7,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatConfig } from "@/interfaces";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { AlertCircle, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
@@ -72,9 +73,7 @@ export default function AccountMenu() {
             <DropdownMenuLabel>Your server role: {globalRole}</DropdownMenuLabel>
           </>
         )}
-        <DropdownMenuLabel>
-          <ThemeToggle label={true} />
-        </DropdownMenuLabel>
+        <ThemeToggle label={true} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

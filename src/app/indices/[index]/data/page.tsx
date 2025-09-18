@@ -40,16 +40,17 @@ enum Tab {
   Fields = "fields",
   Upload = "upload",
   Multimedia = "multimedia",
-  Preprocessing = "preprocessing",
+  // Preprocessing = "preprocessing",
 }
 
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
+  const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Fields));
 
-  if (loading || loadingIndex) return <Loading />;
+  if (loading || loadingIndex || configLoading) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
@@ -57,9 +58,10 @@ export default function Index({ params }: Props) {
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px] w-full flex-col">
         <TabsList className="mb-12 overflow-x-auto">
           {Object.keys(Tab).map((tab) => {
+            const disabled = tab === "Multimedia" && !serverConfig?.minio;
             const tabValue = Tab[tab as keyof typeof Tab];
             return (
-              <TabsTrigger key={tabValue} value={tabValue}>
+              <TabsTrigger key={tabValue} value={tabValue} disabled={disabled}>
                 {tab}
               </TabsTrigger>
             );
@@ -75,9 +77,9 @@ export default function Index({ params }: Props) {
           <TabsContent value={Tab.Multimedia}>
             <Multimedia indexId={index.id} user={user} />
           </TabsContent>
-          <TabsContent value={Tab.Preprocessing}>
+          {/*<TabsContent value={Tab.Preprocessing}>
             <Preprocessing indexId={index.id} user={user} />
-          </TabsContent>
+          </TabsContent>*/}
         </div>
       </Tabs>
     </div>

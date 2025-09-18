@@ -66,7 +66,7 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                         transition-all dark:prose-invert hover:translate-x-1    ${onClick ? "cursor-pointer" : ""}`}
             >
               <article className={`my-1 min-h-[5rem] py-1  `}>
-                <div className="flex justify-between">
+                <div className="flex  justify-between">
                   <h4 className="mt-2">
                     {layout.title.map((title, i) => {
                       return (
@@ -87,13 +87,13 @@ export default function ArticleSnippets({ user, indexId, indexRole, query, field
                         e.stopPropagation();
                       }}
                     >
-                      <LinkIcon className=" h-8 w-8 rounded p-1 hover:bg-white" />
+                      <LinkIcon className=" h-7 w-7 rounded-full bg-primary/20 p-1 hover:bg-primary hover:text-primary-foreground" />
                     </Link>
                   ) : null}
                 </div>
 
                 <div className="line-clamp-2 overflow-hidden text-ellipsis">{snippetText(row, layout.text)}</div>
-                <div className="flex-wrap flex gap-1 pt-2">
+                <div className="flex flex-wrap gap-1 pt-2">
                   {listFields
                     .filter(
                       (field) => layout.meta.includes(field.name) && !layout.text.includes(field.name),
