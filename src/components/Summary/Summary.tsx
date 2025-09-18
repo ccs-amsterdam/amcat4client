@@ -50,8 +50,8 @@ interface SummaryProps extends Props {
 function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
   const { data: values, isLoading: valuesLoading } = useFieldStats(user, indexId, field.name);
 
-  const axes = useMemo(() => {
-    if (!values?.max_as_string || !values.min_as_string) return [];
+  const [axes, interval] = useMemo(() => {
+    if (!values?.max_as_string || !values.min_as_string) return [[], null];
     let minTime = new Date(values.min_as_string).getTime();
     let maxTime = new Date(values.max_as_string).getTime();
 
@@ -66,18 +66,20 @@ function DateSummaryGraph({ user, indexId, query, field }: SummaryProps) {
     const interval = autoFormatDate(minTime, maxTime, 20);
     const axes: AggregationAxis[] = [{ name: field.name, field: field.name, interval }];
     if (query.queries && query.queries.length > 0) axes.push({ name: "_query", field: "_query" });
-    return axes;
+    return [axes, interval];
   }, [values, field, query]);
 
   if (valuesLoading) return <div>Loading...</div>;
   if (!values) return null;
+
+  const title = interval ? `${field.name.toUpperCase()} - ${interval}` : field.name.toUpperCase();
 
   return (
     <AggregateResult
       user={user}
       indexId={indexId}
       query={query}
-      options={{ axes, display: "linechart", title: field.name.toUpperCase() }}
+      options={{ axes, display: "linechart", title }}
       defaultPageSize={200}
     />
   );

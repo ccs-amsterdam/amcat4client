@@ -103,7 +103,7 @@ export function KeywordPopup({ user, indexId, field, value, onChange }: FilterPo
       }
     }
     const showValues = [...selectedValues, ...unselectedValues];
-    return showValues.slice(0, 10);
+    return showValues.slice(0, 200);
   }, [fieldValues, selectedRef, query]);
 
   if (field == null || value == null) return null;
@@ -124,17 +124,19 @@ export function KeywordPopup({ user, indexId, field, value, onChange }: FilterPo
           onChange={(e) => setQuery(e.target.value)}
         />
       ) : null}
-      {showValues.map((v, i) => {
-        const checked = selected.includes(v);
-        return (
-          <div key={v + i} className="flex items-center gap-3 py-1" onClick={() => handleChange(!checked, v)}>
-            <Checkbox key={i} checked={checked} className="h-5 w-5" />
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              {v}
-            </label>
-          </div>
-        );
-      })}
+      <div className="max-h-80 overflow-auto">
+        {showValues.map((v, i) => {
+          const checked = selected.includes(v);
+          return (
+            <div key={v + i} className="flex items-center gap-3 py-1" onClick={() => handleChange(!checked, v)}>
+              <Checkbox key={i} checked={checked} className="h-5 w-5" />
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                {v}
+              </label>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

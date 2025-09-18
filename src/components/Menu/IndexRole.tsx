@@ -48,7 +48,8 @@ export default function IndexRole() {
 function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const user_role = index?.user_role || "NONE";
   const user_roles = index?.user_roles || [];
-  const match = user_roles[user_roles.length - 1].match;
+
+  const match = user_roles[user_roles.length - 1]?.match;
 
   // MAKE THIS A MODAL WITH INFORMATION ABOUT ROLES
   // Make the role the menu bar label

@@ -100,13 +100,13 @@ function ymd(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
 function add_zeroes(
   d: AggregateDataPoint[],
   field: string,
   interval: AggregationInterval | undefined,
   columnNames: string[],
 ): AggregateDataPoint[] {
-  // TODO: add zeroes for cycle dates (e.g., month number)
   if (!interval) return d;
 
   const zeroes = Object.fromEntries(columnNames.map((colName) => [colName, 0]));
@@ -128,6 +128,26 @@ function add_zeroes(
   if (interval === "monthnr") return byDomain(d, [...MONTHS.keys()]);
   if (interval === "dayofweek") return byDomain(d, [...DATEPARTS_DOW.keys()]);
   if (interval === "daypart") return byDomain(d, [...DATEPARTS_DAYPART.keys()]);
+
+  function byYearNrDomain(d: AggregateDataPoint[], decade: boolean = false) {
+    const years = d.map((p) => Number(p[field])).filter((y) => !isNaN(y));
+    console.log(years);
+    if (years.length === 0) return [];
+    let min = Math.min(...years);
+    let max = Math.max(...years);
+    if (decade) {
+      min = Math.floor(min / 10) * 10;
+      max = Math.floor(max / 10) * 10;
+    }
+    const result = [];
+    for (let y = min; y <= max; decade ? (y += 10) : y++) {
+      result.push(String(y));
+    }
+    return result;
+  }
+
+  if (interval === "yearnr") return byDomain(d, byYearNrDomain(d, false));
+  if (interval === "decade") return byDomain(d, byYearNrDomain(d, true));
 
   return d;
 }

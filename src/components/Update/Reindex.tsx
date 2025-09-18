@@ -45,7 +45,7 @@ export default function Reindex({ user, indexId, query }: Props) {
   };
   if (count == null) return null;
   return (
-    <>
+    <div className="flex flex-col gap-6">
       <CopyOperationDialog
         open={taskResult != null}
         onOpenChange={() => setTaskResult(null)}
@@ -56,11 +56,14 @@ export default function Reindex({ user, indexId, query }: Props) {
         Copy <b className="text-primary">{count}</b> documents to an existing index
       </h4>
 
-      <form onSubmit={onSubmitNewIndex} className="space-y-2">
+      <form onSubmit={onSubmitNewIndex} className="flex items-center justify-stretch gap-3">
         <DropdownMenu open={newIndexOpen} onOpenChange={setNewIndexOpen}>
-          <DropdownMenuTrigger className="flex h-full items-center justify-between gap-3 rounded border border-primary px-3 text-primary outline-none">
-            {newIndex?.name ?? "Select destination index"}
-            <ChevronDown className="h-5 w-5" />
+          <DropdownMenuTrigger asChild>
+            <Button className="min-w-64 justify-between gap-3" variant="outline">
+              {newIndex?.name ?? "Select destination index"}
+
+              <ChevronDown className="h-5 w-5" />
+            </Button>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
@@ -88,7 +91,7 @@ export default function Reindex({ user, indexId, query }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
         <Button type="submit" disabled={newIndex == null}>
-          Copy to existing index
+          Copy
         </Button>
       </form>
 
@@ -97,7 +100,7 @@ export default function Reindex({ user, indexId, query }: Props) {
         to change field settings by first creating the target index and defining any fields as needed. Fields in the
         source index that don't occur in the target index will be copied.
       </div>
-    </>
+    </div>
   );
 }
 interface CopyOperationDialogProps {
