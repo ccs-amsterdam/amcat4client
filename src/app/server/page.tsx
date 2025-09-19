@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { fromZodError } from "zod-validation-error";
-import { Branding } from "@/components/Server/Branding";
+import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
 import { JSONForm } from "@/components/ui/jsonForm";
 
@@ -47,6 +47,7 @@ export default function Page() {
           <div className="py-3 font-bold">Branding preview</div>
           <div className="-mt-12 scale-75 overflow-hidden rounded-lg">
             <Branding serverConfig={serverConfig!} serverBranding={serverBranding!} />
+            <BrandingFooter serverBranding={serverBranding!} />
           </div>
         </div>
       </div>

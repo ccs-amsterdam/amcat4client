@@ -10,7 +10,7 @@ import { useAmcatBranding } from "@/api/branding";
 import { ArrowRight, BarChart2, Search, Share } from "lucide-react";
 import { AmcatBranding } from "@/interfaces";
 import { Loading } from "@/components/ui/loading";
-import { Branding } from "@/components/Server/Branding";
+import { Branding, BrandingFooter } from "@/components/Server/Branding";
 
 export default function Index() {
   const { user, signIn, loading: userLoading } = useMiddlecat();
@@ -24,7 +24,7 @@ export default function Index() {
       <main className="flex flex-grow flex-col">
         <Branding serverConfig={serverConfig} serverBranding={serverBranding} />
         <ReadyBanner />
-        <SplashFooter serverBranding={serverBranding} />
+        <BrandingFooter serverBranding={serverBranding} />
       </main>
     </>
   );
@@ -95,60 +95,5 @@ function ReadyBanner() {
         </div>
       </div>
     </section>
-  );
-}
-
-function SplashFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {}) {
-  if (serverBranding == null) return null;
-  const links = serverBranding.client_data?.information_links;
-  const n_cols = 2 + (links == null ? 0 : links.length);
-  return (
-    <footer className="mx-4 mt-auto pt-4">
-      <div className="py-6">
-        <div className="mt-8 border-t border-foreground/20 pt-8" />
-        <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
-          <div>
-            <h3 className="mb-2 text-sm font-semibold">AmCAT</h3>
-            <ul className="text-sm">
-              <li>Open-source text analysis software for researchers and analysts.</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="mb-2 font-semibold">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="https://amcat.nl/book/" className=" hover:text-blue-600">
-                  Documentation
-                </Link>
-              </li>
-              <li>
-                <Link href="https://github.com/ccs-amsterdam/amcat4" className=" hover:text-blue-600">
-                  GitHub
-                </Link>
-              </li>
-            </ul>
-          </div>
-          {links == null
-            ? null
-            : links.map((link, i) => (
-                <div key={i}>
-                  <h3 className="mb-2 font-semibold ">{link.title}</h3>
-                  <ul className="space-y-2 text-sm">
-                    {link.links.map((item, j) => (
-                      <li key={j}>
-                        <Link href={item.href as string} className=" hover:text-blue-600">
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-        </div>
-        <div className="mt-8 border-t border-foreground/20 pt-4 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} AmCAT. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
   );
 }

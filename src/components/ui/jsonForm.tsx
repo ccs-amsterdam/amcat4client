@@ -18,82 +18,6 @@ interface FormFieldProps<T extends FieldValues, Z extends z.ZodObject<any>> {
   schema: Z;
 }
 
-function flatHeaders(schema: z.ZodObject<any>) {
-  const headers: string[] = [];
-  console.log(schema);
-  for (let [key, value] of Object.entries(schema.shape)) {
-    if (value instanceof z.ZodArray) continue;
-    headers.push(key);
-  }
-  for (let [key, value] of Object.entries(schema.shape)) {
-    if (!(value instanceof z.ZodArray)) continue;
-    headers.push(...Object.keys(value.element.shape));
-  }
-  return headers;
-}
-
-function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
-  schema: Z,
-  control: Control<T, any>,
-  field: ControllerRenderProps<T>,
-  rows: z.infer<Z>[],
-  i: number,
-) {
-  const formRows: JSX.Element[][] = [[]];
-
-  for (let [key, value] of Object.entries(schema.shape)) {
-    if (!(value instanceof z.ZodString)) continue;
-    formRows[0].push(
-      <Input
-        key={key}
-        className="rounded-none  focus-visible:ring-0"
-        value={String(rows[i]?.[key] || "")}
-        onChange={(v) => {
-          if (rows.length < i) rows.push({});
-          rows[i][key as keyof z.infer<Z>] = v.target.value as any;
-          field.onChange(JSON.stringify(rows));
-        }}
-      />,
-    );
-  }
-
-  const fixedFields = formRows[0].length;
-
-  for (let [key, value] of Object.entries(schema.shape)) {
-    if (!(value instanceof z.ZodArray)) continue;
-    const nestedKeys = Object.keys(value.element.shape);
-    const nestedRows = rows[i][key] as Record<string, any>[];
-    console.log(nestedRows);
-
-    for (let j = 0; j < nestedRows.length; j++) {
-      if (j > 0) {
-        formRows.push([]);
-        for (let empty = 0; empty < fixedFields; empty++) {
-          formRows[j].push(<div key={"empty" + empty} />);
-        }
-      }
-      console.log(formRows, j);
-
-      formRows[j].push(
-        ...nestedKeys.map((nestedKey) => (
-          <Input
-            key={nestedKey}
-            className="rounded-none  focus-visible:ring-0"
-            value={String(rows[i]?.[key]?.[j]?.[nestedKey] || "")}
-            onChange={(v) => {
-              rows[i][key][j][nestedKey] = v.target.value;
-              field.onChange(JSON.stringify(rows));
-            }}
-          />
-        )),
-      );
-    }
-  }
-
-  console.log(formRows);
-  return formRows;
-}
-
 export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
   control,
   name,
@@ -153,7 +77,6 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
       key={name}
       name={name}
       render={({ field }) => {
-        console.log(field.value);
         const rows = field.value ? JSON.parse(field.value) : ([] as Z[]);
 
         return (
@@ -232,47 +155,74 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
   );
 }
 
-function JSONFormRow<T extends FieldValues, Z extends Record<string, any>>({
-  control,
-  name,
-  schema,
-  field,
-  rows,
-  i,
-}: FormFieldProps<T, Z> & {
-  field: ControllerRenderProps<T>;
-  rows: Z[];
-  i: number;
-}) {
-  const row = rows[i];
+function flatHeaders(schema: z.ZodObject<any>) {
+  const headers: string[] = [];
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (value instanceof z.ZodArray) continue;
+    headers.push(key);
+  }
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (!(value instanceof z.ZodArray)) continue;
+    headers.push(...Object.keys(value.element.shape));
+  }
+  return headers;
+}
 
-  const cellStyle = "py-1 px-1 rounded-none hover:bg-transparent";
+function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
+  schema: Z,
+  control: Control<T, any>,
+  field: ControllerRenderProps<T>,
+  rows: z.infer<Z>[],
+  i: number,
+) {
+  const formRows: JSX.Element[][] = [[]];
 
-  function rmCode(field: ControllerRenderProps<T>, values: Z[], index: number) {
-    values.splice(index, 1);
-    field.onChange(values);
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (!(value instanceof z.ZodString)) continue;
+    formRows[0].push(
+      <Input
+        key={key}
+        className="rounded-none  focus-visible:ring-0"
+        value={String(rows[i]?.[key] || "")}
+        onChange={(v) => {
+          if (rows.length < i) rows.push({});
+          rows[i][key as keyof z.infer<Z>] = v.target.value as any;
+          field.onChange(JSON.stringify(rows));
+        }}
+      />,
+    );
   }
 
-  return (
-    <TableRow key={i} className="border-none hover:bg-transparent">
-      {Object.keys(schema.shape).map((key) => (
-        <TableCell key={key} className={`${cellStyle} pl-0`}>
+  const fixedFields = formRows[0].length;
+
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (!(value instanceof z.ZodArray)) continue;
+    const nestedKeys = Object.keys(value.element.shape);
+    const nestedRows = rows[i][key] as Record<string, any>[];
+
+    for (let j = 0; j < nestedRows.length; j++) {
+      if (j > 0) {
+        formRows.push([]);
+        for (let empty = 0; empty < fixedFields; empty++) {
+          formRows[j].push(<div key={"empty" + empty} />);
+        }
+      }
+
+      formRows[j].push(
+        ...nestedKeys.map((nestedKey) => (
           <Input
-            value={String(row[key]) || ""}
+            key={nestedKey}
+            className="rounded-none  focus-visible:ring-0"
+            value={String(rows[i]?.[key]?.[j]?.[nestedKey] || "")}
             onChange={(v) => {
-              rows[i][key] = v.target.value;
-              field.onChange(rows);
+              rows[i][key][j][nestedKey] = v.target.value;
+              field.onChange(JSON.stringify(rows));
             }}
           />
-        </TableCell>
-      ))}
+        )),
+      );
+    }
+  }
 
-      <TableCell className={cellStyle}>
-        <X
-          className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
-          onClick={() => rmCode(field, rows, i)}
-        />
-      </TableCell>
-    </TableRow>
-  );
+  return formRows;
 }

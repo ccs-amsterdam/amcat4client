@@ -75,7 +75,7 @@ export function Branding({
           )}
           {(serverBranding.client_data?.welcome_buttons ?? []).map((action, i) => (
             <Link key={i} href={action.href}>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="secondary">
                 {action.label}
               </Button>
             </Link>
@@ -83,5 +83,60 @@ export function Branding({
         </div>
       </div>
     </section>
+  );
+}
+
+export function BrandingFooter({ serverBranding }: { serverBranding?: AmcatBranding } = {}) {
+  if (serverBranding == null) return null;
+  const links = serverBranding.client_data?.information_links;
+  const n_cols = 2 + (links == null ? 0 : links.length);
+  return (
+    <footer className="mt-auto pt-4">
+      <div className="container py-6">
+        <div className="mt-8 border-t border-foreground/20 pt-8" />
+        <div className={`grid gap-8 md:grid-cols-${n_cols}`}>
+          <div>
+            <h3 className="mb-2 text-sm font-semibold">AmCAT</h3>
+            <ul className="text-sm">
+              <li>Open-source text analysis software for researchers and analysts.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="mb-2 font-semibold">Resources</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="https://amcat.nl/book/" className=" hover:text-blue-600">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link href="https://github.com/ccs-amsterdam/amcat4" className=" hover:text-blue-600">
+                  GitHub
+                </Link>
+              </li>
+            </ul>
+          </div>
+          {links == null
+            ? null
+            : links.map((link, i) => (
+                <div key={i}>
+                  <h3 className="mb-2 font-semibold ">{link.title}</h3>
+                  <ul className="space-y-2 text-sm">
+                    {link.links.map((item, j) => (
+                      <li key={j}>
+                        <Link href={item.href as string} className=" hover:text-blue-600">
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+        </div>
+        <div className="mt-8 border-t border-foreground/20 pt-4 text-center text-sm">
+          <p>&copy; {new Date().getFullYear()} AmCAT. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   );
 }
