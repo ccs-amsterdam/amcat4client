@@ -221,12 +221,14 @@ function ServerBrandingForm() {
         {/*<JSONForm
           control={brandingForm.control}
           name="client_data.welcome_buttons"
+          label="Action Buttons below Welcome Text"
           schema={z.object({ href: z.string(), label: z.string() })}
-        />*/}
-        {/*<JSONForm
+        />
+        <JSONForm
           control={brandingForm.control}
           name="client_data.information_links"
-          schema={z.object({ href: z.string(), label: z.string() })}
+          label="Additional Homepage Links"
+          schema={z.object({ title: z.string(), links: z.array(z.object({ href: z.string(), label: z.string() })) })}
         />*/}
         <FormField
           control={brandingForm.control}
