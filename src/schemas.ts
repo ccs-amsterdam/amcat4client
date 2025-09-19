@@ -9,8 +9,8 @@ export const amcatConfigSchema = z.object({
 
 export const LinkArraySchema = z.array(
   z.object({
-    href: z.string(),
     label: z.string(),
+    href: z.string(),
   }),
 );
 

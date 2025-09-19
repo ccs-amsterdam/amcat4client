@@ -157,7 +157,7 @@ function ServerBrandingForm() {
   const errors = brandingForm.formState.errors;
   return (
     <Form {...brandingForm}>
-      <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-2">
+      <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-6">
         <FormField
           control={brandingForm.control}
           name="server_name"
@@ -219,7 +219,7 @@ function ServerBrandingForm() {
             </FormItem>
           )}
         ></FormField>
-        {/*<JSONForm
+        <JSONForm
           control={brandingForm.control}
           name="client_data.welcome_buttons"
           label="Action Buttons below Welcome Text"
@@ -228,37 +228,9 @@ function ServerBrandingForm() {
         <JSONForm
           control={brandingForm.control}
           name="client_data.information_links"
-          label="Additional Homepage Links"
+          label="Links column in homepage footer"
           schema={z.object({ title: z.string(), links: z.array(z.object({ href: z.string(), label: z.string() })) })}
-        />*/}
-        <FormField
-          control={brandingForm.control}
-          name="client_data.welcome_buttons"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Action Buttons below Welcome Text </FormLabel>
-              <FormControl>
-                <Textarea {...field} value={field.value} placeholder={LINKARRAY_PLACEHOLDER} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={brandingForm.control}
-          name="client_data.information_links"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Additional Homepage Links </FormLabel>
-              <FormControl>
-                <Textarea {...field} value={field.value} placeholder={LINKS_PLACEHOLDER} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
+        />
         {!isAdmin ? null : <Button type="submit">Save changes</Button>}
       </form>
     </Form>

@@ -18,6 +18,7 @@ module.exports = {
         DEFAULT: {
           css: {
             p: { hyphens: "auto" },
+            a: { textDecoration: "underline" },
           },
         },
         invert: {},

@@ -30,7 +30,7 @@ export function Branding({
   const no_auth = serverConfig.authorization === "no_auth";
   return (
     <section className="bg-gradient-to-r from-primary to-primary/80 py-20 text-background md:pb-32 md:pt-52">
-      <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert">
+      <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert prose-a:underline">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
           {no_auth ? (

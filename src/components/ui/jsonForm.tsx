@@ -24,51 +24,6 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
   label,
   schema,
 }: FormFieldProps<T, Z>) {
-  function addRow(field: ControllerRenderProps<T>, values: Z[]) {
-    const row: Partial<Z> = {};
-    for (let [key, value] of Object.entries(schema.shape)) {
-      if (value instanceof z.ZodString) {
-        row[key as keyof z.infer<Z>] = "" as any;
-      }
-      if (value instanceof z.ZodArray) {
-        const subkeys = Object.keys(value.element.shape);
-        const subkeysObj = subkeys.reduce((acc: any, key) => {
-          acc[key] = "";
-          return acc;
-        }, {});
-        row[key as keyof z.infer<Z>] = [subkeysObj] as any;
-      }
-    }
-    values.push(row as Z);
-    field.onChange(JSON.stringify(values));
-  }
-
-  function addSubRow(field: ControllerRenderProps<T>, values: Z[], i: number) {
-    for (let [key, value] of Object.entries(schema.shape)) {
-      if (!(value instanceof z.ZodArray)) continue;
-      const keys = Object.keys(value.element.shape);
-      const subrow: Z = keys.reduce((acc: any, key) => {
-        acc[key] = "";
-        return acc;
-      }, {});
-      (values[i][key as keyof z.infer<Z>] as Z[]).push(subrow);
-      field.onChange(JSON.stringify(values));
-    }
-  }
-
-  function rmRow(field: ControllerRenderProps<T>, values: Z[], row: number, subrow: number) {
-    if (subrow === 0) {
-      values.splice(row, 1);
-    } else {
-      for (let [key, value] of Object.entries(values[row])) {
-        if (Array.isArray(value)) {
-          value.splice(subrow, 1);
-        }
-      }
-    }
-    field.onChange(JSON.stringify(values));
-  }
-
   const tableHeadStyle = "h-8 px-3 py-1 text-foreground text-base font-thin ";
 
   return (
@@ -78,6 +33,8 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
       name={name}
       render={({ field }) => {
         const rows = field.value ? JSON.parse(field.value) : ([] as Z[]);
+        const rowIndices = rows.map((_: Z, i: number) => i);
+        rowIndices.push(rows.length);
 
         return (
           <FormItem className="flex flex-col">
@@ -85,66 +42,47 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
             <FormControl>
               <Table className="w-full flex-auto table-fixed">
                 <TableHeader className="border-">
-                  <TableRow className="border-none p-0">
+                  <TableRow className="border-none p-0 hover:bg-transparent">
                     {flatHeaders(schema).map((key) => (
                       <TableHead key={key} className={`${tableHeadStyle} pl-0`}>
                         {key}
                       </TableHead>
                     ))}
-                    <TableHead className={tableHeadStyle}></TableHead>
+                    <TableHead className={`${tableHeadStyle} w-4 `}></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="">
-                  {rows.map((row: Z, row_i: number) => (
+                  {rowIndices.map((row_i: number) => (
                     <Fragment key={row_i}>
-                      {flatForms(schema, control, field, rows, row_i).map((subRow, subrow_i) => (
-                        <TableRow key={row_i + "." + subrow_i} className="border-none hover:bg-transparent">
+                      {flatForms(schema, control, field, rows, row_i).map((subRow, subrow_i, arr) => (
+                        <TableRow
+                          key={row_i + "." + subrow_i}
+                          className={`${rows.length <= row_i ? "opacity-50" : ""} border-none hover:bg-transparent `}
+                        >
                           {subRow.map((form, form_i) => (
                             <TableCell
                               key={"cell." + row_i + "." + subrow_i + "." + form_i}
-                              className="rounded-none border-none px-0 py-0 pl-0 hover:bg-transparent"
+                              className={`${arr.length > 1 && subrow_i === arr.length - 1 ? "pb-3" : "pb-1"} rounded-none border-none px-0 pl-0 pr-1 pt-0 hover:bg-transparent`}
                             >
                               {form}
                             </TableCell>
                           ))}
-                          <TableCell key={"add"} className={"rounded-none px-1 py-1 hover:bg-transparent"}>
+                          <TableCell
+                            key={"add"}
+                            className={`${rows.length <= row_i ? "invisible" : ""} rounded-none px-1 py-1 hover:bg-transparent`}
+                          >
                             <X
                               className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
-                              onClick={() => rmRow(field, rows, row_i, subrow_i)}
+                              onClick={() => {
+                                const values = rmRow(rows, row_i, subrow_i);
+                                field.onChange(JSON.stringify(values));
+                              }}
                             />
                           </TableCell>
                         </TableRow>
                       ))}
-                      <TableRow key={"add sub row" + row_i}>
-                        <TableCell className="px-0 py-1 pr-1 hover:bg-transparent">
-                          <Button
-                            className="h-7 rounded py-2"
-                            size="icon"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              addSubRow(field, rows, row_i);
-                            }}
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
                     </Fragment>
                   ))}
-                  <TableRow key="add row">
-                    <TableCell className="px-0 py-1 pr-1 hover:bg-transparent">
-                      <Button
-                        className="h-7 rounded py-2"
-                        size="icon"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          addRow(field, rows);
-                        }}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </FormControl>
@@ -155,16 +93,66 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
   );
 }
 
+function addRow<Z extends z.ZodObject<any>>(schema: Z, values: Z[]) {
+  const newValues = [...values];
+  const row: Partial<Z> = {};
+
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (value instanceof z.ZodString) {
+      row[key as keyof z.infer<Z>] = "" as any;
+    }
+    if (value instanceof z.ZodArray) {
+      row[key as keyof z.infer<Z>] = [] as any;
+      // const subkeys = Object.keys(value.element.shape);
+      // const subkeysObj = subkeys.reduce((acc: any, key) => {
+      //   acc[key] = "";
+      //   return acc;
+      // }, {});
+      // row[key as keyof z.infer<Z>] = [subkeysObj] as any;
+    }
+  }
+  newValues.push(row as Z);
+  return newValues;
+}
+
+function addSubRow<Z extends z.ZodObject<any>>(schema: Z, values: Z[], i: number) {
+  const newValues = [...values];
+  for (let [key, value] of Object.entries(schema.shape)) {
+    if (!(value instanceof z.ZodArray)) continue;
+    const keys = Object.keys(value.element.shape);
+    const subrow: Z = keys.reduce((acc: any, key) => {
+      acc[key] = "";
+      return acc;
+    }, {});
+    const addToRow = newValues[i][key as keyof z.infer<Z>] as Z[];
+    addToRow.push(subrow);
+  }
+  return newValues;
+}
+
+function rmRow<Z extends z.ZodObject<any>>(values: Z[], row: number, subrow: number) {
+  const newValues = [...values];
+  if (subrow === 0) {
+    newValues.splice(row, 1);
+  } else {
+    for (let [key, value] of Object.entries(newValues[row])) {
+      if (Array.isArray(value)) {
+        value.splice(subrow, 1);
+      }
+    }
+  }
+  return newValues;
+}
+
 function flatHeaders(schema: z.ZodObject<any>) {
   const headers: string[] = [];
   for (let [key, value] of Object.entries(schema.shape)) {
-    if (value instanceof z.ZodArray) continue;
-    headers.push(key);
+    if (value instanceof z.ZodString) headers.push(key);
   }
   for (let [key, value] of Object.entries(schema.shape)) {
-    if (!(value instanceof z.ZodArray)) continue;
-    headers.push(...Object.keys(value.element.shape));
+    if (value instanceof z.ZodArray) headers.push(...Object.keys(value.element.shape));
   }
+
   return headers;
 }
 
@@ -172,22 +160,25 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
   schema: Z,
   control: Control<T, any>,
   field: ControllerRenderProps<T>,
-  rows: z.infer<Z>[],
+  rows: Z[],
   i: number,
 ) {
   const formRows: JSX.Element[][] = [[]];
+  let newRows: any = [...rows];
+
+  const formStyle = "rounded-none border-none bg-gray-200 dark:bg-gray-600 focus-visible:ring-0";
 
   for (let [key, value] of Object.entries(schema.shape)) {
     if (!(value instanceof z.ZodString)) continue;
     formRows[0].push(
       <Input
         key={key}
-        className="rounded-none  focus-visible:ring-0"
-        value={String(rows[i]?.[key] || "")}
+        className={formStyle}
+        value={String(newRows[i]?.[key] || "")}
         onChange={(v) => {
-          if (rows.length < i) rows.push({});
-          rows[i][key as keyof z.infer<Z>] = v.target.value as any;
-          field.onChange(JSON.stringify(rows));
+          if (newRows.length <= i) newRows = addRow(schema, newRows);
+          newRows[i][key as keyof z.infer<Z>] = v.target.value as any;
+          field.onChange(JSON.stringify(newRows));
         }}
       />,
     );
@@ -198,9 +189,9 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
   for (let [key, value] of Object.entries(schema.shape)) {
     if (!(value instanceof z.ZodArray)) continue;
     const nestedKeys = Object.keys(value.element.shape);
-    const nestedRows = rows[i][key] as Record<string, any>[];
+    let nestedRows = newRows[i] ? newRows[i][key].length : 0;
 
-    for (let j = 0; j < nestedRows.length; j++) {
+    for (let j = 0; j < nestedRows + 1; j++) {
       if (j > 0) {
         formRows.push([]);
         for (let empty = 0; empty < fixedFields; empty++) {
@@ -212,11 +203,13 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
         ...nestedKeys.map((nestedKey) => (
           <Input
             key={nestedKey}
-            className="rounded-none  focus-visible:ring-0"
-            value={String(rows[i]?.[key]?.[j]?.[nestedKey] || "")}
+            className={formStyle}
+            value={String(newRows[i]?.[key]?.[j]?.[nestedKey] || "")}
             onChange={(v) => {
-              rows[i][key][j][nestedKey] = v.target.value;
-              field.onChange(JSON.stringify(rows));
+              if (newRows.length <= i) newRows = addRow(schema, newRows);
+              if (newRows[i][key].length <= j) newRows = addSubRow(schema, newRows, i);
+              newRows[i][key][j][nestedKey] = v.target.value;
+              field.onChange(JSON.stringify(newRows));
             }}
           />
         )),
