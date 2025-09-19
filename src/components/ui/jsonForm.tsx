@@ -54,33 +54,38 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
                 <TableBody className="">
                   {rowIndices.map((row_i: number) => (
                     <Fragment key={row_i}>
-                      {flatForms(schema, control, field, rows, row_i).map((subRow, subrow_i, arr) => (
-                        <TableRow
-                          key={row_i + "." + subrow_i}
-                          className={`${rows.length <= row_i ? "opacity-50" : ""} border-none hover:bg-transparent `}
-                        >
-                          {subRow.map((form, form_i) => (
-                            <TableCell
-                              key={"cell." + row_i + "." + subrow_i + "." + form_i}
-                              className={`${arr.length > 1 && subrow_i === arr.length - 1 ? "pb-3" : "pb-1"} rounded-none border-none px-0 pl-0 pr-1 pt-0 hover:bg-transparent`}
-                            >
-                              {form}
-                            </TableCell>
-                          ))}
-                          <TableCell
-                            key={"add"}
-                            className={`${rows.length <= row_i ? "invisible" : ""} rounded-none px-1 py-1 hover:bg-transparent`}
+                      {flatForms(schema, control, field, rows, row_i).map((subRow, subrow_i, arr) => {
+                        const lastRow = rows.length <= row_i;
+                        const lastSubRow = arr.length > 1 && arr.length - 1 === subrow_i;
+
+                        return (
+                          <TableRow
+                            key={row_i + "." + subrow_i}
+                            className={`${lastRow || lastSubRow ? "opacity-50" : ""} border-none hover:bg-transparent `}
                           >
-                            <X
-                              className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
-                              onClick={() => {
-                                const values = rmRow(rows, row_i, subrow_i);
-                                field.onChange(JSON.stringify(values));
-                              }}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                            {subRow.map((form, form_i) => (
+                              <TableCell
+                                key={"cell." + row_i + "." + subrow_i + "." + form_i}
+                                className={`${lastSubRow ? "pb-3" : "pb-1"} rounded-none border-none px-0 pl-0 pr-1 pt-0 hover:bg-transparent`}
+                              >
+                                {form}
+                              </TableCell>
+                            ))}
+                            <TableCell
+                              key={"add"}
+                              className={`${lastRow || lastSubRow ? "invisible" : ""} rounded-none px-1 py-1 hover:bg-transparent`}
+                            >
+                              <X
+                                className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
+                                onClick={() => {
+                                  const values = rmRow(rows, row_i, subrow_i);
+                                  field.onChange(JSON.stringify(values));
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </Fragment>
                   ))}
                 </TableBody>
