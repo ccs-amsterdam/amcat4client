@@ -1,5 +1,3 @@
-"use client";
-
 import { roleAtLeast } from "@/api/util";
 import { DropdownMenuRadioGroup, DropdownMenuRadioItem } from "@/components/ui/dropdown-menu";
 import { AmcatUserRole, MenuRoute } from "@/interfaces";

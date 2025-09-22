@@ -1,5 +1,3 @@
-"use client";
-
 import { DataTable } from "@/components/ui/datatable";
 import { AmcatUserDetails, AmcatUserRole } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";

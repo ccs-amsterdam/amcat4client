@@ -94,7 +94,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
                 )}
               />
 
-              <FormField
+              {/*<FormField
                 control={form.control}
                 name="contact"
                 render={({ field }) => (
@@ -111,7 +111,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
                     </FormControl>
                   </FormItem>
                 )}
-              />
+              />*/}
 
               <FormField
                 control={form.control}

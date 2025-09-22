@@ -7,17 +7,17 @@ export const amcatConfigSchema = z.object({
   minio: z.boolean().default(false),
 });
 
-export const LinkArraySchema = z.array(
+export const linkArraySchema = z.array(
   z.object({
     label: z.string(),
     href: z.string(),
   }),
 );
 
-export const InformationLinksSchema = z.array(
+export const informationLinksSchema = z.array(
   z.object({
     title: z.string(),
-    links: LinkArraySchema,
+    links: linkArraySchema,
   }),
 );
 
@@ -30,8 +30,8 @@ export const amcatBrandingSchema = z.object({
   welcome_text: z.string().nullish(),
   client_data: z
     .object({
-      information_links: InformationLinksSchema.nullish(),
-      welcome_buttons: LinkArraySchema.nullish(),
+      information_links: informationLinksSchema.nullish(),
+      welcome_buttons: linkArraySchema.nullish(),
     })
     .nullish(),
 });

@@ -11,14 +11,16 @@ import { Button } from "./button";
 // Also allows one (and only one) key to have a nested array of objects.
 // type TYPE = Record<string, string | Record<string, string>[]>[];
 
-interface FormFieldProps<T extends FieldValues, Z extends z.ZodObject<any>> {
+type ValidZod = z.ZodArray<z.ZodObject<any>>;
+
+interface FormFieldProps<T extends FieldValues, Z extends ValidZod> {
   control: Control<T, any>;
   name: Path<T>;
   label: string;
   schema: Z;
 }
 
-export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
+export function JSONForm<T extends FieldValues, Z extends ValidZod>({
   control,
   name,
   label,
@@ -32,9 +34,9 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
       key={name}
       name={name}
       render={({ field }) => {
-        const rows = field.value ? JSON.parse(field.value) : ([] as Z[]);
-        const rowIndices = rows.map((_: Z, i: number) => i);
-        rowIndices.push(rows.length);
+        const rows = field.value ? field.value : ([] as z.infer<Z>);
+        const rowIndices = rows.map((_, i: number) => i);
+        rowIndices.push(rowIndices.length);
 
         return (
           <FormItem className="flex flex-col">
@@ -79,7 +81,7 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
                                 className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
                                 onClick={() => {
                                   const values = rmRow(rows, row_i, subrow_i);
-                                  field.onChange(JSON.stringify(values));
+                                  field.onChange(values);
                                 }}
                               />
                             </TableCell>
@@ -98,44 +100,38 @@ export function JSONForm<T extends FieldValues, Z extends z.ZodObject<any>>({
   );
 }
 
-function addRow<Z extends z.ZodObject<any>>(schema: Z, values: Z[]) {
+function addRow<Z extends ValidZod>(schema: Z, values: z.infer<Z>) {
   const newValues = [...values];
-  const row: Partial<Z> = {};
+  const row: Partial<z.infer<Z>> = {};
 
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (value instanceof z.ZodString) {
       row[key as keyof z.infer<Z>] = "" as any;
     }
     if (value instanceof z.ZodArray) {
       row[key as keyof z.infer<Z>] = [] as any;
-      // const subkeys = Object.keys(value.element.shape);
-      // const subkeysObj = subkeys.reduce((acc: any, key) => {
-      //   acc[key] = "";
-      //   return acc;
-      // }, {});
-      // row[key as keyof z.infer<Z>] = [subkeysObj] as any;
     }
   }
-  newValues.push(row as Z);
+  newValues.push(row as z.infer<Z>);
   return newValues;
 }
 
-function addSubRow<Z extends z.ZodObject<any>>(schema: Z, values: Z[], i: number) {
+function addSubRow<Z extends ValidZod>(schema: Z, values: z.infer<Z>, i: number) {
   const newValues = [...values];
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (!(value instanceof z.ZodArray)) continue;
     const keys = Object.keys(value.element.shape);
     const subrow: Z = keys.reduce((acc: any, key) => {
       acc[key] = "";
       return acc;
     }, {});
-    const addToRow = newValues[i][key as keyof z.infer<Z>] as Z[];
+    const addToRow = newValues[i][key as keyof z.infer<Z>] as z.infer<Z>;
     addToRow.push(subrow);
   }
   return newValues;
 }
 
-function rmRow<Z extends z.ZodObject<any>>(values: Z[], row: number, subrow: number) {
+function rmRow<Z extends ValidZod>(values: z.infer<Z>, row: number, subrow: number) {
   const newValues = [...values];
   if (subrow === 0) {
     newValues.splice(row, 1);
@@ -149,23 +145,23 @@ function rmRow<Z extends z.ZodObject<any>>(values: Z[], row: number, subrow: num
   return newValues;
 }
 
-function flatHeaders(schema: z.ZodObject<any>) {
+function flatHeaders(schema: ValidZod) {
   const headers: string[] = [];
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (value instanceof z.ZodString) headers.push(key);
   }
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (value instanceof z.ZodArray) headers.push(...Object.keys(value.element.shape));
   }
 
   return headers;
 }
 
-function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
+function flatForms<T extends FieldValues, Z extends ValidZod>(
   schema: Z,
   control: Control<T, any>,
   field: ControllerRenderProps<T>,
-  rows: Z[],
+  rows: z.infer<Z>,
   i: number,
 ) {
   const formRows: JSX.Element[][] = [[]];
@@ -173,7 +169,7 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
 
   const formStyle = "rounded-none border-none bg-gray-200 dark:bg-gray-600 focus-visible:ring-0";
 
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (!(value instanceof z.ZodString)) continue;
     formRows[0].push(
       <Input
@@ -183,7 +179,7 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
         onChange={(v) => {
           if (newRows.length <= i) newRows = addRow(schema, newRows);
           newRows[i][key as keyof z.infer<Z>] = v.target.value as any;
-          field.onChange(JSON.stringify(newRows));
+          field.onChange(newRows);
         }}
       />,
     );
@@ -191,7 +187,7 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
 
   const fixedFields = formRows[0].length;
 
-  for (let [key, value] of Object.entries(schema.shape)) {
+  for (let [key, value] of Object.entries(schema.element.shape)) {
     if (!(value instanceof z.ZodArray)) continue;
     const nestedKeys = Object.keys(value.element.shape);
     let nestedRows = newRows[i] ? newRows[i][key].length : 0;
@@ -214,7 +210,7 @@ function flatForms<T extends FieldValues, Z extends z.ZodObject<any>>(
               if (newRows.length <= i) newRows = addRow(schema, newRows);
               if (newRows[i][key].length <= j) newRows = addSubRow(schema, newRows, i);
               newRows[i][key][j][nestedKey] = v.target.value;
-              field.onChange(JSON.stringify(newRows));
+              field.onChange(newRows);
             }}
           />
         )),

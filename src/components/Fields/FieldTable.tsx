@@ -1,5 +1,3 @@
-"use client";
-
 import { DataTable, tooltipHeader } from "@/components/ui/datatable";
 import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField, AmcatClientSettings } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
