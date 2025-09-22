@@ -82,7 +82,7 @@ export default function UserRoleTable({ user, ownRole, users, roles, changeRole 
     <div className=" w-full max-w-7xl grid-cols-1">
       <div className="flex items-center justify-between pb-4">
         <div className="prose-xl flex gap-1 md:gap-3">
-          <h3 className="mb-0">Users</h3>
+          <h3 className="mb-0">User Roles</h3>
           <CreateUser ownRole={ownRole} roles={roles} changeRole={changeRole}>
             <Button variant="ghost" className="flex gap-2 p-4">
               <UserPlus />

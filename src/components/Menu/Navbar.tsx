@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import { useAmcatBranding } from "@/api/branding";
 import useAutoSignin from "@/lib/useAutoSignin";
 import Link from "next/link";
@@ -9,7 +7,6 @@ import AccountMenu from "./AccountMenu";
 import IndexMenu from "./IndexMenu";
 import { useParams } from "next/navigation";
 import MainMenu from "./MainMenu";
-import { useEffect, useState } from "react";
 import IndexRole from "./IndexRole";
 
 export default function Navbar() {
@@ -29,10 +26,6 @@ export default function Navbar() {
             <MainMenu />
             <IndexMenu />
           </div>
-
-          {/*<div className={`hidden whitespace-nowrap ${showingIndex ? "" : "sm:block"} `}>
-          <ServerBranding />
-        </div>*/}
 
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
             <IndexRole />

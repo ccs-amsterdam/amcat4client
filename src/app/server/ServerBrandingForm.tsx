@@ -51,10 +51,6 @@ export function ServerBrandingForm() {
     resolver: zodResolver(amcatBrandingSchema),
     defaultValues: {
       ...branding,
-      // client_data: {
-      //   information_links: stringify(branding?.client_data?.information_links),
-      //   welcome_buttons: stringify(branding?.client_data?.welcome_buttons),
-      // },
     },
   });
 

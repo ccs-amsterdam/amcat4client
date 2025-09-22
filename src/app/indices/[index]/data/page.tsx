@@ -1,34 +1,18 @@
 "use client";
 
-import { useIndex, useMutateIndex } from "@/api/index";
+import { useIndex } from "@/api/index";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { AmcatIndex, AmcatUserRole } from "@/interfaces";
-import { useEffect, useState } from "react";
-import { UpdateIndex } from "@/components/Index/UpdateIndex";
+import { useMiddlecat } from "middlecat-react";
+import { AmcatIndex } from "@/interfaces";
 import FieldTable from "@/components/Fields/FieldTable";
 import { useFields, useMutateFields } from "@/api/fields";
-import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
-import UserRoleTable from "@/components/Users/UserRoleTable";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Edit, Trash2 } from "lucide-react";
 import { parseAsStringEnum, useQueryState } from "next-usequerystate";
 import Upload from "@/components/Upload/Upload";
-import { Dialog } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { set } from "date-fns";
 import { useAmcatConfig } from "@/api/config";
 import Multimedia from "@/components/Multimedia/Multimedia";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Preprocessing from "@/components/Preprocessing/Preprocessing";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 

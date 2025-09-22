@@ -29,8 +29,11 @@ export function Branding({
     serverConfig.authorization === "authorized_users_only";
   const no_auth = serverConfig.authorization === "no_auth";
   return (
-    <section className="bg-gradient-to-r from-primary to-primary/80 py-20 text-background md:pb-32 md:pt-52">
-      <div className="container prose-xl mx-auto max-w-6xl px-4 text-center dark:prose-invert prose-a:underline">
+    <section className="bg-gradient-to-r from-primary to-primary/80 text-background ">
+      <div className="flex items-center justify-center gap-1 whitespace-nowrap pl-9 pt-3">
+        <ServerNameAndLink serverBranding={serverBranding} />
+      </div>
+      <div className="container prose-xl mx-auto max-w-6xl px-4 py-10 text-center dark:prose-invert prose-a:underline md:py-32">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">
           {no_auth ? (
@@ -83,6 +86,25 @@ export function Branding({
         </div>
       </div>
     </section>
+  );
+}
+
+function ServerNameAndLink({ serverBranding }: { serverBranding: AmcatBranding }) {
+  if (serverBranding == null) return null;
+  const logo = (
+    <Button className="flex items-center gap-1 whitespace-nowrap text-lg" variant="ghost">
+      {serverBranding.server_icon ? (
+        <img alt="Server icon" src={serverBranding.server_icon} className="mr-2 inline h-8" />
+      ) : null}
+      {serverBranding.server_name}
+    </Button>
+  );
+  return serverBranding.server_url ? (
+    <Link href={serverBranding.server_url} className="">
+      {logo}
+    </Link>
+  ) : (
+    logo
   );
 }
 
