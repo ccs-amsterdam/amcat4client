@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { AmcatIndex } from "@/interfaces";
-import { amcatIndexUpdateSchema } from "@/schemas";
+import { amcatIndexUpdateSchema, contactInfoSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMiddlecat } from "middlecat-react";
 import { useState } from "react";
@@ -20,6 +20,7 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { JSONForm } from "../ui/jsonForm";
 
 export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
   const { user } = useMiddlecat();
@@ -32,7 +33,6 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
   if (!index) return null;
 
   function onSubmit(values: z.input<typeof amcatIndexUpdateSchema>) {
-    console.log(values);
     mutateAsync(amcatIndexUpdateSchema.parse(values)).then(() => setOpen(false));
   }
 
@@ -94,24 +94,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
                 )}
               />
 
-              {/*<FormField
-                control={form.control}
-                name="contact"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact information</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='[{"name": "Bob", "website": "https://bob.me"}
-
-                        {"name": "Anne", "email": "Anne@gmail.com"}]'
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />*/}
+              <JSONForm control={form.control} name="contact" label="Contact information" schema={contactInfoSchema} />
 
               <FormField
                 control={form.control}

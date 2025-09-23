@@ -50,25 +50,15 @@ export default function IndexRole() {
 
 function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
   const user_role = index?.user_role || "NONE";
-  const user_roles = index?.user_roles || [];
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
-
-  const match = user_roles[user_roles.length - 1]?.match;
 
   function myRole() {
     if (user_role === "NONE") return <span>you do not have access to this index</span>;
-    if (match === "guest role")
-      return (
-        <span>
-          You have the <b>{user_role}</b> role as a guest on this index.
-        </span>
-      );
-    if (match === user.email)
-      return (
-        <span>
-          You have been given the <b>{user_role}</b> role on this index.
-        </span>
-      );
+    return (
+      <span>
+        You have the <b>{user_role}</b> role on this index.
+      </span>
+    );
   }
 
   function upgradeRole() {
@@ -143,8 +133,6 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
   const isAdmin = useHasGlobalRole(user, "ADMIN");
   if (!isAdmin) return null;
 
-  const exactRole = (index?.user_roles || []).find((r) => r.match === user.email);
-
   function onChangeRole(role: string | undefined) {
     if (!role) return;
     if (role === "NONE") {
@@ -164,7 +152,7 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="">
         <DropdownMenuRadioGroup
-          value={exactRole?.role}
+          value={index?.user_role}
           onSelect={(e) => e.preventDefault()}
           onValueChange={onChangeRole}
         >
@@ -176,7 +164,7 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
                 onSelect={(e) => e.preventDefault()}
                 disabled={!user.authenticated}
               >
-                {role === "NONE" ? "DELETE" : role}
+                {role === "NONE" ? `GUEST` : role}
               </DropdownMenuRadioItem>
             );
           })}

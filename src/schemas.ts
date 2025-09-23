@@ -41,16 +41,24 @@ export const amcatUserRoleSchema = z
   .nullish()
   .transform((v) => v ?? "NONE");
 
+export const contactInfoSchema = z.array(
+  z.object({
+    name: z.string().optional(),
+    email: z.string().optional(),
+    url: z.string().optional(),
+  }),
+);
+
 export const amcatIndexSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string().nullish(),
   user_role: amcatUserRoleSchema,
-  user_roles: z.array(z.object({ match: z.string(), role: amcatUserRoleSchema })).nullish(),
   guest_role: amcatUserRoleSchema.nullish(),
   archived: z.string().nullish(),
   image_url: z.string().nullish(),
   folder: z.string().nullish(),
+  contact: contactInfoSchema.nullish(),
 });
 
 export const amcatIndexUpdateSchema = amcatIndexSchema
