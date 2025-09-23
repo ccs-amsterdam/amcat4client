@@ -8,6 +8,7 @@ import IndexMenu from "./IndexMenu";
 import { useParams } from "next/navigation";
 import MainMenu from "./MainMenu";
 import IndexRole from "./IndexRole";
+import { Notifications } from "./Notifications";
 
 export default function Navbar() {
   useAutoSignin();
@@ -29,6 +30,7 @@ export default function Navbar() {
 
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
             <IndexRole />
+            <Notifications />
             <AccountMenu />
             {/*<ServerMenu />*/}
           </div>

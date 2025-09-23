@@ -127,7 +127,6 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
         <div className=" text-primary">{index.folder}</div>
         <div className="font-bold">Image</div>
         <div className=" text-primary">{index.image_url}</div>
-        <div className="font-bold">Contact</div>
       </div>
       <div>
         <div className="prose w-max rounded-md bg-primary/10 px-6 py-2 dark:prose-invert">

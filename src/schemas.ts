@@ -336,3 +336,14 @@ export const amcatPreprocessingTask = z.object({
   outputs: z.array(amcatPreprocessingTaskOutput),
   request: amcatPreprocessingTaskRequest,
 });
+
+export const amcatRoleRequestSchema = z.object({
+  index: z.string().optional(),
+  email: z.string(),
+  role: amcatUserRoleSchema,
+});
+
+export const amcatSubmitRoleRequestSchema = z.object({
+  index: z.string().optional(),
+  role: amcatUserRoleSchema,
+});

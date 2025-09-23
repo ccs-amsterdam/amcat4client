@@ -17,8 +17,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { AmcatIndex } from "@/interfaces";
-import { ChevronDown, Lock, Shield, User } from "lucide-react";
+import { AmcatIndex, AmcatUserRole } from "@/interfaces";
+import { ArrowRight, AtSign, ChevronDown, Lock, MessageCircleQuestionMarkIcon, Shield, User } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
@@ -35,6 +35,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
 import { ContactInfo } from "../Index/ContactInfo";
+import { useSubmitRoleRequest } from "@/api/roleRequests";
+import { amcatUserRoleSchema } from "@/schemas";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -62,23 +64,41 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
     );
   }
 
-  function serverAdminPriviledge() {
+  function howToUpdate() {
     if (!isServerAdmin) return null;
     return (
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm">As server admin, you can change your own role:</span>
+        <span className="text-sm">(As server admin, you can change your own role)</span>
         <IndexMenuServerAdmin user={user} index={index} />
       </div>
     );
   }
 
+  function requestRoleChange() {
+    if (index?.user_role === "ADMIN") return null;
+
+    return <RequestRoleChange user={user} index={index} />;
+  }
+
+  function pointsOfContact() {
+    if (index?.contact && index?.user_role !== "ADMIN")
+      return (
+        <div className="mt-6 grid grid-cols-1 items-center gap-3 rounded-md md:grid-cols-[1fr,1.5fr]">
+          <div className="px-3 text-sm">For other questions or comments about data access, please reach out to</div>
+          <div className="items-center rounded-md bg-foreground/10 p-3 ">
+            <ContactInfo contact={index?.contact} />
+          </div>
+        </div>
+      );
+  }
+
   return (
     <Dialog>
-      <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-2 outline-none hover:bg-foreground/10 lg:px-4">
+      <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-1 outline-none hover:bg-foreground/10 lg:px-4">
         <Shield />
         <span className="hidden lg:inline">{index?.user_role}</span>
       </DialogTrigger>
-      <DialogContent className="prose max-h-[90vh] w-[700px] max-w-[90vw] items-start py-6 dark:prose-invert">
+      <DialogContent className="prose max-h-[90vh] w-[700px] max-w-[95vw] items-start py-6 dark:prose-invert">
         <DialogHeader>
           <DialogTitle className="mt-0">Index access role</DialogTitle>
           <DialogDescription className="h-0 opacity-0">
@@ -89,7 +109,7 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
         <div className="mt-0 flex flex-col">
           <div className="mb-6 text-lg">
             {myRole()}
-            {serverAdminPriviledge()}
+            {howToUpdate()}
           </div>
 
           <div className="rounded-md bg-primary/10 p-3">
@@ -106,13 +126,8 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-3 rounded-md bg-secondary/20 px-3">
-            <h4 className="mt-3">Request role upgrade</h4>
-            <span>To change your user role, you can submit a request</span>
-            <div className="mb-3 w-max">
-              <ContactInfo contact={index?.contact} />
-            </div>
-          </div>
+          {requestRoleChange()}
+          {pointsOfContact()}
         </div>
       </DialogContent>
     </Dialog>
@@ -146,7 +161,7 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
           <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="">
+      <DropdownMenuContent className="" align="end">
         <DropdownMenuRadioGroup
           value={index?.user_role}
           onSelect={(e) => e.preventDefault()}
@@ -167,5 +182,57 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function RequestRoleChange({ user, index }: ChangeRoleProps) {
+  const { mutate: mutateUser } = useSubmitRoleRequest(user);
+  const [role, setRole] = useState<string | undefined>(undefined);
+
+  function onSubmit(role: string | undefined) {
+    if (!role || !index) return;
+    mutateUser({ index: index.id, role: amcatUserRoleSchema.parse(role) });
+  }
+
+  return (
+    <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-primary p-3 text-primary-foreground">
+      <div className="font-bold">Request different role</div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild className={!index ? "hidden" : ""}>
+          <Button variant="ghost" className="ml-auto">
+            {role || "Select role"}
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="" align="end">
+          <DropdownMenuRadioGroup
+            value={role || index?.user_role}
+            onSelect={(e) => e.preventDefault()}
+            onValueChange={(value) => setRole(value)}
+          >
+            {roles.map((role) => {
+              return (
+                <DropdownMenuRadioItem
+                  key={role}
+                  value={role}
+                  disabled={role === index?.user_role}
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {role === "NONE" ? `GUEST` : role}
+                </DropdownMenuRadioItem>
+              );
+            })}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Button
+        variant="outline"
+        className="bg-transparent"
+        disabled={!role || role === index?.user_role}
+        onClick={() => onSubmit(role)}
+      >
+        Send request
+      </Button>
+    </div>
   );
 }
