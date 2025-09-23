@@ -105,10 +105,10 @@ function addRow<Z extends ValidZod>(schema: Z, values: z.infer<Z>) {
   const row: Partial<z.infer<Z>> = {};
 
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (value instanceof z.ZodString) {
+    if (isZodString(value)) {
       row[key as keyof z.infer<Z>] = "" as any;
     }
-    if (value instanceof z.ZodArray) {
+    if (isZodArray(value)) {
       row[key as keyof z.infer<Z>] = [] as any;
     }
   }
@@ -119,7 +119,7 @@ function addRow<Z extends ValidZod>(schema: Z, values: z.infer<Z>) {
 function addSubRow<Z extends ValidZod>(schema: Z, values: z.infer<Z>, i: number) {
   const newValues = [...values];
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (!(value instanceof z.ZodArray)) continue;
+    if (!isZodArray(value)) continue;
     const keys = Object.keys(value.element.shape);
     const subrow: Z = keys.reduce((acc: any, key) => {
       acc[key] = "";
@@ -148,10 +148,10 @@ function rmRow<Z extends ValidZod>(values: z.infer<Z>, row: number, subrow: numb
 function flatHeaders(schema: ValidZod) {
   const headers: string[] = [];
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (value instanceof z.ZodString) headers.push(key);
+    if (isZodString(value)) headers.push(key);
   }
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (value instanceof z.ZodArray) headers.push(...Object.keys(value.element.shape));
+    if (isZodArray(value)) headers.push(...Object.keys(value.element.shape));
   }
 
   return headers;
@@ -170,7 +170,7 @@ function flatForms<T extends FieldValues, Z extends ValidZod>(
   const formStyle = "rounded-none border-none bg-gray-200 dark:bg-gray-600 focus-visible:ring-0";
 
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (!(value instanceof z.ZodString)) continue;
+    if (!isZodString(value)) continue;
     formRows[0].push(
       <Input
         key={key}
@@ -188,7 +188,7 @@ function flatForms<T extends FieldValues, Z extends ValidZod>(
   const fixedFields = formRows[0].length;
 
   for (let [key, value] of Object.entries(schema.element.shape)) {
-    if (!(value instanceof z.ZodArray)) continue;
+    if (!isZodArray(value)) continue;
     const nestedKeys = Object.keys(value.element.shape);
     let nestedRows = newRows[i] ? newRows[i][key].length : 0;
 
@@ -219,4 +219,14 @@ function flatForms<T extends FieldValues, Z extends ValidZod>(
   }
 
   return formRows;
+}
+
+function isZodString(value: any): value is z.ZodString {
+  return (
+    value instanceof z.ZodString || (value instanceof z.ZodOptional && value._def.innerType instanceof z.ZodString)
+  );
+}
+
+function isZodArray(value: any): value is z.ZodArray<any> {
+  return value instanceof z.ZodArray || (value instanceof z.ZodOptional && value._def.innerType instanceof z.ZodArray);
 }

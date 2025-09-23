@@ -3,6 +3,7 @@
 import { useAmcatConfig } from "@/api/config";
 import { useIndex, useMutateIndex } from "@/api/index";
 import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
+import { ContactInfo } from "@/components/Index/ContactInfo";
 import { UpdateIndex } from "@/components/Index/UpdateIndex";
 import UserRoleTable from "@/components/Users/UserRoleTable";
 import { Button } from "@/components/ui/button";
@@ -116,7 +117,8 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
           {index.description || <i className="text-sm text-foreground/60">(No description)</i>}
         </p>
       </div>
-      <div className="grid grid-cols-[auto,1fr] gap-x-5 text-lg   ">
+
+      <div className="grid grid-cols-[auto,1fr] gap-x-6 text-lg   ">
         <div className="font-bold">Guest role</div>
         <div className="text-primary">{index.guest_role}</div>
         <div className="font-bold">Own role</div>
@@ -125,6 +127,13 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
         <div className=" text-primary">{index.folder}</div>
         <div className="font-bold">Image</div>
         <div className=" text-primary">{index.image_url}</div>
+        <div className="font-bold">Contact</div>
+      </div>
+      <div>
+        <div className="prose w-max rounded-md bg-primary/10 px-6 py-2 dark:prose-invert">
+          <h4 className="text-foreground/60">Contact information</h4>
+          <ContactInfo contact={index.contact} />
+        </div>
       </div>
       <div className={`${index.archived ? "" : "hidden"}`}>
         <p className="w-max rounded border border-destructive p-2 text-destructive">

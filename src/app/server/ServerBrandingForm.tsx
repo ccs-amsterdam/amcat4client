@@ -26,27 +26,6 @@ export function ServerBrandingForm() {
   const { data: branding, isLoading: loadingBranding } = useAmcatBranding();
   const { data: config } = useAmcatConfig();
 
-  // function getJsonTransformer<S extends ZodSchema>(schema: S) {
-  //   return (val: string, ctx: RefinementCtx): z.infer<typeof schema> | null => {
-  //     if (!val) return null;
-  //     try {
-  //       return schema.parse(JSON.parse(val));
-  //     } catch (error) {
-  //       if (error instanceof ZodError) error = fromZodError(error);
-  //       ctx.addIssue({ code: z.ZodIssueCode.custom, message: String(error) });
-  //       return z.NEVER;
-  //     }
-  //   };
-  // }
-
-  // const formSchema = amcatBrandingSchema.extend({
-  //   client_data: z.object({
-  //     information_links: z.string().transform(getJsonTransformer(InformationLinksSchema)),
-  //     welcome_buttons: z.string().transform(getJsonTransformer(LinkArraySchema)),
-  //   }),
-  // });
-
-  const stringify = (input: any) => (input ? JSON.stringify(input) : "");
   const brandingForm = useForm<z.input<typeof amcatBrandingSchema>, unknown, z.output<typeof amcatBrandingSchema>>({
     resolver: zodResolver(amcatBrandingSchema),
     defaultValues: {

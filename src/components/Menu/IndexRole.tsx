@@ -34,6 +34,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
+import { ContactInfo } from "../Index/ContactInfo";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -61,26 +62,15 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
     );
   }
 
-  function upgradeRole() {
-    if (isServerAdmin)
-      return (
-        <div className="flex flex-col gap-3 rounded-md bg-secondary/20 p-3">
-          <span className="font-bold">As a server admin, you are allowed to change your own index role:</span>
-          <IndexMenuServerAdmin user={user} index={index} />
-        </div>
-      );
-
+  function serverAdminPriviledge() {
+    if (!isServerAdmin) return null;
     return (
-      <div>
-        <p>If you want to request a different role, please contact the index administrator.</p>
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm">As server admin, you can change your own role:</span>
+        <IndexMenuServerAdmin user={user} index={index} />
       </div>
     );
   }
-
-  // MAKE THIS A MODAL WITH INFORMATION ABOUT ROLES
-  // Make the role the menu bar label
-  // add request form
-  // add server admin action
 
   return (
     <Dialog>
@@ -97,7 +87,10 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
         </DialogHeader>
 
         <div className="mt-0 flex flex-col">
-          <div className="mb-6 text-lg">{myRole()}</div>
+          <div className="mb-6 text-lg">
+            {myRole()}
+            {serverAdminPriviledge()}
+          </div>
 
           <div className="rounded-md bg-primary/10 p-3">
             <div className="mb-2 font-bold text-primary">There are four access roles with incremental permissions:</div>
@@ -113,9 +106,12 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
             </div>
           </div>
 
-          <div>
-            <h4>Upgrade my role</h4>
-            {upgradeRole()}
+          <div className="mt-6 flex flex-col gap-3 rounded-md bg-secondary/20 px-3">
+            <h4 className="mt-3">Request role upgrade</h4>
+            <span>To change your user role, you can submit a request</span>
+            <div className="mb-3 w-max">
+              <ContactInfo contact={index?.contact} />
+            </div>
           </div>
         </div>
       </DialogContent>
@@ -146,7 +142,7 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild className={!index ? "hidden" : ""}>
         <Button variant="ghost" className="">
-          <span>Change my index role</span>
+          Change role
           <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
