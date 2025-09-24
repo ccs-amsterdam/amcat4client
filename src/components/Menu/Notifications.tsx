@@ -155,6 +155,7 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
 }
 
 function NumberBadge({ text, n, done }: { text: string; n: number; done: number }) {
+  if (n === 0) return text;
   return (
     <div className="flex items-center gap-3">
       {text}

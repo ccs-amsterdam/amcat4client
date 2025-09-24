@@ -91,12 +91,12 @@ export default function MainMenu() {
             <span className="">Homepage</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            // disabled={!isServerAdmin}
+            disabled={!isServerAdmin}
             className={`flex ${isServerAdmin ? "" : "hidden"}`}
             onClick={() => router.push(`/server`)}
           >
             <Settings className="mr-2 h-4 w-4" />
-            <span className="">Admin</span>
+            <span className="">Settings</span>
           </DropdownMenuItem>
           <ServerInfoDropdownItem open={serverInfoOpen} setOpen={setServerInfoOpen} />
           <ServerRoleDropdownItem open={serverAccessOpen} setOpen={setServerAccessOpen} />

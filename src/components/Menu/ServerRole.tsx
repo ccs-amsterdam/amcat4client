@@ -29,7 +29,7 @@ export function ServerRoleDropdownItem({ open, setOpen }: { open: boolean; setOp
         }}
       >
         <Shield className="mr-2 h-4 w-4" />
-        Access
+        Access role
       </DropdownMenuItem>
     </>
   );
