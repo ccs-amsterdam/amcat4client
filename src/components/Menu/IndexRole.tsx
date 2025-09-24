@@ -97,11 +97,13 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
       );
   }
 
+  const role = index?.user_role === "NONE" ? "ACCESS" : index?.user_role;
+
   return (
     <Dialog>
       <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-1 outline-none hover:bg-foreground/10 lg:px-4">
         <Shield />
-        <span className="hidden lg:inline">{index?.user_role}</span>
+        <span className="hidden lg:inline">{role}</span>
       </DialogTrigger>
       <DialogContent className="prose max-h-[90vh] w-[700px] max-w-[95vw] items-start py-6 dark:prose-invert">
         <DialogHeader>
@@ -186,17 +188,17 @@ function IndexMenuServerAdmin({ user, index }: IndexRoleProps) {
 }
 
 function RequestRoleChange({ user, index }: IndexRoleProps) {
-  const { mutate: mutateUser } = useSubmitRequest(user, index.id);
+  const { mutate: submitRequest } = useSubmitRequest(user, index.id);
   const [role, setRole] = useState<string | undefined>(undefined);
 
   function onSubmit(role: string | undefined) {
     if (!role || !index) return;
-    mutateUser({ index: index.id, role: amcatUserRoleSchema.parse(role) });
+    submitRequest({ index: index.id, role: amcatUserRoleSchema.parse(role) });
   }
 
   return (
     <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-primary p-3 text-primary-foreground">
-      <div className="font-bold">Request different role</div>
+      <div className="font-bold">Request role</div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild className={!index ? "hidden" : ""}>
           <Button variant="ghost" className="ml-auto">
@@ -211,6 +213,7 @@ function RequestRoleChange({ user, index }: IndexRoleProps) {
             onValueChange={(value) => setRole(value)}
           >
             {roles.map((role) => {
+              if (index?.user_role === "NONE" && role === "NONE") return null;
               return (
                 <DropdownMenuRadioItem
                   key={role}
@@ -218,7 +221,7 @@ function RequestRoleChange({ user, index }: IndexRoleProps) {
                   disabled={role === index?.user_role}
                   onSelect={(e) => e.preventDefault()}
                 >
-                  {role === "NONE" ? `GUEST` : role}
+                  {role === "NONE" ? `delete role` : role}
                 </DropdownMenuRadioItem>
               );
             })}

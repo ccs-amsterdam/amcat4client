@@ -17,7 +17,7 @@ export default function Navbar() {
   const showingIndex = params?.index !== undefined;
 
   return (
-    <nav className={`z-50 border-b-[1px] bg-background `}>
+    <nav className={`z-50 border-b-[1px] bg-background text-sm `}>
       <div className={`select-none overflow-hidden bg-primary/0`}>
         <div className="flex h-16 items-center justify-between ">
           <div className="flex h-full  items-center">
@@ -29,7 +29,6 @@ export default function Navbar() {
           </div>
 
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
-            <IndexRole />
             <Notifications />
             <AccountMenu />
             {/*<ServerMenu />*/}

@@ -16,6 +16,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex, AmcatIndexId } from "@/interfaces";
 import { CommandEmpty } from "cmdk";
@@ -38,6 +40,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { ServerInfo, ServerInfoDropdownItem } from "./ServerInfo";
 import { useState } from "react";
+import { ServerRole, ServerRoleDropdownItem } from "./ServerRole";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -52,6 +55,7 @@ export default function MainMenu() {
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
   const [serverInfoOpen, setServerInfoOpen] = useState(false);
+  const [serverAccessOpen, setServerAccessOpen] = useState(false);
 
   if (loading || !user || (!!indexId && indexLoading)) return null;
 
@@ -72,42 +76,44 @@ export default function MainMenu() {
           <div className="max-w-[200px] overflow-hidden text-ellipsis">{current()}</div>
           <ChevronDown className="h-4 w-4" />
         </div>
-        <div className=" block lg:hidden">
-          <Menu className="h-6 w-6" />
+        <div className=" flex items-center gap-3 lg:hidden">
+          <Menu />
+          <div className="w-full  overflow-hidden text-ellipsis">{current()}</div>
+          {/*<img className="" src={"/logo.png"} alt="AmCAT" width={40} height={40} />*/}
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
         <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuLabel>Server</DropdownMenuLabel>
-            {/*<DropdownMenuItem disabled>{serverConfig?.resource}</DropdownMenuItem>*/}
-            <DropdownMenuItem className="flex" onClick={() => router.push(`/`)}>
-              <Home className="mr-2 h-4 w-4" />
-              <span className="">Homepage</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              // disabled={!isServerAdmin}
-              className={`flex ${isServerAdmin ? "" : "hidden"}`}
-              onClick={() => router.push(`/server`)}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              <span className="">Admin</span>
-            </DropdownMenuItem>
-            <ServerInfoDropdownItem open={serverInfoOpen} setOpen={setServerInfoOpen} />
-          </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuSub>
-            <DropdownMenuLabel>Indices</DropdownMenuLabel>
-            <DropdownMenuItem className="flex" onClick={() => router.push(`/indices`)}>
-              <Library className="mr-2 h-4 w-4" />
-              <span className="">Overview</span>
-            </DropdownMenuItem>
-            <SelectIndex user={user} indexId={indexId} />
-          </DropdownMenuSub>
+          <DropdownMenuLabel>Server</DropdownMenuLabel>
+          {/*<DropdownMenuItem disabled>{serverConfig?.resource}</DropdownMenuItem>*/}
+          <DropdownMenuItem className="flex" onClick={() => router.push(`/`)}>
+            <Home className="mr-2 h-4 w-4" />
+            <span className="">Homepage</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            // disabled={!isServerAdmin}
+            className={`flex ${isServerAdmin ? "" : "hidden"}`}
+            onClick={() => router.push(`/server`)}
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            <span className="">Admin</span>
+          </DropdownMenuItem>
+          <ServerInfoDropdownItem open={serverInfoOpen} setOpen={setServerInfoOpen} />
+          <ServerRoleDropdownItem open={serverAccessOpen} setOpen={setServerAccessOpen} />
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Indices</DropdownMenuLabel>
+          <DropdownMenuItem className="flex" onClick={() => router.push(`/indices`)}>
+            <Library className="mr-2 h-4 w-4" />
+            <span className="">Overview</span>
+          </DropdownMenuItem>
+          <SelectIndex user={user} indexId={indexId} />
         </DropdownMenuGroup>
       </DropdownMenuContent>
 
       <ServerInfo open={serverInfoOpen} setOpen={setServerInfoOpen} />
+      <ServerRole open={serverAccessOpen} setOpen={setServerAccessOpen} />
     </DropdownMenu>
   );
 }

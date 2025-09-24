@@ -13,6 +13,7 @@ import { useState } from "react";
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
 import { ServerBrandingForm } from "./ServerBrandingForm";
+import { Info } from "lucide-react";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -58,7 +59,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
 
   return (
     <div className="flex w-full flex-col gap-10">
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px] w-full flex-col">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px]  flex-col">
         <TabsList className="mb-12 overflow-x-auto">
           {showTabs.map((tab) => {
             const tabValue = Tab[tab as keyof typeof Tab];
@@ -69,19 +70,21 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
             );
           })}
         </TabsList>
-        <div className="w-full ">
+        <div className=" ">
           <TabsContent value={Tab.Users}>
             {user == null || ownRole == null || users == null ? (
               <span>You don't have permission to see this</span>
             ) : (
-              <div className={`grid grid-cols-1 gap-6 lg:grid-cols-2`}>
-                <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
+              <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-24 lg:max-w-full lg:grid-cols-2 lg:gap-12`}>
+                <div className="flex-auto">
+                  <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
+                </div>
                 <UserTableInstructions serverConfig={serverConfig} />
               </div>
             )}
           </TabsContent>
           <TabsContent value={Tab.Branding}>
-            <div className={`grid grid-cols-1 gap-6 lg:grid-cols-2`}>
+            <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-6 lg:max-w-full lg:grid-cols-2`}>
               <ServerBrandingForm />
               <ServerBrandingPreview user={user} serverConfig={serverConfig} serverBranding={serverBranding} />
             </div>
@@ -94,7 +97,11 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
 
 function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) {
   return (
-    <div className="prose px-3 dark:prose-invert">
+    <div className="prose flex flex-col  px-3 dark:prose-invert">
+      <div className="mb-3 flex items-center gap-3 text-primary">
+        <Info className="inline h-6 w-6" />
+        About user roles and authorization policy
+      </div>
       <Tabs defaultValue="authorization policy">
         <TabsList className="mb-1">
           <TabsTrigger value="authorization policy">Authorization policy</TabsTrigger>
@@ -127,9 +134,9 @@ function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) 
           <p>There are three server access roles with incremental permissions:</p>
           <div className="rounded-md bg-primary/10 p-3 text-base">
             <div className="grid grid-cols-[8rem,1fr] gap-3">
-              <b className="text-primary">SERVER ACCESS</b>
-              In AUTHORIZED USERS ONLY mode (see authorization policy), users need at least the ACCESS role to do
-              anything.
+              <b className="text-primary">SERVER READER</b>
+              In AUTHORIZED USERS ONLY mode (see authorization policy), indices are only visible to users with the
+              READER role or higher.
               <b className="text-primary">SERVER WRITER</b>
               Can create and manage their own indices.
               <b className="text-primary">SERVER ADMIN</b>

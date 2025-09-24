@@ -124,7 +124,7 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
     const n = requests.length;
     const done = Object.values(actions).filter((a) => a.tab === tab).length;
     return (
-      <TabsTrigger value={tab} className="text-sm">
+      <TabsTrigger value={tab} className="text-sm data-[state=active]:text-sm">
         <NumberBadge text={tab} n={n} done={done} />
       </TabsTrigger>
     );
@@ -136,7 +136,7 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
         {renderTrigger("Server role", serverRoleRequests)}
         {renderTrigger("Index role", indexRoleRequests)}
       </TabsList>
-      <div className="mt-4 rounded-md">
+      <div className="max-h-[500px] overflow-auto pt-3">
         <TabsContent value="Server role" className="">
           <div className="mt-0 flex flex-col gap-3">
             {serverRoleRequests.map((r) => renderRoleRequest("Server role", r))}
