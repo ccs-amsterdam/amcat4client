@@ -337,13 +337,22 @@ export const amcatPreprocessingTask = z.object({
   request: amcatPreprocessingTaskRequest,
 });
 
-export const amcatRoleRequestSchema = z.object({
+export const amcatRequestRoleSchema = z.object({
+  type: z.literal("role").nullish().default("role"), // TODO: remove nullish and default when server is updated
   index: z.string().optional(),
   email: z.string(),
   role: amcatUserRoleSchema,
 });
 
-export const amcatSubmitRoleRequestSchema = z.object({
+export const amcatRequestProjectSchema = z.object({
+  type: z.literal("project"),
+  index: z.string().optional(),
+  email: z.string(),
+});
+
+export const amcatRequestSchema = z.discriminatedUnion("type", [amcatRequestRoleSchema, amcatRequestProjectSchema]);
+
+export const amcatSubmitRequestSchema = z.object({
   index: z.string().optional(),
   role: amcatUserRoleSchema,
 });

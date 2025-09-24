@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
 import { ContactInfo } from "../Index/ContactInfo";
-import { useSubmitRoleRequest } from "@/api/roleRequests";
+import { useSubmitRequest } from "@/api/requests";
 import { amcatUserRoleSchema } from "@/schemas";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
@@ -51,7 +51,12 @@ export default function IndexRole() {
   return <IndexRoleMenu user={user} index={index} />;
 }
 
-function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatIndex }) {
+interface IndexRoleProps {
+  user: MiddlecatUser;
+  index: AmcatIndex;
+}
+
+function IndexRoleMenu({ user, index }: IndexRoleProps) {
   const user_role = index?.user_role || "NONE";
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
@@ -134,12 +139,7 @@ function IndexRoleMenu({ user, index }: { user: MiddlecatUser; index?: AmcatInde
   );
 }
 
-interface ChangeRoleProps {
-  user: MiddlecatUser;
-  index?: AmcatIndex;
-}
-
-function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
+function IndexMenuServerAdmin({ user, index }: IndexRoleProps) {
   const { mutate: mutateUser } = useMutateIndexUser(user, index?.id);
   const isAdmin = useHasGlobalRole(user, "ADMIN");
   if (!isAdmin) return null;
@@ -185,8 +185,8 @@ function IndexMenuServerAdmin({ user, index }: ChangeRoleProps) {
   );
 }
 
-function RequestRoleChange({ user, index }: ChangeRoleProps) {
-  const { mutate: mutateUser } = useSubmitRoleRequest(user);
+function RequestRoleChange({ user, index }: IndexRoleProps) {
+  const { mutate: mutateUser } = useSubmitRequest(user, index.id);
   const [role, setRole] = useState<string | undefined>(undefined);
 
   function onSubmit(role: string | undefined) {
