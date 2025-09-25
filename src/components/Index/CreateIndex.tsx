@@ -29,6 +29,8 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
     setFolderValue(folder);
   }, [folder]);
 
+  if (!user?.authenticated) return null;
+
   function idFromName(name: string) {
     return name
       .replaceAll(" ", "-")
@@ -77,8 +79,6 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
       </div>
     );
   }
-
-  if (!user) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

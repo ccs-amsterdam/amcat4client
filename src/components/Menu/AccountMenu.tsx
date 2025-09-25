@@ -22,7 +22,6 @@ const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_inf
 export default function AccountMenu() {
   const { user, loading: loadingUser, signIn, signOut } = useMiddlecat();
   const { data: config, isLoading: loadingConfig } = useAmcatConfig();
-  const globalRole = useMyGlobalRole(user);
   const router = useRouter();
   function renderAuthStatus() {
     if (config?.authorization === "no_auth") return "Authorization disabled";
@@ -64,15 +63,15 @@ export default function AccountMenu() {
       <DropdownMenuTrigger className="min-w-[2.5rem] outline-none">
         <UserIcon user={user} config={config} className="h-8 w-8  text-primary" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" side="bottom" sideOffset={13} className="mr-2  border-[1px] border-foreground">
+      <DropdownMenuContent
+        align="end"
+        side="bottom"
+        sideOffset={13}
+        className="mr-2  min-w-48 border-[1px] border-foreground"
+      >
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
         {renderAuthButtons()}
-        {!globalRole ? null : (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Your server role: {globalRole}</DropdownMenuLabel>
-          </>
-        )}
+        <DropdownMenuSeparator />
         <ThemeToggle label={true} />
       </DropdownMenuContent>
     </DropdownMenu>

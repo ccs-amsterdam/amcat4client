@@ -68,10 +68,7 @@ interface ServerRoleProps {
 }
 
 function ServerRoleModalContent({ user, userDetails, config, close }: ServerRoleProps) {
-  const user_role = userDetails.role;
-  const isServerAdmin = user_role === "ADMIN";
-  const guestRole = config.authorization === "authorized_users_only" ? "NONE" : "READER";
-  const role = user_role || guestRole;
+  const role = userDetails.role;
 
   function myRole() {
     if (role === "NONE") return <span>you do not have a server level access role</span>;
@@ -96,11 +93,14 @@ function ServerRoleModalContent({ user, userDetails, config, close }: ServerRole
   );
 }
 
-export function RoleInfoDialog() {
+export function RoleInfoDialog({ text }: { text?: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <HelpCircle className="cursor-pointer text-primary" />
+        <div className="flex cursor-pointer items-center gap-2 text-primary">
+          {text || ""}
+          <HelpCircle className="cursor-pointer text-primary" />
+        </div>
       </DialogTrigger>
       <DialogContent className="w-[600px] max-w-[95vw]">
         <DialogTitle className="h-0 w-0 opacity-0">Server access roles</DialogTitle>

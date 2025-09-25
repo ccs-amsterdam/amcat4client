@@ -23,7 +23,7 @@ enum Tab {
 }
 
 export default function Page() {
-  const { user, signIn, loading: userLoading } = useMiddlecat();
+  const { user, loading: userLoading } = useMiddlecat();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
   if (userLoading || configLoading || brandingLoading) return <Loading />;
@@ -97,7 +97,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
 
 function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) {
   return (
-    <div className="prose flex flex-col  px-3 dark:prose-invert">
+    <div className="prose-sm flex flex-col  px-3 dark:prose-invert">
       <div className="mb-3 flex items-center gap-3 text-primary">
         <Info className="inline h-6 w-6" />
         About user roles and authorization policy
@@ -114,7 +114,7 @@ function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) 
             changed by editing the server configuration file (so not via this webclient or the API).
           </p>
           <div className="mb-2">There are four authorization policies:</div>
-          <div className="rounded-md bg-primary/10 p-3 text-base">
+          <div className="rounded-md bg-primary/10 p-3">
             <div className="grid grid-cols-[8rem,1fr] gap-3">
               <b className="text-primary">NO AUTH</b>
               No authentication or authorization. Anyone can do anything. This is only recommended for local use on your
@@ -132,14 +132,14 @@ function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) 
         </TabsContent>
         <TabsContent value="user roles">
           <p>There are three server access roles with incremental permissions:</p>
-          <div className="rounded-md bg-primary/10 p-3 text-base">
-            <div className="grid grid-cols-[8rem,1fr] gap-3">
-              <b className="text-primary">SERVER READER</b>
+          <div className="rounded-md bg-primary/10 p-3">
+            <div className="grid grid-cols-[4rem,1fr] gap-3">
+              <b className="text-primary">READER</b>
               In AUTHORIZED USERS ONLY mode (see authorization policy), indices are only visible to users with the
               READER role or higher.
-              <b className="text-primary">SERVER WRITER</b>
+              <b className="text-primary">WRITER</b>
               Can create and manage their own indices.
-              <b className="text-primary">SERVER ADMIN</b>
+              <b className="text-primary">ADMIN</b>
               Can manage all indices and users.
             </div>
           </div>

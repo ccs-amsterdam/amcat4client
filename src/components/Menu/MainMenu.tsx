@@ -34,6 +34,7 @@ import {
   Library,
   Book,
   Menu,
+  LinkIcon,
 } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -41,6 +42,8 @@ import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from ".
 import { ServerInfo, ServerInfoDropdownItem } from "./ServerInfo";
 import { useState } from "react";
 import { ServerRole, ServerRoleDropdownItem } from "./ServerRole";
+import { useAmcatBranding } from "@/api/branding";
+import Link from "next/link";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -52,6 +55,8 @@ export default function MainMenu() {
   const indexId = decodeURI(params?.index || "");
 
   const { data: index, isLoading: indexLoading } = useIndex(user, indexId);
+  const { data: branding, isLoading: brandingLoading } = useAmcatBranding();
+
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
   const [serverInfoOpen, setServerInfoOpen] = useState(false);
@@ -60,8 +65,8 @@ export default function MainMenu() {
   if (loading || !user || (!!indexId && indexLoading)) return null;
 
   function current() {
-    if (path === null || path === "/") return "Server homepage";
-    if (path.startsWith("/server") && !indexId) return "Server settings";
+    if (path === null || path === "/") return branding?.server_name || "Server homepage";
+    if (path.startsWith("/server") && !indexId) return "Settings";
     if (path.startsWith("/indices") && !indexId) return "Index overview";
     const indexName = index?.name || "Unknown index";
     return indexName;
@@ -74,7 +79,7 @@ export default function MainMenu() {
         <div className="hidden items-center gap-1 lg:flex">
           <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
           <div className="max-w-[200px] overflow-hidden text-ellipsis">{current()}</div>
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4 opacity-50" />
         </div>
         <div className=" flex items-center gap-3 lg:hidden">
           <Menu />
@@ -84,7 +89,7 @@ export default function MainMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="ml-2 min-w-[200px] border-[1px] border-foreground">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Server</DropdownMenuLabel>
+          <DropdownMenuLabel className="">Server</DropdownMenuLabel>
           {/*<DropdownMenuItem disabled>{serverConfig?.resource}</DropdownMenuItem>*/}
           <DropdownMenuItem className="flex" onClick={() => router.push(`/`)}>
             <Home className="mr-2 h-4 w-4" />
@@ -100,6 +105,17 @@ export default function MainMenu() {
           </DropdownMenuItem>
           <ServerInfoDropdownItem open={serverInfoOpen} setOpen={setServerInfoOpen} />
           <ServerRoleDropdownItem open={serverAccessOpen} setOpen={setServerAccessOpen} />
+          <DropdownMenuItem
+            className={`${branding?.server_url ? "" : "hidden"} flex`}
+            onClick={(e) => e.preventDefault()}
+          >
+            <Link href={branding?.server_url || "/"} className={`${branding?.server_url ? "" : "hidden"} flex  `}>
+              <LinkIcon className="mr-2 h-4 w-4" />
+              <span className="max-w-32 overflow-hidden text-ellipsis text-nowrap ">
+                {branding?.server_url.replaceAll("https://", "").replaceAll("http://", "")}
+              </span>
+            </Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>

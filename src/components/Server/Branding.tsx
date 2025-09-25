@@ -27,12 +27,13 @@ export function Branding({
   const require_login =
     serverConfig.authorization === "allow_authenticated_guests" ||
     serverConfig.authorization === "authorized_users_only";
+
   const no_auth = serverConfig.authorization === "no_auth";
   return (
     <section className="bg-gradient-to-r from-primary to-primary/80 text-background ">
-      <div className="flex items-center justify-center gap-1 whitespace-nowrap pl-9 pt-3">
+      {/*<div className="flex items-center justify-center gap-1 whitespace-nowrap pl-9 pt-3">
         <ServerNameAndLink serverBranding={serverBranding} />
-      </div>
+      </div>*/}
       <div className="container prose-xl mx-auto max-w-6xl px-4 py-10 text-center dark:prose-invert prose-a:underline md:py-32">
         <Markdown>{message_md}</Markdown>
         <div className="space-x-4">

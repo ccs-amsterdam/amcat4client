@@ -6,7 +6,7 @@ import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
-import { AmcatIndex } from "@/interfaces";
+import { AmcatConfig, AmcatIndex } from "@/interfaces";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import {
@@ -19,6 +19,7 @@ import {
   Filter,
   Folder,
   FolderPlus,
+  LogInIcon,
   MoreVertical,
   Plus,
   Search,
@@ -47,6 +48,9 @@ import { Toggle } from "../ui/toggle";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ErrorMsg } from "../ui/error-message";
+import { useAmcatConfig } from "@/api/config";
+import { networkInterfaces } from "os";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -55,16 +59,15 @@ interface Folder {
 
 export function SelectIndex() {
   const params = useSearchParams();
-  const { user, loading } = useMiddlecat();
+  const { user, loading: loadingUser } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
   const [currentPath, setCurrentPath] = useState<string[]>([]);
   const [search, setSearch] = useState("");
-  const [seeArchived, setSeeArchived] = useState(false);
-  const [seeUnowned, setSeeUnowned] = useState(!user?.authenticated);
+  const [showArchived, setShowArchived] = useState(false);
+  const [showPublic, setShowPublic] = useState(!user?.authenticated);
   const [visibleIndices, setVisibleIndices] = useState<AmcatIndex[]>([]);
   const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
   const canCreate = useHasGlobalRole(user, "WRITER");
-  const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
   //const [isListView, setIsListView] = useState(false);
   useEffect(() => {
@@ -74,11 +77,11 @@ export function SelectIndex() {
   const myIndices = useMemo(() => {
     if (!allIndices) return undefined;
     return allIndices.filter((ix) => {
-      if (!seeUnowned && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
-      if (!seeArchived && ix.archived) return false;
+      if (!showPublic && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
+      if (!showArchived && ix.archived) return false;
       return true;
     });
-  }, [allIndices, seeUnowned, seeArchived]);
+  }, [allIndices, showPublic, showArchived]);
 
   useEffect(() => {
     function setVisible() {
@@ -110,25 +113,28 @@ export function SelectIndex() {
 
     const timeout = setTimeout(setVisible, 200);
     return () => clearTimeout(timeout);
-  }, [myIndices, search, currentPath, seeArchived, seeUnowned]);
+  }, [myIndices, search, currentPath, showArchived, showPublic]);
 
   function toFolder(folder: string[]) {
     history.replaceState(null, "", `?folder=${folder.join("/")}`);
     setCurrentPath(folder);
   }
 
-  if (loading || loadingIndices)
+  if (loadingUser || loadingIndices)
     return (
       <div className="mt-[20vh]">
         <Loading />
       </div>
     );
+
+  if (user && user.authenticated && showPublic && allIndices?.length === 0) return <NoIndicesMessage />;
+
   return (
     <div>
       <div className="mb-8 flex flex-col items-start gap-2">
         <div className="flex w-full items-center justify-between">
           <h3 className="m-0">
-            {[seeUnowned ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
+            {[showPublic ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
               folder == "" ? null : (
                 <React.Fragment key={ix}>
                   {ix == 0 ? null : <ChevronRight className="inline text-sm text-foreground/60" />}
@@ -146,13 +152,13 @@ export function SelectIndex() {
               <Filter />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col gap-2">
-              <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
-                <Switch className="size-3" id="seeunowned" checked={seeUnowned} onCheckedChange={setSeeUnowned} />
-                <Label htmlFor="seeunowned">see all (admin only)</Label>
+              <div className={`flex  items-center gap-3`}>
+                <Switch className="size-3" id="seePublic" checked={showPublic} onCheckedChange={setShowPublic} />
+                <Label htmlFor="seePublic">show public indices</Label>
               </div>
-              <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
-                <Switch className="size-3" id="seearchived" checked={seeArchived} onCheckedChange={setSeeArchived} />
-                <Label htmlFor="seearchived">show archived</Label>
+              <div className={`flex  items-center gap-3`}>
+                <Switch className="size-3" id="seeArchived" checked={showArchived} onCheckedChange={setShowArchived} />
+                <Label htmlFor="seeArchived">show archived</Label>
               </div>
             </PopoverContent>
           </Popover>
@@ -380,3 +386,21 @@ const IndexCard = ({
     </>
   );
 };
+
+function NoIndicesMessage({}: {}) {
+  const { signIn } = useMiddlecat();
+  const { data: config } = useAmcatConfig();
+
+  return (
+    <ErrorMsg type="No public indices">
+      <p className="w-[500px] max-w-[95vw] text-center">
+        There are no public indices on this server. Please sign-in to see if you have access to any indices. Signed in
+        users can also request the creation of new indices.
+      </p>
+      <Button className="mx-auto flex items-center gap-2 pr-6" onClick={() => signIn()}>
+        <LogInIcon className="mr-2 h-4 w-4" />
+        Sign-in
+      </Button>
+    </ErrorMsg>
+  );
+}

@@ -1,7 +1,7 @@
 import { useSubmitRequest } from "@/api/requests";
 import { AmcatIndex } from "@/interfaces";
 import { amcatRequestRoleSchema } from "@/schemas";
-import { MiddlecatUser } from "middlecat-react";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ChevronDown, Loader } from "lucide-react";
+import { ChevronDown, Loader, LogInIcon } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 
@@ -24,6 +24,7 @@ interface Props {
 }
 
 export function RequestRoleChange({ user, roles, currentRole, index, onSend }: Props) {
+  const { signIn } = useMiddlecat();
   const { mutateAsync: submitRequest } = useSubmitRequest(user);
   const [role, setRole] = useState<string | undefined>(undefined);
   const [message, setMessage] = useState<string>("");
@@ -45,6 +46,20 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
       })
       .finally(() => setTimeout(() => setLoading(false), 500));
   }
+
+  if (!user?.authenticated)
+    return (
+      <div className=" flex items-center rounded-md  bg-primary/10 p-3">
+        <div className="flex flex-col">
+          <div className="text-lg font-bold">Request role change</div>
+          <div>Sign-in to requests a role on this index</div>
+        </div>
+        <Button className="ml-auto flex h-full items-center gap-2 pr-6" onClick={() => signIn()}>
+          <LogInIcon className="mr-2 h-4 w-4" />
+          Sign-in
+        </Button>
+      </div>
+    );
 
   return (
     <div className=" flex flex-col gap-3 rounded-md  bg-primary/10 p-3">

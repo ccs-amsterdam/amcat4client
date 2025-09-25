@@ -46,22 +46,10 @@ export default function Index({ params }: Props) {
   }, [query]);
 
   if (loadingUser || !user) return <Loading />;
-  if (indexRole === "NONE")
-    return globalRole === "ADMIN" ? (
-      <ErrorMsg type="Not Allowed">
-        <p className="text-center">
-          You do not have access to this index. <br />
-        </p>
-        <br />
-        <p className="mx-auto w-96 text-center text-sm">
-          Since you are a server administrator, you can give yourself access to any index (see shield icon in menu).
-          Just use this power responsibly
-        </p>
-      </ErrorMsg>
-    ) : (
-      <ErrorMsg type="Not Allowed">You do not have access to this index</ErrorMsg>
-    );
+  if (indexRole === "NONE") return <NoAccess />;
+
   const isWriter = indexRole === "WRITER" || indexRole === "ADMIN";
+
   return (
     <div>
       <div className={` pb-4 `}>
@@ -103,5 +91,20 @@ export default function Index({ params }: Props) {
         </div>
       </Tabs>
     </div>
+  );
+}
+
+function NoAccess() {
+  return (
+    <ErrorMsg type="Not Allowed">
+      <p className="text-center">
+        You do not have access to this index. <br />
+      </p>
+      <br />
+
+      <p className="mx-auto w-96 text-center text-sm">
+        See the <b>Access</b> tab in the menu for more information
+      </p>
+    </ErrorMsg>
   );
 }

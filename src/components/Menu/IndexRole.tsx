@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex } from "@/interfaces";
-import { ChevronDown, HelpCircle, Shield } from "lucide-react";
+import { ChevronDown, Crown, HelpCircle, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -52,11 +52,12 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
     );
   }
 
-  function howToUpdate() {
+  function serverAdminUpdate() {
     if (!isServerAdmin) return null;
     return (
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm">(As server admin, you can change your own role)</span>
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-secondary/20 p-3">
+        <Crown className="text-secondary" />
+        <span className="text-sm">As server admin you can change your own role</span>
         <IndexMenuServerAdmin user={user} index={index} />
       </div>
     );
@@ -78,10 +79,10 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   function pointsOfContact() {
     if (index?.contact)
       return (
-        <div className=" grid grid-cols-1 items-center gap-3 rounded-md bg-secondary/10 md:grid-cols-[1fr,1fr]">
+        <div className=" mt-6 grid grid-cols-1 items-center gap-3 rounded-md  md:grid-cols-[1fr,1fr]">
           <div className="p-3">
             <div className="text-lg font-bold">Contact information</div>
-            <div className="text-sm">For questions or comments about data access, please reach out to:</div>
+            <div className="text-sm">For other questions or comments about data access, please reach out to:</div>
           </div>
           <div className="items-center rounded-md  p-3 text-sm ">
             <ContactInfo contact={index?.contact} />
@@ -113,10 +114,10 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
 
               <RoleInfoDialog />
             </div>
-            {howToUpdate()}
           </div>
 
           {requestRoleChange()}
+          {serverAdminUpdate()}
 
           {pointsOfContact()}
         </div>
