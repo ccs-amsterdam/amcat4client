@@ -16,9 +16,12 @@ import {
   ChevronRight,
   CornerLeftUp,
   FilePlus,
+  Filter,
   Folder,
   FolderPlus,
   MoreVertical,
+  Plus,
+  Search,
   Trash2,
   UserCheck,
   UserX,
@@ -33,12 +36,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
+import { Toggle } from "../ui/toggle";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -116,44 +121,39 @@ export function SelectIndex() {
     );
   return (
     <div>
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="m-0">
-          {[seeUnowned ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
-            folder == "" ? null : (
-              <React.Fragment key={ix}>
-                {ix == 0 ? null : <ChevronRight className="inline text-sm text-foreground/60" />}
-                <span className="cursor-pointer" onClick={() => toFolder(currentPath.slice(0, ix))}>
-                  {folder}
-                </span>
-              </React.Fragment>
-            ),
-          )}
-        </h3>
-        <div className={` Pagination flex items-center gap-3  `}>
+      <div className="mb-8 flex flex-col items-start gap-2">
+        <div className="flex w-full items-center justify-between">
+          <h3 className="m-0">
+            {[seeUnowned ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
+              folder == "" ? null : (
+                <React.Fragment key={ix}>
+                  {ix == 0 ? null : <ChevronRight className="inline text-sm text-foreground/60" />}
+                  <span className="cursor-pointer" onClick={() => toFolder(currentPath.slice(0, ix))}>
+                    {folder}
+                  </span>
+                </React.Fragment>
+              ),
+            )}
+          </h3>
+          <CreateIndex folder={currentPath.join("/")} request={true} />
+        </div>
+        <div className={` Pagination mr-auto flex items-center gap-3  `}>
           <Input
-            className="w-36 border-foreground/50"
+            className="w-44 border-foreground/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
           />
-          {
-            // TODO: This gives a warning which I don't understand, but it seems to work fine.
-            // Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?'
-            !canCreate ? null : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <CreateIndex folder={currentPath.join("/")}>
-                    <Button variant="default">
-                      <FilePlus className="h-5 w-5" />
-                    </Button>
-                  </CreateIndex>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <span>Create a new Index</span>
-                </TooltipContent>
-              </Tooltip>
-            )
-          }
+          {/*<Search className="ml-2 h-6 w-6 text-foreground/50" />*/}
+
+          {/*<DropdownMenu>
+            <DropdownMenuTrigger>
+              <Filter className="ml-2 h-6 w-6 text-foreground/50" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>My Role</DropdownMenuLabel>
+            </DropdownMenuContent>
+          </DropdownMenu>*/}
 
           <Tooltip>
             <TooltipTrigger asChild>
@@ -169,7 +169,7 @@ export function SelectIndex() {
               <span>Also show projects that you have no role in</span>
             </TooltipContent>
           </Tooltip>
-          <Tooltip>
+          {/*<Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
@@ -182,7 +182,7 @@ export function SelectIndex() {
             <TooltipContent>
               <span>Show archived projects</span>
             </TooltipContent>
-          </Tooltip>
+          </Tooltip>*/}
         </div>
       </div>
       <div></div>

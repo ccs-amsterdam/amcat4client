@@ -5,7 +5,7 @@ import { Bell, Check, CheckIcon, Loader, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { AmcatRequest, AmcatRequestRole } from "@/interfaces";
+import { AmcatRequest, AmcatRequestProject, AmcatRequestRole } from "@/interfaces";
 
 type Tab = "Server role" | "Index role" | "Project";
 
@@ -106,7 +106,6 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
 
   useEffect(() => {
     setTab((tab) => {
-      console.log(requestsPerTab, actions);
       const currentTabTodo = requestsPerTab[tab].length - Object.values(actions).filter((a) => a.tab === tab).length;
       if (currentTabTodo === 0) {
         for (const t of Object.keys(requestsPerTab) as Tab[]) {
@@ -126,7 +125,7 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
     });
   }
 
-  function renderRoleRequest(tab: Tab) {
+  function renderRoleRequests(tab: Tab) {
     return requestsPerTab[tab].map((roleRequest) => {
       if (roleRequest.request_type !== "role") return null;
       const key = JSON.stringify(roleRequest);
@@ -136,6 +135,20 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
           roleRequest={roleRequest}
           decision={actions[key]?.decision}
           setApprove={(action) => setApproveHandler(tab, key, roleRequest, action)}
+        />
+      );
+    });
+  }
+  function renderProjectRequests() {
+    return requestsPerTab["Project"].map((projectRequest) => {
+      if (projectRequest.request_type !== "create_project") return null;
+      const key = JSON.stringify(projectRequest);
+      return (
+        <ProjectRequest
+          key={key}
+          projectRequest={projectRequest}
+          decision={actions[key]?.decision}
+          setApprove={(action) => setApproveHandler(tab, key, projectRequest, action)}
         />
       );
     });
@@ -156,14 +169,20 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
       <TabsList className="ml-auto flex-col md:flex-row">
         {renderTrigger("Server role", requestsPerTab["Server role"])}
         {renderTrigger("Index role", requestsPerTab["Index role"])}
+        {renderTrigger("Project", requestsPerTab["Project"])}
       </TabsList>
       <div className="max-h-[500px] overflow-auto pt-3">
         <TabsContent value="Server role" className="">
-          <div className="mt-0 flex flex-col gap-3">{renderRoleRequest("Server role")}</div>
+          <div className="mt-0 flex flex-col gap-3">{renderRoleRequests("Server role")}</div>
         </TabsContent>
         <TabsContent value="Index role" className="">
           <div className="mt-0 flex flex-col gap-3">
-            <div className="mt-0 flex flex-col gap-3">{renderRoleRequest("Index role")}</div>
+            <div className="mt-0 flex flex-col gap-3">{renderRoleRequests("Index role")}</div>
+          </div>
+        </TabsContent>
+        <TabsContent value="Project" className="">
+          <div className="mt-0 flex flex-col gap-3">
+            <div className="mt-0 flex flex-col gap-3">{renderProjectRequests()}</div>
           </div>
         </TabsContent>
       </div>
@@ -192,7 +211,7 @@ function RoleRequest({
   decision: Action["decision"] | undefined;
   setApprove: (action: Action["decision"]) => void;
 }) {
-  const { email, role, index } = roleRequest;
+  const { email, role, index, message } = roleRequest;
 
   const bg = decision === "approve" ? "bg-check/30" : decision === "reject" ? "bg-destructive/30" : "bg-foreground/10";
 
@@ -204,14 +223,75 @@ function RoleRequest({
           <div className="w-full break-words font-bold">{email}</div>
           <div className="text-foreground/70">requests</div>
           <div>{role} role</div>
-          {roleRequest.index == null || roleRequest.index === "_global" ? null : (
+          {index == null || index === "_global" ? null : (
             <>
               <div className="text-foreground/70">for index</div>
               <b>{index}</b>
             </>
           )}
         </div>
-        <div className="mt-3 italic">{roleRequest.message}</div>
+        <div className="mt-3 italic">{message}</div>
+      </div>
+      <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
+        <Button
+          size="sm"
+          variant={decision === "approve" ? "positive" : "outline"}
+          className={decision === "approve" ? "" : "opacity-50"}
+          onClick={() => setDecision("approve")}
+        >
+          <Check />
+        </Button>
+        <Button
+          size="sm"
+          variant={decision === "reject" ? "destructive" : "outline"}
+          className={decision === "reject" ? "" : "opacity-50"}
+          onClick={() => setDecision("reject")}
+        >
+          <X />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function ProjectRequest({
+  projectRequest,
+  decision,
+  setApprove: setDecision,
+}: {
+  projectRequest: AmcatRequestProject;
+  decision: Action["decision"] | undefined;
+  setApprove: (action: Action["decision"]) => void;
+}) {
+  const { email, folder, index, message, name, description } = projectRequest;
+
+  const bg = decision === "approve" ? "bg-check/30" : decision === "reject" ? "bg-destructive/30" : "bg-foreground/10";
+
+  return (
+    <div className={`${bg} flex flex-col items-end  gap-3 rounded-sm p-3 md:flex-row`}>
+      <div className="w-full">
+        <div>
+          <b>{email}</b> requests project
+        </div>
+        <div className="text mt-2 grid grid-cols-[7rem,auto] leading-5">
+          <div className="text-foreground/70">id</div>
+          <div className="w-full break-words font-bold">{index}</div>
+          <div className="text-foreground/70">name</div>
+          <div className="w-full break-words font-bold">{name}</div>
+          {!!description && (
+            <>
+              <div className="text-foreground/70">description</div>
+              <div className="w-full break-words font-bold">{description}</div>
+            </>
+          )}
+          {!!folder && (
+            <>
+              <div className="text-foreground/70">folder</div>
+              <div className="w-full break-words font-bold">{folder}</div>
+            </>
+          )}
+        </div>
+        <div className="mt-3 italic">{projectRequest.message}</div>
       </div>
       <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
         <Button
