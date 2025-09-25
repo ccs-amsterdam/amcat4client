@@ -44,6 +44,8 @@ import { Input } from "../ui/input";
 import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
 import { Toggle } from "../ui/toggle";
+import { Switch } from "../ui/switch";
+import { Label } from "../ui/label";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -82,7 +84,6 @@ export function SelectIndex() {
       if (!myIndices) return;
       const prefix = currentPath.join("/").replace(/^\/|\/$/, "");
       const filtered = myIndices.filter((index) => {
-        if ((index.folder ?? "") !== prefix) return false;
         if (search) {
           if (index.name.toLowerCase().includes(search.toLowerCase())) return true;
           if (index.id.toLowerCase().includes(search.toLowerCase())) return true;
@@ -90,6 +91,8 @@ export function SelectIndex() {
         }
         return true;
       });
+
+      const visible = filtered.filter((index) => (index.folder ?? "") === prefix);
 
       const folderSet = new Set<string>();
       filtered.forEach((ix) => {
@@ -100,7 +103,7 @@ export function SelectIndex() {
         folderSet.add(head);
       });
 
-      setVisibleIndices(filtered);
+      setVisibleIndices(visible);
       setVisibleFolders([...folderSet]);
     }
 
@@ -155,7 +158,12 @@ export function SelectIndex() {
             </DropdownMenuContent>
           </DropdownMenu>*/}
 
-          <Tooltip>
+          <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
+            <Switch className="size-3" id="seeunowned" checked={seeUnowned} onCheckedChange={setSeeUnowned} />
+            <Label htmlFor="seeunowned">show all</Label>
+          </div>
+
+          {/*<Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="outline"
@@ -168,7 +176,7 @@ export function SelectIndex() {
             <TooltipContent>
               <span>Also show projects that you have no role in</span>
             </TooltipContent>
-          </Tooltip>
+          </Tooltip>*/}
           {/*<Tooltip>
             <TooltipTrigger asChild>
               <Button
