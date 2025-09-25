@@ -46,6 +46,7 @@ import { CreateIndex } from "./CreateIndex";
 import { Toggle } from "../ui/toggle";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -138,59 +139,30 @@ export function SelectIndex() {
               ),
             )}
           </h3>
-          <CreateIndex folder={currentPath.join("/")} request={true} />
         </div>
-        <div className={` Pagination mr-auto flex items-center gap-3  `}>
+        <div className={` Pagination ml-auto flex items-center gap-3  `}>
+          <Popover>
+            <PopoverTrigger>
+              <Filter />
+            </PopoverTrigger>
+            <PopoverContent className="flex flex-col gap-2">
+              <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
+                <Switch className="size-3" id="seeunowned" checked={seeUnowned} onCheckedChange={setSeeUnowned} />
+                <Label htmlFor="seeunowned">see all (admin only)</Label>
+              </div>
+              <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
+                <Switch className="size-3" id="seearchived" checked={seeArchived} onCheckedChange={setSeeArchived} />
+                <Label htmlFor="seearchived">show archived</Label>
+              </div>
+            </PopoverContent>
+          </Popover>
           <Input
             className="w-44 border-foreground/50"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
           />
-          {/*<Search className="ml-2 h-6 w-6 text-foreground/50" />*/}
-
-          {/*<DropdownMenu>
-            <DropdownMenuTrigger>
-              <Filter className="ml-2 h-6 w-6 text-foreground/50" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>My Role</DropdownMenuLabel>
-            </DropdownMenuContent>
-          </DropdownMenu>*/}
-
-          <div className={`flex  items-center gap-3 ${isServerAdmin ? "" : "hidden"}`}>
-            <Switch className="size-3" id="seeunowned" checked={seeUnowned} onCheckedChange={setSeeUnowned} />
-            <Label htmlFor="seeunowned">show all</Label>
-          </div>
-
-          {/*<Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                className={` ${seeUnowned ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
-                onClick={() => setSeeUnowned(!seeUnowned)}
-              >
-                <UserX className={`h-5 w-5 ${seeUnowned ? "text-secondary-foreground" : "text-foreground/50"}`} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <span>Also show projects that you have no role in</span>
-            </TooltipContent>
-          </Tooltip>*/}
-          {/*<Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                className={` ${seeArchived ? "bg-secondary hover:bg-secondary/80" : ""} border-foreground/50 `}
-                onClick={() => setSeeArchived(!seeArchived)}
-              >
-                <Trash2 className={`h-5 w-5 ${seeArchived ? "text-secondary-foreground" : "text-foreground/50"}`} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <span>Show archived projects</span>
-            </TooltipContent>
-          </Tooltip>*/}
+          <CreateIndex folder={currentPath.join("/")} request={!canCreate} />
         </div>
       </div>
       <div></div>
@@ -212,9 +184,11 @@ export function SelectIndex() {
 
 const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: (folder: string) => void }) => (
   <Card className="cursor-pointer bg-secondary transition-colors hover:bg-secondary/75" onClick={() => onClick(folder)}>
-    <CardHeader className="flex flex-row items-center gap-2 px-3 py-2">
-      <Folder className="h-4 w-4" />
-      <CardTitle className="text-sm">{folder}</CardTitle>
+    <CardHeader className=" px-3 py-2">
+      <CardTitle className="flex items-center  gap-3 text-sm">
+        <Folder className="h-4 w-4" />
+        {folder}
+      </CardTitle>
     </CardHeader>
   </Card>
 );
