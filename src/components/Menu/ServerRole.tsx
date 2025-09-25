@@ -8,15 +8,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatConfig, AmcatUserDetails } from "@/interfaces";
-import { ChevronDown, Shield } from "lucide-react";
+import { ChevronDown, HelpCircle, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { useSubmitRequest } from "@/api/requests";
 import { amcatUserRoleSchema } from "@/schemas";
 import { useAmcatConfig } from "@/api/config";
+import { RequestRoleChange } from "./RequestRoleChange";
 
 const roles = ["NONE", "READER", "WRITER", "ADMIN"];
 
@@ -53,7 +54,7 @@ export function ServerRole({ open, setOpen }: { open: boolean; setOpen: (open: b
             Your role for this index is <strong>{userDetails.role}</strong>.{" "}
           </DialogDescription>
         </DialogHeader>
-        <ServerRoleModalContent user={user} userDetails={userDetails} config={config} />
+        <ServerRoleModalContent user={user} userDetails={userDetails} config={config} close={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );
@@ -63,98 +64,58 @@ interface ServerRoleProps {
   user: MiddlecatUser;
   userDetails: AmcatUserDetails;
   config: AmcatConfig;
+  close: () => void;
 }
 
-function ServerRoleModalContent({ user, userDetails, config }: ServerRoleProps) {
+function ServerRoleModalContent({ user, userDetails, config, close }: ServerRoleProps) {
   const user_role = userDetails.role;
   const isServerAdmin = user_role === "ADMIN";
+  const guestRole = config.authorization === "authorized_users_only" ? "NONE" : "READER";
+  const role = user_role || guestRole;
 
   function myRole() {
-    const guestRole = config.authorization === "authorized_users_only" ? "NONE" : "READER";
-    const role = user_role || guestRole;
-    if (role === "NONE") return <span>you are not have a server level access role</span>;
+    if (role === "NONE") return <span>you do not have a server level access role</span>;
     return (
-      <span>
+      <div className="flex items-center gap-2">
         You have the <b>{role}</b> role on this server.
-      </span>
+        <RoleInfoDialog />
+      </div>
     );
   }
 
   function requestRoleChange() {
-    // if (user_role === "ADMIN") return null;
-    return <RequestRoleChange user={user} userDetails={userDetails} config={config} />;
+    return <RequestRoleChange user={user} roles={roles} currentRole={role} onSend={close} />;
   }
 
   return (
-    <div className="mt-0 flex flex-col">
+    <div className="mt-0 flex flex-col gap-3">
       <div className="mb-6 text-lg">{myRole()}</div>
-
-      <div className="rounded-md bg-primary/10 p-3">
-        <div className="mb-2 font-bold text-primary">There are three access roles with increasing permissions:</div>
-        <div className="grid grid-cols-[8rem,1fr]">
-          <b className="text-primary">READER</b>
-          Can use existing indices.
-          <b className="text-primary">WRITER</b>
-          Can create and own indices.
-          <b className="text-primary">ADMIN</b>
-          Can manage all indices and users.
-        </div>
-      </div>
 
       {requestRoleChange()}
     </div>
   );
 }
 
-function RequestRoleChange({ user, userDetails }: ServerRoleProps) {
-  const { mutate: submitRequest } = useSubmitRequest(user);
-  const [role, setRole] = useState<string | undefined>(undefined);
-
-  function onSubmit(role: string | undefined) {
-    if (!role) return;
-    submitRequest({ role: amcatUserRoleSchema.parse(role) });
-  }
-
+export function RoleInfoDialog() {
   return (
-    <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-primary p-3 text-primary-foreground">
-      <div className="font-bold">Request role</div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="ml-auto">
-            {role || "Select role"}
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="" align="end">
-          <DropdownMenuRadioGroup
-            value={role || userDetails.role}
-            onSelect={(e) => e.preventDefault()}
-            onValueChange={(value) => setRole(value)}
-          >
-            {roles.map((role) => {
-              if (userDetails.role === "NONE" && role === "NONE") return null;
-              return (
-                <DropdownMenuRadioItem
-                  key={role}
-                  value={role}
-                  disabled={role === userDetails.role}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  {role === "NONE" ? `delete role` : role}
-                </DropdownMenuRadioItem>
-              );
-            })}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Button
-        variant="outline"
-        className="bg-transparent"
-        disabled={!role || role === userDetails.role}
-        onClick={() => onSubmit(role)}
-      >
-        Send request
-      </Button>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <HelpCircle className="cursor-pointer text-primary" />
+      </DialogTrigger>
+      <DialogContent className="w-[600px] max-w-[95vw]">
+        <DialogTitle className="h-0 w-0 opacity-0">Server access roles</DialogTitle>
+        <DialogDescription className="h-0 opacity-0">Description of three server access roles</DialogDescription>
+        <div className="mb-2 font-bold text-primary">There are three access roles with increasing permissions:</div>
+        <div className="grid grid-cols-[8rem,1fr] gap-1">
+          <b className="text-primary">READER</b>
+          Has access to existing indices. Within an index the user can be given any role, so a server level READER can
+          be a WRITER or ADMIN on a specific index. But they need to be given explicit access to each index.
+          <b className="text-primary">WRITER</b>
+          Can create new indices.
+          <b className="text-primary">ADMIN</b>
+          Can manage all indices and users.
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

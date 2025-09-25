@@ -1,53 +1,58 @@
-import { useRequests } from "@/api/requests";
+import { useRequests, useResolveRequests } from "@/api/requests";
 import { useMiddlecat } from "middlecat-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Bell, Check, CheckIcon, X } from "lucide-react";
-import { amcatRequestProjectSchema, amcatRequestRoleSchema, amcatRequestSchema } from "@/schemas";
-import { z } from "zod";
-import { Fragment, useState } from "react";
+import { Bell, Check, CheckIcon, Loader, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
-type Request = z.infer<typeof amcatRequestSchema>;
-type RoleRequest = z.infer<typeof amcatRequestRoleSchema>;
-type ProjectRequest = z.infer<typeof amcatRequestProjectSchema>;
+import { AmcatRequest, AmcatRequestRole } from "@/interfaces";
 
 type Tab = "Server role" | "Index role" | "Project";
 
 interface Action {
   tab: Tab;
   decision: "approve" | "reject";
-  request: Request;
+  request: AmcatRequest;
 }
 
 export function Notifications() {
-  const { user, loading: middlecatLoading } = useMiddlecat();
-  const { data: requests, isLoading: requestsLoading } = useRequests(user);
+  const { user } = useMiddlecat();
+  const { data: requests } = useRequests(user);
   const [actions, setActions] = useState<Record<string, Action>>({});
 
-  // if (middlecatLoading || requestsLoading) return null;
-
-  // const dummyRequests: Request[] = [
-  //   { index: "test", email: "user1@domain.com", role: "WRITER" },
-  //   { index: "test", email: "user2@domain.com", role: "READER" },
-  // ];
-  const dummyRequests: Request[] = [];
-
-  return <NotificationModal requests={requests || dummyRequests} actions={actions} setActions={setActions} />;
+  return <NotificationModal requests={requests || []} actions={actions} setActions={setActions} />;
 }
 
 interface NotificationProps {
-  requests: Request[];
+  requests: AmcatRequest[];
   actions: Record<string, Action>;
   setActions: React.Dispatch<React.SetStateAction<Record<string, Action>>>;
 }
 
 export default function NotificationModal({ requests, actions, setActions }: NotificationProps) {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { user } = useMiddlecat();
+  const { mutateAsync: resolveRequests } = useResolveRequests(user);
 
   const done = Object.keys(actions).length;
   const n = requests.length;
   if (n === 0) return null;
+
+  function onResolve() {
+    const resolvedRequests: AmcatRequest[] = Object.values(actions).map((a) => ({
+      ...a.request,
+      reject: a.decision === "reject",
+    }));
+
+    setLoading(true);
+    resolveRequests(resolvedRequests)
+      .then(() => {
+        setActions({});
+        setOpen(false);
+      })
+      .finally(() => setLoading(false));
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -65,12 +70,12 @@ export default function NotificationModal({ requests, actions, setActions }: Not
         </DialogHeader>
 
         <NotificationTabs requests={requests} actions={actions} setActions={setActions} />
-        <div className="mt-3 mt-auto flex items-center justify-end gap-3">
+        <div className="mt-auto flex items-center justify-end gap-3">
           <div>
             {done} / {n} requests evaluated
           </div>
-          <Button className="" onClick={() => setActions({})} disabled={Object.keys(actions).length === 0}>
-            Submit decisions
+          <Button onClick={onResolve} disabled={Object.keys(actions).length === 0} className="w-40">
+            {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : "Submit decisions"}
           </Button>
           <Button
             variant="outline"
@@ -89,38 +94,54 @@ export default function NotificationModal({ requests, actions, setActions }: Not
 }
 
 function NotificationTabs({ requests, actions: actions, setActions }: NotificationProps) {
-  const serverRoleRequests = requests.filter((r) => r.type === "role" && r.index === "_global");
-  const indexRoleRequests = requests.filter((r) => r.type === "role" && r.index !== "_global");
-  const projectRequests = requests.filter((r) => r.type === "project");
+  const [tab, setTab] = useState<Tab>("Server role");
 
-  const done = Object.keys(actions).length;
-  const n = requests.length;
+  const requestsPerTab = useMemo(() => {
+    const requestsPerTab: Record<Tab, AmcatRequest[]> = { "Server role": [], "Index role": [], Project: [] };
+    requestsPerTab["Server role"] = requests.filter((r) => r.request_type === "role" && r.index == null);
+    requestsPerTab["Index role"] = requests.filter((r) => r.request_type === "role" && r.index != null);
+    requestsPerTab["Project"] = requests.filter((r) => r.request_type === "create_project");
+    return requestsPerTab;
+  }, [requests]);
 
-  const defaultValue =
-    serverRoleRequests.length > 0 ? "server-role" : indexRoleRequests.length > 0 ? "index-role" : "project";
+  useEffect(() => {
+    setTab((tab) => {
+      console.log(requestsPerTab, actions);
+      const currentTabTodo = requestsPerTab[tab].length - Object.values(actions).filter((a) => a.tab === tab).length;
+      if (currentTabTodo === 0) {
+        for (const t of Object.keys(requestsPerTab) as Tab[]) {
+          const otherTabTodo = requestsPerTab[t].length - Object.values(actions).filter((a) => a.tab === t).length;
+          if (otherTabTodo > 0) return t;
+        }
+      }
+      return tab;
+    });
+  }, [actions, requestsPerTab]);
 
-  function setApproveHandler(tab: Tab, key: string, request: Request, action: Action["decision"]) {
+  function setApproveHandler(tab: Tab, key: string, request: AmcatRequest, decision: Action["decision"]) {
     setActions((actions) => {
       const key = JSON.stringify(request);
-      actions[key] = { tab, request, decision: action };
+      actions[key] = { tab, request, decision };
       return { ...actions };
     });
   }
 
-  function renderRoleRequest(tab: Tab, roleRequest: Request) {
-    if (roleRequest.type !== "role") return null;
-    const key = JSON.stringify(roleRequest);
-    return (
-      <RoleRequest
-        key={key}
-        roleRequest={roleRequest}
-        decision={actions[key]?.decision}
-        setApprove={(action) => setApproveHandler(tab, key, roleRequest, action)}
-      />
-    );
+  function renderRoleRequest(tab: Tab) {
+    return requestsPerTab[tab].map((roleRequest) => {
+      if (roleRequest.request_type !== "role") return null;
+      const key = JSON.stringify(roleRequest);
+      return (
+        <RoleRequest
+          key={key}
+          roleRequest={roleRequest}
+          decision={actions[key]?.decision}
+          setApprove={(action) => setApproveHandler(tab, key, roleRequest, action)}
+        />
+      );
+    });
   }
 
-  function renderTrigger(tab: Tab, requests: Request[]) {
+  function renderTrigger(tab: Tab, requests: AmcatRequest[]) {
     const n = requests.length;
     const done = Object.values(actions).filter((a) => a.tab === tab).length;
     return (
@@ -131,22 +152,18 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
   }
 
   return (
-    <Tabs className="m-0 " defaultValue={defaultValue}>
+    <Tabs className="m-0 " value={tab} onValueChange={(v) => setTab(v as Tab)}>
       <TabsList className="ml-auto flex-col md:flex-row">
-        {renderTrigger("Server role", serverRoleRequests)}
-        {renderTrigger("Index role", indexRoleRequests)}
+        {renderTrigger("Server role", requestsPerTab["Server role"])}
+        {renderTrigger("Index role", requestsPerTab["Index role"])}
       </TabsList>
       <div className="max-h-[500px] overflow-auto pt-3">
         <TabsContent value="Server role" className="">
-          <div className="mt-0 flex flex-col gap-3">
-            {serverRoleRequests.map((r) => renderRoleRequest("Server role", r))}
-          </div>
+          <div className="mt-0 flex flex-col gap-3">{renderRoleRequest("Server role")}</div>
         </TabsContent>
         <TabsContent value="Index role" className="">
           <div className="mt-0 flex flex-col gap-3">
-            <div className="mt-0 flex flex-col gap-3">
-              {indexRoleRequests.map((r) => renderRoleRequest("Index role", r))}
-            </div>
+            <div className="mt-0 flex flex-col gap-3">{renderRoleRequest("Index role")}</div>
           </div>
         </TabsContent>
       </div>
@@ -171,7 +188,7 @@ function RoleRequest({
   decision,
   setApprove: setDecision,
 }: {
-  roleRequest: RoleRequest;
+  roleRequest: AmcatRequestRole;
   decision: Action["decision"] | undefined;
   setApprove: (action: Action["decision"]) => void;
 }) {
@@ -181,19 +198,22 @@ function RoleRequest({
 
   return (
     <div className={`${bg} flex flex-col items-end  gap-3 rounded-sm p-3 md:flex-row`}>
-      <div className="grid w-full grid-cols-[5rem,auto] text-sm">
-        <div className="text-foreground/70">user</div>
-        <div className="w-full break-words font-bold">{email}</div>
-        <div className="text-foreground/70">requests</div>
-        <div>{role} role</div>
-        {roleRequest.index == null || roleRequest.index === "_global" ? null : (
-          <>
-            <div className="text-foreground/70">for index</div>
-            <b>{index}</b>
-          </>
-        )}
+      <div className="w-full">
+        <div className="text grid grid-cols-[5rem,auto] leading-5">
+          <div className="text-foreground/70">user</div>
+          <div className="w-full break-words font-bold">{email}</div>
+          <div className="text-foreground/70">requests</div>
+          <div>{role} role</div>
+          {roleRequest.index == null || roleRequest.index === "_global" ? null : (
+            <>
+              <div className="text-foreground/70">for index</div>
+              <b>{index}</b>
+            </>
+          )}
+        </div>
+        <div className="mt-3 italic">{roleRequest.message}</div>
       </div>
-      <div className="flex flex-auto items-center gap-2">
+      <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
         <Button
           size="sm"
           variant={decision === "approve" ? "positive" : "outline"}

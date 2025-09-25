@@ -26,6 +26,9 @@ import {
   amcatPreprocessingTask,
   amcatQueryResultMetaSchema,
   amcatQueryResultSchema,
+  amcatRequestProjectSchema,
+  amcatRequestRoleSchema,
+  amcatRequestSchema,
   amcatSnippetSchema,
   amcatUserDetailsSchema,
   amcatUserRoleSchema,
@@ -61,6 +64,9 @@ export type PreprocessingInstruction = z.infer<typeof amcatPreprocessingInstruct
 export type PreprocessingTask = z.infer<typeof amcatPreprocessingTask>;
 export type PreprocessingInstructionStatus = z.infer<typeof amcatPreprocessingInstructionStatus>;
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
+export type AmcatRequest = z.infer<typeof amcatRequestSchema>;
+export type AmcatRequestRole = z.infer<typeof amcatRequestRoleSchema>;
+export type AmcatRequestProject = z.infer<typeof amcatRequestProjectSchema>;
 
 export type AmcatIndexId = string;
 export type AmcatIndexName = string;

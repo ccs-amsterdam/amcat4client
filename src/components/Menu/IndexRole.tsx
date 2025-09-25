@@ -6,37 +6,19 @@ import { useHasGlobalRole } from "@/api/userDetails";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSub,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { AmcatIndex, AmcatUserRole } from "@/interfaces";
-import { ArrowRight, AtSign, ChevronDown, Lock, MessageCircleQuestionMarkIcon, Shield, User } from "lucide-react";
+import { AmcatIndex } from "@/interfaces";
+import { ChevronDown, HelpCircle, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "../ui/alert-dialog";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
 import { ContactInfo } from "../Index/ContactInfo";
-import { useSubmitRequest } from "@/api/requests";
-import { amcatUserRoleSchema } from "@/schemas";
+import { RequestRoleChange } from "./RequestRoleChange";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -57,6 +39,7 @@ interface IndexRoleProps {
 }
 
 function IndexRoleMenu({ user, index }: IndexRoleProps) {
+  const [open, setOpen] = useState(false);
   const user_role = index?.user_role || "NONE";
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
@@ -80,17 +63,27 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   }
 
   function requestRoleChange() {
-    if (index?.user_role === "ADMIN") return null;
-
-    return <RequestRoleChange user={user} index={index} />;
+    // if (index?.user_role === "ADMIN") return null;
+    return (
+      <RequestRoleChange
+        user={user}
+        roles={roles}
+        currentRole={index?.user_role}
+        index={index}
+        onSend={() => setOpen(false)}
+      />
+    );
   }
 
   function pointsOfContact() {
-    if (index?.contact && index?.user_role !== "ADMIN")
+    if (index?.contact)
       return (
-        <div className="mt-6 grid grid-cols-1 items-center gap-3 rounded-md md:grid-cols-[1fr,1.5fr]">
-          <div className="px-3 text-sm">For other questions or comments about data access, please reach out to</div>
-          <div className="items-center rounded-md bg-foreground/10 p-3 ">
+        <div className=" grid grid-cols-1 items-center gap-3 rounded-md bg-secondary/10 md:grid-cols-[1fr,1fr]">
+          <div className="p-3">
+            <div className="text-lg font-bold">Contact information</div>
+            <div className="text-sm">For questions or comments about data access, please reach out to:</div>
+          </div>
+          <div className="items-center rounded-md  p-3 text-sm ">
             <ContactInfo contact={index?.contact} />
           </div>
         </div>
@@ -100,7 +93,7 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   const role = index?.user_role === "NONE" ? "ACCESS" : index?.user_role;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-1 outline-none hover:bg-foreground/10 lg:px-4">
         <Shield />
         <span className="hidden lg:inline">{role}</span>
@@ -113,27 +106,18 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-0 flex flex-col">
+        <div className="mt-0 flex flex-col gap-3">
           <div className="mb-6 text-lg">
-            {myRole()}
+            <div className="flex items-center gap-3">
+              {myRole()}
+
+              <RoleInfoDialog />
+            </div>
             {howToUpdate()}
           </div>
 
-          <div className="rounded-md bg-primary/10 p-3">
-            <div className="mb-2 font-bold text-primary">There are four access roles with incremental permissions:</div>
-            <div className="grid grid-cols-[8rem,1fr]">
-              <b className="text-primary">METAREADER</b>
-              Can search documents and view a subset of the contents.
-              <b className="text-primary">READER</b>
-              Can view all document contents.
-              <b className="text-primary">WRITER</b>
-              Can upload and modify documents.
-              <b className="text-primary">ADMIN</b>
-              Can manage index settings and users, and delete data.
-            </div>
-          </div>
-
           {requestRoleChange()}
+
           {pointsOfContact()}
         </div>
       </DialogContent>
@@ -187,55 +171,27 @@ function IndexMenuServerAdmin({ user, index }: IndexRoleProps) {
   );
 }
 
-function RequestRoleChange({ user, index }: IndexRoleProps) {
-  const { mutate: submitRequest } = useSubmitRequest(user, index.id);
-  const [role, setRole] = useState<string | undefined>(undefined);
-
-  function onSubmit(role: string | undefined) {
-    if (!role || !index) return;
-    submitRequest({ index: index.id, role: amcatUserRoleSchema.parse(role) });
-  }
-
+export function RoleInfoDialog() {
   return (
-    <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-primary p-3 text-primary-foreground">
-      <div className="font-bold">Request role</div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className={!index ? "hidden" : ""}>
-          <Button variant="ghost" className="ml-auto">
-            {role || "Select role"}
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="" align="end">
-          <DropdownMenuRadioGroup
-            value={role || index?.user_role}
-            onSelect={(e) => e.preventDefault()}
-            onValueChange={(value) => setRole(value)}
-          >
-            {roles.map((role) => {
-              if (index?.user_role === "NONE" && role === "NONE") return null;
-              return (
-                <DropdownMenuRadioItem
-                  key={role}
-                  value={role}
-                  disabled={role === index?.user_role}
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  {role === "NONE" ? `delete role` : role}
-                </DropdownMenuRadioItem>
-              );
-            })}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <Button
-        variant="outline"
-        className="bg-transparent"
-        disabled={!role || role === index?.user_role}
-        onClick={() => onSubmit(role)}
-      >
-        Send request
-      </Button>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <HelpCircle className="cursor-pointer text-primary" />
+      </DialogTrigger>
+      <DialogContent className="w-[600px] max-w-[95vw]">
+        <DialogTitle className="h-0 w-0 opacity-0">Index access roles</DialogTitle>
+        <DialogDescription className="h-0 opacity-0">Description of four access roles</DialogDescription>
+        <div className="mb-2 font-bold text-primary">There are four access roles with incremental permissions:</div>
+        <div className="grid grid-cols-[8rem,1fr] gap-1">
+          <b className="text-primary">METAREADER</b>
+          Can search documents, but can only view a subset of the contents.
+          <b className="text-primary">READER</b>
+          Can view all document contents.
+          <b className="text-primary">WRITER</b>
+          Can upload and modify documents.
+          <b className="text-primary">ADMIN</b>
+          Can manage index settings and users, and delete data.
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

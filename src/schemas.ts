@@ -337,22 +337,31 @@ export const amcatPreprocessingTask = z.object({
   request: amcatPreprocessingTaskRequest,
 });
 
-export const amcatRequestRoleSchema = z.object({
-  type: z.literal("role").nullish().default("role"), // TODO: remove nullish and default when server is updated
-  index: z.string().optional(),
+export const amcatRequestAbstract = z.object({
   email: z.string(),
+  timestamp: z
+    .string()
+    .nullish()
+    .transform((x) => (x ? new Date(x) : undefined)),
+  message: z.string().nullish(),
+  reject: z.boolean().default(false),
+});
+
+export const amcatRequestRoleSchema = amcatRequestAbstract.extend({
+  request_type: z.literal("role").nullish().default("role"), // TODO: remove nullish and default when server is updated
+  index: z.string().nullish(),
   role: amcatUserRoleSchema,
 });
 
-export const amcatRequestProjectSchema = z.object({
-  type: z.literal("project"),
-  index: z.string().optional(),
-  email: z.string(),
+export const amcatRequestProjectSchema = amcatRequestAbstract.extend({
+  request_type: z.literal("create_project"),
+  index: z.string(),
+  description: z.string().nullish(),
+  name: z.string().nullish(),
+  folder: z.string().nullish(),
 });
 
-export const amcatRequestSchema = z.discriminatedUnion("type", [amcatRequestRoleSchema, amcatRequestProjectSchema]);
-
-export const amcatSubmitRequestSchema = z.object({
-  index: z.string().optional(),
-  role: amcatUserRoleSchema,
-});
+export const amcatRequestSchema = z.discriminatedUnion("request_type", [
+  amcatRequestRoleSchema,
+  amcatRequestProjectSchema,
+]);
