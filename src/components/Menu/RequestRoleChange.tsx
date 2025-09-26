@@ -1,8 +1,11 @@
+import { useAmcatConfig } from "@/api/config";
 import { useSubmitRequest } from "@/api/requests";
 import { AmcatIndex } from "@/interfaces";
 import { amcatRequestRoleSchema } from "@/schemas";
+import { ChevronDown, Loader, LogInIcon } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useState } from "react";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +13,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { ChevronDown, Loader, LogInIcon } from "lucide-react";
-import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 interface Props {
   user: MiddlecatUser;
@@ -25,6 +26,7 @@ interface Props {
 
 export function RequestRoleChange({ user, roles, currentRole, index, onSend }: Props) {
   const { signIn } = useMiddlecat();
+  const { data: serverConfig } = useAmcatConfig();
   const { mutateAsync: submitRequest } = useSubmitRequest(user);
   const [role, setRole] = useState<string | undefined>(undefined);
   const [message, setMessage] = useState<string>("");
@@ -80,6 +82,7 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
             >
               {roles.map((role) => {
                 if (currentRole === "NONE" && role === "NONE") return null;
+                if (serverConfig?.authorization !== "authorized_users_only" && role === "READER") return null;
                 return (
                   <DropdownMenuRadioItem
                     key={role}

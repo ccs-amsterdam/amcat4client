@@ -1,8 +1,7 @@
 "use client";
 
-import { useAmcatConfig } from "@/api/config";
+import { useAmcatBranding } from "@/api/branding";
 import { useIndex } from "@/api/index";
-import { useMutateIndexUser } from "@/api/indexUsers";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import {
@@ -11,39 +10,22 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSub,
   DropdownMenuSeparator,
+  DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { AmcatIndex, AmcatIndexId } from "@/interfaces";
+import { AmcatIndexId } from "@/interfaces";
 import { CommandEmpty } from "cmdk";
-import {
-  Waypoints,
-  ChevronDown,
-  DatabaseZap,
-  LayoutDashboard,
-  LibraryIcon,
-  Settings,
-  User,
-  X,
-  Home,
-  Library,
-  Book,
-  Menu,
-  LinkIcon,
-} from "lucide-react";
+import { Book, ChevronDown, Home, Library, LibraryIcon, LinkIcon, Menu, Settings } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { ServerInfo, ServerInfoDropdownItem } from "./ServerInfo";
-import { useState } from "react";
 import { ServerRole, ServerRoleDropdownItem } from "./ServerRole";
-import { useAmcatBranding } from "@/api/branding";
-import Link from "next/link";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -108,7 +90,7 @@ export default function MainMenu() {
             <Link href={branding?.server_url || "/"} className={`${branding?.server_url ? "" : "hidden"} flex  `}>
               <LinkIcon className="mr-2 h-4 w-4" />
               <span className="max-w-32 overflow-hidden text-ellipsis text-nowrap ">
-                {branding?.server_url.replaceAll("https://", "").replaceAll("http://", "")}
+                {branding?.server_url?.replaceAll("https://", "").replaceAll("http://", "")}
               </span>
             </Link>
           </DropdownMenuItem>

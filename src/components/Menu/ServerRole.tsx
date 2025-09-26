@@ -1,22 +1,11 @@
+import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AmcatConfig, AmcatUserDetails } from "@/interfaces";
-import { ChevronDown, HelpCircle, Shield } from "lucide-react";
+import { HelpCircle, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { useSubmitRequest } from "@/api/requests";
-import { amcatUserRoleSchema } from "@/schemas";
-import { useAmcatConfig } from "@/api/config";
 import { RequestRoleChange } from "./RequestRoleChange";
 
 const roles = ["NONE", "READER", "WRITER", "ADMIN"];
@@ -42,7 +31,7 @@ export function ServerRole({ open, setOpen }: { open: boolean; setOpen: (open: b
   const { data: userDetails, isLoading: userDetailsLoading } = useCurrentUserDetails(user);
   const { data: config, isLoading: configLoading } = useAmcatConfig();
   if (loading || !user || userDetailsLoading || configLoading) return null;
-
+  console.log({ userDetails, user, config });
   if (!userDetails || !user || !config) return null;
 
   return (
@@ -71,7 +60,12 @@ function ServerRoleModalContent({ user, userDetails, config, close }: ServerRole
   const role = userDetails.role;
 
   function myRole() {
-    if (role === "NONE") return <span>you do not have a server level access role</span>;
+    if (role === "NONE")
+      return (
+        <div className="flex items-center gap-2">
+          You do not have a server level access role. <RoleInfoDialog />
+        </div>
+      );
     return (
       <div className="flex items-center gap-2">
         You have the <b>{role}</b> role on this server.
@@ -94,6 +88,8 @@ function ServerRoleModalContent({ user, userDetails, config, close }: ServerRole
 }
 
 export function RoleInfoDialog({ text }: { text?: string }) {
+  const { data: serverConfig } = useAmcatConfig();
+  const has_reader = serverConfig?.authorization === "authorized_users_only";
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -105,11 +101,17 @@ export function RoleInfoDialog({ text }: { text?: string }) {
       <DialogContent className="w-[600px] max-w-[95vw]">
         <DialogTitle className="h-0 w-0 opacity-0">Server access roles</DialogTitle>
         <DialogDescription className="h-0 opacity-0">Description of three server access roles</DialogDescription>
-        <div className="mb-2 font-bold text-primary">There are three access roles with increasing permissions:</div>
+        <div className="mb-2 font-bold text-primary">
+          For this server, there are {has_reader ? "three" : "two"} access roles with increasing permissions:
+        </div>
         <div className="grid grid-cols-[8rem,1fr] gap-1">
-          <b className="text-primary">READER</b>
-          Has access to existing indices. Within an index the user can be given any role, so a server level READER can
-          be a WRITER or ADMIN on a specific index. But they need to be given explicit access to each index.
+          {!has_reader ? null : (
+            <>
+              <b className="text-primary">READER</b>
+              Has access to existing indices. Within an index the user can be given any role, so a server level READER
+              can be a WRITER or ADMIN on a specific index. But they need to be given explicit access to each index.
+            </>
+          )}
           <b className="text-primary">WRITER</b>
           Can create new indices.
           <b className="text-primary">ADMIN</b>

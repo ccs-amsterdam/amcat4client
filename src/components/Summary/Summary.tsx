@@ -1,4 +1,5 @@
 import { useHasIndexRole } from "@/api";
+import { useArticles } from "@/api/articles";
 import { useFields } from "@/api/fields";
 import { useFieldStats } from "@/api/fieldStats";
 import { AggregationAxis, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
@@ -17,6 +18,22 @@ interface Props {
 export default function Summary({ user, indexId, query }: Props) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const isWriter = useHasIndexRole(user, indexId, "WRITER");
+  const { data } = useArticles(user, indexId, query);
+  if (data == null) return null;
+  const isEmpty = data.pages[0].meta.total_count === 0;
+  if (isEmpty)
+    return (
+      <>
+        <h1>
+          <b>This project is empty</b>
+        </h1>
+        <p>
+          Congratulations on creating a project! To add documents, you can use the CSV uploader in the 'Data' menu
+          above. You can also use the API from R or Python for more powerful upload options
+        </p>
+      </>
+    );
+
   function renderVisualization(field: AmcatField) {
     if (!field.client_settings.inListSummary) return null;
     if (field.type === "date")
