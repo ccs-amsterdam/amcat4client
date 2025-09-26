@@ -21,7 +21,7 @@ export default function Index() {
 
   return (
     <div className="prose-xl w-full  max-w-7xl animate-fade-in px-4 dark:prose-invert">
-      <div className="mt-[10vh]">
+      <div className="mt-[4vh]">
         <SelectIndex />
       </div>
     </div>

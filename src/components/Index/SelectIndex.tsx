@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatConfig, AmcatIndex } from "@/interfaces";
-import { DialogDescription } from "@radix-ui/react-dialog";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import {
   Archive,
   ArchiveRestore,
@@ -23,16 +21,18 @@ import {
   MoreVertical,
   Plus,
   Search,
+  SlashIcon,
   Trash2,
+  Undo,
   UserCheck,
   UserX,
 } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
-import { useConfirm } from "../ui/confirm";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
+import { ActivateConfirm, useConfirm } from "../ui/confirm";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
-import { Tooltip, TooltipContent, TooltipProvider } from "../ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
 import { Toggle } from "../ui/toggle";
 import { Switch } from "../ui/switch";
@@ -51,6 +51,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ErrorMsg } from "../ui/error-message";
 import { useAmcatConfig } from "@/api/config";
 import { networkInterfaces } from "os";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../ui/breadcrumb";
+import { useQueryState } from "next-usequerystate";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -61,7 +70,7 @@ export function SelectIndex() {
   const params = useSearchParams();
   const { user, loading: loadingUser } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
-  const [currentPath, setCurrentPath] = useState<string[]>([]);
+  const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showPublic, setShowPublic] = useState(!user?.authenticated);
@@ -69,10 +78,7 @@ export function SelectIndex() {
   const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
   const canCreate = useHasGlobalRole(user, "WRITER");
 
-  //const [isListView, setIsListView] = useState(false);
-  useEffect(() => {
-    setCurrentPath(params?.get("folder")?.split("/") ?? []);
-  }, [params]);
+  const [path, setPath] = useState<string | null>(null);
 
   const myIndices = useMemo(() => {
     if (!allIndices) return undefined;
@@ -86,7 +92,7 @@ export function SelectIndex() {
   useEffect(() => {
     function setVisible() {
       if (!myIndices) return;
-      const prefix = currentPath.join("/").replace(/^\/|\/$/, "");
+
       const filtered = myIndices.filter((index) => {
         if (search) {
           if (index.name.toLowerCase().includes(search.toLowerCase())) return true;
@@ -96,7 +102,8 @@ export function SelectIndex() {
         return true;
       });
 
-      const visible = filtered.filter((index) => (index.folder ?? "") === prefix);
+      let prefix = currentPath?.replace(/^\/|\/$/, "") ?? "";
+      const visible = filtered.filter((index) => (index.folder ?? "").startsWith(prefix));
 
       const folderSet = new Set<string>();
       filtered.forEach((ix) => {
@@ -107,18 +114,14 @@ export function SelectIndex() {
         folderSet.add(head);
       });
 
-      setVisibleIndices(visible);
+      setPath(prefix);
+      setVisibleIndices(visible.sort((a, b) => (a.folder + a.name).localeCompare(b.folder + b.name)));
       setVisibleFolders([...folderSet]);
     }
 
     const timeout = setTimeout(setVisible, 200);
     return () => clearTimeout(timeout);
   }, [myIndices, search, currentPath, showArchived, showPublic]);
-
-  function toFolder(folder: string[]) {
-    history.replaceState(null, "", `?folder=${folder.join("/")}`);
-    setCurrentPath(folder);
-  }
 
   if (loadingUser || loadingIndices)
     return (
@@ -127,24 +130,25 @@ export function SelectIndex() {
       </div>
     );
 
+  function updatePath(path: string | null) {
+    // setVisibleFolders([]);
+    // setVisibleIndices([]);
+    setCurrentPath(path);
+  }
+  function setFolder(folder: string[]) {
+    updatePath(folder.join("/"));
+  }
+  function appendFolder(add: string) {
+    updatePath(currentPath ? currentPath + "/" + add : add);
+  }
+
   if (user && user.authenticated && showPublic && allIndices?.length === 0) return <NoIndicesMessage />;
 
   return (
     <div>
       <div className="mb-8 flex flex-col items-start gap-2">
         <div className="flex w-full items-center justify-between">
-          <h3 className="m-0">
-            {[showPublic ? "All indices" : "My indices", ...currentPath].map((folder, ix) =>
-              folder == "" ? null : (
-                <React.Fragment key={ix}>
-                  {ix == 0 ? null : <ChevronRight className="inline text-sm text-foreground/60" />}
-                  <span className="cursor-pointer" onClick={() => toFolder(currentPath.slice(0, ix))}>
-                    {folder}
-                  </span>
-                </React.Fragment>
-              ),
-            )}
-          </h3>
+          <h3 className="m-0">Index overview</h3>
         </div>
         <div className={` Pagination ml-auto flex items-center gap-3  `}>
           <Popover>
@@ -168,35 +172,82 @@ export function SelectIndex() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search"
           />
-          <CreateIndex folder={currentPath.join("/")} request={!canCreate} />
+          <CreateIndex folder={currentPath ?? undefined} request={!canCreate} />
         </div>
       </div>
-      <div></div>
-      {/* Folders */}
-      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {visibleFolders.map((folder) => (
-          <ProjectFolder key={folder} folder={folder} onClick={() => toFolder([...currentPath, folder])} />
-        ))}
+
+      <div>
+        <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
       </div>
-      {/* Projects */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {visibleIndices?.map((index) => (
-          <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={toFolder} />
-        ))}
+
+      <div className="grid grid-cols-[min(30vw,200px),1fr] gap-6">
+        <div className="">
+          {!!path ? (
+            <Button
+              variant="ghost"
+              className="flex items-center justify-start gap-3"
+              onClick={() => setFolder((path?.split("/") ?? []).slice(0, -1))}
+            >
+              <Undo className="h-5 w-5" />
+              Return
+            </Button>
+          ) : null}
+          {visibleFolders.map((folder) => (
+            <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
+          ))}
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,240px))] gap-4">
+          {visibleIndices?.map((index) => (
+            <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={setCurrentPath} />
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: (folder: string) => void }) => (
-  <Card className="cursor-pointer bg-secondary transition-colors hover:bg-secondary/75" onClick={() => onClick(folder)}>
-    <CardHeader className=" px-3 py-2">
-      <CardTitle className="flex items-center  gap-3 text-sm">
-        <Folder className="h-4 w-4" />
-        {folder}
-      </CardTitle>
-    </CardHeader>
-  </Card>
+function FolderBreadcrumbs({
+  currentPath,
+  toFolder,
+}: {
+  currentPath: string | null;
+  toFolder: (folder: string | null) => void;
+}) {
+  const pathArray = currentPath ? currentPath.split("/").filter((p) => p) : [];
+  return (
+    <Breadcrumb className="">
+      <BreadcrumbList className="gap-0 pl-0  sm:gap-0">
+        <BreadcrumbItem>
+          <Button className="text-base" variant="ghost" onClick={() => toFolder(null)}>
+            Root
+          </Button>
+        </BreadcrumbItem>
+        {pathArray.map((folder, i) => (
+          <Fragment key={i + folder}>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <Button
+                className="text-base"
+                variant="ghost"
+                onClick={() => toFolder(pathArray.slice(0, i + 1).join("/"))}
+              >
+                {folder || "Root"}
+              </Button>
+            </BreadcrumbItem>
+          </Fragment>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
+
+const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => void }) => (
+  <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={onClick}>
+    <Folder className="h-5 w-5" />
+    <span className="max-w-16 overflow-hidden text-ellipsis text-nowrap text-xs md:max-w-32 md:text-sm" title={folder}>
+      {folder}
+    </span>
+  </Button>
 );
 
 const IndexCard = ({
@@ -206,20 +257,13 @@ const IndexCard = ({
 }: {
   index: AmcatIndex;
   folders: string[];
-  toFolder: (folder: string[]) => void;
+  toFolder: (folder: string) => void;
 }) => {
-  const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { activate, confirmDialog } = useConfirm();
-
   const { user } = useMiddlecat();
-  const { mutateAsync } = useMutateIndex(user);
-  const { mutateAsync: deleteAsync } = useDeleteIndex(user);
-
-  const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
-  const isWriter = useHasIndexRole(user, index.id, "WRITER");
   if (user == null) return null;
+
+  const indexPath = index.folder ? index.folder.split("/") : [];
 
   const style = index.image_url
     ? {
@@ -231,37 +275,6 @@ const IndexCard = ({
       }
     : {};
 
-  function handleDelete() {
-    deleteAsync(index.id);
-  }
-
-  function handleArchive(e: React.MouseEvent) {
-    e.preventDefault();
-    mutateAsync({ id: index.id, archive: !index.archived }).then(() => setIsDropdownOpen(false));
-  }
-  function doMoveToFolder(folder: string) {
-    const newFolder =
-      folder === ".."
-        ? index.folder?.split("/").slice(0, -1).join("/")
-        : index.folder
-          ? `${index.folder}/${folder}`
-          : folder;
-    mutateAsync({ id: index.id, folder: newFolder }).then(() => {
-      setIsDropdownOpen(false);
-      setIsNewFolderDialogOpen(false);
-      toFolder(newFolder?.split("/") ?? []);
-    });
-  }
-  function handleMoveToFolder(e: Event, folder: string) {
-    e.preventDefault();
-    doMoveToFolder(folder);
-  }
-
-  function handleCreateNewFolder(e: React.MouseEvent) {
-    e.preventDefault();
-    doMoveToFolder(newFolderName);
-  }
-
   return (
     <>
       {confirmDialog}
@@ -270,85 +283,7 @@ const IndexCard = ({
           <CardHeader className="bg-background/70 p-3">
             <div className="flex items-start justify-between">
               <CardTitle className=" text-base">{index.name}</CardTitle>
-              {!isWriter ? null : (
-                <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-                    {!isAdmin ? null : (
-                      <>
-                        <DropdownMenuItem onClick={handleArchive}>
-                          {index.archived ? (
-                            <ArchiveRestore className="mr-2 h-4 w-4" />
-                          ) : (
-                            <ArchiveX className="mr-2 h-4 w-4" />
-                          )}
-                          <span>{index.archived ? "Re-activate" : "Archive"}</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() =>
-                            activate(handleDelete, {
-                              description: `You are about to delete index ${index.name}. This cannot be undone!`,
-                              challenge: index.id,
-                              confirmText: `Delete index ${index.name}`,
-                            })
-                          }
-                        >
-                          <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                          <span>Delete</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
-                      <Folder className="mr-2 h-4 w-4" />
-                      <span>Move to folder:</span>
-                    </DropdownMenuItem>
-                    {index.folder && (
-                      <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
-                        <CornerLeftUp className="ml-4 h-3 w-3" />
-                        <span className="ml-1">
-                          {index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}
-                        </span>
-                      </DropdownMenuItem>
-                    )}
-                    {folders.map((folder) => (
-                      <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
-                        <span className="ml-4">{folder}</span>
-                      </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                    <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
-                      <DialogDescription></DialogDescription>
-                      <DialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                          <FolderPlus className="mr-2 h-4 w-4" />
-                          <span>To new folder</span>
-                        </DropdownMenuItem>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Move {index.name} to new folder</DialogTitle>
-                        </DialogHeader>
-                        <DialogDescription>
-                          This will create a new folder and move the index to that folder
-                        </DialogDescription>
-                        <Input
-                          value={newFolderName}
-                          onChange={(e) => setNewFolderName(e.target.value)}
-                          placeholder="Enter folder name"
-                        />
-                        <Button onClick={handleCreateNewFolder}>Create and Move</Button>
-                      </DialogContent>
-                    </Dialog>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+              <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
             </div>
             <CardDescription className="line-clamp-2 h-8 text-xs">
               {index.description || <i>(No description)</i>}
@@ -386,6 +321,133 @@ const IndexCard = ({
     </>
   );
 };
+
+function IndexDropdownMenu({
+  index,
+  folders,
+  toFolder,
+  activateConfirm,
+}: {
+  index: AmcatIndex;
+  folders: string[];
+  toFolder: (folder: string) => void;
+  activateConfirm: ActivateConfirm;
+}) {
+  const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const { user } = useMiddlecat();
+  const { mutateAsync } = useMutateIndex(user);
+  const { mutateAsync: deleteAsync } = useDeleteIndex(user);
+
+  const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
+  const isWriter = useHasIndexRole(user, index.id, "WRITER");
+
+  function handleDelete() {
+    deleteAsync(index.id);
+  }
+
+  function handleArchive(e: React.MouseEvent) {
+    e.preventDefault();
+    mutateAsync({ id: index.id, archive: !index.archived }).then(() => setIsDropdownOpen(false));
+  }
+  function doMoveToFolder(folder: string) {
+    const newFolder =
+      folder === ".."
+        ? index.folder?.split("/").slice(0, -1).join("/")
+        : index.folder
+          ? `${index.folder}/${folder}`
+          : folder;
+    mutateAsync({ id: index.id, folder: newFolder }).then(() => {
+      setIsDropdownOpen(false);
+      setIsNewFolderDialogOpen(false);
+      toFolder(newFolder || "");
+    });
+  }
+  function handleMoveToFolder(e: Event, folder: string) {
+    e.preventDefault();
+    doMoveToFolder(folder);
+  }
+
+  function handleCreateNewFolder(e: React.MouseEvent) {
+    e.preventDefault();
+    doMoveToFolder(newFolderName);
+  }
+
+  if (!isWriter) return null;
+
+  return (
+    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+        {!isAdmin ? null : (
+          <>
+            <DropdownMenuItem onClick={handleArchive}>
+              {index.archived ? <ArchiveRestore className="mr-2 h-4 w-4" /> : <ArchiveX className="mr-2 h-4 w-4" />}
+              <span>{index.archived ? "Re-activate" : "Archive"}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() =>
+                activateConfirm(handleDelete, {
+                  description: `You are about to delete index ${index.name}. This cannot be undone!`,
+                  challenge: index.id,
+                  confirmText: `Delete index ${index.name}`,
+                })
+              }
+            >
+              <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+              <span>Delete</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
+          <Folder className="mr-2 h-4 w-4" />
+          <span>Move to folder:</span>
+        </DropdownMenuItem>
+        {index.folder && (
+          <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
+            <CornerLeftUp className="ml-4 h-3 w-3" />
+            <span className="ml-1">{index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}</span>
+          </DropdownMenuItem>
+        )}
+        {folders.map((folder) => (
+          <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
+            <span className="ml-4">{folder}</span>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
+          <DialogTrigger asChild>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <FolderPlus className="mr-2 h-4 w-4" />
+              <span>To new folder</span>
+            </DropdownMenuItem>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Move {index.name} to new folder</DialogTitle>
+              <DialogDescription>This will create a new folder and move the index to that folder</DialogDescription>
+            </DialogHeader>
+            <Input
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Enter folder name"
+            />
+            <Button onClick={handleCreateNewFolder}>Create and Move</Button>
+          </DialogContent>
+        </Dialog>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 function NoIndicesMessage({}: {}) {
   const { signIn } = useMiddlecat();

@@ -65,11 +65,7 @@ export default function MainMenu() {
   if (loading || !user || (!!indexId && indexLoading)) return null;
 
   function current() {
-    if (path === null || path === "/") return branding?.server_name || "Server homepage";
-    if (path.startsWith("/server") && !indexId) return "Settings";
-    if (path.startsWith("/indices") && !indexId) return "Index overview";
-    const indexName = index?.name || "Unknown index";
-    return indexName;
+    return branding?.server_name || "Server homepage";
   }
 
   return (
