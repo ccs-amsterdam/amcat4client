@@ -1,65 +1,49 @@
 "use client";
 
 import { useDeleteIndex, useHasIndexRole, useMutateIndex } from "@/api";
+import { useAmcatConfig } from "@/api/config";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
-import { AmcatConfig, AmcatIndex } from "@/interfaces";
+import { AmcatIndex } from "@/interfaces";
 import {
   Archive,
   ArchiveRestore,
   ArchiveX,
-  ChevronRight,
   CornerLeftUp,
-  FilePlus,
   Filter,
   Folder,
   FolderPlus,
   LogInIcon,
   MoreVertical,
-  Plus,
-  Search,
-  SlashIcon,
   Trash2,
   Undo,
   UserCheck,
-  UserX,
 } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
+import { useQueryState } from "next-usequerystate";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
 import { ActivateConfirm, useConfirm } from "../ui/confirm";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { ErrorMsg } from "../ui/error-message";
 import { Input } from "../ui/input";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
-import { CreateIndex } from "./CreateIndex";
-import { Toggle } from "../ui/toggle";
-import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { ErrorMsg } from "../ui/error-message";
-import { useAmcatConfig } from "@/api/config";
-import { networkInterfaces } from "os";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "../ui/breadcrumb";
-import { useQueryState } from "next-usequerystate";
+import { Switch } from "../ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { CreateIndex } from "./CreateIndex";
 
 interface Folder {
   folders: Map<string, Folder>;
