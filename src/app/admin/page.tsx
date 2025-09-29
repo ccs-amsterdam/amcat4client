@@ -14,6 +14,7 @@ import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
 import { ServerBrandingForm } from "./ServerBrandingForm";
 import { Info } from "lucide-react";
+import { useQueryState } from "next-usequerystate";
 
 const roles = ["READER", "WRITER", "ADMIN"];
 
@@ -45,7 +46,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const { data: users, isLoading: loadingUsers } = useUsers(user);
   const mutate = useMutateUser(user);
-  const [tab, setTab] = useState(Tab.Users);
+  const [tab, setTab] = useQueryState("tab", { defaultValue: Tab.Users });
 
   if (loadingUserDetails || loadingUsers) return <Loading />;
 
@@ -58,7 +59,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
   if (!user || !ownRole || !users || !serverConfig || !changeRole) showTabs = showTabs.filter((key) => key === "Info");
 
   return (
-    <div className="flex w-full flex-col gap-10">
+    <div className="flex w-full flex-col gap-10 p-3 md:p-6">
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px]  flex-col">
         <TabsList className="mb-12 overflow-x-auto">
           {showTabs.map((tab) => {

@@ -2,6 +2,8 @@ import { AmcatClientSettings, AmcatField } from "@/interfaces";
 import { ChevronDown, File, Heading, LineChart, List } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { useEffect, useState } from "react";
+import { Toggle } from "../ui/toggle";
+import { Switch } from "../ui/switch";
 
 interface Props {
   field: AmcatField;
@@ -50,6 +52,7 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
             className="flex gap-4"
           >
             <File className={newClientSettings.inDocument ? "" : "text-foreground/30"} />
+            <Switch checked={!!newClientSettings.inDocument} onCheckedChange={() => {}} className="scale-75" />
             show in document
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -57,6 +60,7 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
             className="flex gap-4"
           >
             <List className={newClientSettings.inList ? "" : "text-foreground/30"} />
+            <Switch checked={!!newClientSettings.inList} onCheckedChange={() => {}} className="scale-75" />
             show in list
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -66,6 +70,7 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
             className="flex gap-4"
           >
             <Heading className={newClientSettings.isHeading ? "" : "text-foreground/30"} />
+            <Switch checked={!!newClientSettings.isHeading} onCheckedChange={() => {}} className="scale-75" />
             show as heading (title)
           </DropdownMenuItem>
           {canVisualize ? (
@@ -76,7 +81,8 @@ export default function VisibilityForm({ field, client_settings, onChange }: Pro
               className="flex gap-4"
             >
               <LineChart className={newClientSettings.inListSummary ? "" : "text-foreground/30"} />
-              visualize in list
+              <Switch checked={!!newClientSettings.inListSummary} onCheckedChange={() => {}} className="scale-75" />
+              show graph
             </DropdownMenuItem>
           ) : null}{" "}
         </DropdownMenuContent>

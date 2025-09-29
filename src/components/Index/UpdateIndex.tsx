@@ -49,7 +49,7 @@ export function UpdateIndex({ index, children }: { index: AmcatIndex; children?:
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex gap-3">
                 <FormField
                   control={form.control}

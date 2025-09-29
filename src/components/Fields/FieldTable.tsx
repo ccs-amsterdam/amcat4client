@@ -17,10 +17,11 @@ interface Row extends AmcatField {
 const tableColumns: ColumnDef<Row>[] = [
   {
     accessorKey: "identifier",
-    header: "Identifier",
+    header: "ID",
     cell: ({ row }) => {
       return row.original.identifier ? <Key className="h-5 w-5 " /> : null;
     },
+    size: 10,
   },
   {
     accessorKey: "name",
@@ -45,7 +46,7 @@ const tableColumns: ColumnDef<Row>[] = [
   {
     id: "Display",
     header: tooltipHeader(
-      "Display",
+      "Dashboard",
       "Set how this field is displayed in the dashboard. This does not (!!) affect data access (see METAREADER access).",
     ),
     cell: ({ row }) => {

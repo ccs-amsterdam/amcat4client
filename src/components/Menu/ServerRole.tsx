@@ -2,11 +2,11 @@ import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { AmcatConfig, AmcatUserDetails } from "@/interfaces";
-import { HelpCircle, Shield } from "lucide-react";
+import { HelpCircle, LockKeyholeOpenIcon, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { RequestRoleChange } from "./RequestRoleChange";
+import { RequestRoleChange } from "../Access/RequestRoleChange";
 
 const roles = ["NONE", "READER", "WRITER", "ADMIN"];
 
@@ -18,7 +18,7 @@ export function ServerRoleDropdownItem({ open, setOpen }: { open: boolean; setOp
           setOpen(true);
         }}
       >
-        <Shield className="mr-2 h-4 w-4" />
+        <LockKeyholeOpenIcon className="mr-2 h-4 w-4" />
         Access role
       </DropdownMenuItem>
     </>

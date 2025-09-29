@@ -99,12 +99,12 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
         </DropdownMenu>
       </div>
       <div>
-        <Label htmlFor="message">Message (optional)</Label>
+        <Label htmlFor="message">Message to administrator</Label>
         <Textarea
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Your role change request will be reviewed by an administrator. You can add a message here to explain why you need this role."
+          placeholder="You can add a message here to explain why you need this role."
           className="min-h-[80px]"
         />
       </div>

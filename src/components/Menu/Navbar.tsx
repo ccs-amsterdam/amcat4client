@@ -4,30 +4,40 @@ import { useAmcatBranding } from "@/api/branding";
 import useAutoSignin from "@/lib/useAutoSignin";
 import Link from "next/link";
 import AccountMenu from "./AccountMenu";
-import IndexMenu from "./IndexMenu";
-import { useParams } from "next/navigation";
-import MainMenu from "./MainMenu";
-import IndexRole from "./IndexRole";
+import IndexSubMenu from "./IndexSubMenu";
+import { useParams, useRouter } from "next/navigation";
+import ServerMenu from "./ServerMenu";
 import { Notifications } from "./Notifications";
+import IndexMenu from "./IndexMenu";
+import { ChevronRight, Library } from "lucide-react";
 
 export default function Navbar() {
+  const params = useParams<{ index: string }>();
+  const hasIndex = !!params?.index;
+  const { data: branding, isLoading: brandingLoading } = useAmcatBranding();
   useAutoSignin();
 
-  const params = useParams<{ index: string }>();
-  const showingIndex = params?.index !== undefined;
+  function logo() {
+    return (
+      <Link href={branding?.server_url || "/"} className="flex items-center">
+        <img className={`ml-2 mr-0 aspect-auto w-9 md:w-12 `} src={branding?.server_icon || "/logo.png"} alt="AmCAT" />
+      </Link>
+    );
+  }
 
   return (
-    <nav className={`z-50 border-b-[1px] bg-background text-sm `}>
-      <div className={`select-none overflow-hidden bg-primary/0`}>
-        <div className="flex h-16 items-center justify-between ">
-          <div className="flex h-full  items-center">
-            {/*<Link href="/" className={showingIndex ? "hidden" : ""}>
-            <img className="mx-2 px-1" src={"/logo.png"} alt="AmCAT" width={52} height={45} />
-          </Link>*/}
-            <MainMenu />
+    <nav className={`z-50 bg-background text-sm `}>
+      <div className={`select-none overflow-hidden border-b border-primary/30  `}>
+        <div className="flex items-center justify-between ">
+          {logo()}
+          <div className="flex h-14 items-center gap-1 px-3 text-sm md:gap-2 md:text-base">
+            <ServerMenu />
+            <Separator />
+            {/*<IndicesLink />
+            <Separator />*/}
+            {/*<span className="text-foreground/40">|</span>*/}
             <IndexMenu />
           </div>
-
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
             <Notifications />
             <AccountMenu />
@@ -35,20 +45,34 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      {hasIndex ? (
+        <div className="flex h-9 w-full items-center justify-end  px-3  text-sm">
+          <IndexSubMenu />
+        </div>
+      ) : null}
     </nav>
   );
 }
 
-function ServerBranding() {
-  const { data: serverBranding } = useAmcatBranding();
-  if (serverBranding == null) return null;
-  const logo = (
-    <div className="flex items-center gap-1 whitespace-nowrap">
-      {serverBranding.server_icon ? (
-        <img alt="Server icon" src={serverBranding.server_icon} className="mr-2 inline h-8" />
-      ) : null}
-      {serverBranding.server_name}
-    </div>
+function Separator() {
+  // return <SlashIcon className="h-4 w-4 opacity-50" />;
+  return <ChevronRight className="h-4 w-4 opacity-50" />;
+  // return <span className="text-foreground/40">|</span>;
+  // return <span className="text-foreground/40">/</span>;
+}
+
+function IndicesLink() {
+  const router = useRouter();
+  return (
+    <button
+      className={
+        "flex h-full select-none items-center gap-1 whitespace-nowrap border-primary outline-none hover:bg-foreground/10 md:px-2"
+      }
+      onClick={() => router.push("/indices")}
+    >
+      <div className=" flex items-center gap-1 lg:gap-2">
+        <Library className=" opacity-70 md:h-6 md:w-6" />
+      </div>
+    </button>
   );
-  return serverBranding.server_url ? <Link href={serverBranding.server_url}>{logo}</Link> : logo;
 }

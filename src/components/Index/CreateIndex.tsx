@@ -11,9 +11,10 @@ import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { AmcatRequestProject } from "@/interfaces";
 import { Loader } from "lucide-react";
+import { useQueryState } from "next-usequerystate";
 
 export function CreateIndex({ folder, request }: { folder?: string; request?: boolean }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useQueryState("create_index");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useMiddlecat();
@@ -65,7 +66,7 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
     setLoading(true);
     requestIndexAsync(request)
       .then(() => {
-        setOpen(false);
+        setOpen(null);
       })
       .finally(() => setTimeout(() => setLoading(false), 500));
   }
@@ -81,9 +82,9 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={!!open} onOpenChange={(open) => setOpen(open ? "open" : null)}>
       <DialogTrigger asChild>
-        <Button>{request ? "Request new index" : "Create Index"}</Button>
+        <Button>{request ? "Request new index" : "Create new index"}</Button>
       </DialogTrigger>
       <DialogContent aria-describedby={undefined} className="w-[600px] max-w-[95vw]">
         <DialogHeader>

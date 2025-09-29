@@ -11,14 +11,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex } from "@/interfaces";
-import { ChevronDown, Crown, HelpCircle, Shield } from "lucide-react";
+import { ChevronDown, Crown, HelpCircle, LockKeyholeOpen, Shield } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { ContactInfo } from "../Index/ContactInfo";
-import { RequestRoleChange } from "./RequestRoleChange";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ContactInfo } from "@/components/Index/ContactInfo";
+import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -53,12 +60,14 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   }
 
   function serverAdminUpdate() {
-    if (!isServerAdmin) return null;
+    if (!isServerAdmin) return <div />;
     return (
-      <div className="mt-3 flex items-center justify-between gap-3 rounded-md bg-secondary/20 p-3">
+      <div className="flex h-max items-center justify-start gap-3 rounded-md bg-secondary/20 px-3 py-1">
         <Crown className="text-secondary" />
-        <span className="text-sm">As server admin you can change your own role</span>
-        <IndexMenuServerAdmin user={user} index={index} />
+        <span className="text-sm">Use server admin privilege</span>
+        <div className="ml-auto text-nowrap">
+          <IndexMenuServerAdmin user={user} index={index} />
+        </div>
       </div>
     );
   }
@@ -79,10 +88,12 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   function pointsOfContact() {
     if (index?.contact)
       return (
-        <div className=" mt-6 grid grid-cols-1 items-center gap-3 rounded-md  md:grid-cols-[1fr,1fr]">
+        <div className=" mt-6  max-w-xl items-center gap-3 rounded-md">
           <div className="p-3">
             <div className="text-lg font-bold">Contact information</div>
-            <div className="text-sm">For other questions or comments about data access, please reach out to:</div>
+            <div className="text-sm">
+              For other questions or comments about the accessibility of data in this index, you can reach out to:
+            </div>
           </div>
           <div className="items-center rounded-md  p-3 text-sm ">
             <ContactInfo contact={index?.contact} />
@@ -91,38 +102,18 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
       );
   }
 
-  const role = index?.user_role === "NONE" ? "ACCESS" : index?.user_role;
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-1 outline-none hover:bg-foreground/10 lg:px-4">
-        <Shield />
-        <span className="hidden lg:inline">{role}</span>
-      </DialogTrigger>
-      <DialogContent className="prose max-h-[90vh] w-[700px] max-w-[95vw] items-start py-6 dark:prose-invert">
-        <DialogHeader>
-          <DialogTitle className="mt-0">Index access role</DialogTitle>
-          <DialogDescription className="h-0 opacity-0">
-            Your role for this index is <strong>{user_role}</strong>.{" "}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="mt-0 flex flex-col gap-3">
-          <div className="mb-6 text-lg">
-            <div className="flex items-center gap-3">
-              {myRole()}
-
-              <RoleInfoDialog />
-            </div>
-          </div>
-
-          {requestRoleChange()}
-          {serverAdminUpdate()}
-
-          {pointsOfContact()}
+    <div className="mt-0 flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-6 gap-y-[5vh] lg:grid-cols-2">
+        <div className="mb-12 flex items-center gap-3 py-3">
+          {myRole()}
+          <RoleInfoDialog />
         </div>
-      </DialogContent>
-    </Dialog>
+        {serverAdminUpdate()}
+        {requestRoleChange()}
+        {pointsOfContact()}
+      </div>
+    </div>
   );
 }
 
@@ -179,20 +170,27 @@ export function RoleInfoDialog() {
         <HelpCircle className="cursor-pointer text-primary" />
       </DialogTrigger>
       <DialogContent className="w-[600px] max-w-[95vw]">
-        <DialogTitle className="h-0 w-0 opacity-0">Index access roles</DialogTitle>
-        <DialogDescription className="h-0 opacity-0">Description of four access roles</DialogDescription>
-        <div className="mb-2 font-bold text-primary">There are four access roles with incremental permissions:</div>
-        <div className="grid grid-cols-[8rem,1fr] gap-1">
-          <b className="text-primary">METAREADER</b>
-          Can search documents, but can only view a subset of the contents.
-          <b className="text-primary">READER</b>
-          Can view all document contents.
-          <b className="text-primary">WRITER</b>
-          Can upload and modify documents.
-          <b className="text-primary">ADMIN</b>
-          Can manage index settings and users, and delete data.
-        </div>
+        <DialogTitle className="">Index access roles</DialogTitle>
+        <DialogDescription className="">There are four access roles with incremental permissions</DialogDescription>
+        <RoleInfo />
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function RoleInfo() {
+  return (
+    <div className="flex flex-col gap-3 text-sm">
+      <div className="grid grid-cols-[7rem,1fr] gap-1">
+        <b className="text-primary">METAREADER</b>
+        Can search documents, but can only view a subset of the contents.
+        <b className="text-primary">READER</b>
+        Can view all document contents.
+        <b className="text-primary">WRITER</b>
+        Can upload and modify documents.
+        <b className="text-primary">ADMIN</b>
+        Can manage index settings and users, and delete data.
+      </div>
+    </div>
   );
 }

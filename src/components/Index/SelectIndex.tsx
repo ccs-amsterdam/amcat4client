@@ -5,7 +5,7 @@ import { useAmcatConfig } from "@/api/config";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import {
@@ -165,7 +165,7 @@ export function SelectIndex() {
       </div>
 
       <div className="grid grid-cols-[min(30vw,200px),1fr] gap-6">
-        <div className="">
+        <div className="flex flex-col ">
           {!!path ? (
             <Button
               variant="ghost"
@@ -180,7 +180,7 @@ export function SelectIndex() {
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
           ))}
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,240px))] gap-4">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
           {visibleIndices?.map((index) => (
             <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={setCurrentPath} />
           ))}
@@ -266,11 +266,11 @@ const IndexCard = ({
         <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
           <CardHeader className="bg-background/70 p-3">
             <div className="flex items-start justify-between">
-              <CardTitle className=" text-base">{index.name}</CardTitle>
+              <CardTitle className="line-clamp-2  h-10  text-base leading-5">{index.name}</CardTitle>
               <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
             </div>
-            <CardDescription className="line-clamp-2 h-8 text-xs">
-              {index.description || <i>(No description)</i>}
+            <CardDescription className="line-clamp-2 h-8 break-words  text-xs">
+              {index.description + "a holw low of testxt e" || <i>(No description)</i>}
             </CardDescription>
           </CardHeader>
 

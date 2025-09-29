@@ -3,7 +3,7 @@ import { useAmcatConfig } from "@/api/config";
 import useAmcatIndices from "@/api/indices";
 import { useCurrentUserDetails, useMyGlobalRole } from "@/api/userDetails";
 import Navbar from "@/components/Menu/Navbar";
-import { RequestRoleChange } from "@/components/Menu/RequestRoleChange";
+import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
 import { RoleInfoDialog } from "@/components/Menu/ServerRole";
 import { Button } from "@/components/ui/button";
 import { ErrorMsg } from "@/components/ui/error-message";
