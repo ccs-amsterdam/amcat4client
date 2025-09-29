@@ -55,12 +55,13 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       .then((response) => response.json())
       .then((data) => {
         setServerUrl(data.amcatServer);
-        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch server URL:", error);
         // Fallback to the public environment variable or default
         setServerUrl(process.env.NEXT_PUBLIC_AMCAT_SERVER || "http://localhost:5000");
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   }, []);
