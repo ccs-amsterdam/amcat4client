@@ -32,7 +32,6 @@ export default function ServerMenu() {
 
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
-  const [serverInfoOpen, setServerInfoOpen] = useState(false);
   const [serverAccessOpen, setServerAccessOpen] = useState(false);
 
   if (loading || !user || (!!indexId && indexLoading)) return null;
@@ -49,7 +48,7 @@ export default function ServerMenu() {
         }
       >
         <div className=" flex items-center gap-1 md:gap-2">
-          <Menu className=" opacity-70 md:h-6 md:w-6" />
+          {/*<Menu className=" opacity-70 md:h-6 md:w-6" />*/}
           <div className="w-full max-w-[20vw]  overflow-hidden text-ellipsis">{current()}</div>
         </div>
       </DropdownMenuTrigger>

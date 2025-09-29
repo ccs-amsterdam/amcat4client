@@ -60,6 +60,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
 
   return (
     <div className="flex w-full flex-col gap-10 p-3 md:p-6">
+      <h3 className="text-xl font-semibold">Server admin</h3>
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px]  flex-col">
         <TabsList className="mb-12 overflow-x-auto">
           {showTabs.map((tab) => {

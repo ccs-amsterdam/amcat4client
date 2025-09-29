@@ -1,20 +1,16 @@
 "use client";
 
-import { useAmcatConfig } from "@/api/config";
-import { useIndex } from "@/api/index";
+import { useHasIndexRole, useIndex } from "@/api/index";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
-import { AmcatIndex, AmcatIndexId } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId, AmcatUserRole } from "@/interfaces";
 import {
   Book,
-  ChevronDown,
   Columns3Cog,
   DatabaseZap,
   Ellipsis,
   LayoutDashboard,
-  Library,
   LockKeyholeOpen,
-  Menu,
   Settings,
   Users,
 } from "lucide-react";
@@ -25,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -33,13 +28,20 @@ import {
 } from "../ui/dropdown-menu";
 import { CommandInput, Command, CommandList, CommandEmpty, CommandGroup, CommandItem } from "../ui/command";
 
-const paths = [
-  { href: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
-  { href: "data", label: "Data", icon: <DatabaseZap className="h-4 w-4" /> },
-  { href: "fields", label: "Fields", icon: <Columns3Cog className="h-4 w-4" /> },
-  { href: "settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
-  { href: "users", label: "Users", icon: <Users className="h-4 w-4" /> },
-  { href: "access", label: "Access", icon: <LockKeyholeOpen className="h-4 w-4" /> },
+type Path = {
+  href: string;
+  label: string;
+  icon: JSX.Element;
+  minRole: AmcatUserRole;
+};
+
+const paths: Path[] = [
+  { href: "dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-4 w-4" />, minRole: "METAREADER" },
+  { href: "data", label: "Data", icon: <DatabaseZap className="h-4 w-4" />, minRole: "WRITER" },
+  { href: "fields", label: "Fields", icon: <Columns3Cog className="h-4 w-4" />, minRole: "WRITER" },
+  { href: "settings", label: "Settings", icon: <Settings className="h-4 w-4" />, minRole: "ADMIN" },
+  { href: "users", label: "Users", icon: <Users className="h-4 w-4" />, minRole: "ADMIN" },
+  { href: "access", label: "Access", icon: <LockKeyholeOpen className="h-4 w-4" />, minRole: "NONE" },
 ];
 
 export default function IndexSubMenu() {
@@ -56,7 +58,7 @@ export default function IndexSubMenu() {
     <>
       {/*<IndexSelector user={user} index={index} />*/}
       {paths.map((path, i) => (
-        <NavLink key={path.href} i={i} index={index} path={path.href} label={path.label} icon={path.icon} />
+        <NavLink key={path.href} i={i} index={index} path={path} />
       ))}
       <BurgerMenu indexId={indexId} />
     </>
@@ -99,37 +101,16 @@ function useCurrentPath() {
   return pathParts[pathParts.length - 1] || "";
 }
 
-function NavLink({
-  index,
-  i,
-  path,
-  label,
-  icon,
-}: {
-  index: AmcatIndex;
-  i: number;
-  path: string;
-  label: string;
-  icon: JSX.Element;
-}) {
+function NavLink({ index, i, path }: { index: AmcatIndex; i: number; path: Path }) {
   const router = useRouter();
   const currentPath = useCurrentPath();
-  const { data: serverConfig } = useAmcatConfig();
-  const no_auth = serverConfig?.authorization === "no_auth";
+  const { user } = useMiddlecat();
+  const hasRole = useHasIndexRole(user, index.id, path.minRole);
 
-  const active = path === currentPath;
-  const href = `/indices/${index.id}/${path}`;
-  const indexRole = index?.user_role || "NONE";
-  const admin = no_auth || indexRole === "ADMIN";
-  const writer = admin || indexRole === "WRITER";
+  if (!hasRole) return null;
 
-  if (!admin) {
-    if (path === "users" || path === "settings") return null;
-  }
-  if (!writer) {
-    if (path === "users" || path === "settings" || path === "data") return null;
-    if (path === "dashboard" && active) return null;
-  }
+  const active = path.href === currentPath;
+  const href = `/indices/${index.id}/${path.href}`;
 
   return (
     <button
@@ -140,8 +121,8 @@ function NavLink({
           : "bg-background text-foreground/80 hover:bg-foreground/10"
       } ${i === 0 ? "" : ""} flex h-full select-none items-center gap-2 border-primary px-3 outline-none  hover:rounded-b `}
     >
-      {icon}
-      <span className={`hidden sm:inline`}>{label}</span>
+      {path.icon}
+      <span className={`hidden sm:inline`}>{path.label}</span>
     </button>
   );
 }
