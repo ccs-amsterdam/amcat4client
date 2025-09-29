@@ -168,11 +168,12 @@ export function SelectIndex() {
         <div className="flex flex-col ">
           {!!path ? (
             <Button
+              size="sm"
               variant="ghost"
-              className="flex items-center justify-start gap-3"
+              className="flex h-7 items-center justify-start gap-3"
               onClick={() => setFolder((path?.split("/") ?? []).slice(0, -1))}
             >
-              <Undo className="h-5 w-5" />
+              <Undo className="h-4 w-4" />
               Return
             </Button>
           ) : null}
@@ -226,8 +227,8 @@ function FolderBreadcrumbs({
 }
 
 const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => void }) => (
-  <Button variant="ghost" className="flex items-center justify-start gap-3" onClick={onClick}>
-    <Folder className="h-5 w-5" />
+  <Button size="sm" variant="ghost" className="flex h-7 items-center justify-start gap-3" onClick={onClick}>
+    <Folder className="h-4 w-4" />
     <span className="max-w-16 overflow-hidden text-ellipsis text-nowrap text-xs md:max-w-32 md:text-sm" title={folder}>
       {folder}
     </span>

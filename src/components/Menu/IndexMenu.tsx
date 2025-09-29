@@ -41,7 +41,7 @@ export default function IndexMenu() {
 
   function current() {
     if (indexId) return index?.name || "loading index...";
-    return <span className="text-foreground/50">select index</span>;
+    return <span className="text-foreground/50">index</span>;
   }
 
   return (
@@ -52,7 +52,7 @@ export default function IndexMenu() {
         }
       >
         <div className=" flex items-center gap-1 lg:gap-2">
-          <div className="max-w-[25vw]  overflow-hidden text-ellipsis">{current()}</div>
+          <div className="max-w-[33vw] overflow-hidden  text-ellipsis">{current()}</div>
           <ChevronDown className="h-4 w-4 opacity-50" />
         </div>
       </DropdownMenuTrigger>
