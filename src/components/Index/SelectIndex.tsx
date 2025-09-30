@@ -44,6 +44,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
+import { InfoMsg } from "../ui/info-mesasage";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -126,7 +127,7 @@ export function SelectIndex() {
     updatePath(currentPath ? currentPath + "/" + add : add);
   }
 
-  if (user && user.authenticated && showPublic && allIndices?.length === 0) return <NoIndicesMessage />;
+  if (user && !user.authenticated && allIndices?.length === 0) return <NoPublicIndicesMessage />;
 
   return (
     <div>
@@ -181,15 +182,17 @@ export function SelectIndex() {
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
           ))}
         </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-          {visibleIndices?.map((index) => (
-            <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={setCurrentPath} />
-          ))}
-        </div>
+        {visibleIndices?.length == 0 ? <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} /> :
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
+            {visibleIndices?.map((index) => (
+              <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={setCurrentPath} />
+            ))}
+          </div>}
       </div>
     </div>
   );
 }
+
 
 function FolderBreadcrumbs({
   currentPath,
@@ -252,12 +255,12 @@ const IndexCard = ({
 
   const style = index.image_url
     ? {
-        backgroundImage: `url('${index.image_url}')`,
-        backgroundRepeat: "no-repeat",
-        backgroundPositionX: "center",
-        backgroundSize: "cover",
-        backgroundPositionY: "center",
-      }
+      backgroundImage: `url('${index.image_url}')`,
+      backgroundRepeat: "no-repeat",
+      backgroundPositionX: "center",
+      backgroundSize: "cover",
+      backgroundPositionY: "center",
+    }
     : {};
 
   return (
@@ -434,7 +437,7 @@ function IndexDropdownMenu({
   );
 }
 
-function NoIndicesMessage({}: {}) {
+function NoPublicIndicesMessage({ }: {}) {
   const { signIn } = useMiddlecat();
   const { data: config } = useAmcatConfig();
 
@@ -449,5 +452,27 @@ function NoIndicesMessage({}: {}) {
         Sign-in
       </Button>
     </ErrorMsg>
+  );
+}
+function NoResultsMessage({
+  cancreate,
+  issearching,
+
+}: {
+  cancreate: boolean
+  issearching: boolean
+}) {
+  return (
+    <InfoMsg type="No indices">
+      <p className="w-[500px] max-w-[95vw] text-center">
+        {issearching ?
+          "No indices match your search pattern. Try changing your search terms or filter options. " :
+          "There are currently no indices that you have access to. "}
+        {cancreate ?
+          "To get started, create a new index using the 'create new index' button above" :
+          "To get started, you can ask a server administrator to create a project for you using the 'Request new index' button above "}
+      </p>
+
+    </InfoMsg>
   );
 }
