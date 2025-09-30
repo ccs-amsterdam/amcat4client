@@ -9,19 +9,10 @@ import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { Loading } from "@/components/ui/loading";
 import UserRoleTable from "@/components/Users/UserRoleTable";
 
-import { useState } from "react";
-import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
-import { ServerBrandingForm } from "./ServerBrandingForm";
 import { Info } from "lucide-react";
-import { useQueryState } from "next-usequerystate";
 
 const roles = ["READER", "WRITER", "ADMIN"];
-
-enum Tab {
-  Users = "users",
-  Branding = "branding",
-}
 
 export default function Page() {
   const { user, loading: userLoading } = useMiddlecat();
@@ -30,7 +21,7 @@ export default function Page() {
   if (userLoading || configLoading || brandingLoading) return <Loading />;
 
   return (
-    <div className="mx-auto mt-6 w-full max-w-7xl px-6 py-6">
+    <div className="mx-auto mt-12 w-full max-w-7xl px-6 py-6">
       <ServerSettings user={user} serverConfig={serverConfig!} serverBranding={serverBranding!} />
     </div>
   );
@@ -46,7 +37,6 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const { data: users, isLoading: loadingUsers } = useUsers(user);
   const mutate = useMutateUser(user);
-  const [tab, setTab] = useQueryState("tab", { defaultValue: Tab.Users });
 
   if (loadingUserDetails || loadingUsers) return <Loading />;
 
@@ -55,44 +45,15 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
     mutate.mutateAsync({ email, role, action }).catch(console.error);
   }
 
-  let showTabs = Object.keys(Tab);
-  if (!user || !ownRole || !users || !serverConfig || !changeRole) showTabs = showTabs.filter((key) => key === "Info");
+  if (user == null || ownRole == null || users == null)
+    return <div className="p-3">You don't have permission to see this</div>;
 
   return (
-    <div className="flex w-full flex-col gap-10 p-3 md:p-6">
-      <h3 className="text-xl font-semibold">Server admin</h3>
-      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="flex min-h-[500px]  flex-col">
-        <TabsList className="mb-12 overflow-x-auto">
-          {showTabs.map((tab) => {
-            const tabValue = Tab[tab as keyof typeof Tab];
-            return (
-              <TabsTrigger key={tabValue} value={tabValue}>
-                {tab}
-              </TabsTrigger>
-            );
-          })}
-        </TabsList>
-        <div className=" ">
-          <TabsContent value={Tab.Users}>
-            {user == null || ownRole == null || users == null ? (
-              <span>You don't have permission to see this</span>
-            ) : (
-              <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-24 lg:max-w-full lg:grid-cols-2 lg:gap-12`}>
-                <div className="flex-auto">
-                  <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
-                </div>
-                <UserTableInstructions serverConfig={serverConfig} />
-              </div>
-            )}
-          </TabsContent>
-          <TabsContent value={Tab.Branding}>
-            <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-6 lg:max-w-full lg:grid-cols-2`}>
-              <ServerBrandingForm />
-              <ServerBrandingPreview user={user} serverConfig={serverConfig} serverBranding={serverBranding} />
-            </div>
-          </TabsContent>
-        </div>
-      </Tabs>
+    <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-24 lg:max-w-full lg:grid-cols-2 lg:gap-12`}>
+      <div className="flex-auto">
+        <UserRoleTable user={user} ownRole={ownRole} users={users} changeRole={changeRole} roles={roles} />
+      </div>
+      <UserTableInstructions serverConfig={serverConfig} />
     </div>
   );
 }
@@ -183,18 +144,6 @@ function UserTableInstructions({ serverConfig }: { serverConfig: AmcatConfig }) 
           </p>
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
-
-function ServerBrandingPreview({ serverConfig, serverBranding }: ServerSettingsProps) {
-  return (
-    <div className="flex flex-col items-center justify-start">
-      <div className="py-3 font-bold">Branding preview</div>
-      <div className="-mt-12 scale-75 overflow-hidden rounded-lg">
-        <Branding serverConfig={serverConfig!} serverBranding={serverBranding!} />
-        <BrandingFooter serverBranding={serverBranding!} />
-      </div>
     </div>
   );
 }

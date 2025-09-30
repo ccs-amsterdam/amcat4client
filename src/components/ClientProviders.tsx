@@ -75,6 +75,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       } else {
         defaultErrorToast(e);
       }
+      return e;
     },
   });
   const queryCache = new QueryCache({
@@ -86,6 +87,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
       } else {
         defaultErrorToast(e);
       }
+      return e;
     },
   });
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));

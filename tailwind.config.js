@@ -17,8 +17,12 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            p: { hyphens: "auto" },
-            a: { textDecoration: "underline" },
+            p: {
+              hyphens: "auto",
+            },
+            a: {
+              textDecoration: "underline",
+            },
           },
         },
         invert: {},
@@ -26,7 +30,6 @@ module.exports = {
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
-
         background: {
           DEFAULT: "hsl(var(--background), <alpha-value>)",
           fixed: "hsl(var(--background-fixed), <alpha-value>)",
@@ -63,7 +66,6 @@ module.exports = {
           DEFAULT: "hsl(var(--accent), <alpha-value>)",
           foreground: "hsl(var(--accent-foreground), <alpha-value>)",
         },
-
         card: {
           DEFAULT: "hsl(var(--card), <alpha-value>)",
           foreground: "hsl(var(--card-foreground), <alpha-value>)",
@@ -79,16 +81,28 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
-          to: { height: "var(--radix-accordion-content-height)" },
+          from: {
+            height: 0,
+          },
+          to: {
+            height: "var(--radix-accordion-content-height)",
+          },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+          },
+          to: {
+            height: 0,
+          },
         },
         "fade-in": {
-          from: { opacity: 0 },
-          to: { opacity: 1 },
+          from: {
+            opacity: 0,
+          },
+          to: {
+            opacity: 1,
+          },
         },
       },
       animation: {

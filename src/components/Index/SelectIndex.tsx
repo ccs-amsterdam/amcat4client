@@ -274,7 +274,7 @@ const IndexCard = ({
               <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
             </div>
             <CardDescription className="line-clamp-2 h-8 break-words  text-xs">
-              {index.description + "a holw low of testxt e" || <i>(No description)</i>}
+              {index.description || <i>(No description)</i>}
             </CardDescription>
           </CardHeader>
 

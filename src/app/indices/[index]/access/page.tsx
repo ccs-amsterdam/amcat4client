@@ -103,9 +103,9 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   }
 
   return (
-    <div className="mt-0 flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-6 gap-y-[5vh] lg:grid-cols-2">
-        <div className="mb-12 flex items-center gap-3 py-3">
+    <div className="mt-12 flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-6  lg:grid-cols-2">
+        <div className=" flex items-center gap-3 py-3">
           {myRole()}
           <RoleInfoDialog />
         </div>

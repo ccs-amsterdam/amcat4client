@@ -23,27 +23,25 @@ export function ServerInfoDropdownSub({}) {
         {"External links"}
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="w-80">
-        <DropdownMenuLabel>Server</DropdownMenuLabel>
         <Link
           href={branding?.server_url || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className=" text-primary hover:underline"
+          className="  font-mono text-primary"
         >
-          <DropdownMenuItem className="flex items-center gap-1">
-            <LinkIcon className="mr-2 h-4 w-4" />
+          <DropdownMenuItem className="flex cursor-pointer items-center gap-5">
+            <b className="w-12 text-foreground">Server</b>
             {branding?.server_url || "Loading..."}
           </DropdownMenuItem>
         </Link>
-        <DropdownMenuLabel>Project</DropdownMenuLabel>
         <Link
           href={config?.resource || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          className=" text-primary hover:underline"
+          className="   font-mono text-primary"
         >
-          <DropdownMenuItem className="flex items-center gap-1">
-            <LinkIcon className="mr-2 h-4 w-4" />
+          <DropdownMenuItem className="flex cursor-pointer items-center gap-5">
+            <b className="w-12 text-foreground  ">Project</b>
             {config?.resource || "Loading..."}
           </DropdownMenuItem>
         </Link>

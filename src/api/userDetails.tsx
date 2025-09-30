@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { useAmcatConfig } from "./config";
 import { useSearchParams } from "next/navigation";
+import { hasMinAmcatRole } from "@/lib/utils";
 
 export function useCurrentUserDetails(user?: MiddlecatUser) {
   const params = useSearchParams();
@@ -33,9 +34,7 @@ export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUse
   if (!user) return undefined;
   if (serverConfig?.authorization === "no_auth") return true;
   if (actual_role == null) return undefined;
-  const actual_role_index = amcatUserRoles.indexOf(actual_role);
-  const required_role_index = amcatUserRoles.indexOf(role);
-  return actual_role_index >= required_role_index;
+  return hasMinAmcatRole(actual_role, role);
 }
 
 async function getCurrentUserDetails(user: MiddlecatUser | undefined, fakeServerRole?: string) {

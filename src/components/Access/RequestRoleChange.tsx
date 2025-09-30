@@ -82,7 +82,6 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
             >
               {roles.map((role) => {
                 if (currentRole === "NONE" && role === "NONE") return null;
-                if (serverConfig?.authorization !== "authorized_users_only" && role === "READER") return null;
                 return (
                   <DropdownMenuRadioItem
                     key={role}

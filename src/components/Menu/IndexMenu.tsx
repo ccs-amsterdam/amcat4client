@@ -24,37 +24,30 @@ import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from ".
 export default function IndexMenu() {
   const { user, loading } = useMiddlecat();
   const params = useParams<{ index: string }>();
-  const router = useRouter();
-  const path = usePathname();
   const indexId = decodeURI(params?.index || "");
   const [open, setOpen] = useState(false);
 
   const { data: index, isLoading: indexLoading } = useIndex(user, indexId);
-  const { data: branding, isLoading: brandingLoading } = useAmcatBranding();
-
-  const isServerAdmin = useHasGlobalRole(user, "ADMIN");
-
-  const [serverInfoOpen, setServerInfoOpen] = useState(false);
-  const [serverAccessOpen, setServerAccessOpen] = useState(false);
 
   if (loading || !user) return null;
 
   function current() {
-    if (indexId) return index?.name || "loading index...";
-    return <span className="text-foreground/50">index</span>;
+    if (indexId)
+      return (
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+          {index?.name || "loading index..."}
+        </span>
+      );
+    return <span className="text-foreground/80">select index</span>;
   }
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
-        className={
-          "flex h-full select-none items-center gap-1 whitespace-nowrap border-primary outline-none hover:bg-foreground/10 md:px-2"
-        }
+        className={"flex h-full min-w-0  select-none items-center gap-1 px-2 outline-none hover:bg-foreground/10"}
       >
-        <div className=" flex items-center gap-1 lg:gap-2">
-          <div className="max-w-[33vw] overflow-hidden  text-ellipsis">{current()}</div>
-          <ChevronDown className="h-4 w-4 opacity-50" />
-        </div>
+        {current()}
+        <ChevronDown className="h-4 w-4 opacity-50" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="ml-2 w-[200px] max-w-[95vw] border-[1px] border-foreground">
         <SelectIndex user={user} indexId={indexId} onSelect={() => setOpen(false)} />

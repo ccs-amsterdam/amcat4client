@@ -25,6 +25,7 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [id, setId] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setFolderValue(folder);
@@ -47,7 +48,9 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
     setLoading(true);
     createIndexAsync(amcatIndexSchema.parse({ id, name, description, folder: folderValue }))
       .then(() => router.push(`/indices/${id}/data?tab=upload`))
-      .catch(console.error)
+      .catch((e) => {
+        setError(e?.response?.data?.message || "An error occurred");
+      })
       .finally(() => setTimeout(() => setLoading(false), 500));
   }
 
@@ -148,6 +151,7 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
               placeholder="You can add a message here to justify your request."
             />
           </div>
+          <div className={`${error ? "" : "hidden"} text-center text-destructive`}>{error}</div>
           <Button className="mt-2 w-full">
             {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : request ? "Submit request" : "Create index"}
           </Button>

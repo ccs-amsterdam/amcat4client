@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { useAmcatConfig } from "./config";
+import { hasMinAmcatRole } from "@/lib/utils";
 
 export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   return useQuery({
@@ -23,9 +24,7 @@ export function useMyIndexrole(user?: MiddlecatUser, indexId?: AmcatIndexId) {
 export function useHasIndexRole(user: MiddlecatUser | undefined, indexId: AmcatIndexId, role: AmcatUserRole) {
   const index_role = useMyIndexrole(user, indexId);
   if (!index_role) return undefined;
-  const actual_role_index = amcatUserRoles.indexOf(index_role);
-  const required_role_index = amcatUserRoles.indexOf(role);
-  return actual_role_index >= required_role_index;
+  return hasMinAmcatRole(index_role, role);
 }
 
 async function getIndex(user?: MiddlecatUser, indexId?: string) {
