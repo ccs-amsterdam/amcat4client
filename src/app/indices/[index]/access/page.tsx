@@ -171,7 +171,9 @@ export function RoleInfoDialog() {
       </DialogTrigger>
       <DialogContent className="w-[600px] max-w-[95vw]">
         <DialogTitle className="">Index access roles</DialogTitle>
-        <DialogDescription className="">There are four access roles with incremental permissions</DialogDescription>
+        <DialogDescription className="">
+          There are five levels of access, with incremental permissions
+        </DialogDescription>
         <RoleInfo />
       </DialogContent>
     </Dialog>
@@ -182,8 +184,10 @@ export function RoleInfo() {
   return (
     <div className="flex flex-col gap-3 text-sm">
       <div className="grid grid-cols-[7rem,1fr] gap-1">
+        <b className="text-primary">NO ROLE</b>
+        Cannot see this index at all.
         <b className="text-primary">METAREADER</b>
-        Can search documents, but can only view a subset of the contents.
+        Can search documents, but can only view content approved by the index admin.
         <b className="text-primary">READER</b>
         Can view all document contents.
         <b className="text-primary">WRITER</b>

@@ -70,8 +70,11 @@ export function RoleInfoDialog() {
         <HelpCircle className="cursor-pointer text-primary" />
       </DialogTrigger>
       <DialogContent className="w-[600px] max-w-[95vw]">
-        <DialogTitle className="">Index access roles</DialogTitle>
-        <DialogDescription className="">There are two server roles with incremental permissions</DialogDescription>
+        <DialogTitle className="">Server access roles</DialogTitle>
+        <DialogDescription className="">
+          AmCAT has two types of roles: Server level access and Index level access. Any user can be given a role on an
+          index, but only users with a server level role can create new indices or manage users.
+        </DialogDescription>
         <RoleInfo />
       </DialogContent>
     </Dialog>
@@ -82,8 +85,10 @@ export function RoleInfo() {
   return (
     <div className="flex flex-col gap-3 text-sm">
       <div className="grid grid-cols-[7rem,1fr] gap-1">
+        <b className="text-primary">NO ROLE</b>
+        Can be given a role on an index, and can request a new index.
         <b className="text-primary">WRITER</b>
-        Can create new indices.
+        Can create new indices, and approve new index requests.
         <b className="text-primary">ADMIN</b>
         Can manage all indices and users.
       </div>
