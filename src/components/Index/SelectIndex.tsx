@@ -45,6 +45,8 @@ import { Switch } from "../ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
 import { InfoMsg } from "../ui/info-message";
+import { useAmcatBranding } from "@/api/branding";
+import { randomIcon, randomLightColor } from "@/lib/utils";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -52,15 +54,13 @@ interface Folder {
 }
 
 export function SelectIndex() {
-  const params = useSearchParams();
   const { user, loading: loadingUser } = useMiddlecat();
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showPublic, setShowPublic] = useState(!user?.authenticated);
-  const [visibleIndices, setVisibleIndices] = useState<AmcatIndex[]>([]);
-  const [visibleFolders, setVisibleFolders] = useState<string[]>([]);
+  const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]>>(new Map());
   const canCreate = useHasGlobalRole(user, "WRITER");
 
   const [path, setPath] = useState<string | null>(null);
@@ -88,20 +88,22 @@ export function SelectIndex() {
       });
 
       let prefix = currentPath?.replace(/^\/|\/$/, "") ?? "";
-      const visible = filtered.filter((index) => (index.folder ?? "").startsWith(prefix));
 
-      const folderSet = new Set<string>();
+      const indexMap = new Map<string, AmcatIndex[]>();
+      indexMap.set("", []);
+
       filtered.forEach((ix) => {
-        if (!ix.folder) return;
-        const path = ix.folder.split("/");
-        const head = path.pop();
-        if (head == null || path.join("/") !== prefix) return;
-        folderSet.add(head);
+        const folder = ix.folder || "";
+        if (!folder.startsWith(prefix)) return;
+        const path = folder.split("/");
+        const head = path.pop() || "";
+
+        if (!indexMap.has(head)) indexMap.set(head, []);
+        indexMap.get(head)?.push(ix);
       });
 
       setPath(prefix);
-      setVisibleIndices(visible.sort((a, b) => (a.folder + a.name).localeCompare(b.folder + b.name)));
-      setVisibleFolders([...folderSet]);
+      setIndexMap(indexMap);
     }
 
     const timeout = setTimeout(setVisible, 200);
@@ -128,6 +130,7 @@ export function SelectIndex() {
   }
 
   if (user && !user.authenticated && allIndices?.length === 0) return <NoPublicIndicesMessage />;
+  const folderList = [...indexMap.keys()].filter((f) => f !== "");
 
   return (
     <div>
@@ -175,20 +178,37 @@ export function SelectIndex() {
               onClick={() => setFolder((path?.split("/") ?? []).slice(0, -1))}
             >
               <Undo className="h-4 w-4" />
-              Return
+              {/*Return*/}
             </Button>
           ) : null}
-          {visibleFolders.map((folder) => (
+          {folderList.map((folder) => (
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
           ))}
         </div>
-        {visibleIndices?.length == 0 ? (
+        {indexMap.size === 0 ? (
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
-            {visibleIndices?.map((index) => (
-              <IndexCard key={index.id} index={index} folders={visibleFolders} toFolder={setCurrentPath} />
-            ))}
+          <div className="flex flex-col">
+            {[...indexMap].map(([folder, indices]) => {
+              if (search === "" && folder !== "") return null;
+
+              return (
+                <div key={folder} className="mb-6">
+                  <div
+                    className={`${folder === "" ? "hidden" : ""} mb-3 flex items-center gap-1  pt-1 text-sm text-foreground/60`}
+                  >
+                    search results inside
+                    <Folder className="ml-3 h-5 w-5" />
+                    {folder}
+                  </div>
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+                    {indices.map((index) => (
+                      <IndexCard key={index.id} index={index} folders={folderList} toFolder={setCurrentPath} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -204,11 +224,12 @@ function FolderBreadcrumbs({
   toFolder: (folder: string | null) => void;
 }) {
   const pathArray = currentPath ? currentPath.split("/").filter((p) => p) : [];
+
   return (
-    <Breadcrumb className="">
+    <Breadcrumb className={pathArray.length === 0 ? "invisible" : ""}>
       <BreadcrumbList className="gap-0 pl-0  sm:gap-0">
         <BreadcrumbItem>
-          <Button className="text-base" variant="ghost" onClick={() => toFolder(null)}>
+          <Button className="px-1 text-base" variant="ghost" onClick={() => toFolder(null)}>
             Root
           </Button>
         </BreadcrumbItem>
@@ -217,7 +238,7 @@ function FolderBreadcrumbs({
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <Button
-                className="text-base"
+                className="px-1 text-base"
                 variant="ghost"
                 onClick={() => toFolder(pathArray.slice(0, i + 1).join("/"))}
               >
@@ -255,57 +276,65 @@ const IndexCard = ({
 
   const indexPath = index.folder ? index.folder.split("/") : [];
 
-  const style = index.image_url
-    ? {
-        backgroundImage: `url('${index.image_url}')`,
-        backgroundRepeat: "no-repeat",
-        backgroundPositionX: "center",
-        backgroundSize: "cover",
-        backgroundPositionY: "center",
-      }
-    : {};
+  const hasImage = !!index.image_url;
+  const style = {
+    backgroundImage: `url('${hasImage ? index.image_url : ""}')`,
+    backgroundRepeat: "no-repeat",
+    backgroundPositionX: "center",
+    backgroundSize: hasImage ? "cover" : "80px",
+    backgroundColor: hasImage ? "" : randomLightColor(index.id),
+    backgroundPositionY: "center",
+  };
+
+  const Icon = hasImage ? null : randomIcon(index.id);
 
   return (
     <>
       {confirmDialog}
       <Link href={`/indices/${index.id}/dashboard`}>
-        <Card style={style} className="relative h-40 overflow-hidden bg-primary/50">
-          <CardHeader className="bg-background/70 p-3">
-            <div className="flex items-start justify-between">
-              <CardTitle className="line-clamp-2  h-10  text-base leading-5">{index.name}</CardTitle>
-              <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
-            </div>
-            <CardDescription className="line-clamp-2 h-8 break-words  text-xs">
-              {index.description || <i>(No description)</i>}
-            </CardDescription>
-          </CardHeader>
-
-          <CardFooter className="absolute bottom-0 right-0 z-10 p-2">
-            <TooltipProvider>
-              <div className="flex space-x-2">
-                {index.archived && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Archive className="h-5 w-5 text-primary-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-white">
-                      <p>This index is archived</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                {index.user_role !== "NONE" && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <UserCheck className="h-5 w-5 text-primary-foreground" />
-                    </TooltipTrigger>
-                    <TooltipContent className="bg-white">
-                      <p>You have a role in this project</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
+        <Card style={style} className="relative h-40 overflow-hidden shadow-md">
+          <div
+            className={`group h-full w-full ${hasImage ? "bg-gradient-to-b from-black/90 via-black/30 to-transparent" : "bg-gradient-to-br from-black/30 to-black/20"}  border-2 border-black/20  `}
+          >
+            <CardHeader className="flex h-full  flex-col justify-between p-0">
+              <div className="flex items-start justify-between  p-3 text-white">
+                <CardTitle className={`line-clamp-2 text-base leading-5 `}>{index.name}</CardTitle>
+                <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
               </div>
-            </TooltipProvider>
-          </CardFooter>
+              <CardDescription className="h-16 overflow-hidden break-words bg-black/50     px-3 text-sm leading-4 text-white backdrop-blur-[2px] transition-all group-hover:line-clamp-4 group-hover:h-16 md:h-0">
+                <div className="my-2 line-clamp-3">{index.description || <i>(No description)</i>}</div>
+              </CardDescription>
+            </CardHeader>
+
+            {!Icon ? null : <Icon className="absolute bottom-3 right-3 m-auto h-20 w-20 opacity-20" />}
+
+            {/*<CardFooter className="absolute bottom-0 right-0 z-10 p-2">
+              <TooltipProvider>
+                <div className="flex space-x-2">
+                  {index.archived && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Archive className="h-5 w-5 text-primary-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-white">
+                        <p>This index is archived</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                  {index.user_role !== "NONE" && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <UserCheck className="h-5 w-5 text-primary-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-white">
+                        <p>You have a role in this project</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+              </TooltipProvider>
+            </CardFooter>*/}
+          </div>
         </Card>
       </Link>
     </>
