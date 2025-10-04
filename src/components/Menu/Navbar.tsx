@@ -92,7 +92,8 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
     <>
       <div className="hidden h-14  items-center  gap-1 overflow-hidden pl-2  text-sm sm:flex  md:text-base">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
-        <ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />
+        {/*<ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />*/}
+        <span className="text-primary/50">|</span>
         <IndexMenu />
       </div>
       <div className="flex h-14 flex-col items-start overflow-hidden  py-1 pl-2  text-sm sm:hidden  md:text-base">

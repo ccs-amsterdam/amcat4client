@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import { AmcatRequestProject } from "@/interfaces";
-import { Loader } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import { useQueryState } from "next-usequerystate";
 
 export function CreateIndex({ folder, request }: { folder?: string; request?: boolean }) {
@@ -87,7 +87,12 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
   return (
     <Dialog open={!!open} onOpenChange={(open) => setOpen(open ? "open" : null)}>
       <DialogTrigger asChild>
-        <Button>{request ? "Request new index" : "Create new index"}</Button>
+        <>
+          <Button className="hidden md:block">{request ? "Request new index" : "Create new index"}</Button>
+          <Button className="block md:hidden">
+            <Plus />
+          </Button>
+        </>
       </DialogTrigger>
       <DialogContent aria-describedby={undefined} className="w-[600px] max-w-[95vw]">
         <DialogHeader>

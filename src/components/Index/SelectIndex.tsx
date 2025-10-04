@@ -94,9 +94,12 @@ export function SelectIndex() {
 
       filtered.forEach((ix) => {
         const folder = ix.folder || "";
+        console.log(folder, prefix);
         if (!folder.startsWith(prefix)) return;
         const path = folder.split("/");
-        const head = path.pop() || "";
+        // const head = path.pop() || "";
+        const remainingPath = prefix ? folder.slice(prefix.length + 1) : folder;
+        const head = remainingPath.split("/")[0] || "";
 
         if (!indexMap.has(head)) indexMap.set(head, []);
         indexMap.get(head)?.push(ix);
@@ -135,7 +138,7 @@ export function SelectIndex() {
   return (
     <div>
       <div className="mb-8 flex flex-col items-start gap-2">
-        <div className="flex w-full items-center justify-between">
+        <div className="prose-xl flex w-full items-center justify-between">
           <h3 className="m-0">Index overview</h3>
         </div>
         <div className={` Pagination ml-auto flex items-center gap-3  `}>
@@ -198,10 +201,18 @@ export function SelectIndex() {
                     className={`${folder === "" ? "hidden" : ""} mb-3 flex items-center gap-1  pt-1 text-sm text-foreground/60`}
                   >
                     search results inside
-                    <Folder className="ml-3 h-5 w-5" />
-                    {folder}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="flex h-6 items-center gap-2"
+                      onClick={() => appendFolder(folder)}
+                    >
+                      <Folder className="h-5 w-5" />
+                      {folder}
+                    </Button>
+                    <div className={"flex-auto  border-b border-foreground/30"} />
                   </div>
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
                     {indices.map((index) => (
                       <IndexCard key={index.id} index={index} folders={folderList} toFolder={setCurrentPath} />
                     ))}
@@ -306,7 +317,7 @@ const IndexCard = ({
               </CardDescription>
             </CardHeader>
 
-            {!Icon ? null : <Icon className="absolute bottom-3 right-3 m-auto h-20 w-20 opacity-20" />}
+            {!Icon ? null : <Icon className="absolute bottom-3 right-3 m-auto h-24 w-24 text-white opacity-40" />}
 
             {/*<CardFooter className="absolute bottom-0 right-0 z-10 p-2">
               <TooltipProvider>

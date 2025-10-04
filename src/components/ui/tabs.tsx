@@ -25,7 +25,7 @@ const TabsTrigger = React.forwardRef<
       "mb-0  px-4 py-2 transition-all disabled:pointer-events-none disabled:opacity-50",
       "rounded-t",
       "data-[state=active]:border-primary data-[state=active]:bg-primary data-[state=active]:text-primary-foreground",
-      "text-[clamp(0.8rem,2vw,1rem)] data-[state=active]:text-base",
+      "",
       className,
     )}
     {...props}

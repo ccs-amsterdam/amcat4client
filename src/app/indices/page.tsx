@@ -20,7 +20,7 @@ export default function Index() {
     router.push("/");
 
   return (
-    <div className="prose-xl w-full  max-w-7xl animate-fade-in px-4 dark:prose-invert">
+    <div className="w-full  max-w-7xl animate-fade-in px-0 dark:prose-invert md:px-4">
       <div className="mt-[4vh]">
         <SelectIndex />
       </div>

@@ -61,7 +61,7 @@ export default function Index({ params }: Props) {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-5 min-h-[500px] w-full px-1">
-        <TabsList className="mb-8 overflow-auto">
+        <TabsList className="mb-8 overflow-auto text-sm">
           {Object.keys(Tab).map((tab) => {
             if (tab === "Update" && !isWriter) return null;
             const tabValue = Tab[tab as keyof typeof Tab];
