@@ -34,7 +34,7 @@ export default function IndexMenu() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
-        className={"flex h-full min-w-0  select-none items-center gap-1 px-2 outline-none hover:bg-foreground/10"}
+        className={"flex h-full min-w-0  select-none items-center gap-1 px-2 outline-none hover:bg-primary/10"}
       >
         {current()}
         <ChevronDown className="h-4 w-4 opacity-50" />

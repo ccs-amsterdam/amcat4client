@@ -56,9 +56,9 @@ function NotificationModal({ requests, actions, setActions }: NotificationProps)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="flex h-full select-none items-center gap-3 border-primary px-1 outline-none hover:bg-foreground/10 lg:px-4">
+      <DialogTrigger className="relative flex h-full select-none items-center gap-3 border-primary px-2 outline-none hover:bg-primary/10 lg:px-4">
         <Bell />
-        <span className="">{n}</span>
+        <div className="absolute left-6 top-1 text-xs lg:left-9">{n > 99 ? "99+" : n}</div>
       </DialogTrigger>
       <DialogContent
         onPointerDownOutside={(e) => (done ? e.preventDefault() : null)}

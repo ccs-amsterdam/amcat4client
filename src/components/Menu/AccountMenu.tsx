@@ -58,7 +58,7 @@ export default function AccountMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="min-w-[2.5rem] outline-none">
+      <DropdownMenuTrigger className="h-full min-w-[2.5rem] px-3 outline-none hover:bg-primary/10">
         <UserIcon user={user} config={config} className="h-8 w-8  text-primary" />
       </DropdownMenuTrigger>
       <DropdownMenuContent

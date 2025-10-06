@@ -1,46 +1,24 @@
 "use client";
 
-import { useDeleteIndex, useHasIndexRole, useMutateIndex } from "@/api";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
-import {
-  ArchiveRestore,
-  ArchiveX,
-  CornerLeftUp,
-  Filter,
-  Folder,
-  FolderPlus,
-  LogInIcon,
-  MoreVertical,
-  Trash2,
-  Undo,
-} from "lucide-react";
+import { Folder, FolderOpen, LogInIcon, Search, Settings2, Undo } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import { useQueryState } from "next-usequerystate";
-import Link from "next/link";
-import React, { Fragment, useEffect, useMemo, useState } from "react";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
-import { ActivateConfirm, useConfirm } from "../ui/confirm";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { useEffect, useMemo, useState } from "react";
 import { ErrorMsg } from "../ui/error-message";
+import { InfoMsg } from "../ui/info-message";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Switch } from "../ui/switch";
 import { CreateIndex } from "./CreateIndex";
-import { InfoMsg } from "../ui/info-message";
-import { randomIcon, randomLightColor } from "@/lib/utils";
+import { FolderBreadcrumbs } from "./FolderBreadcrumbs";
+import { IndexCard } from "./IndexCard";
+import { PendingIndexRequests } from "./PendingIndexRequests";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -87,14 +65,15 @@ export function SelectIndex() {
       indexMap.set("", []);
 
       filtered.forEach((ix) => {
-        const folder = ix.folder || "";
-        console.log(folder, prefix);
-        if (!folder.startsWith(prefix)) return;
-        const path = folder.split("/");
+        // remove double slashes and leading/trailing slashes
+        const folder = (ix.folder || "").replace(/\/+/g, "/").replace(/^\/|\/$/g, "");
+
+        if (prefix && folder !== prefix && !folder.startsWith(prefix + "/")) return;
+
         // const head = path.pop() || "";
         const remainingPath = prefix ? folder.slice(prefix.length + 1) : folder;
-        const head = remainingPath.split("/")[0] || "";
 
+        const head = remainingPath.split("/")[0] || "";
         if (!indexMap.has(head)) indexMap.set(head, []);
         indexMap.get(head)?.push(ix);
       });
@@ -130,90 +109,79 @@ export function SelectIndex() {
   const folderList = [...indexMap.keys()].filter((f) => f !== "");
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col items-start gap-2">
-        <div className="prose-xl flex w-full items-center justify-between">
-          <h3 className="m-0">Index overview</h3>
+    <div className="flex flex-col gap-1">
+      <div className="mb-8 flex flex-col items-start gap-2 md:flex-row">
+        <div className="prose-xl mr-auto  flex items-center justify-between">
+          <h3 className="">Indices</h3>
         </div>
-        <div className={` Pagination ml-auto flex items-center gap-3  `}>
-          <Popover>
-            <PopoverTrigger>
-              <Filter />
-            </PopoverTrigger>
-            <PopoverContent className="flex flex-col gap-2">
-              <div className={`flex  items-center gap-3`}>
-                <Switch className="size-3" id="seePublic" checked={showPublic} onCheckedChange={setShowPublic} />
-                <Label htmlFor="seePublic">show public indices</Label>
-              </div>
-              <div className={`flex  items-center gap-3`}>
-                <Switch className="size-3" id="seeArchived" checked={showArchived} onCheckedChange={setShowArchived} />
-                <Label htmlFor="seeArchived">show archived</Label>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <Input
-            className="w-44 border-foreground/50"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search"
-          />
-          <CreateIndex folder={currentPath ?? undefined} request={!canCreate} />
-        </div>
+        <CreateIndex folder={currentPath ?? undefined} request={!canCreate} />
+        <PendingIndexRequests />
       </div>
 
-      <div>
+      <div className="mb-3 flex items-center gap-6">
         <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
+        <SearchAndFilter
+          search={search}
+          setSearch={setSearch}
+          showArchived={showArchived}
+          setShowArchived={setShowArchived}
+          showPublic={showPublic}
+          setShowPublic={setShowPublic}
+        />
       </div>
 
-      <div className="grid grid-cols-[min(30vw,200px),1fr] gap-6">
-        <div className="flex flex-col ">
-          {!!path ? (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="flex h-7 items-center justify-start gap-3"
-              onClick={() => setFolder((path?.split("/") ?? []).slice(0, -1))}
-            >
-              <Undo className="h-4 w-4" />
-              {/*Return*/}
-            </Button>
-          ) : null}
+      <div className="grid grid-cols-[min(30vw,200px),1fr] gap-3">
+        <div className="flex h-full min-h-[500px]  flex-col p-1 pl-0">
+          <Button
+            size="sm"
+            variant="ghost"
+            className={`${path ? "flex" : "hidden"}  h-8 items-center justify-start gap-3 px-1 text-foreground/50 `}
+            onClick={() => setFolder((path?.split("/") ?? []).slice(0, -1))}
+          >
+            <Undo className="h-4 w-4" />
+            back
+          </Button>
+
           {folderList.map((folder) => (
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
           ))}
+          {folderList?.length || path ? null : <div className="px-1 py-1 text-sm text-foreground/60">No folders</div>}
         </div>
         {indexMap.size === 0 ? (
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
           <div className="flex flex-col">
-            {[...indexMap].map(([folder, indices]) => {
-              if (search === "" && folder !== "") return null;
+            <div className="mb-6 min-h-[36rem] rounded bg-foreground/5 p-3">
+              {[...indexMap].map(([folder, indices]) => {
+                if (search === "" && folder !== "") return null;
+                if (indices.length === 0) return null;
 
-              return (
-                <div key={folder} className="mb-6">
-                  <div
-                    className={`${folder === "" ? "hidden" : ""} mb-3 flex items-center gap-1  pt-1 text-sm text-foreground/60`}
-                  >
-                    search results inside
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex h-6 items-center gap-2"
-                      onClick={() => appendFolder(folder)}
+                return (
+                  <div key={folder} className="mb-6">
+                    <div
+                      className={`${folder === "" ? "hidden" : ""} mb-3 flex items-center gap-1  pt-1 text-sm text-foreground/60`}
                     >
-                      <Folder className="h-5 w-5" />
-                      {folder}
-                    </Button>
-                    <div className={"flex-auto  border-b border-foreground/30"} />
+                      search results inside
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex h-6 items-center gap-2"
+                        onClick={() => appendFolder(folder)}
+                      >
+                        <Folder className="h-5 w-5" />
+                        {folder}
+                      </Button>
+                      <div className={"flex-auto  border-b border-foreground/10"} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
+                      {indices.map((index) => (
+                        <IndexCard key={index.id} index={index} folders={folderList} toFolder={setCurrentPath} />
+                      ))}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(250px,1fr))]">
-                    {indices.map((index) => (
-                      <IndexCard key={index.id} index={index} folders={folderList} toFolder={setCurrentPath} />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
@@ -221,255 +189,68 @@ export function SelectIndex() {
   );
 }
 
-function FolderBreadcrumbs({
-  currentPath,
-  toFolder,
+function SearchAndFilter({
+  search,
+  setSearch,
+  showArchived,
+  setShowArchived,
+  showPublic,
+  setShowPublic,
 }: {
-  currentPath: string | null;
-  toFolder: (folder: string | null) => void;
+  search: string;
+  setSearch: (s: string) => void;
+  showArchived: boolean;
+  setShowArchived: (b: boolean) => void;
+  showPublic: boolean;
+  setShowPublic: (b: boolean) => void;
 }) {
-  const pathArray = currentPath ? currentPath.split("/").filter((p) => p) : [];
-
   return (
-    <Breadcrumb className={pathArray.length === 0 ? "invisible" : ""}>
-      <BreadcrumbList className="gap-0 pl-0  sm:gap-0">
-        <BreadcrumbItem>
-          <Button className="px-1 text-base" variant="ghost" onClick={() => toFolder(null)}>
-            Root
-          </Button>
-        </BreadcrumbItem>
-        {pathArray.map((folder, i) => (
-          <Fragment key={i + folder}>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <Button
-                className="px-1 text-base"
-                variant="ghost"
-                onClick={() => toFolder(pathArray.slice(0, i + 1).join("/"))}
-              >
-                {folder || "Root"}
-              </Button>
-            </BreadcrumbItem>
-          </Fragment>
-        ))}
-      </BreadcrumbList>
-    </Breadcrumb>
+    <div className={`Pagination ml-auto flex select-none items-center gap-3  `}>
+      <div className="relative flex items-center gap-2">
+        <Search className="absolute left-1 h-5 w-5 text-foreground/20" />
+        <Input
+          className="w-44 rounded-none border-0  border-b pl-9 focus-visible:ring-0"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search"
+        />
+      </div>
+      <Popover>
+        <PopoverTrigger>
+          <Settings2 />
+        </PopoverTrigger>
+        <PopoverContent className="flex flex-col gap-2">
+          <div className={`flex  items-center gap-3`}>
+            <Switch className="size-3" id="seePublic" checked={showPublic} onCheckedChange={setShowPublic} />
+            <Label htmlFor="seePublic">show public indices</Label>
+          </div>
+          <div className={`flex  items-center gap-3`}>
+            <Switch className="size-3" id="seeArchived" checked={showArchived} onCheckedChange={setShowArchived} />
+            <Label htmlFor="seeArchived">show archived</Label>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
 
 const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => void }) => (
-  <Button size="sm" variant="ghost" className="flex h-7 items-center justify-start gap-3" onClick={onClick}>
-    <Folder className="h-4 w-4" />
-    <span className="max-w-16 overflow-hidden text-ellipsis text-nowrap text-xs md:max-w-32 md:text-sm" title={folder}>
+  <Button
+    variant="ghost"
+    size="sm"
+    className="group flex h-8 min-h-0 items-center justify-start gap-3 px-1 py-1"
+    onClick={onClick}
+  >
+    <Folder className={`h-4 w-4 group-hover:hidden`} />
+    <FolderOpen className={`hidden h-4 w-4 group-hover:block`} />
+    <span
+      className="max-w-16 overflow-hidden text-ellipsis text-nowrap text-sm md:max-w-32 md:text-base"
+      title={folder}
+    >
       {folder}
     </span>
   </Button>
 );
-
-const IndexCard = ({
-  index,
-  folders,
-  toFolder,
-}: {
-  index: AmcatIndex;
-  folders: string[];
-  toFolder: (folder: string) => void;
-}) => {
-  const { activate, confirmDialog } = useConfirm();
-  const { user } = useMiddlecat();
-  if (user == null) return null;
-
-  const hasImage = !!index.image_url;
-  const style = {
-    backgroundImage: `url('${hasImage ? index.image_url : ""}')`,
-    backgroundRepeat: "no-repeat",
-    backgroundPositionX: "center",
-    backgroundSize: hasImage ? "cover" : "80px",
-    backgroundColor: hasImage ? "" : randomLightColor(index.id),
-    backgroundPositionY: "center",
-  };
-
-  const Icon = hasImage ? null : randomIcon(index.id);
-
-  return (
-    <>
-      {confirmDialog}
-      <Link href={`/indices/${index.id}/dashboard`}>
-        <Card style={style} className="relative h-40 overflow-hidden shadow-md">
-          <div
-            className={`group h-full w-full ${hasImage ? "bg-gradient-to-b from-black/90 via-black/30 to-transparent" : "bg-gradient-to-br from-black/30 to-black/20"}  border-2 border-black/20  `}
-          >
-            <CardHeader className="flex h-full  flex-col justify-between p-0">
-              <div className="flex items-start justify-between  p-3 text-white">
-                <CardTitle className={`line-clamp-2 text-base leading-5 `}>{index.name}</CardTitle>
-                <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
-              </div>
-              <CardDescription className="h-16 overflow-hidden break-words bg-black/50     px-3 text-sm leading-4 text-white backdrop-blur-[2px] transition-all group-hover:line-clamp-4 group-hover:h-16 md:h-0">
-                <div className="my-2 line-clamp-3">{index.description || <i>(No description)</i>}</div>
-              </CardDescription>
-            </CardHeader>
-
-            {!Icon ? null : <Icon className="absolute bottom-3 right-3 m-auto h-24 w-24 text-white opacity-40" />}
-
-            {/*<CardFooter className="absolute bottom-0 right-0 z-10 p-2">
-              <TooltipProvider>
-                <div className="flex space-x-2">
-                  {index.archived && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Archive className="h-5 w-5 text-primary-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white">
-                        <p>This index is archived</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                  {index.user_role !== "NONE" && (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <UserCheck className="h-5 w-5 text-primary-foreground" />
-                      </TooltipTrigger>
-                      <TooltipContent className="bg-white">
-                        <p>You have a role in this project</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
-                </div>
-              </TooltipProvider>
-            </CardFooter>*/}
-          </div>
-        </Card>
-      </Link>
-    </>
-  );
-};
-
-function IndexDropdownMenu({
-  index,
-  folders,
-  toFolder,
-  activateConfirm,
-}: {
-  index: AmcatIndex;
-  folders: string[];
-  toFolder: (folder: string) => void;
-  activateConfirm: ActivateConfirm;
-}) {
-  const [isNewFolderDialogOpen, setIsNewFolderDialogOpen] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const { user } = useMiddlecat();
-  const { mutateAsync } = useMutateIndex(user);
-  const { mutateAsync: deleteAsync } = useDeleteIndex(user);
-
-  const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
-  const isWriter = useHasIndexRole(user, index.id, "WRITER");
-
-  function handleDelete() {
-    deleteAsync(index.id);
-  }
-
-  function handleArchive(e: React.MouseEvent) {
-    e.preventDefault();
-    mutateAsync({ id: index.id, archive: !index.archived }).then(() => setIsDropdownOpen(false));
-  }
-  function doMoveToFolder(folder: string) {
-    const newFolder =
-      folder === ".."
-        ? index.folder?.split("/").slice(0, -1).join("/")
-        : index.folder
-          ? `${index.folder}/${folder}`
-          : folder;
-    mutateAsync({ id: index.id, folder: newFolder }).then(() => {
-      setIsDropdownOpen(false);
-      setIsNewFolderDialogOpen(false);
-      toFolder(newFolder || "");
-    });
-  }
-  function handleMoveToFolder(e: Event, folder: string) {
-    e.preventDefault();
-    doMoveToFolder(folder);
-  }
-
-  function handleCreateNewFolder(e: React.MouseEvent) {
-    e.preventDefault();
-    doMoveToFolder(newFolderName);
-  }
-
-  if (!isWriter) return null;
-
-  return (
-    <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-        {!isAdmin ? null : (
-          <>
-            <DropdownMenuItem onClick={handleArchive}>
-              {index.archived ? <ArchiveRestore className="mr-2 h-4 w-4" /> : <ArchiveX className="mr-2 h-4 w-4" />}
-              <span>{index.archived ? "Re-activate" : "Archive"}</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() =>
-                activateConfirm(handleDelete, {
-                  description: `You are about to delete index ${index.name}. This cannot be undone!`,
-                  challenge: index.id,
-                  confirmText: `Delete index ${index.name}`,
-                })
-              }
-            >
-              <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-              <span>Delete</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        <DropdownMenuItem disabled className="text-foreground" onSelect={(e) => e.preventDefault()}>
-          <Folder className="mr-2 h-4 w-4" />
-          <span>Move to folder:</span>
-        </DropdownMenuItem>
-        {index.folder && (
-          <DropdownMenuItem key={".."} onSelect={(e) => handleMoveToFolder(e, "..")}>
-            <CornerLeftUp className="ml-4 h-3 w-3" />
-            <span className="ml-1">{index.folder.split("/")[index.folder.split("/").length - 2] || "Root"}</span>
-          </DropdownMenuItem>
-        )}
-        {folders.map((folder) => (
-          <DropdownMenuItem key={folder} onSelect={(e) => handleMoveToFolder(e, folder)}>
-            <span className="ml-4">{folder}</span>
-          </DropdownMenuItem>
-        ))}
-        <DropdownMenuSeparator />
-        <Dialog open={isNewFolderDialogOpen} onOpenChange={setIsNewFolderDialogOpen}>
-          <DialogTrigger asChild>
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <FolderPlus className="mr-2 h-4 w-4" />
-              <span>To new folder</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Move {index.name} to new folder</DialogTitle>
-              <DialogDescription>This will create a new folder and move the index to that folder</DialogDescription>
-            </DialogHeader>
-            <Input
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="Enter folder name"
-            />
-            <Button onClick={handleCreateNewFolder}>Create and Move</Button>
-          </DialogContent>
-        </Dialog>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 function NoPublicIndicesMessage({}: {}) {
   const { signIn } = useMiddlecat();
@@ -495,8 +276,8 @@ function NoResultsMessage({ cancreate, issearching }: { cancreate: boolean; isse
           ? "No indices match your search pattern. Try changing your search terms or filter options. "
           : "There are currently no indices that you have access to. "}
         {cancreate
-          ? "To get started, create a new index using the 'create new index' button above"
-          : "To get started, you can ask a server administrator to create a project for you using the 'Request new index' button above "}
+          ? "To get started, create a new index using the 'create new (index)' button above"
+          : "To get started, you can ask a server administrator to create a project for you using the 'Request new (index)' button above "}
       </p>
     </InfoMsg>
   );

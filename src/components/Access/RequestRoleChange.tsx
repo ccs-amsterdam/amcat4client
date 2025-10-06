@@ -1,9 +1,9 @@
-import { useSubmitRequest } from "@/api/requests";
-import { AmcatIndex } from "@/interfaces";
+import { useMyRequests, useSubmitRequest } from "@/api/requests";
+import { AmcatIndex, AmcatIndexId, AmcatRequestRole } from "@/interfaces";
 import { amcatRequestRoleSchema } from "@/schemas";
-import { ChevronDown, Loader, LogInIcon } from "lucide-react";
+import { ChevronDown, Loader, LogInIcon, Timer } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -27,8 +27,16 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
   const { signIn } = useMiddlecat();
   const { mutateAsync: submitRequest } = useSubmitRequest(user);
   const [role, setRole] = useState<string | undefined>(undefined);
+  const pending = usePendingRequest(user, index?.id);
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (pending.request) {
+      setRole(pending.request.role);
+      setMessage(pending.request.message || "");
+    }
+  }, [pending.request]);
 
   function onSubmit(role: string | undefined) {
     if (!role) return;
@@ -61,10 +69,18 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
       </div>
     );
 
+  if (pending.loading) return <Loader />;
+
+  const titleText = pending.request ? "Role change request pending" : "Request a role change";
+  const buttonText = pending.request ? "Update request" : "Send request";
+
   return (
-    <div className=" flex flex-col gap-3 rounded-md  bg-primary/10 p-3">
+    <div className={` flex flex-col gap-3 rounded-md  ${pending.request ? "bg-secondary/20" : "bg-primary/10"} p-3 `}>
       <div className="flex items-center justify-between">
-        <div className="text-lg font-bold">Request role change</div>
+        <div className="flex items-center gap-3 text-lg font-bold">
+          <Timer className={pending.request ? "" : "hidden"} />
+          {titleText}
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="default" className=" mt-1 w-40" id="role">
@@ -112,8 +128,32 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
         disabled={!role || role === currentRole}
         onClick={() => onSubmit(role)}
       >
-        {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : "Send request"}
+        {loading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : buttonText}
       </Button>
     </div>
   );
+}
+
+function usePendingRequest(
+  user: MiddlecatUser,
+  index?: AmcatIndexId,
+): { request: AmcatRequestRole | null; loading: boolean } {
+  const { data: myRequests, isLoading } = useMyRequests(user);
+
+  const getPending = useCallback(() => {
+    if (!myRequests) return null;
+
+    const currentRequests =
+      myRequests?.filter(
+        (r) => r.request_type === "role" && r.email === user.email && (index ? r.index === index : !index),
+      ) || [];
+    const pending = currentRequests[0]; // requests should be unique on user + index
+
+    if (!pending) return null;
+    if (pending.request_type !== "role") return null;
+    return pending;
+  }, [myRequests, user, index]);
+
+  if (isLoading) return { request: null, loading: true };
+  return { request: getPending(), loading: false };
 }

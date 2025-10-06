@@ -62,7 +62,7 @@ export function useResolveRequests(user: MiddlecatUser | undefined) {
       return resolveRequests(user, value);
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["permission_requests/admin", user] });
+      queryClient.invalidateQueries({ queryKey: ["permission_requests", user] });
       queryClient.invalidateQueries({ queryKey: ["permission_requests/admin", user] });
 
       // invalidate things that can refer to changed roles or indices

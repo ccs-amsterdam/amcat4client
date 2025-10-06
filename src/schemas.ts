@@ -339,6 +339,7 @@ const amcatRequestAbstract = z.object({
     .transform((x) => (x ? new Date(x) : undefined)),
   message: z.string().nullish(),
   reject: z.boolean().optional(),
+  cancel: z.boolean().optional(),
 });
 
 export const amcatRequestRoleSchema = amcatRequestAbstract.extend({

@@ -4,7 +4,6 @@ import { useAmcatBranding } from "@/api/branding";
 import { AmcatBranding } from "@/interfaces";
 import useAutoSignin from "@/lib/useAutoSignin";
 import {
-  ChevronRight,
   Columns3Cog,
   DatabaseZap,
   LayoutDashboard,
@@ -47,7 +46,7 @@ export default function Navbar() {
 
   function logo() {
     return (
-      <Link href={"/"} className="flex h-14 items-center px-3 hover:bg-foreground/10">
+      <Link href={"/"} className="flex h-14 items-center px-3 hover:bg-primary/10">
         <img
           className={`mr-0 aspect-auto w-9 min-w-9 sm:w-10 `}
           src={branding?.server_icon || "/logo.png"}
@@ -66,10 +65,10 @@ export default function Navbar() {
   return (
     <nav className={`z-40  border-b border-primary/30 text-sm`}>
       <div className={`select-none overflow-hidden  bg-background  `}>
-        <div className="flex h-full items-center justify-between">
+        <div className="flex h-14 items-center justify-between">
           {logo()}
           <BreadCrumbs branding={branding} hasIndex={hasIndex} />
-          <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
+          <div className=" flex h-full  flex-1 items-center justify-end">
             <Notifications />
             <AccountMenu />
           </div>
@@ -88,13 +87,13 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
 
   return (
     <>
-      <div className="hidden h-14  items-center  gap-1 overflow-hidden pl-2  text-sm sm:flex  md:text-base">
+      <div className="hidden h-full items-center  gap-1 overflow-hidden pl-2  text-sm sm:flex  md:gap-3 md:text-base">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
         {/*<ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />*/}
         <span className="text-primary/50">|</span>
         <IndexMenu />
       </div>
-      <div className="flex h-14 flex-col items-start overflow-hidden  py-1 pl-2  text-sm sm:hidden  md:text-base">
+      <div className="flex h-full flex-col items-start overflow-hidden  py-1 pl-2  text-sm sm:hidden  md:text-base">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
         <IndexMenu />
       </div>
@@ -107,7 +106,7 @@ function BreadCrumbLink({ name, href, active = true }: { name: string; href: str
   return (
     <button
       className={`${active ? "font-semibold" : "text-foreground/90"}
-        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-2 outline-none hover:bg-foreground/10`}
+        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-2 outline-none hover:bg-primary/10`}
       onClick={() => router.push(href)}
     >
       {name}

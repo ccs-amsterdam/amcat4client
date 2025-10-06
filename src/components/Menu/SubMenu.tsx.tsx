@@ -3,12 +3,12 @@
 import { useMyIndexrole } from "@/api/index";
 import { useMyGlobalRole } from "@/api/userDetails";
 import { AmcatUserRole } from "@/interfaces";
+import { hasMinAmcatRole } from "@/lib/utils";
 import { Ellipsis } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { useMemo } from "react";
-import { hasMinAmcatRole } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 export type SubMenuPath = {
   href: string;
@@ -60,7 +60,7 @@ function BurgerMenu({ basePath, paths }: { basePath: string; paths: SubMenuPath[
     <div className="block sm:hidden">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex h-full select-none items-center gap-1 whitespace-nowrap border-primary px-3 outline-none hover:bg-foreground/10">
+          <button className="flex h-full select-none items-center gap-1 whitespace-nowrap border-primary px-3 outline-none hover:bg-primary/10">
             <Ellipsis className="h-4 w-4" />
           </button>
         </DropdownMenuTrigger>
@@ -99,7 +99,7 @@ function NavLink({ i, basePath, path }: { i: number; basePath: string; path: Sub
     <button
       onClick={() => router.push(href)}
       className={`${
-        active ? "border-b-2 border-primary  font-semibold" : "bg-background text-foreground/80 hover:bg-foreground/10"
+        active ? "border-b-2 border-primary  font-semibold" : "bg-background text-foreground/80 hover:bg-primary/10"
       } ${i === 0 ? "" : ""} flex h-full select-none items-center gap-2 border-primary px-3 outline-none   `}
     >
       {<path.Icon className="h-4 w-4" />}

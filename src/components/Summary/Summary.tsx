@@ -1,7 +1,7 @@
 import { useHasIndexRole } from "@/api";
 import { useArticles } from "@/api/articles";
-import { useFields } from "@/api/fields";
 import { useFieldStats } from "@/api/fieldStats";
+import { useFields } from "@/api/fields";
 import { AggregationAxis, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { autoFormatDate } from "@/lib/autoFormatDate";
 import { MiddlecatUser } from "middlecat-react";
@@ -20,19 +20,9 @@ export default function Summary({ user, indexId, query }: Props) {
   const isWriter = useHasIndexRole(user, indexId, "WRITER");
   const { data } = useArticles(user, indexId, query);
   if (data == null) return null;
+
   const isEmpty = data.pages[0].meta.total_count === 0;
-  if (isEmpty)
-    return (
-      <>
-        <h1>
-          <b>This project is empty</b>
-        </h1>
-        <p>
-          Congratulations on creating a project! To add documents, you can use the CSV uploader in the 'Data' menu
-          above. You can also use the API from R or Python for more powerful upload options
-        </p>
-      </>
-    );
+  if (isEmpty) return <EmptyProject />;
 
   function renderVisualization(field: AmcatField) {
     if (!field.client_settings.inListSummary) return null;
@@ -41,6 +31,7 @@ export default function Summary({ user, indexId, query }: Props) {
     if (field.type === "keyword")
       return <KeywordSummaryGraph key={field.name} user={user} indexId={indexId} query={query} field={field} />;
   }
+
   const visualizations = (fields || []).map(renderVisualization).filter((el) => el != null);
   return (
     <div className="grid snap-x snap-mandatory grid-cols-[100%,100%] gap-1 overflow-auto md:grid-cols-2 md:gap-3 md:overflow-visible">
@@ -117,5 +108,19 @@ function KeywordSummaryGraph({ user, indexId, query, field }: SummaryProps) {
       options={{ axes, display: "barchart", title: field.name.toUpperCase() }}
       defaultPageSize={20}
     />
+  );
+}
+
+function EmptyProject() {
+  return (
+    <div className="w-full rounded bg-primary/10 p-3">
+      <div className="prose dark:prose-invert">
+        <h3>This project is empty</h3>
+        <p>
+          Congratulations on creating a project! To add documents, you can use the CSV uploader in the 'Data' menu
+          above. You can also use the API from R or Python for more powerful upload options
+        </p>
+      </div>
+    </div>
   );
 }
