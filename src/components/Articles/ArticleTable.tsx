@@ -1,16 +1,12 @@
-import { MiddlecatUser } from "middlecat-react";
-import { AmcatArticle, AmcatIndexId, AmcatQuery, AmcatField } from "@/interfaces";
 import { useMyIndexrole } from "@/api";
-import { useFields } from "@/api/fields";
-import useListFields from "./useListFields";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
+import { MiddlecatUser } from "middlecat-react";
 import { useMemo, useState } from "react";
-import { useArticles } from "@/api/articles";
-import usePaginatedArticles from "./usePaginatedArticles";
-import { DataTable } from "../ui/datatable";
-import { ColumnDef } from "@tanstack/react-table";
+
 import { formatField } from "@/lib/formatField";
-import { ArrowLeft, ArrowRight, FileWarning, Loader } from "lucide-react";
-import { Button } from "../ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "../ui/datatable";
+import usePaginatedArticles from "./usePaginatedArticles";
 
 interface Props {
   user: MiddlecatUser;
@@ -21,7 +17,7 @@ interface Props {
 }
 
 export default function ArticleTable({ user, indexId, query, fields, children }: Props) {
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize] = useState(6);
   const indexRole = useMyIndexrole(user, indexId);
   const { articles, pageIndex, prevPage, nextPage, isFetching, pageCount } = usePaginatedArticles({
     user,

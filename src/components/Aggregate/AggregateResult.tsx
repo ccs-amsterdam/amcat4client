@@ -1,5 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 // import Articles from "../Articles/Articles";
+import { useAggregate } from "@/api/aggregate";
+import { Loading } from "@/components/ui/loading";
 import {
   AggregateData,
   AggregateDataPoint,
@@ -10,26 +12,23 @@ import {
   AmcatIndexId,
   AmcatQuery,
 } from "@/interfaces";
-import AggregateList from "./AggregateList";
-import AggregateTable from "./AggregateTable";
+import { MiddlecatUser } from "middlecat-react";
+import { toast } from "sonner";
+import Articles from "../Articles/Articles";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
+import { ErrorMsg } from "../ui/error-message";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import AggregateBarChart from "./AggregateBarChart";
 import AggregateLineChart from "./AggregateLineChart";
-import { useAggregate } from "@/api/aggregate";
-import { Loading } from "@/components/ui/loading";
-import { MiddlecatUser } from "middlecat-react";
-import { ErrorMsg } from "../ui/error-message";
-import { Button } from "../ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import AggregateList from "./AggregateList";
+import AggregateTable from "./AggregateTable";
 import useCreateChartData from "./useCreateChartData";
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog";
-import Articles from "../Articles/Articles";
-import { Toaster } from "../ui/sonner";
-import { toast } from "sonner";
-import { Popover } from "../ui/popover";
-import AggregatePagination, { useAggregatePagination } from "./AggregatePagination";
-import { useCSVDownloader } from "react-papaparse";
+
 import { DownloadIcon } from "lucide-react";
+import { useCSVDownloader } from "react-papaparse";
 import { Input } from "../ui/input";
+import AggregatePagination, { useAggregatePagination } from "./AggregatePagination";
 
 interface AggregateResultProps {
   user: MiddlecatUser;

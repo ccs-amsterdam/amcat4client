@@ -3,11 +3,7 @@ import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, X
 import { CustomTooltip } from "./CustomTooltip";
 import { qualitativeColors } from "./colors";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Button } from "../ui/button";
-
-interface LineClickArea {}
+import { useState } from "react";
 
 export default function AggregateLineChart({ data, createZoom, width, height, limit }: AggregateVisualizerProps) {
   const [line, setLine] = useState<string>("");

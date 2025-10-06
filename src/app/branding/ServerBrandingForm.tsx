@@ -3,21 +3,19 @@
 import { useAmcatBranding, useMutateBranding } from "@/api/branding";
 import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
-import { useMiddlecat } from "middlecat-react";
 import { Loading } from "@/components/ui/loading";
+import { useMiddlecat } from "middlecat-react";
 
+import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { amcatBrandingSchema, informationLinksSchema, linkArraySchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { RefinementCtx, z, ZodSchema } from "zod";
-import { ZodError } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { fromZodError } from "zod-validation-error";
+import { z } from "zod";
+
 import { JSONForm } from "@/components/ui/jsonForm";
-import { AmcatBranding } from "@/interfaces";
 
 export function ServerBrandingForm() {
   const { user, loading } = useMiddlecat();
@@ -39,7 +37,7 @@ export function ServerBrandingForm() {
 
   if (loading || loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
-  const errors = brandingForm.formState.errors;
+
   return (
     <Form {...brandingForm}>
       <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-6">

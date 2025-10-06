@@ -22,7 +22,6 @@ export function queriesToString(queries: AmcatQueryTerm[], multiline?: boolean):
 export function queriesFromString(q: string): AmcatQueryTerm[] {
   if (!q?.trim()) return [];
   const queries = q.split(/;\s+;|[\n;]+/g);
-  const labels: Record<string, number> = {};
   return queries.map((s, i) => queryfromString(s));
 }
 

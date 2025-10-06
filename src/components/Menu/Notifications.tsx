@@ -1,11 +1,11 @@
 import { useRequests, useResolveRequests } from "@/api/requests";
-import { useMiddlecat } from "middlecat-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { AmcatRequest, AmcatRequestProject, AmcatRequestRole } from "@/interfaces";
 import { Bell, Check, CheckIcon, Loader, X } from "lucide-react";
+import { useMiddlecat } from "middlecat-react";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { AmcatRequest, AmcatRequestProject, AmcatRequestRole } from "@/interfaces";
 
 type Tab = "Server role" | "Index role" | "Project";
 
@@ -29,7 +29,7 @@ interface NotificationProps {
   setActions: React.Dispatch<React.SetStateAction<Record<string, Action>>>;
 }
 
-export default function NotificationModal({ requests, actions, setActions }: NotificationProps) {
+function NotificationModal({ requests, actions, setActions }: NotificationProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useMiddlecat();
@@ -291,7 +291,7 @@ function ProjectRequest({
             </>
           )}
         </div>
-        <div className="mt-3 italic">{projectRequest.message}</div>
+        <div className="mt-3 italic">{message}</div>
       </div>
       <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
         <Button

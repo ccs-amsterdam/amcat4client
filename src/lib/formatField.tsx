@@ -1,4 +1,3 @@
-import { Link } from "lucide-react";
 import { highlightElasticTags } from "./highlightElasticTags";
 import { AmcatArticle, AmcatField } from "@/interfaces";
 
@@ -8,7 +7,7 @@ import { AmcatArticle, AmcatField } from "@/interfaces";
  * @param {*} field
  * @returns
  */
-export const formatField = (article: AmcatArticle, field: AmcatField, setArticle?: (id: string) => void) => {
+export const formatField = (article: AmcatArticle, field: AmcatField) => {
   const value = article[field.name];
   if (value == null) return null;
 

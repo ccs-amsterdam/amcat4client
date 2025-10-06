@@ -1,10 +1,10 @@
-import AddFilterButton, { fieldOptions } from "./AddFilterButton";
-import { queriesFromString, queriesToString } from "./libQuery";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { ChevronUp, Loader, PlusSquareIcon } from "lucide-react";
-import { AmcatQuery, AmcatIndexId } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
+import { AddFilterButton } from "./AddFilterButton";
+import { queriesFromString, queriesToString } from "./libQuery";
 
 interface Props {
   user: MiddlecatUser;

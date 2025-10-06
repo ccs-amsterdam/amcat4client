@@ -41,12 +41,7 @@ export function useMutateUser(user?: MiddlecatUser) {
   });
 }
 
-export async function mutateUser(
-  user: MiddlecatUser,
-  email: string,
-  newRole: string,
-  action: "create" | "delete" | "update",
-) {
+async function mutateUser(user: MiddlecatUser, email: string, newRole: string, action: "create" | "delete" | "update") {
   const role = amcatUserRoleSchema.parse(newRole);
   if (action === "delete") {
     return await user.api.delete(`users/${email}`);

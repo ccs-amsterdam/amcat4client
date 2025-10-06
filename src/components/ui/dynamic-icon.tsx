@@ -18,7 +18,6 @@ import {
   Tags,
   Image,
   MonitorPlay,
-  Volume,
   Volume2,
   Settings,
 } from "lucide-react";

@@ -4,7 +4,6 @@ import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 
 import { ArrowRight, LogIn } from "lucide-react";
 import Markdown from "react-markdown";
@@ -18,7 +17,6 @@ export function Branding({
   serverBranding?: AmcatBranding;
 }) {
   const { user, signIn } = useMiddlecat();
-  const router = useRouter();
   if (user == null || serverConfig == null || serverBranding == null) return null;
 
   const message_md =
@@ -88,25 +86,6 @@ export function Branding({
         </div>
       </div>
     </section>
-  );
-}
-
-function ServerNameAndLink({ serverBranding }: { serverBranding: AmcatBranding }) {
-  if (serverBranding == null) return null;
-  const logo = (
-    <Button className="flex items-center gap-1 whitespace-nowrap text-lg" variant="ghost">
-      {serverBranding.server_icon ? (
-        <img alt="Server icon" src={serverBranding.server_icon} className="mr-2 inline h-8" />
-      ) : null}
-      {serverBranding.server_name}
-    </Button>
-  );
-  return serverBranding.server_url ? (
-    <Link href={serverBranding.server_url} className="">
-      {logo}
-    </Link>
-  ) : (
-    logo
   );
 }
 

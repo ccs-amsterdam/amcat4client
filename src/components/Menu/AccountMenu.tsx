@@ -1,13 +1,11 @@
 "use client";
 
 import { useAmcatConfig } from "@/api/config";
-import { useMyGlobalRole } from "@/api/userDetails";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSubContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";

@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function Summary({ user, indexId, query }: Props) {
-  const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
+  const { data: fields } = useFields(user, indexId);
   const isWriter = useHasIndexRole(user, indexId, "WRITER");
   const { data } = useArticles(user, indexId, query);
   if (data == null) return null;

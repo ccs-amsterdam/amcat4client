@@ -1,7 +1,6 @@
 import { AmcatElasticFieldType, MultimediaListItem, UpdateAmcatField, UploadOperation } from "@/interfaces";
 import { Column, jsType } from "./Upload";
 import { extensionMapping } from "../Multimedia/MultimediaUpload";
-import { list } from "postcss";
 
 export function prepareUploadData(
   data: Record<string, jsType>[],

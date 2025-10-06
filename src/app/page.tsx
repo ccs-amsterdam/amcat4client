@@ -1,23 +1,20 @@
 "use client";
 
-import { useMiddlecat } from "middlecat-react";
 import Link from "next/link";
 
 import { useAmcatConfig } from "@/api/config";
 import { Button } from "@/components/ui/button";
 
 import { useAmcatBranding } from "@/api/branding";
-import { ArrowRight, BarChart2, Search, Share } from "lucide-react";
-import { AmcatBranding } from "@/interfaces";
-import { Loading } from "@/components/ui/loading";
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
+import { Loading } from "@/components/ui/loading";
+import { ArrowRight, BarChart2, Search, Share } from "lucide-react";
 
 export default function Index() {
-  const { user, signIn, loading: userLoading } = useMiddlecat();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
 
-  if (userLoading || configLoading || brandingLoading) return <Loading />;
+  if (configLoading || brandingLoading) return <Loading />;
 
   return (
     <>

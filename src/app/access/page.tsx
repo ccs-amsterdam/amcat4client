@@ -1,12 +1,11 @@
 "use client";
 
-import { useIndex } from "@/api/index";
 import { useMyGlobalRole } from "@/api/userDetails";
 import { HelpCircle } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { useParams } from "next/navigation";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useMiddlecat } from "middlecat-react";
+
 import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const roles = ["NONE", "WRITER", "ADMIN"];
 
@@ -63,7 +62,7 @@ export default function ServerRole() {
   );
 }
 
-export function RoleInfoDialog() {
+function RoleInfoDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -81,7 +80,7 @@ export function RoleInfoDialog() {
   );
 }
 
-export function RoleInfo() {
+function RoleInfo() {
   return (
     <div className="flex flex-col gap-3 text-sm">
       <div className="grid grid-cols-[7rem,1fr] gap-1">

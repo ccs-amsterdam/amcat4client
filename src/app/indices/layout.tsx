@@ -1,14 +1,14 @@
 "use client";
 import { useAmcatConfig } from "@/api/config";
 import useAmcatIndices from "@/api/indices";
-import { useCurrentUserDetails, useMyGlobalRole } from "@/api/userDetails";
-import Navbar from "@/components/Menu/Navbar";
+import { useCurrentUserDetails } from "@/api/userDetails";
+
 import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
-import { RoleInfoDialog } from "@/components/Menu/ServerRole";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
-import { LogInIcon } from "lucide-react";
+import { HelpCircle, LogInIcon } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import { useState } from "react";
 
@@ -54,7 +54,7 @@ function AuthenticatedOnlyServer({}: {}) {
 }
 
 function AuthorizedOnlyServer({}: {}) {
-  const { user, signIn, loading: loadingUser } = useMiddlecat();
+  const { user, loading: loadingUser } = useMiddlecat();
   const { data, isLoading: loadingIndices } = useAmcatIndices(user);
   const [requestSend, setRequestSend] = useState(false);
 
@@ -89,5 +89,40 @@ function AuthorizedOnlyServer({}: {}) {
       </div>
       <div className="mt-12 text-primary">{requestForm()}</div>
     </ErrorMsg>
+  );
+}
+
+function RoleInfoDialog({ text }: { text?: string }) {
+  const { data: serverConfig } = useAmcatConfig();
+  const has_reader = serverConfig?.authorization === "authorized_users_only";
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div className="flex cursor-pointer items-center gap-2 text-primary">
+          {text || ""}
+          <HelpCircle className="cursor-pointer text-primary" />
+        </div>
+      </DialogTrigger>
+      <DialogContent className="w-[600px] max-w-[95vw]">
+        <DialogTitle className="h-0 w-0 opacity-0">Server access roles</DialogTitle>
+        <DialogDescription className="h-0 opacity-0">Description of three server access roles</DialogDescription>
+        <div className="mb-2 font-bold text-primary">
+          For this server, there are {has_reader ? "three" : "two"} access roles with increasing permissions:
+        </div>
+        <div className="grid grid-cols-[8rem,1fr] gap-1">
+          {!has_reader ? null : (
+            <>
+              <b className="text-primary">READER</b>
+              Has access to existing indices. Within an index the user can be given any role, so a server level READER
+              can be a WRITER or ADMIN on a specific index. But they need to be given explicit access to each index.
+            </>
+          )}
+          <b className="text-primary">WRITER</b>
+          Can create new indices.
+          <b className="text-primary">ADMIN</b>
+          Can manage all indices and users.
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

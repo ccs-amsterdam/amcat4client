@@ -17,11 +17,10 @@ import {
 } from "../ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { useMutateTags } from "@/api/tags";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DynamicIcon } from "../ui/dynamic-icon";
 import { Button } from "../ui/button";
-import { create } from "domain";
-import { useAggregate, useCount } from "@/api/aggregate";
+import { useCount } from "@/api/aggregate";
 
 interface Props {
   user: MiddlecatUser;

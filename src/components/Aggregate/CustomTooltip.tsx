@@ -1,7 +1,8 @@
 import { ArrowRight } from "lucide-react";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
+
 import { TooltipProps } from "recharts";
-import { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
+import { NameType, ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 type tProps = TooltipProps<ValueType, NameType>;
 interface Props extends tProps {

@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
+import { useState } from "react";
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useFields } from "@/api/fields";
 import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Filter } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
-import { useFields } from "@/api/fields";
 
 export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
   return fields
@@ -22,7 +22,7 @@ interface AddFilterProps {
   onSubmit: (value: AmcatQuery) => void;
 }
 
-export default function AddFilterButton({ children, user, indexId, value, onSubmit }: AddFilterProps) {
+export function AddFilterButton({ children, user, indexId, value, onSubmit }: AddFilterProps) {
   const [open, setOpen] = useState(false);
   const { data: fields } = useFields(user, indexId);
 

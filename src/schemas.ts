@@ -172,7 +172,7 @@ export const amcatArticleSchema = z.record(z.any()).and(
   }),
 );
 
-export const amcatQueryResultMetaSchema = z.object({
+const amcatQueryResultMetaSchema = z.object({
   total_count: z.number(),
   per_page: z.number(),
   page: z.number(),
@@ -184,13 +184,7 @@ export const amcatQueryResultSchema = z.object({
   meta: amcatQueryResultMetaSchema,
 });
 
-export const amcatIndexUsers = z.object({
-  email: z.string(),
-  role: amcatUserRoleSchema,
-});
-
 // aggregation
-
 export const amcatAggregationIntervalSchema = z.enum([
   "day",
   "week",
@@ -266,7 +260,7 @@ export const amcatPreprocessingInstructionArgumentValue = z.union([
   z.array(z.boolean()),
 ]);
 
-export const amcatPreprocessingInstructionArgument = z.object({
+const amcatPreprocessingInstructionArgument = z.object({
   name: z.string(),
   field: z.string().nullish(),
   value: amcatPreprocessingInstructionArgumentValue.nullish(),
@@ -302,27 +296,27 @@ export const amcatPreprocessingInstructionDetails = z.object({
   }),
 });
 
-export const amcatPreprocessingTaskRequest = z.object({
+const amcatPreprocessingTaskRequest = z.object({
   body: z.enum(["json", "binary"]),
   template: z.any(),
 });
 
-export const amcatPreprocessingTaskEndpoint = z.object({
+const amcatPreprocessingTaskEndpoint = z.object({
   placeholder: z.string(),
   domain: z.array(z.string()),
 });
 
-export const amcatPreprocessingTaskSetting = z.object({
+const amcatPreprocessingTaskSetting = z.object({
   name: z.string(),
   type: z.string(),
   path: z.string().nullish(),
 });
 
-export const amcatPreprocessingTaskOutput = amcatPreprocessingTaskSetting.extend({
+const amcatPreprocessingTaskOutput = amcatPreprocessingTaskSetting.extend({
   recommended_type: amcatFieldTypeSchema,
 });
 
-export const amcatPreprocessingTaskParameters = amcatPreprocessingTaskSetting.extend({
+const amcatPreprocessingTaskParameters = amcatPreprocessingTaskSetting.extend({
   use_field: z.enum(["yes", "no"]),
   default: z.union([z.boolean(), z.string(), z.number()]).nullish(),
   placeholder: z.string().nullish(),
@@ -337,7 +331,7 @@ export const amcatPreprocessingTask = z.object({
   request: amcatPreprocessingTaskRequest,
 });
 
-export const amcatRequestAbstract = z.object({
+const amcatRequestAbstract = z.object({
   email: z.string(),
   timestamp: z
     .string()

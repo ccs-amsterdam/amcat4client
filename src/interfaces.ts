@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import { z } from "zod";
 import {
   amcatAggregateDataPointSchema,
@@ -16,15 +15,12 @@ import {
   amcatFieldTypeSchema,
   amcatFieldValuesSchema,
   amcatIndexSchema,
-  amcatIndexUpdateSchema,
   amcatMetareaderAccessSchema,
   amcatMetricFunctionSchema,
   amcatMultimediaListItem,
   amcatMultimediaPresignedPost,
   amcatPreprocessingInstruction,
-  amcatPreprocessingInstructionStatus,
   amcatPreprocessingTask,
-  amcatQueryResultMetaSchema,
   amcatQueryResultSchema,
   amcatRequestProjectSchema,
   amcatRequestRoleSchema,
@@ -38,14 +34,12 @@ export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
 export type AmcatBranding = z.infer<typeof amcatBrandingSchema>;
 export type AmcatUserRole = z.infer<typeof amcatUserRoleSchema>;
 export type AmcatIndex = z.infer<typeof amcatIndexSchema>;
-export type amcatIndexUpdate = z.infer<typeof amcatIndexUpdateSchema>;
 export type AmcatUserDetails = z.infer<typeof amcatUserDetailsSchema>;
 export type AmcatFieldType = z.infer<typeof amcatFieldTypeSchema>;
 export type AmcatElasticFieldType = z.infer<typeof amcatElasticFieldTypeSchema>;
 export type AmcatField = z.infer<typeof amcatFieldSchema>;
 export type UpdateAmcatField = Partial<AmcatField>;
 export type AmcatArticle = z.infer<typeof amcatArticleSchema>;
-export type AmcatQueryResultMeta = z.infer<typeof amcatQueryResultMetaSchema>;
 export type AmcatQueryResult = z.infer<typeof amcatQueryResultSchema>;
 export type AmcatFieldValues = z.infer<typeof amcatFieldValuesSchema>;
 export type AmcatFieldStats = z.infer<typeof amcatFieldStatsSchema>;
@@ -62,14 +56,12 @@ export type MultimediaListItem = z.infer<typeof amcatMultimediaListItem>;
 export type MultimediaPresignedPost = z.infer<typeof amcatMultimediaPresignedPost>;
 export type PreprocessingInstruction = z.infer<typeof amcatPreprocessingInstruction>;
 export type PreprocessingTask = z.infer<typeof amcatPreprocessingTask>;
-export type PreprocessingInstructionStatus = z.infer<typeof amcatPreprocessingInstructionStatus>;
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 export type AmcatRequest = z.infer<typeof amcatRequestSchema>;
 export type AmcatRequestRole = z.infer<typeof amcatRequestRoleSchema>;
 export type AmcatRequestProject = z.infer<typeof amcatRequestProjectSchema>;
 
 export type AmcatIndexId = string;
-export type AmcatIndexName = string;
 
 //TODO: think about how visual and data options relate, e.g. limit.
 export interface AggregationOptions {
@@ -139,7 +131,6 @@ export interface AmcatQueryParams {
   highlight?: boolean;
 }
 
-export type AggregateVisualizer = (props: any) => ReactNode;
 export interface AggregateVisualizerProps {
   /***
    * The data to visualize
@@ -157,17 +148,6 @@ export interface AggregateVisualizerProps {
   height?: string | number;
   /* Limit the number of bars/lines/rows */
   limit?: number;
-}
-
-export interface LocationOptions {
-  /** Field name refering to a geo_point field in this index */
-  field: string;
-  /** Maximum number of documents to use (default: 100)*/
-  numdocs?: number;
-  /** Width of the map (default: '100%') */
-  width?: number | string;
-  /** Height of the map (default: 600) */
-  height?: number | string;
 }
 
 export type SortSpec = string | string[] | { [field: string]: { order?: "asc" | "desc" } }[];

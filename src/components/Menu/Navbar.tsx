@@ -1,13 +1,8 @@
 "use client";
 
 import { useAmcatBranding } from "@/api/branding";
+import { AmcatBranding } from "@/interfaces";
 import useAutoSignin from "@/lib/useAutoSignin";
-import Link from "next/link";
-import AccountMenu from "./AccountMenu";
-import { useParams, useRouter } from "next/navigation";
-import ServerMenu from "./ServerMenu";
-import { Notifications } from "./Notifications";
-import IndexMenu from "./IndexMenu";
 import {
   ChevronRight,
   Columns3Cog,
@@ -20,7 +15,11 @@ import {
   Users,
 } from "lucide-react";
 import { usePathname } from "next/dist/client/components/navigation";
-import { AmcatBranding } from "@/interfaces";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import AccountMenu from "./AccountMenu";
+import IndexMenu from "./IndexMenu";
+import { Notifications } from "./Notifications";
 import { SubMenu, SubMenuPath } from "./SubMenu.tsx";
 
 const serverSubMenuPaths: SubMenuPath[] = [
@@ -43,7 +42,7 @@ export default function Navbar() {
   const params = useParams<{ index: string }>();
   const hasIndex = !!params?.index;
   const path = usePathname();
-  const { data: branding, isLoading: brandingLoading } = useAmcatBranding();
+  const { data: branding } = useAmcatBranding();
   useAutoSignin();
 
   function logo() {
@@ -73,7 +72,6 @@ export default function Navbar() {
           <div className="mr-2 flex h-full flex-1 items-center justify-end gap-3 px-2">
             <Notifications />
             <AccountMenu />
-            {/*<ServerMenu />*/}
           </div>
         </div>
       </div>

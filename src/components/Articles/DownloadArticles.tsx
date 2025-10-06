@@ -4,15 +4,16 @@ import { AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interface
 import { ChevronDown, Download, EyeOff } from "lucide-react";
 import { MiddlecatUser } from "middlecat-react";
 import { MouseEvent, useEffect, useState } from "react";
+import { useCSVDownloader } from "react-papaparse";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
+import { Dialog, DialogContent } from "../ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Loading } from "../ui/loading";
+import { Progress } from "../ui/progress";
 import ArticleTable from "./ArticleTable";
 import usePaginatedArticles from "./usePaginatedArticles";
-import { useCSVDownloader } from "react-papaparse";
-import { Progress } from "../ui/progress";
-import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
+
 import { Input } from "../ui/input";
 
 interface Props {

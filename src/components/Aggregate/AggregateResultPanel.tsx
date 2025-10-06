@@ -1,8 +1,8 @@
-import AggregateResultOptions from "./AggregateResultOptions";
-import AggregateResult from "./AggregateResult";
-import { useState } from "react";
 import { AggregationOptions, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
+import { useState } from "react";
+import AggregateResult from "./AggregateResult";
+import { AggregateResultOptions } from "./AggregateResultOptions";
 
 const initialState: AggregationOptions = {
   display: "linechart",

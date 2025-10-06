@@ -13,8 +13,8 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "./button";
-import { ArrowLeft, ArrowRight, StepBack, StepForward } from "lucide-react";
-import { useMemo, useState } from "react";
+import { StepBack, StepForward } from "lucide-react";
+import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 
 interface DataTableProps<TData extends Record<string, any>, TValue> {
@@ -37,7 +37,6 @@ export function DataTable<TData extends Record<string, any>, TValue>({
   data,
   globalFilter,
   pagination,
-  loading,
   pageSize = 6,
 }: DataTableProps<TData, TValue>) {
   const manualPagination = !!pagination;

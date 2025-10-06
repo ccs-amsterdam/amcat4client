@@ -5,7 +5,7 @@ import MultimediaUpload from "./MultimediaUpload";
 import { MultimediaListItem } from "@/interfaces";
 import { useMemo, useState } from "react";
 import { Button } from "../ui/button";
-import { ChevronDown, ChevronLeft, ChevronRight, Database, Dot, Folder, LayoutGrid, List, Undo2 } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Dot, LayoutGrid, List, Undo2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import RenderMultimedia from "./RenderMultimedia";
 

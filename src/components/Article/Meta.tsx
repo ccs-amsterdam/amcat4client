@@ -1,6 +1,6 @@
 import { AmcatArticle, AmcatField } from "@/interfaces";
-import { Badge } from "../ui/badge";
 import { formatField } from "@/lib/formatField";
+import { Badge } from "../ui/badge";
 
 interface MetaProps {
   article: AmcatArticle;
@@ -42,14 +42,14 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
                   </span>
 
                   <b>VALUE</b>
-                  <span className="">{noAccessMessage || formatField(article, field, setArticle)}</span>
+                  <span className="">{noAccessMessage || formatField(article, field)}</span>
                 </div>
               }
             >
               {field.name}
             </Badge>
             <span className="line-clamp-3 overflow-hidden text-ellipsis">
-              {noAccessMessage || formatField(article, field, setArticle) || <span className="text-primary">NA</span>}
+              {noAccessMessage || formatField(article, field) || <span className="text-primary">NA</span>}
             </span>
           </div>
         );

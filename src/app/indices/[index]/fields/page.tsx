@@ -1,20 +1,13 @@
 "use client";
 
+import { useAmcatConfig } from "@/api/config";
+import { useFields, useMutateFields } from "@/api/fields";
 import { useIndex } from "@/api/index";
+import FieldTable from "@/components/Fields/FieldTable";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
 import { AmcatIndex } from "@/interfaces";
-import FieldTable from "@/components/Fields/FieldTable";
-import { useFields, useMutateFields } from "@/api/fields";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { parseAsStringEnum, useQueryState } from "next-usequerystate";
-import Upload from "@/components/Upload/Upload";
-import { useAmcatConfig } from "@/api/config";
-import Multimedia from "@/components/Multimedia/Multimedia";
-
-const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
+import { useMiddlecat } from "middlecat-react";
 
 interface Props {
   params: { index: string };
@@ -23,7 +16,7 @@ interface Props {
 export default function Page({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
-  const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
+  const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
   if (loading || loadingIndex) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;

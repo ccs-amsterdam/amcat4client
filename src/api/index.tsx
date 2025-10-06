@@ -1,10 +1,11 @@
 import { AmcatIndexId, AmcatUserRole } from "@/interfaces";
-import { amcatIndexSchema, amcatIndexUpdateSchema, amcatUserRoles } from "@/schemas";
+import { amcatIndexSchema, amcatIndexUpdateSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { hasMinAmcatRole } from "@/lib/utils";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { useAmcatConfig } from "./config";
-import { hasMinAmcatRole } from "@/lib/utils";
 
 export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   return useQuery({
@@ -47,7 +48,7 @@ export function useCreateIndex(user: MiddlecatUser | undefined) {
   });
 }
 
-export async function createIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexSchema>) {
+async function createIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexSchema>) {
   if (!user) throw new Error("Not logged in");
   if (value.guest_role === "NONE") value.guest_role = undefined;
   return await user.api.post(`/index/`, value);
@@ -66,7 +67,7 @@ export function useMutateIndex(user: MiddlecatUser | undefined) {
   });
 }
 
-export async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexUpdateSchema>) {
+async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexUpdateSchema>) {
   if (!user) throw new Error("Not logged in");
   return await user.api.put(`index/${value.id}`, value);
 }
@@ -82,7 +83,7 @@ export function useDeleteIndex(user: MiddlecatUser | undefined) {
   });
 }
 
-export async function deleteIndex(user: MiddlecatUser | undefined, indexId: string) {
+async function deleteIndex(user: MiddlecatUser | undefined, indexId: string) {
   if (!user) throw new Error("Not logged in");
   return await user.api.delete(`index/${indexId}`);
 }

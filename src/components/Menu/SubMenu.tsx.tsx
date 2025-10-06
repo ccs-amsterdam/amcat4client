@@ -19,7 +19,7 @@ export type SubMenuPath = {
 };
 
 export function useSubMenuPaths(paths: SubMenuPath[]) {
-  const { user, loading } = useMiddlecat();
+  const { user } = useMiddlecat();
   const params = useParams<{ index: string }>();
   const indexId = decodeURI(params?.index || "");
   const globalRole = useMyGlobalRole(user);

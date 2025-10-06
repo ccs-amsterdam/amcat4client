@@ -42,7 +42,7 @@ export const extensionMapping: Record<string, string> = {
 export default function MultimediaUpload({ indexId, user }: Props) {
   const [data, setData] = useState<FileWithPath[]>();
   const [uploadQueue, setUploadQueue] = useState<UploadQueue>({ uploading: false, files: [], progress: 0 });
-  const { data: presignedPost, isLoading: loadingPresignedPost } = useMultimediaPresignedPost(user, indexId, !!data);
+  const { data: presignedPost } = useMultimediaPresignedPost(user, indexId, !!data);
   const { mutateAsync } = useMutateMultimedia(user, indexId, presignedPost);
   const queryClient = useQueryClient();
 

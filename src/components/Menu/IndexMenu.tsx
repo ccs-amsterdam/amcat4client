@@ -1,23 +1,13 @@
 "use client";
 
-import { useAmcatBranding } from "@/api/branding";
 import { useIndex } from "@/api/index";
 import useAmcatIndices from "@/api/indices";
-import { useHasGlobalRole } from "@/api/userDetails";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AmcatIndexId } from "@/interfaces";
 import { CommandEmpty } from "cmdk";
-import { Book, ChevronDown, LibraryIcon } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 
@@ -27,7 +17,7 @@ export default function IndexMenu() {
   const indexId = decodeURI(params?.index || "");
   const [open, setOpen] = useState(false);
 
-  const { data: index, isLoading: indexLoading } = useIndex(user, indexId);
+  const { data: index } = useIndex(user, indexId);
 
   if (loading || !user) return null;
 

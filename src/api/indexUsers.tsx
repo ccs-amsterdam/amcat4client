@@ -42,7 +42,7 @@ export function useMutateIndexUser(user?: MiddlecatUser, indexId?: AmcatIndexId 
   });
 }
 
-export async function mutateIndexUser(
+async function mutateIndexUser(
   user: MiddlecatUser,
   indexId: AmcatIndexId,
   email: string,

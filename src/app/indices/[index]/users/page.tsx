@@ -3,8 +3,6 @@
 import { useAmcatConfig } from "@/api/config";
 import { useIndex, useMutateIndex } from "@/api/index";
 import { useIndexUsers, useMutateIndexUser } from "@/api/indexUsers";
-import { ContactInfo } from "@/components/Index/ContactInfo";
-import { UpdateIndex } from "@/components/Index/UpdateIndex";
 import UserRoleTable from "@/components/Users/UserRoleTable";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,14 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AmcatIndex, AmcatUserRole } from "@/interfaces";
-import { TabsContent } from "@radix-ui/react-tabs";
-import { Edit, Trash2 } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
-import { parseAsStringEnum, useQueryState } from "next-usequerystate";
-import { useState } from "react";
+import { Edit } from "lucide-react";
+import { useMiddlecat } from "middlecat-react";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -33,7 +26,7 @@ interface Props {
 export default function Index({ params }: Props) {
   const { user, loading } = useMiddlecat();
   const indexId = decodeURI(params.index);
-  const { data: index, isLoading: loadingIndex, error } = useIndex(user, indexId);
+  const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
   if (loading || loadingIndex) return <Loading />;
   if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;

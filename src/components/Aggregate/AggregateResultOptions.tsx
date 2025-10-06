@@ -2,17 +2,18 @@ import {
   AggregationAxis,
   AggregationInterval,
   AggregationMetric,
-  AmcatQuery,
-  AmcatIndexId,
   AggregationOptions,
+  AmcatIndexId,
+  AmcatQuery,
   DisplayOption,
   MetricFunction,
 } from "@/interfaces";
 
-import { useFields, getField } from "@/api/fields";
+import { getField, useFields } from "@/api/fields";
 import { Dropdown, Option } from "@/components/ui/dropdown";
+import { Tally5, TextCursor } from "lucide-react";
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
-import { Tally5, TextCursor, X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
 import { MiddlecatUser } from "middlecat-react";
@@ -30,7 +31,7 @@ interface Props {
   setOptions: Dispatch<SetStateAction<AggregationOptions>>;
 }
 
-export default function AggregateResultOptions({ user, indexId, query, options, setOptions }: Props) {
+export function AggregateResultOptions({ user, indexId, query, options, setOptions }: Props) {
   const [newOptions, setNewOptions] = useState(options);
 
   useEffect(() => {

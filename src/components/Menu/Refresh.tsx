@@ -5,7 +5,7 @@ import { RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export default function Refresh() {
+export function Refresh() {
   const queryClient = useQueryClient();
   const [disabled, setDisabled] = useState(false);
   useEffect(() => {

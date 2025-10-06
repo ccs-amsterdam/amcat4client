@@ -6,21 +6,11 @@ import {
   usePreprocessingTasks,
 } from "@/api/preprocessing";
 import { Loading } from "../ui/loading";
-import { AmcatIndexId, PreprocessingInstruction, PreprocessingTask } from "@/interfaces";
+import { AmcatIndexId, PreprocessingInstruction } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Fragment, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
-import {
-  AlertCircle,
-  CheckCircle,
-  HelpCircle,
-  Pause,
-  PauseCircle,
-  Play,
-  PlayCircle,
-  RotateCcw,
-  StopCircle,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, HelpCircle, Pause, PauseCircle, Play, PlayCircle, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface Props {

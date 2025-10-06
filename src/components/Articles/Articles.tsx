@@ -5,10 +5,10 @@ import { Loading } from "@/components/ui/loading";
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, SortSpec } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useState } from "react";
-import ArticleSnippets from "./ArticleSnippets";
 import { ErrorMsg } from "../ui/error-message";
+import ArticleSnippets from "./ArticleSnippets";
 
-export interface ArticlesProps {
+interface ArticlesProps {
   user: MiddlecatUser;
   indexId: AmcatIndexId;
   /** Query/filter of which documents to show */

@@ -1,8 +1,8 @@
 import { AmcatClientSettings, AmcatField } from "@/interfaces";
-import { ChevronDown, File, Heading, LineChart, List } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { File, Heading, LineChart, List } from "lucide-react";
+
 import { useEffect, useState } from "react";
-import { Toggle } from "../ui/toggle";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Switch } from "../ui/switch";
 
 interface Props {

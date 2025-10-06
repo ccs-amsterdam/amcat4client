@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactElement, useMemo, useState } from "react";
+import React, { ReactElement, useMemo, useState } from "react";
 
 import { useArticle } from "@/api/article";
 import { useFields } from "@/api/fields";
@@ -10,8 +10,8 @@ import { Button } from "../ui/button";
 import { Loading } from "../ui/loading";
 
 import { highlightElasticTags } from "@/lib/highlightElasticTags";
-import Meta from "./Meta";
 import ArticleMultimedia from "./ArticleMultimedia";
+import Meta from "./Meta";
 import PreprocessStatus from "./PreprocessStatus";
 
 export interface ArticleProps {

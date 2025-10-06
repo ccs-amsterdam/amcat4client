@@ -1,11 +1,10 @@
-import { Fragment, useState } from "react";
-import { Control, ControllerRenderProps, FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { Fragment } from "react";
+import { Control, ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { z } from "zod";
 import { FormControl, FormField, FormItem, FormLabel } from "./form";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 import { Input } from "./input";
-import { Plus, X } from "lucide-react";
-import { Button } from "./button";
+import { X } from "lucide-react";
 
 // Generic form for arrays of objects (with string values).
 // Also allows one (and only one) key to have a nested array of objects.
@@ -56,7 +55,7 @@ export function JSONForm<T extends FieldValues, Z extends ValidZod>({
                 <TableBody className="">
                   {rowIndices.map((row_i: number) => (
                     <Fragment key={row_i}>
-                      {flatForms(schema, control, field, rows, row_i).map((subRow, subrow_i, arr) => {
+                      {flatForms(schema, field, rows, row_i).map((subRow, subrow_i, arr) => {
                         const lastRow = rows.length <= row_i;
                         const lastSubRow = arr.length > 1 && arr.length - 1 === subrow_i;
 
@@ -136,7 +135,7 @@ function rmRow<Z extends ValidZod>(values: z.infer<Z>, row: number, subrow: numb
   if (subrow === 0) {
     newValues.splice(row, 1);
   } else {
-    for (let [key, value] of Object.entries(newValues[row])) {
+    for (let [, value] of Object.entries(newValues[row])) {
       if (Array.isArray(value)) {
         value.splice(subrow, 1);
       }
@@ -150,7 +149,7 @@ function flatHeaders(schema: ValidZod) {
   for (let [key, value] of Object.entries(schema.element.shape)) {
     if (isZodString(value)) headers.push(key);
   }
-  for (let [key, value] of Object.entries(schema.element.shape)) {
+  for (let [, value] of Object.entries(schema.element.shape)) {
     if (isZodArray(value)) headers.push(...Object.keys(value.element.shape));
   }
 
@@ -159,7 +158,6 @@ function flatHeaders(schema: ValidZod) {
 
 function flatForms<T extends FieldValues, Z extends ValidZod>(
   schema: Z,
-  control: Control<T, any>,
   field: ControllerRenderProps<T>,
   rows: z.infer<Z>,
   i: number,

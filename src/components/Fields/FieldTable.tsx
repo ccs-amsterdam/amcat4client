@@ -1,14 +1,15 @@
 import { DataTable, tooltipHeader } from "@/components/ui/datatable";
-import { AmcatField, AmcatMetareaderAccess, UpdateAmcatField, AmcatClientSettings } from "@/interfaces";
+import { AmcatClientSettings, AmcatField, AmcatMetareaderAccess, UpdateAmcatField } from "@/interfaces";
 import { ColumnDef } from "@tanstack/react-table";
+import { Key, ListPlus, Search } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DynamicIcon } from "../ui/dynamic-icon";
+import { Input } from "../ui/input";
 import MetareaderAccessForm from "./MetareaderAccessForm";
 import VisibilityForm from "./VisibilityForm";
-import { Input } from "../ui/input";
-import { Key, ListPlus, Search, UserPlus } from "lucide-react";
-import CreateField from "./CreateField";
+
 import { Button } from "../ui/button";
+import CreateField from "./CreateField";
 
 interface Row extends AmcatField {
   onChange?: ({ name, type, metareader, client_settings }: UpdateAmcatField) => void;

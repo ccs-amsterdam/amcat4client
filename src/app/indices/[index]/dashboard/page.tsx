@@ -5,7 +5,6 @@ import { AmcatQuery } from "@/interfaces";
 import { useMiddlecat } from "middlecat-react";
 
 import { useMyIndexrole } from "@/api";
-import { useMyGlobalRole } from "@/api/userDetails";
 import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
 import DownloadArticles from "@/components/Articles/DownloadArticles";
 import Summary from "@/components/Summary/Summary";
@@ -34,7 +33,6 @@ export default function Index({ params }: Props) {
   const indexId = decodeURI(params.index);
   const { user, loading: loadingUser } = useMiddlecat();
   const indexRole = useMyIndexrole(user, indexId);
-  const globalRole = useMyGlobalRole(user);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
   const [query, setQuery] = useState<AmcatQuery>(() => deserializeQuery(queryState));

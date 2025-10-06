@@ -1,9 +1,9 @@
-import { AmcatIndexId, AmcatRequest, AmcatUserRole } from "@/interfaces";
+import { AmcatRequest } from "@/interfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { amcatRequestSchema } from "@/schemas";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
-import { useAmcatConfig } from "./config";
-import { amcatRequestSchema } from "@/schemas";
 
 export function useRequests(user?: MiddlecatUser) {
   return useQuery({

@@ -1,10 +1,11 @@
 import { AmcatUserRole } from "@/interfaces";
-import { amcatUserDetailsSchema, amcatUserRoleSchema, amcatUserRoles } from "@/schemas";
+import { amcatUserDetailsSchema, amcatUserRoleSchema } from "@/schemas";
+
+import { hasMinAmcatRole } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { MiddlecatUser } from "middlecat-react";
-import { useAmcatConfig } from "./config";
 import { useSearchParams } from "next/navigation";
-import { hasMinAmcatRole } from "@/lib/utils";
+import { useAmcatConfig } from "./config";
 
 export function useCurrentUserDetails(user?: MiddlecatUser) {
   const params = useSearchParams();

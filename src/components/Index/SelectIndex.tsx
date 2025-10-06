@@ -1,15 +1,13 @@
 "use client";
 
 import { useDeleteIndex, useHasIndexRole, useMutateIndex } from "@/api";
-import { useAmcatConfig } from "@/api/config";
 import useAmcatIndices from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import {
-  Archive,
   ArchiveRestore,
   ArchiveX,
   CornerLeftUp,
@@ -20,12 +18,10 @@ import {
   MoreVertical,
   Trash2,
   Undo,
-  UserCheck,
 } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import { useQueryState } from "next-usequerystate";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from "../ui/breadcrumb";
 import { ActivateConfirm, useConfirm } from "../ui/confirm";
@@ -42,10 +38,8 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Switch } from "../ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { CreateIndex } from "./CreateIndex";
 import { InfoMsg } from "../ui/info-message";
-import { useAmcatBranding } from "@/api/branding";
 import { randomIcon, randomLightColor } from "@/lib/utils";
 
 interface Folder {
@@ -285,8 +279,6 @@ const IndexCard = ({
   const { user } = useMiddlecat();
   if (user == null) return null;
 
-  const indexPath = index.folder ? index.folder.split("/") : [];
-
   const hasImage = !!index.image_url;
   const style = {
     backgroundImage: `url('${hasImage ? index.image_url : ""}')`,
@@ -481,7 +473,6 @@ function IndexDropdownMenu({
 
 function NoPublicIndicesMessage({}: {}) {
   const { signIn } = useMiddlecat();
-  const { data: config } = useAmcatConfig();
 
   return (
     <ErrorMsg type="No public indices">

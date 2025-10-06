@@ -1,4 +1,3 @@
-import { useAmcatConfig } from "@/api/config";
 import { useSubmitRequest } from "@/api/requests";
 import { AmcatIndex } from "@/interfaces";
 import { amcatRequestRoleSchema } from "@/schemas";
@@ -26,7 +25,6 @@ interface Props {
 
 export function RequestRoleChange({ user, roles, currentRole, index, onSend }: Props) {
   const { signIn } = useMiddlecat();
-  const { data: serverConfig } = useAmcatConfig();
   const { mutateAsync: submitRequest } = useSubmitRequest(user);
   const [role, setRole] = useState<string | undefined>(undefined);
   const [message, setMessage] = useState<string>("");

@@ -15,7 +15,7 @@ export function useAmcatBranding() {
   });
 }
 
-export async function getAmcatBranding(host?: string) {
+async function getAmcatBranding(host?: string) {
   function safeParseJson(input: string | null | undefined) {
     try {
       return input == null ? null : JSON.parse(input);
@@ -53,6 +53,7 @@ export function useMutateBranding(user?: MiddlecatUser) {
     },
   });
 }
-export async function mutateBranding(user: MiddlecatUser, value: any) {
+
+async function mutateBranding(user: MiddlecatUser, value: any) {
   return await user.api.put(`config/branding`, value);
 }

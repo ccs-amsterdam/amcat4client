@@ -1,10 +1,10 @@
-import { queriesFromString, queriesToString } from "./libQuery";
-import AddFilterButton from "./AddFilterButton";
 import { Input } from "@/components/ui/input";
+import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { ChevronsUpDown, Filter, Loader, Search } from "lucide-react";
-import { AmcatQuery, AmcatIndexId } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Loading } from "../ui/loading";
+import { AddFilterButton } from "./AddFilterButton";
+import { queriesFromString, queriesToString } from "./libQuery";
 
 interface Props {
   user: MiddlecatUser;

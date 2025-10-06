@@ -5,7 +5,7 @@ import FilterPicker from "./FilterPicker";
 import MultilineQueryForm from "./MultilineQueryForm";
 import SimpleQueryForm from "./SimpleQueryForm";
 
-export interface Props {
+interface Props {
   user: MiddlecatUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;

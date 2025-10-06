@@ -1,10 +1,8 @@
 import { useMultimediaPresignedGet } from "@/api/multimedia";
-import { MultimediaListItem, MultimediaType } from "@/interfaces";
+import { MultimediaType } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { Loading } from "../ui/loading";
 import { extensionMapping } from "./MultimediaUpload";
-import { FileWarning, Link } from "lucide-react";
-import { DynamicIcon } from "../ui/dynamic-icon";
 
 export default function RenderMultimedia({
   user,

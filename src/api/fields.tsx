@@ -38,7 +38,7 @@ export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefin
   });
 }
 
-export async function getFields(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+async function getFields(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`/index/${indexId}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
@@ -55,7 +55,7 @@ export function getField(fields: AmcatField[] | undefined, fieldname: string): A
   return fields?.find((f) => f.name === fieldname);
 }
 
-export interface MutateFieldsParams {
+interface MutateFieldsParams {
   fields: UpdateAmcatField[];
   action: "create" | "delete" | "update";
 }
@@ -81,7 +81,7 @@ export function useMutateFields(user?: MiddlecatUser, indexId?: AmcatIndexId | u
   });
 }
 
-export async function mutateFields(
+async function mutateFields(
   user: MiddlecatUser,
   indexId: AmcatIndexId,
   action: "create" | "delete" | "update",

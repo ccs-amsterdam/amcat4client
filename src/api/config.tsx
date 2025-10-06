@@ -19,7 +19,7 @@ export function useAmcatConfig() {
   });
 }
 
-export async function getAmcatConfig(host?: string, fakeAuthorization?: string) {
+async function getAmcatConfig(host?: string, fakeAuthorization?: string) {
   if (!host) return undefined;
   const res = await axios.get(`${host}/config`, { timeout: 3000 });
   const config: AmcatConfig = amcatConfigSchema.parse(res.data);

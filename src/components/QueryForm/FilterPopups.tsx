@@ -52,7 +52,7 @@ export function FilterPopup({ user, indexId, field, value, onChange }: FilterPop
   return KeywordPopup({ user, indexId, field, value, onChange });
 }
 
-export function NumberRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
+function NumberRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   const { data: fieldStats } = useFieldStats(user, indexId, field?.name);
 
   if (field == null || value == null || fieldStats == null) return null;
@@ -81,7 +81,8 @@ export function NumberRangePopup({ user, indexId, field, value, onChange }: Filt
     </div>
   );
 }
-export function KeywordPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
+
+function KeywordPopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   const [query, setQuery] = useState("");
   const { data: fieldValues } = useFieldValues(user, indexId, field?.name);
   const enableSearch = fieldValues && fieldValues?.length > 10;
@@ -149,7 +150,7 @@ function date2str(date: Date, ifNone = ""): string {
   return year + "-" + month + "-" + day;
 }
 
-export function DateRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
+function DateRangePopup({ user, indexId, field, value, onChange }: FilterPopupProps) {
   const { data: fieldStats } = useFieldStats(user, indexId, field?.name);
   if (field == null || value == null) return null;
   if (!fieldStats) return null;

@@ -5,9 +5,7 @@ import { ChevronLeft, ChevronRight, LucideChevronsLeft, LucideChevronsRight } fr
 import { DayPicker, useNavigation, CaptionProps } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
@@ -57,11 +55,10 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
 Calendar.displayName = "Calendar";
 
 function CustomCaption(props: CaptionProps) {
-  const { goToMonth, nextMonth, previousMonth, displayMonths } = useNavigation();
+  const { goToMonth, nextMonth, previousMonth } = useNavigation();
   const date = props.displayMonth;
   const year = date.getFullYear();
   const month = date.getMonth();
-  const day = date.getDate();
   const monthName = date.toLocaleString("default", { month: "long" });
 
   const toPreviousYear = () => goToMonth(new Date(year - 1, month));

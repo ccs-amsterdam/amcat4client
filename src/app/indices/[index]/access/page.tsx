@@ -3,6 +3,10 @@
 import { useIndex } from "@/api/index";
 import { useMutateIndexUser } from "@/api/indexUsers";
 import { useHasGlobalRole } from "@/api/userDetails";
+import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
+import { ContactInfo } from "@/components/Index/ContactInfo";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,21 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex } from "@/interfaces";
-import { ChevronDown, Crown, HelpCircle, LockKeyholeOpen, Shield } from "lucide-react";
+import { ChevronDown, Crown, HelpCircle } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { ContactInfo } from "@/components/Index/ContactInfo";
-import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -46,7 +38,6 @@ interface IndexRoleProps {
 }
 
 function IndexRoleMenu({ user, index }: IndexRoleProps) {
-  const [open, setOpen] = useState(false);
   const user_role = index?.user_role || "NONE";
   const isServerAdmin = useHasGlobalRole(user, "ADMIN");
 
@@ -74,15 +65,7 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
 
   function requestRoleChange() {
     // if (index?.user_role === "ADMIN") return null;
-    return (
-      <RequestRoleChange
-        user={user}
-        roles={roles}
-        currentRole={index?.user_role}
-        index={index}
-        onSend={() => setOpen(false)}
-      />
-    );
+    return <RequestRoleChange user={user} roles={roles} currentRole={index?.user_role} index={index} />;
   }
 
   function pointsOfContact() {
@@ -163,7 +146,7 @@ function IndexMenuServerAdmin({ user, index }: IndexRoleProps) {
   );
 }
 
-export function RoleInfoDialog() {
+function RoleInfoDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -180,7 +163,7 @@ export function RoleInfoDialog() {
   );
 }
 
-export function RoleInfo() {
+function RoleInfo() {
   return (
     <div className="flex flex-col gap-3 text-sm">
       <div className="grid grid-cols-[7rem,1fr] gap-1">

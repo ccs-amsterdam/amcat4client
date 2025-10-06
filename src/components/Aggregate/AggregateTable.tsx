@@ -18,7 +18,6 @@ export default function AggregateTable({ data, createZoom, limit }: AggregateVis
     colset.add(colName);
     d[rowName] = { ...d[rowName], [colName]: Number(row["n"]) };
   });
-  let rows = Array.from(rowset.values()).sort() as string[];
 
   //const cols = Array.from(colset.values()).sort() as string[];
   return (

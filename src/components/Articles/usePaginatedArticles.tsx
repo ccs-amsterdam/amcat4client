@@ -1,9 +1,8 @@
 import { useArticles } from "@/api/articles";
-import { AmcatField, AmcatIndexId, AmcatQuery, AmcatSnippet, AmcatUserRole, AmcatArticle } from "@/interfaces";
+import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatSnippet, AmcatUserRole } from "@/interfaces";
 import { MiddlecatUser } from "middlecat-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useListFields from "./useListFields";
-import { list } from "postcss";
 
 interface params {
   user: MiddlecatUser;

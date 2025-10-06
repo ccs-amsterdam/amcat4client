@@ -7,9 +7,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import usePaginatedArticles from "./usePaginatedArticles";
 import { DynamicIcon } from "../ui/dynamic-icon";
-import { remove } from "jszip";
 import { ReactNode } from "react";
-import { formatField } from "@/lib/formatField";
 
 interface Props {
   user: MiddlecatUser;

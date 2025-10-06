@@ -1,5 +1,5 @@
 import { AmcatField, AmcatQueryFieldSpec, AmcatSnippet, AmcatUserRole } from "@/interfaces";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 function getListFields(role: AmcatUserRole, fields: AmcatField[], defaultSnippets?: AmcatSnippet) {
   const listFields: AmcatQueryFieldSpec[] = [];

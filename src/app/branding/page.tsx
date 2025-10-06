@@ -2,10 +2,8 @@
 
 import { useAmcatBranding } from "@/api/branding";
 import { useAmcatConfig } from "@/api/config";
-import { useCurrentUserDetails } from "@/api/userDetails";
-import { useMutateUser } from "@/api/users";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { Loading } from "@/components/ui/loading";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
@@ -31,16 +29,6 @@ interface ServerSettingsProps {
 }
 
 function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsProps) {
-  const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
-  const mutate = useMutateUser(user);
-
-  if (loadingUserDetails) return <Loading />;
-
-  const ownRole = serverConfig?.authorization === "no_auth" ? "ADMIN" : userDetails?.role;
-  async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
-    mutate.mutateAsync({ email, role, action }).catch(console.error);
-  }
-
   return (
     <div className={`mx-auto grid max-w-[600px] grid-cols-1 gap-6 lg:max-w-full lg:grid-cols-2`}>
       <ServerBrandingForm />

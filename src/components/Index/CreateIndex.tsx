@@ -8,7 +8,7 @@ import { amcatIndexSchema } from "@/schemas";
 import { useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Label } from "../ui/label";
+
 import { AmcatRequestProject } from "@/interfaces";
 import { Loader, Plus } from "lucide-react";
 import { useQueryState } from "next-usequerystate";
