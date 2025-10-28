@@ -17,7 +17,6 @@ export default function PreprocessStatus({ article, fields }: Props) {
 
         let status = <Loader className="animate-[spin_20 000ms_linear_infinite] " />;
         let error = "";
-        console.log(value);
         if (value?.status) {
           if (value.status === "error") {
             error = value?.response || "Unknown error";

@@ -19,7 +19,6 @@ export function PendingIndexRequests() {
     // ts can't infer this, but it's obvious
     return requests as AmcatRequestProject[];
   }, [myRequests]);
-  console.log(pending);
 
   async function cancelRequest(request: AmcatRequestProject) {
     submitRequest({ ...request, cancel: true });

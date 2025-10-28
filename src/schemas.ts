@@ -56,9 +56,10 @@ export const amcatIndexSchema = z.object({
   user_role: amcatUserRoleSchema,
   guest_role: amcatUserRoleSchema.nullish(),
   archived: z.string().nullish(),
-  image_url: z.string().nullish(),
+  image_id: z.string().nullish(),
   folder: z.string().nullish(),
   contact: contactInfoSchema.nullish(),
+  bytes: z.number().nullish(),
 });
 
 export const amcatIndexUpdateSchema = amcatIndexSchema

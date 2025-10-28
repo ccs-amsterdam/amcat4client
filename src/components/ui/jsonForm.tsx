@@ -72,13 +72,11 @@ export function JSONForm<T extends FieldValues, Z extends ValidZod>({
                                 {form}
                               </TableCell>
                             ))}
-                            <TableCell
-                              key={"add"}
-                              className={`${lastRow || lastSubRow ? "invisible" : ""} rounded-none px-1 py-1 hover:bg-transparent`}
-                            >
+                            <TableCell key={"add"} className={` rounded-none px-1 py-1 hover:bg-transparent`}>
                               <X
-                                className="h-5 w-5 cursor-pointer text-foreground/50 hover:text-destructive"
+                                className={`h-5 w-5 select-none text-foreground/50 ${lastRow || lastSubRow ? "text-foreground/20" : "cursor-pointer text-foreground/50 hover:text-destructive"}`}
                                 onClick={() => {
+                                  if (lastRow || lastSubRow) return;
                                   const values = rmRow(rows, row_i, subrow_i);
                                   field.onChange(values);
                                 }}

@@ -29,7 +29,6 @@ export function useSubMenuPaths(paths: SubMenuPath[]) {
     return paths.filter((path) => {
       if (path.minServerRole && !hasMinAmcatRole(globalRole, path.minServerRole)) return false;
       if (path.minIndexRole && !hasMinAmcatRole(indexRole, path.minIndexRole)) return false;
-      console.log(path);
       return true;
     });
   }, [paths, globalRole, indexRole]);

@@ -9,12 +9,14 @@ import { useAmcatBranding } from "@/api/branding";
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { Loading } from "@/components/ui/loading";
 import { ArrowRight, BarChart2, Search, Share } from "lucide-react";
+import { useMiddlecat } from "middlecat-react";
 
 export default function Index() {
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
+  const { loading: userLoading } = useMiddlecat();
 
-  if (configLoading || brandingLoading) return <Loading />;
+  if (configLoading || brandingLoading || userLoading) return <Loading />;
 
   return (
     <>

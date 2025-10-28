@@ -80,6 +80,8 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
       </div>
 
       <div className="grid grid-cols-[auto,1fr] gap-x-6 text-lg   ">
+        <div className="font-bold">Size</div>
+        <div className="text-primary">{formatSimpleBytes(index.bytes || null)}</div>
         <div className="font-bold">Guest role</div>
         <div className="text-primary">{index.guest_role}</div>
         <div className="font-bold">Own role</div>
@@ -102,4 +104,33 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
       </div>
     </div>
   );
+}
+/**
+
+ * Converts bytes to KB, MB, or GB, using 1024 as the base.
+ * @param bytes The size in bytes.
+ * @returns A string in the format "X.X UNIT".
+ */
+function formatSimpleBytes(bytes: number | null): string {
+  if (bytes === null) return "Could not determine size";
+
+  const k = 1024;
+  const precision = 1;
+
+  if (bytes < k) {
+    return bytes + " Bytes";
+  }
+
+  if (bytes < k * k) {
+    // Less than 1 MB
+    return (bytes / k).toFixed(precision) + " KB";
+  }
+
+  if (bytes < k * k * k) {
+    // Less than 1 GB
+    return (bytes / (k * k)).toFixed(precision) + " MB";
+  }
+
+  // Default to GB for all larger sizes (>= 1 GB)
+  return (bytes / (k * k * k)).toFixed(precision) + " GB";
 }

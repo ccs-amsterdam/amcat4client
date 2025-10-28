@@ -26,7 +26,7 @@ export function FolderBreadcrumbs({
             {pathArray.length === 0 ? (
               <div className="flex items-center gap-2">
                 <Folder className="inline h-5 w-5" />
-                Select folder
+                {/*Select folder*/}
               </div>
             ) : (
               <FolderOpen className="inline h-5 w-5" />

@@ -36,7 +36,7 @@ export function IndexDropdownMenu({
   const { mutateAsync } = useMutateIndex(user);
   const { mutateAsync: deleteAsync } = useDeleteIndex(user);
 
-  const isAdmin = useHasIndexRole(user, index.id, "ADMIN");
+  const isAdmin = index.user_role === "ADMIN";
 
   function handleDelete() {
     deleteAsync(index.id);
@@ -46,7 +46,6 @@ export function IndexDropdownMenu({
     e.preventDefault();
     mutateAsync({ id: index.id, archive: !index.archived }).then(() => setIsDropdownOpen(false));
   }
-  console.log(index.folder);
 
   function doMoveToFolder(folder: string) {
     const f = folder.replace(/\/+/g, "/").replace(/^\/|\/$/g, "");

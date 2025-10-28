@@ -122,7 +122,7 @@ interface TextFieldProps {
 
 function TextField({ article, field, label, metareader }: TextFieldProps) {
   const content: ReactElement[] = [];
-  const [maxLength, setMaxLength] = useState(1200);
+  const [maxLength, setMaxLength] = useState(2400);
   const paragraphs = String(article?.[field.name])?.split("\n") || [];
   let nchars = 0;
 

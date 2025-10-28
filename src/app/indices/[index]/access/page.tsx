@@ -109,8 +109,10 @@ function IndexMenuServerAdmin({ user, index }: IndexRoleProps) {
     if (!role) return;
     if (role === "NONE") {
       mutateUser({ email: user.email, role, action: "delete" });
-    } else {
+    } else if (index?.user_role && index.user_role !== "NONE") {
       mutateUser({ email: user.email, role, action: "update" });
+    } else {
+      mutateUser({ email: user.email, role, action: "create" });
     }
   }
 

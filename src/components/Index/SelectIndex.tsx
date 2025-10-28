@@ -27,24 +27,25 @@ interface Folder {
 
 export function SelectIndex() {
   const { user, loading: loadingUser } = useMiddlecat();
-  const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user);
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [showPublic, setShowPublic] = useState(!user?.authenticated);
+  const [showAllIndices, setShowAllIndices] = useState(!user?.authenticated);
+  const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user, showAllIndices);
   const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]>>(new Map());
   const canCreate = useHasGlobalRole(user, "WRITER");
+  const isAdmin = useHasGlobalRole(user, "ADMIN");
 
   const [path, setPath] = useState<string | null>(null);
 
   const myIndices = useMemo(() => {
     if (!allIndices) return undefined;
     return allIndices.filter((ix) => {
-      if (!showPublic && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
+      if (!showAllIndices && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
       if (!showArchived && ix.archived) return false;
       return true;
     });
-  }, [allIndices, showPublic, showArchived]);
+  }, [allIndices, showAllIndices, showArchived]);
 
   useEffect(() => {
     function setVisible() {
@@ -84,9 +85,9 @@ export function SelectIndex() {
 
     const timeout = setTimeout(setVisible, 200);
     return () => clearTimeout(timeout);
-  }, [myIndices, search, currentPath, showArchived, showPublic]);
+  }, [myIndices, search, currentPath, showArchived, showAllIndices]);
 
-  if (loadingUser || loadingIndices)
+  if (loadingUser)
     return (
       <div className="mt-[20vh]">
         <Loading />
@@ -121,17 +122,18 @@ export function SelectIndex() {
       <div className="mb-3 flex items-center gap-6">
         <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
         <SearchAndFilter
+          isAdmin={isAdmin || false}
           search={search}
           setSearch={setSearch}
           showArchived={showArchived}
           setShowArchived={setShowArchived}
-          showPublic={showPublic}
-          setShowPublic={setShowPublic}
+          showPublic={showAllIndices}
+          setShowPublic={setShowAllIndices}
         />
       </div>
 
       <div className="grid grid-cols-[min(30vw,200px),1fr] gap-3">
-        <div className="flex h-full min-h-[500px]  flex-col p-1 pl-0">
+        <div className="flex h-full min-h-[500px]  flex-col  p-1 pl-0">
           <Button
             size="sm"
             variant="ghost"
@@ -150,11 +152,12 @@ export function SelectIndex() {
         {indexMap.size === 0 ? (
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
-          <div className="flex flex-col">
-            <div className="mb-6 min-h-[36rem] rounded bg-foreground/5 p-3">
+          <div className="flex flex-col ">
+            <div className="mb-6 min-h-[36rem] rounded p-3">
               {[...indexMap].map(([folder, indices]) => {
                 if (search === "" && folder !== "") return null;
                 if (indices.length === 0) return null;
+                if (loadingIndices) return <Loading />;
 
                 return (
                   <div key={folder} className="mb-6">
@@ -190,6 +193,7 @@ export function SelectIndex() {
 }
 
 function SearchAndFilter({
+  isAdmin,
   search,
   setSearch,
   showArchived,
@@ -197,6 +201,7 @@ function SearchAndFilter({
   showPublic,
   setShowPublic,
 }: {
+  isAdmin: boolean;
   search: string;
   setSearch: (s: string) => void;
   showArchived: boolean;
@@ -220,9 +225,9 @@ function SearchAndFilter({
           <Settings2 />
         </PopoverTrigger>
         <PopoverContent className="flex flex-col gap-2">
-          <div className={`flex  items-center gap-3`}>
-            <Switch className="size-3" id="seePublic" checked={showPublic} onCheckedChange={setShowPublic} />
-            <Label htmlFor="seePublic">show public indices</Label>
+          <div className={`${isAdmin ? "" : "hidden"} flex  items-center gap-3`}>
+            <Switch className="size-3" id="seeAll" checked={showPublic} onCheckedChange={setShowPublic} />
+            <Label htmlFor="seeAll">show all indices</Label>
           </div>
           <div className={`flex  items-center gap-3`}>
             <Switch className="size-3" id="seeArchived" checked={showArchived} onCheckedChange={setShowArchived} />

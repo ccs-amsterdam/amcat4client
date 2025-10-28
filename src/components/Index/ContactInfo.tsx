@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { z } from "zod";
 
 export function ContactInfo({ contact }: { contact: z.infer<typeof contactInfoSchema> | null | undefined }) {
-  if (!contact)
+  if (!contact || contact.length === 0)
     return (
       <div>
         <i>This index does not have public contact information.</i>

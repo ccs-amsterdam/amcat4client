@@ -11,10 +11,8 @@ export default function Task({ params }: Props) {
   const taskId = decodeURI(params.task);
   const { user } = useMiddlecat();
   const { data } = useTaskStatus(user, taskId);
-  console.log({ user, data, taskId });
   if (user == null || data == null) return <Loading />;
   if (taskId == null) return <div className="bg-warn">Please provide taskId in URL</div>;
-  console.log(data);
   return (
     <div className="flex h-full w-full flex-auto flex-col pt-6 md:pt-6">
       <div className="flex justify-center">

@@ -131,7 +131,6 @@ function add_zeroes(
 
   function byYearNrDomain(d: AggregateDataPoint[], decade: boolean = false) {
     const years = d.map((p) => Number(p[field])).filter((y) => !isNaN(y));
-    console.log(years);
     if (years.length === 0) return [];
     let min = Math.min(...years);
     let max = Math.max(...years);
@@ -186,7 +185,6 @@ function daterange(values: string[], interval: AggregationInterval): string[] {
     result.push(ymd(d));
     d = incrementDate(d, interval);
   }
-  console.log(result);
   return result;
 }
 
