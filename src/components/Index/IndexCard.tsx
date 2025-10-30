@@ -19,9 +19,11 @@ export const IndexCard = ({
   const { user } = useMiddlecat();
   if (user == null) return null;
 
-  const hasImage = !!index.image_url;
+  const imageUrl = createImageUrl(index);
+  const hasImage = !!imageUrl;
+
   const style = {
-    backgroundImage: `url('${hasImage ? index.image_url : ""}')`,
+    backgroundImage: `url('${hasImage ? imageUrl : ""}')`,
     backgroundRepeat: "no-repeat",
     backgroundPositionX: "center",
     backgroundSize: hasImage ? "cover" : "80px",
@@ -56,3 +58,8 @@ export const IndexCard = ({
     </>
   );
 };
+
+function createImageUrl(index: AmcatIndex): string | null {
+  if (!index.image_id) return null;
+  return `${process.env.NEXT_PUBLIC_AMCAT_SERVER}/index/${index.id}/image/${index.image_id}`;
+}
