@@ -30,7 +30,7 @@ export function SelectIndex() {
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [showAllIndices, setShowAllIndices] = useState(!user?.authenticated);
+  const [showAllIndices, setShowAllIndices] = useState(false);
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user, showAllIndices);
   const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]>>(new Map());
   const canCreate = useHasGlobalRole(user, "WRITER");
@@ -266,7 +266,7 @@ function NoPublicIndicesMessage({}: {}) {
         There are no public indices on this server. Please sign-in to see if you have access to any indices. Signed in
         users can also request the creation of new indices.
       </p>
-      <Button className="mx-auto flex items-center gap-2 pr-6" onClick={() => signIn()}>
+      <Button className="mx-auto mt-6 flex items-center gap-2 pr-6" onClick={() => signIn()}>
         <LogInIcon className="mr-2 h-4 w-4" />
         Sign-in
       </Button>

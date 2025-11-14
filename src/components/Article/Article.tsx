@@ -26,6 +26,7 @@ export interface ArticleProps {
 }
 
 export default React.memo(Article);
+
 function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps) {
   const { data: fields, isLoading: fieldsLoading } = useFields(user, indexId);
   const documentFields = useMemo(() => fields?.filter((f) => f.client_settings.inDocument), [fields]);
@@ -49,10 +50,10 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
   const hasPreprocess = documentFields.some((f) => f.type === "preprocess" && f.client_settings.inDocument);
 
   return (
-    <div className="prose grid h-full max-w-none grid-cols-1 gap-8 dark:prose-invert lg:grid-cols-[0.6fr,1fr]">
+    <div className="prose grid h-full max-w-none grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.5fr,1fr]">
       <div className="overflow-x-hidden">
-        <div className={`${hasMeta ? "" : "hidden"}`}>
-          <h2 className=" mt-0">Meta data</h2>
+        <div className={`${hasMeta ? "" : "hidden"} h-full rounded bg-primary/10 p-3 pr-9`}>
+          {/*<h2 className=" mt-0">Meta data</h2>*/}
           <Meta
             article={article}
             fields={documentFields}
@@ -88,7 +89,7 @@ const Body = ({ article, fields, metareader }: BodyProps) => {
 
   return (
     <>
-      <h2 className="mt-0">
+      <h2 className=" text-primary">
         {titleFields.map((f, i) => (
           <span key={f.name}>
             {i > 0 ? <span className="mx-1 text-primary"> | </span> : ""}
@@ -181,8 +182,8 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
   return (
     <div key={field.name} className="pb-1">
       {!label ? null : (
-        <div key="label" className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/80">
-          {field.name.toUpperCase()}
+        <div key="label" className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/60">
+          {field.name.replaceAll("_", " ").toUpperCase()}
         </div>
       )}
       {renderContent()}

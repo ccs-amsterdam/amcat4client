@@ -111,12 +111,13 @@ export function CreateFieldNameInput({
   setError,
   fields,
 }: {
-  name: string;
+  name: string | undefined;
   setName: (name: string) => void;
   setError: (error: string) => void;
   fields: AmcatField[];
 }) {
-  const validateFieldName = (value: string) => {
+  const validateFieldName = (value: string | undefined) => {
+    if (!value) return ["", ""];
     // see https://github.com/elastic/elasticsearch/issues/9059 (why is this not properly documented?)
     // Field names should not start with underscore, and should not contain dots or backslashes
     // (and should probably not contain spaces?)

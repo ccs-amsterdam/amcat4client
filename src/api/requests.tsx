@@ -9,7 +9,7 @@ export function useRequests(user?: MiddlecatUser) {
   return useQuery({
     queryKey: ["permission_requests/admin", user],
     queryFn: async () => getRequests(user),
-    enabled: !!user,
+    enabled: !!user?.email,
   });
 }
 
@@ -17,18 +17,18 @@ export function useMyRequests(user?: MiddlecatUser) {
   return useQuery({
     queryKey: ["permission_requests", user],
     queryFn: async () => getMyRequests(user),
-    enabled: !!user,
+    enabled: !!user?.email,
   });
 }
 
 async function getRequests(user?: MiddlecatUser) {
-  if (!user) return undefined;
+  if (!user?.email) return undefined;
   const res = await user.api.get(`/permission_requests/admin`);
   return z.array(amcatRequestSchema).parse(res.data);
 }
 
 async function getMyRequests(user?: MiddlecatUser) {
-  if (!user) return undefined;
+  if (!user?.email) return undefined;
   const res = await user.api.get(`/permission_requests`);
   return z.array(amcatRequestSchema).parse(res.data);
 }

@@ -14,7 +14,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
   if (metaFields.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className=" flex flex-col gap-4">
       {fields.map((field) => {
         if (["text", "image", "video", "preprocess"].includes(field.type)) return null;
 
@@ -30,8 +30,8 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
         value = String(value);
 
         return (
-          <div key={field.name} className="grid grid-cols-[7rem,1fr] gap-3">
-            <Badge
+          <div key={field.name} className="flex flex-col">
+            {/*<Badge
               tooltip={
                 <div className="grid grid-cols-[auto,1fr] items-center gap-x-3">
                   <b>FIELD</b>
@@ -47,10 +47,21 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
               }
             >
               {field.name}
-            </Badge>
-            <span className="line-clamp-3 overflow-hidden text-ellipsis">
+            </Badge>*/}
+            <span
+              title={field.name}
+              className="line-clamp-1 overflow-hidden text-ellipsis font-semibold text-foreground/80"
+            >
+              {field.name.replaceAll("_", " ").toUpperCase()}
+            </span>
+
+            <span
+              className="line-clamp-3 overflow-hidden text-ellipsis text-[0.9rem] leading-5"
+              title={noAccessMessage ? null : value}
+            >
               {noAccessMessage || formatField(article, field) || <span className="text-primary">NA</span>}
             </span>
+            <div className="mt-2 border-b border-foreground/10" />
           </div>
         );
       })}

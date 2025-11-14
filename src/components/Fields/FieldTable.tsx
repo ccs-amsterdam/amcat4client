@@ -31,6 +31,7 @@ const tableColumns: ColumnDef<Row>[] = [
   {
     accessorKey: "type",
     header: "Type",
+
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
