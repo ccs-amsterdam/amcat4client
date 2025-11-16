@@ -297,7 +297,7 @@ function UploadTable({
         <TableRow className="bg-primary hover:bg-primary">
           <TableHead className="text-lg font-semibold text-primary-foreground">CSV Column</TableHead>
           <TableHead className="text-lg font-semibold text-primary-foreground">AmCAT Field</TableHead>
-          <TableHead className=" text-lg font-semibold text-primary-foreground">Status</TableHead>
+          <TableHead className="w-44 text-lg font-semibold text-primary-foreground">Status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -305,7 +305,7 @@ function UploadTable({
           return (
             <TableRow key={column.name} className="">
               <TableCell className="max-w-20 overflow-hidden text-ellipsis text-balance  bg-primary/10">
-                {column.name}
+                <span title={column.name}> {column.name}</span>
               </TableCell>
               <TableCell className="overflow-hidden text-ellipsis  text-balance">
                 <SelectAmcatField
@@ -317,7 +317,7 @@ function UploadTable({
                   setCreateColumn={setCreateColumn}
                 />
               </TableCell>
-              <TableCell className="">{getUploadStatus(column, data)}</TableCell>
+              <TableCell className="overflow-auto text-wrap">{getUploadStatus(column, data)}</TableCell>
             </TableRow>
           );
         })}
@@ -509,20 +509,20 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
 
   switch (column.status) {
     case "Ready":
-      icon = <CheckSquare className="h-6 w-6 text-check" />;
+      icon = <CheckSquare className="h-6 w-6 flex-shrink-0 text-check" />;
       break;
     case "Validating":
-      icon = <Loader className="h-6 w-6 animate-spin" />;
+      icon = <Loader className="h-6 w-6 flex-shrink-0 animate-spin" />;
       break;
     case "Type not set":
-      icon = <Square className="h-6 w-6 text-warn" />;
+      icon = <Square className="h-6 w-6 flex-shrink-0 text-warn" />;
       break;
     case "Type mismatch":
-      icon = <AlertCircleIcon className="h-6 w-6 text-warn" />;
+      icon = <AlertCircleIcon className="h-6 w-6 flex-shrink-0 text-warn" />;
       text = column.typeWarning || "Type mismatch";
       break;
     default:
-      icon = <Square className="h-6 w-6 text-secondary" />;
+      icon = <Square className="h-6 w-6 flex-shrink-0 text-secondary" />;
   }
 
   let examples: ReactNode = null;
@@ -544,10 +544,10 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3">
       {icon}
       <Tooltip>
-        <TooltipTrigger>{text}</TooltipTrigger>
+        <TooltipTrigger className="text-left">{text}</TooltipTrigger>
         {examples}
       </Tooltip>
     </div>
@@ -618,7 +618,7 @@ function SelectAmcatField({
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className={unusedFields.length > 0 ? "flex gap-2" : "hidden"}>
+            <DropdownMenuSubTrigger className={`${unusedFields.length > 0 ? "flex gap-2" : "hidden"} `}>
               <List /> Select field
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>

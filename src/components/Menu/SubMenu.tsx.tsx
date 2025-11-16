@@ -40,7 +40,7 @@ export function SubMenu({ basePath = "", paths }: { basePath?: string; paths: Su
   const allowedPaths = useSubMenuPaths(paths);
 
   return (
-    <div className="grid grid-cols-[1fr,max-content]">
+    <div className="grid grid-cols-[1fr,max-content] bg-primary/10 text-foreground">
       <div className="flex h-9 w-full items-center justify-start   overflow-hidden text-sm">
         {allowedPaths.map((path, i) => (
           <NavLink key={path.href} i={i} basePath={basePath} path={path} />
@@ -98,7 +98,7 @@ function NavLink({ i, basePath, path }: { i: number; basePath: string; path: Sub
     <button
       onClick={() => router.push(href)}
       className={`${
-        active ? "border-b-2 border-primary  font-semibold" : "bg-background text-foreground/80 hover:bg-primary/10"
+        active ? "bg-primary/10 " : "bg-transparent text-foreground/80 hover:bg-primary/10"
       } ${i === 0 ? "" : ""} flex h-full select-none items-center gap-2 border-primary px-3 outline-none   `}
     >
       {<path.Icon className="h-4 w-4" />}

@@ -50,9 +50,12 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
   const hasPreprocess = documentFields.some((f) => f.type === "preprocess" && f.client_settings.inDocument);
 
   return (
-    <div className="prose grid h-full max-w-none grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[0.5fr,1fr]">
-      <div className="overflow-x-hidden">
-        <div className={`${hasMeta ? "" : "hidden"} h-full rounded bg-primary/10 p-3 pr-9`}>
+    <div className="prose grid h-full max-w-none grid-cols-1 gap-6 dark:prose-invert lg:grid-cols-[1fr,0.5fr]">
+      <div className="h-full overflow-auto">
+        <Body article={article} fields={documentFields} metareader={indexRole === "METAREADER"} />
+      </div>
+      <div className="mt-6 overflow-x-hidden">
+        <div className={`${hasMeta ? "" : "hidden"} h-full rounded bg-primary/10 p-3 `}>
           {/*<h2 className=" mt-0">Meta data</h2>*/}
           <Meta
             article={article}
@@ -70,9 +73,6 @@ function Article({ user, indexId, id, query, changeArticle, link }: ArticleProps
           <PreprocessStatus article={article} fields={documentFields} />
         </div>
       </div>
-      <div className="h-full overflow-auto">
-        <Body article={article} fields={documentFields} metareader={indexRole === "METAREADER"} />
-      </div>
     </div>
   );
 }
@@ -89,10 +89,18 @@ const Body = ({ article, fields, metareader }: BodyProps) => {
 
   return (
     <>
-      <h2 className=" text-primary">
+      <FieldLabel>
         {titleFields.map((f, i) => (
           <span key={f.name}>
-            {i > 0 ? <span className="mx-1 text-primary"> | </span> : ""}
+            {i > 0 ? <span className="mx-1  text-primary/20"> | </span> : ""}
+            {f.name.replaceAll("_", " ").toUpperCase()}
+          </span>
+        ))}
+      </FieldLabel>
+      <h2 className=" mt-0 text-foreground/70">
+        {titleFields.map((f, i) => (
+          <span key={f.name}>
+            {i > 0 ? <span className="mx-1  text-foreground/20"> | </span> : ""}
             {highlightElasticTags(String(article[f.name] || "NA"))}
           </span>
         ))}
@@ -181,11 +189,7 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
 
   return (
     <div key={field.name} className="pb-1">
-      {!label ? null : (
-        <div key="label" className="mb-2 border-b border-primary/30 pr-1 text-lg font-bold text-primary/60">
-          {field.name.replaceAll("_", " ").toUpperCase()}
-        </div>
-      )}
+      {!label ? null : <FieldLabel>{field.name.replaceAll("_", " ").toUpperCase()}</FieldLabel>}
       {renderContent()}
     </div>
   );
@@ -193,4 +197,12 @@ function TextField({ article, field, label, metareader }: TextFieldProps) {
 
 function highlightableValue(value: string) {
   return value.includes("<em>") ? highlightElasticTags(value) : value;
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div key="label" className="text  border-primary/30 pr-1 font-bold text-primary/60">
+      {children}
+    </div>
+  );
 }

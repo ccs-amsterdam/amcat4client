@@ -28,7 +28,7 @@ export function Branding({
 
   const no_auth = serverConfig.authorization === "no_auth";
   return (
-    <section className="bg-gradient-to-r from-primary to-primary/80 text-background ">
+    <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground ">
       {/*<div className="flex items-center justify-center gap-1 whitespace-nowrap pl-9 pt-3">
         <ServerNameAndLink serverBranding={serverBranding} />
       </div>*/}

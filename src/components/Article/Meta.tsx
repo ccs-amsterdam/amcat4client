@@ -14,7 +14,7 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
   if (metaFields.length === 0) return null;
 
   return (
-    <div className=" flex flex-col gap-4">
+    <div className=" prose-sm flex flex-col gap-4">
       {fields.map((field) => {
         if (["text", "image", "video", "preprocess"].includes(field.type)) return null;
 
@@ -50,13 +50,13 @@ export default function Meta({ article, fields, setArticle, metareader }: MetaPr
             </Badge>*/}
             <span
               title={field.name}
-              className="line-clamp-1 overflow-hidden text-ellipsis font-semibold text-foreground/80"
+              className="line-clamp-1 overflow-hidden text-ellipsis font-semibold text-primary/80"
             >
               {field.name.replaceAll("_", " ").toUpperCase()}
             </span>
 
             <span
-              className="line-clamp-3 overflow-hidden text-ellipsis text-[0.9rem] leading-5"
+              className="line-clamp-3 overflow-hidden text-ellipsis text-[0.8rem] leading-5"
               title={noAccessMessage ? null : value}
             >
               {noAccessMessage || formatField(article, field) || <span className="text-primary">NA</span>}

@@ -11,6 +11,7 @@ import {
   LockKeyholeOpen,
   Paintbrush,
   Settings,
+  Slash,
   Users,
 } from "lucide-react";
 import { usePathname } from "next/dist/client/components/navigation";
@@ -46,7 +47,7 @@ export default function Navbar() {
 
   function logo() {
     return (
-      <Link href={"/"} className="flex h-14 items-center px-3 hover:bg-primary/10">
+      <Link href={"/"} className="flex h-14 items-center px-3">
         <img
           className={`mr-0 aspect-auto w-9 min-w-9 sm:w-10 `}
           src={branding?.server_icon || "/logo.png"}
@@ -63,8 +64,8 @@ export default function Navbar() {
   }
 
   return (
-    <nav className={`z-40  border-b border-primary/30 text-sm`}>
-      <div className={`select-none overflow-hidden  bg-background  `}>
+    <nav className={`z-40   border-b border-primary/30 text-sm`}>
+      <div className={`select-none overflow-hidden border-b border-primary/30  bg-background  `}>
         <div className="flex h-14 items-center justify-between">
           {logo()}
           <BreadCrumbs branding={branding} hasIndex={hasIndex} />
@@ -83,7 +84,7 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
   const path = usePathname();
   const homepage = path === "/";
 
-  const serverLinkLabel = branding?.server_name || "server";
+  const serverLinkLabel = branding?.server_name || "Server";
 
   return (
     <>
@@ -91,6 +92,7 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
         {/*<ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />*/}
         {/*<span className="text-primary/50">|</span>*/}
+        <span className=" text-xs text-foreground/50">/</span>
         <IndexMenu />
       </div>
       <div className="flex h-full flex-col items-start overflow-hidden  py-1 pl-2  text-sm sm:hidden  md:text-base">
@@ -106,7 +108,7 @@ function BreadCrumbLink({ name, href, active = true }: { name: string; href: str
   return (
     <button
       className={`${active ? "font-semibold" : "text-foreground/90"}
-        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-3 outline-none hover:bg-primary/10`}
+        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-3 outline-none hover:font-semibold`}
       onClick={() => router.push(href)}
     >
       {name}
