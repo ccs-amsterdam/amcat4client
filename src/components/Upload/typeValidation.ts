@@ -12,7 +12,7 @@ export function prepareUploadData(
     const newRow: Record<string, jsType> = {};
     for (const column of columns) {
       if (!column.field) continue;
-      if (column.status !== "Ready" && column.status !== "Type mismatch") continue;
+      if (column.status !== "Ready" && column.status !== "Type invalid") continue;
       if (column.field === null) continue;
 
       if (column.type === "date") setCoercedValueOrSkip(newRow, row[column.name], column.field, coerceDate);
@@ -41,10 +41,7 @@ export function prepareUploadData(
 }
 
 export function autoTypeColumn(data: Record<string, jsType>[], name: string): Column {
-  const field = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_")
-    .replace(/^_/, "");
+  const field = autoNameColumn(name);
 
   const column: Column = { name, field, type: null, elastic_type: null, status: "Validating", exists: false };
 
@@ -62,11 +59,19 @@ export function autoTypeColumn(data: Record<string, jsType>[], name: string): Co
   if (isBoolean) return { ...column, type: "boolean", elastic_type: "boolean" };
 
   const pctUnique = percentUnique(data, name);
-  if (pctUnique < 0.5 && !hasValueLongerThan(data, name, 256))
+  if (pctUnique < 0.5 && !hasValueLongerThan(data, name, 100))
     return { ...column, type: "keyword", elastic_type: "keyword" };
 
   return { ...column, type: "text", elastic_type: "text" };
 }
+
+export function autoNameColumn(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/^_/, "");
+}
+
 function setCoercedValueOrSkip(
   row: Record<string, jsType>,
   value: jsType,
@@ -93,8 +98,8 @@ export async function validateColumns(
       if (hasValueLongerThan(data, column.name, 256)) {
         return {
           ...column,
-          status: "Type mismatch",
-          typeWarning: "Contains long strings. Are you sure this isn't a text type?",
+          status: "Type invalid",
+          typeWarning: "Some values are too long (> 256 chars) to be a keyword. These will be skipped",
         };
       }
     }
@@ -102,14 +107,14 @@ export async function validateColumns(
     if (column.type === "text" || column.type === "keyword") {
       const empty = countEmpty(data, column.name);
       if (empty > 0) {
-        return { ...column, status: "Type mismatch", typeWarning: `${empty} empty values` };
+        return { ...column, status: "Type invalid", typeWarning: `${empty} empty values` };
       }
       const invalid = listInvalid(data, column.name, coerceNumeric);
       if (invalid.length === 0) {
         return {
           ...column,
-          status: "Type mismatch",
-          typeWarning: "Contains only numeric values. Are you sure this isn't a number type?",
+          status: "Type warning",
+          typeWarning: "Contains only numeric values. Are you sure this isn't a 'number' type?",
           invalidExamples: invalid.slice(0, 100),
         };
       }
@@ -120,7 +125,7 @@ export async function validateColumns(
       if (invalidDates.length > 0) {
         return {
           ...column,
-          status: "Type mismatch",
+          status: "Type invalid",
           typeWarning: `${invalidDates.length} invalid dates`,
           invalidExamples: invalidDates.slice(0, 100),
         };
@@ -133,7 +138,7 @@ export async function validateColumns(
         if (invalidIntegers.length > 0) {
           return {
             ...column,
-            status: "Type mismatch",
+            status: "Type invalid",
             typeWarning: `${invalidIntegers.length} invalid integers`,
             invalidExamples: invalidIntegers.slice(0, 100),
           };
@@ -143,7 +148,7 @@ export async function validateColumns(
         if (invalidIntegers.length > 0) {
           return {
             ...column,
-            status: "Type mismatch",
+            status: "Type invalid",
             typeWarning: `${invalidIntegers.length} invalid unsigned integers`,
             invalidExamples: invalidIntegers.slice(0, 100),
           };
@@ -153,7 +158,7 @@ export async function validateColumns(
         if (invalidDoubles.length > 0) {
           return {
             ...column,
-            status: "Type mismatch",
+            status: "Type invalid",
             typeWarning: `${invalidDoubles.length} invalid numbers`,
             invalidExamples: invalidDoubles.slice(0, 100),
           };
@@ -166,7 +171,7 @@ export async function validateColumns(
       if (invalidBooleans.length > 0) {
         return {
           ...column,
-          status: "Type mismatch",
+          status: "Type invalid",
           typeWarning: `${invalidBooleans.length} invalid booleans`,
           invalidExamples: invalidBooleans,
         };
@@ -178,7 +183,7 @@ export async function validateColumns(
       if (invalidImages.length > 0) {
         return {
           ...column,
-          status: "Type mismatch",
+          status: "Type invalid",
           typeWarning: `${invalidImages.length} links to missing images`,
           invalidExamples: invalidImages.slice(0, 5),
         };
@@ -190,7 +195,7 @@ export async function validateColumns(
       if (invalidVideos.length > 0) {
         return {
           ...column,
-          status: "Type mismatch",
+          status: "Type invalid",
           typeWarning: `${invalidVideos.length} links to missing videos`,
           invalidExamples: invalidVideos.slice(0, 100),
         };

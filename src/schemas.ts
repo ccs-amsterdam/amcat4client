@@ -56,7 +56,7 @@ export const amcatIndexSchema = z.object({
   user_role: amcatUserRoleSchema,
   guest_role: amcatUserRoleSchema.nullish(),
   archived: z.string().nullish(),
-  image_id: z.string().nullish(),
+  image_url: z.string().nullish(),
   folder: z.string().nullish(),
   contact: contactInfoSchema.nullish(),
   bytes: z.number().nullish(),
@@ -332,32 +332,35 @@ export const amcatPreprocessingTask = z.object({
   request: amcatPreprocessingTaskRequest,
 });
 
-const amcatRequestAbstract = z.object({
-  email: z.string(),
-  timestamp: z
-    .string()
-    .nullish()
-    .transform((x) => (x ? new Date(x) : undefined)),
-  message: z.string().nullish(),
-  reject: z.boolean().optional(),
-  cancel: z.boolean().optional(),
-});
-
-export const amcatRequestRoleSchema = amcatRequestAbstract.extend({
-  request_type: z.literal("role").nullish().default("role"), // TODO: remove nullish and default when server is updated
-  index: z.string().nullish(),
+export const amcatRequestProjectRoleSchema = z.object({
+  type: z.literal("project_role"),
+  project_id: z.string(),
   role: amcatUserRoleSchema,
+  message: z.string().nullish(),
 });
 
-export const amcatRequestProjectSchema = amcatRequestAbstract.extend({
-  request_type: z.literal("create_project"),
-  index: z.string(),
-  description: z.string().nullish(),
+export const amcatRequestServerRoleSchema = z.object({
+  type: z.literal("server_role"),
+  role: amcatUserRoleSchema,
+  message: z.string().nullish(),
+});
+
+export const amcatRequestProjectSchema = z.object({
+  type: z.literal("create_project"),
+  project_id: z.string(),
   name: z.string().nullish(),
+  description: z.string().nullish(),
   folder: z.string().nullish(),
+  message: z.string().nullish(),
 });
 
-export const amcatRequestSchema = z.discriminatedUnion("request_type", [
-  amcatRequestRoleSchema,
-  amcatRequestProjectSchema,
-]);
+export const amcatRequestSchema = z.object({
+  email: z.string(),
+  status: z.enum(["pending", "approved", "rejected"]),
+  timestamp: z.coerce.date(),
+  request: z.discriminatedUnion("type", [
+    amcatRequestProjectRoleSchema,
+    amcatRequestServerRoleSchema,
+    amcatRequestProjectSchema,
+  ]),
+});

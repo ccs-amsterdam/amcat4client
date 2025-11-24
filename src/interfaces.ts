@@ -23,11 +23,12 @@ import {
   amcatPreprocessingTask,
   amcatQueryResultSchema,
   amcatRequestProjectSchema,
-  amcatRequestRoleSchema,
+  amcatRequestProjectRoleSchema,
   amcatRequestSchema,
   amcatSnippetSchema,
   amcatUserDetailsSchema,
   amcatUserRoleSchema,
+  amcatRequestServerRoleSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -58,7 +59,8 @@ export type PreprocessingInstruction = z.infer<typeof amcatPreprocessingInstruct
 export type PreprocessingTask = z.infer<typeof amcatPreprocessingTask>;
 export type DisplayOption = "list" | "table" | "linechart" | "barchart";
 export type AmcatRequest = z.infer<typeof amcatRequestSchema>;
-export type AmcatRequestRole = z.infer<typeof amcatRequestRoleSchema>;
+export type AmcatRequestProjectRole = z.infer<typeof amcatRequestProjectRoleSchema>;
+export type AmcatRequestServerRole = z.infer<typeof amcatRequestServerRoleSchema>;
 export type AmcatRequestProject = z.infer<typeof amcatRequestProjectSchema>;
 
 export type AmcatIndexId = string;

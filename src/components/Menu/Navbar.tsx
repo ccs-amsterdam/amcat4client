@@ -88,7 +88,7 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
 
   return (
     <>
-      <div className="hidden h-full items-center  overflow-hidden   text-sm sm:flex  md:text-base">
+      <div className="hidden h-full items-center  overflow-hidden   text-sm sm:flex  md:text-lg">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
         {/*<ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />*/}
         {/*<span className="text-primary/50">|</span>*/}
@@ -107,8 +107,8 @@ function BreadCrumbLink({ name, href, active = true }: { name: string; href: str
   const router = useRouter();
   return (
     <button
-      className={`${active ? "font-semibold" : "text-foreground/90"}
-        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-3 outline-none hover:font-semibold`}
+      className={`${active ? "font-medium" : "text-foreground/90"}
+        flex h-full min-w-0  select-none items-center gap-1  text-ellipsis whitespace-nowrap border-primary  px-1 outline-none hover:font-semibold md:px-3`}
       onClick={() => router.push(href)}
     >
       {name}

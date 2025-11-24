@@ -1,4 +1,4 @@
-import { useMyRequests, useSubmitRequest } from "@/api/requests";
+import { useDeleteMyRequest, useMyRequests, useSubmitRequest } from "@/api/requests";
 import { AmcatRequest, AmcatRequestProject } from "@/interfaces";
 import { Loader } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
@@ -9,19 +9,15 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export function PendingIndexRequests() {
   const { user } = useMiddlecat();
   const { data: myRequests, isLoading } = useMyRequests(user);
-  const { mutateAsync: submitRequest } = useSubmitRequest(user);
+  const { mutateAsync: deleteRequest } = useDeleteMyRequest(user);
 
   const pending = useMemo(() => {
     if (!myRequests) return null;
-    const requests: AmcatRequest[] = myRequests.filter((r) => {
-      return r.request_type === "create_project";
-    });
-    // ts can't infer this, but it's obvious
-    return requests as AmcatRequestProject[];
+    return myRequests.filter((r) => r.request.type === "create_project").map((r) => r.request as AmcatRequestProject);
   }, [myRequests]);
 
   async function cancelRequest(request: AmcatRequestProject) {
-    submitRequest({ ...request, cancel: true });
+    deleteRequest(request);
   }
 
   if (!pending || pending.length === 0) return null;
@@ -38,7 +34,7 @@ export function PendingIndexRequests() {
         </DialogHeader>
         <div className="flex flex-col gap-1">
           {pending.map((request) => (
-            <PendingRequest key={request.index} request={request} submitRequest={cancelRequest} />
+            <PendingRequest key={request.project_id} request={request} submitRequest={cancelRequest} />
           ))}
         </div>
       </DialogContent>
@@ -69,7 +65,7 @@ function PendingRequest({
       </div>
       <div className="text mt-2 grid grid-cols-[7rem,auto] leading-5">
         <div className="text-foreground/70">id</div>
-        <div className="w-full break-words font-bold">{request.index}</div>
+        <div className="w-full break-words font-bold">{request.project_id}</div>
         <div className="text-foreground/70">name</div>
         <div className="w-full break-words font-bold">{request.name}</div>
         {!!request.description && (

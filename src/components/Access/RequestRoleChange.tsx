@@ -1,6 +1,6 @@
 import { useMyRequests, useSubmitRequest } from "@/api/requests";
-import { AmcatIndex, AmcatIndexId, AmcatRequestRole } from "@/interfaces";
-import { amcatRequestRoleSchema } from "@/schemas";
+import { AmcatIndex, AmcatIndexId, AmcatRequest, AmcatRequestProjectRole, AmcatRequestServerRole } from "@/interfaces";
+import { amcatRequestProjectRoleSchema, amcatRequestServerRoleSchema } from "@/schemas";
 import { ChevronDown, Loader, LogInIcon, Timer } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useCallback, useEffect, useState } from "react";
@@ -40,13 +40,20 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
 
   function onSubmit(role: string | undefined) {
     if (!role) return;
-    const request = amcatRequestRoleSchema.parse({
-      request_type: "role",
-      email: user.email,
-      role: role,
-      message,
-    });
-    if (index) request.index = index.id;
+
+    const request = index
+      ? amcatRequestProjectRoleSchema.parse({
+          type: "project_role",
+          role: role,
+          project_id: index.id,
+          message,
+        })
+      : amcatRequestServerRoleSchema.parse({
+          type: "server_role",
+          role: role,
+          message,
+        });
+
     setLoading(true);
     submitRequest(request)
       .then(() => {
@@ -137,21 +144,21 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
 function usePendingRequest(
   user: MiddlecatUser,
   index?: AmcatIndexId,
-): { request: AmcatRequestRole | null; loading: boolean } {
+): { request: AmcatRequestServerRole | AmcatRequestProjectRole | null; loading: boolean } {
   const { data: myRequests, isLoading } = useMyRequests(user);
 
-  const getPending = useCallback(() => {
+  const getPending = useCallback((): AmcatRequestServerRole | AmcatRequestProjectRole | null => {
     if (!myRequests) return null;
 
-    const currentRequests =
-      myRequests?.filter(
-        (r) => r.request_type === "role" && r.email === user.email && (index ? r.index === index : !index),
-      ) || [];
-    const pending = currentRequests[0]; // requests should be unique on user + index
-
-    if (!pending) return null;
-    if (pending.request_type !== "role") return null;
-    return pending;
+    for (const r of myRequests) {
+      if (r.email !== user.email) continue;
+      if (index) {
+        if (r.request.type === "project_role" && r.request.project_id === index) return r.request;
+      } else {
+        if (r.request.type === "server_role") return r.request;
+      }
+    }
+    return null;
   }, [myRequests, user, index]);
 
   if (isLoading) return { request: null, loading: true };

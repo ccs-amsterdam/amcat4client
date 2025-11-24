@@ -88,9 +88,9 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
         <div className=" text-primary">{index.user_role}</div>
         <div className="font-bold">Folder</div>
         <div className=" text-primary">{index.folder}</div>
-        <div className="font-bold">Image</div>
-        <div className=" text-primary">{index.image_url}</div>
       </div>
+      <img src={index.image_url || ""} alt="Index image" className="max-w-[300px] rounded object-contain" />
+
       <div>
         <div className="prose w-max rounded-md bg-primary/10 px-6 py-2 dark:prose-invert">
           <h4 className="text-foreground/60">Contact information</h4>

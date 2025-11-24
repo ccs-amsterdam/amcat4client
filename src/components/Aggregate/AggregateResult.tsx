@@ -159,7 +159,7 @@ export default function AggregateResult({
             <TooltipTrigger asChild>
               <Button
                 variant="destructive"
-                className={`pointer-events-auto bg-destructive/60 shadow-md shadow-foreground/30 hover:bg-destructive ${
+                className={`pointer-events-auto  shadow-md shadow-foreground/30 hover:bg-destructive ${
                   hasNextPage ? "block" : "hidden"
                 }`}
                 onClick={() => fetchNextPage()}

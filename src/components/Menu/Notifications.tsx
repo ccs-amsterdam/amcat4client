@@ -1,5 +1,5 @@
 import { useRequests, useResolveRequests } from "@/api/requests";
-import { AmcatRequest, AmcatRequestProject, AmcatRequestRole } from "@/interfaces";
+import { AmcatRequest, AmcatRequestProject, AmcatRequestProjectRole, AmcatRequestServerRole } from "@/interfaces";
 import { Bell, Check, CheckIcon, Loader, X } from "lucide-react";
 import { useMiddlecat } from "middlecat-react";
 import { useEffect, useMemo, useState } from "react";
@@ -11,7 +11,7 @@ type Tab = "Server role" | "Index role" | "Project";
 
 interface Action {
   tab: Tab;
-  decision: "approve" | "reject";
+  decision: "approved" | "rejected";
   request: AmcatRequest;
 }
 
@@ -42,7 +42,7 @@ function NotificationModal({ requests, actions, setActions }: NotificationProps)
   function onResolve() {
     const resolvedRequests: AmcatRequest[] = Object.values(actions).map((a) => ({
       ...a.request,
-      reject: a.decision === "reject",
+      status: a.decision,
     }));
 
     setLoading(true);
@@ -98,9 +98,9 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
 
   const requestsPerTab = useMemo(() => {
     const requestsPerTab: Record<Tab, AmcatRequest[]> = { "Server role": [], "Index role": [], Project: [] };
-    requestsPerTab["Server role"] = requests.filter((r) => r.request_type === "role" && r.index == null);
-    requestsPerTab["Index role"] = requests.filter((r) => r.request_type === "role" && r.index != null);
-    requestsPerTab["Project"] = requests.filter((r) => r.request_type === "create_project");
+    requestsPerTab["Server role"] = requests.filter((r) => r.request.type === "server_role");
+    requestsPerTab["Index role"] = requests.filter((r) => r.request.type === "project_role");
+    requestsPerTab["Project"] = requests.filter((r) => r.request.type === "create_project");
     return requestsPerTab;
   }, [requests]);
 
@@ -127,7 +127,6 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
 
   function renderRoleRequests(tab: Tab) {
     return requestsPerTab[tab].map((roleRequest) => {
-      if (roleRequest.request_type !== "role") return null;
       const key = JSON.stringify(roleRequest);
       return (
         <RoleRequest
@@ -141,7 +140,6 @@ function NotificationTabs({ requests, actions: actions, setActions }: Notificati
   }
   function renderProjectRequests() {
     return requestsPerTab["Project"].map((projectRequest) => {
-      if (projectRequest.request_type !== "create_project") return null;
       const key = JSON.stringify(projectRequest);
       return (
         <ProjectRequest
@@ -207,13 +205,17 @@ function RoleRequest({
   decision,
   setApprove: setDecision,
 }: {
-  roleRequest: AmcatRequestRole;
+  roleRequest: AmcatRequest;
   decision: Action["decision"] | undefined;
   setApprove: (action: Action["decision"]) => void;
 }) {
-  const { email, role, index, message } = roleRequest;
+  const { email, request } = roleRequest;
 
-  const bg = decision === "approve" ? "bg-check/30" : decision === "reject" ? "bg-destructive/30" : "bg-foreground/10";
+  if (request.type !== "server_role" && request.type !== "project_role") return null;
+  const projectId = request.type === "project_role" ? request.project_id : null;
+
+  const bg =
+    decision === "approved" ? "bg-check/30" : decision === "rejected" ? "bg-destructive/30" : "bg-foreground/10";
 
   return (
     <div className={`${bg} flex flex-col items-end  gap-3 rounded-sm p-3 md:flex-row`}>
@@ -222,30 +224,30 @@ function RoleRequest({
           <div className="text-foreground/70">user</div>
           <div className="w-full break-words font-bold">{email}</div>
           <div className="text-foreground/70">requests</div>
-          <div>{role} role</div>
-          {index == null || index === "_global" ? null : (
+          <div>{request.role} role</div>
+          {projectId == null ? null : (
             <>
               <div className="text-foreground/70">for index</div>
-              <b>{index}</b>
+              <b>{projectId}</b>
             </>
           )}
         </div>
-        <div className="mt-3 italic">{message}</div>
+        <div className="mt-3 italic">{request.message}</div>
       </div>
       <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
         <Button
           size="sm"
-          variant={decision === "approve" ? "positive" : "outline"}
-          className={decision === "approve" ? "" : "opacity-50"}
-          onClick={() => setDecision("approve")}
+          variant={decision === "approved" ? "positive" : "outline"}
+          className={decision === "approved" ? "" : "opacity-50"}
+          onClick={() => setDecision("approved")}
         >
           <Check />
         </Button>
         <Button
           size="sm"
-          variant={decision === "reject" ? "destructive" : "outline"}
-          className={decision === "reject" ? "" : "opacity-50"}
-          onClick={() => setDecision("reject")}
+          variant={decision === "rejected" ? "destructive" : "outline"}
+          className={decision === "rejected" ? "" : "opacity-50"}
+          onClick={() => setDecision("rejected")}
         >
           <X />
         </Button>
@@ -259,13 +261,18 @@ function ProjectRequest({
   decision,
   setApprove: setDecision,
 }: {
-  projectRequest: AmcatRequestProject;
+  projectRequest: AmcatRequest;
   decision: Action["decision"] | undefined;
   setApprove: (action: Action["decision"]) => void;
 }) {
-  const { email, folder, index, message, name, description } = projectRequest;
+  if (projectRequest.request.type !== "create_project") return null;
+  const {
+    email,
+    request: { folder, project_id, message, name, description },
+  } = projectRequest;
 
-  const bg = decision === "approve" ? "bg-check/30" : decision === "reject" ? "bg-destructive/30" : "bg-foreground/10";
+  const bg =
+    decision === "approved" ? "bg-check/30" : decision === "rejected" ? "bg-destructive/30" : "bg-foreground/10";
 
   return (
     <div className={`${bg} flex flex-col items-end  gap-3 rounded-sm p-3 md:flex-row`}>
@@ -275,7 +282,7 @@ function ProjectRequest({
         </div>
         <div className="text mt-2 grid grid-cols-[7rem,auto] leading-5">
           <div className="text-foreground/70">id</div>
-          <div className="w-full break-words font-bold">{index}</div>
+          <div className="w-full break-words font-bold">{project_id}</div>
           <div className="text-foreground/70">name</div>
           <div className="w-full break-words font-bold">{name}</div>
           {!!description && (
@@ -296,17 +303,17 @@ function ProjectRequest({
       <div className="mb-auto ml-auto flex flex-auto items-center gap-2">
         <Button
           size="sm"
-          variant={decision === "approve" ? "positive" : "outline"}
-          className={decision === "approve" ? "" : "opacity-50"}
-          onClick={() => setDecision("approve")}
+          variant={decision === "approved" ? "positive" : "outline"}
+          className={decision === "approved" ? "" : "opacity-50"}
+          onClick={() => setDecision("approved")}
         >
           <Check />
         </Button>
         <Button
           size="sm"
-          variant={decision === "reject" ? "destructive" : "outline"}
-          className={decision === "reject" ? "" : "opacity-50"}
-          onClick={() => setDecision("reject")}
+          variant={decision === "rejected" ? "destructive" : "outline"}
+          className={decision === "rejected" ? "" : "opacity-50"}
+          onClick={() => setDecision("rejected")}
         >
           <X />
         </Button>

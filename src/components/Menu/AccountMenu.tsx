@@ -54,7 +54,12 @@ export default function AccountMenu() {
     }
   }
 
-  if (loadingUser || loadingConfig) return <Spinner />;
+  if (loadingUser || loadingConfig)
+    return (
+      <div className="px-3">
+        <Spinner />
+      </div>
+    );
 
   return (
     <DropdownMenu>

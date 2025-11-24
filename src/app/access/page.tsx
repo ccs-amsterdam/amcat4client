@@ -26,7 +26,7 @@ export default function ServerRole() {
 
   function requestRoleChange() {
     if (!user) return null;
-    // if (index?.user_role === "ADMIN") return null;
+    if (user_role === "ADMIN") return null;
     return <RequestRoleChange user={user} roles={roles} currentRole={user_role} />;
   }
 
@@ -51,7 +51,7 @@ export default function ServerRole() {
 
   return (
     <div className="mt-12 flex flex-col gap-6 p-6">
-      <div className="grid grid-cols-1 gap-6  lg:grid-cols-2">
+      <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div className=" flex items-center gap-3 py-3">
           {myRole()}
           <RoleInfoDialog />

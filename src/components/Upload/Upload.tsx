@@ -12,7 +12,7 @@ import { MiddlecatUser } from "middlecat-react";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useCSVReader } from "react-papaparse";
 import { Button } from "../ui/button";
-import { autoTypeColumn, prepareUploadData, validateColumns } from "./typeValidation";
+import { autoNameColumn, autoTypeColumn, prepareUploadData, validateColumns } from "./typeValidation";
 
 import { useMutateArticles } from "@/api/articles";
 import { useHasIndexRole } from "@/api/index";
@@ -26,6 +26,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -35,6 +37,8 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import SimpleTooltip from "../ui/simple-tooltip";
+import { Label } from "../ui/label";
+import { Progress } from "../ui/progress";
 
 interface Props {
   user: MiddlecatUser;
@@ -42,7 +46,7 @@ interface Props {
 }
 
 export type jsType = string | number | boolean;
-export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type mismatch";
+export type Status = "Validating" | "Ready" | "Not used" | "Type not set" | "Type invalid" | "Type warning";
 interface UploadStatus {
   operation: UploadOperation;
   status: "idle" | "uploading" | "success" | "error";
@@ -141,6 +145,7 @@ export default function Upload({ user, indexId }: Props) {
           let operationMessage = operation === "index" ? "created or updated" : "created";
           setData([]);
           setColumns([]);
+          setCreateColumn(null);
           toast.success(
             `Upload complete: ${operationMessage} ${uploadStatus.successes + result.successes} / ${
               uploadStatus.successes + result.successes + uploadStatus.failures + result.failures.length
@@ -163,8 +168,8 @@ export default function Upload({ user, indexId }: Props) {
 
   const duplicates = useMemo(() => hasDuplicates(data, columns), [data, columns]);
   const nonePending = columns.length > 0 && columns.every((c) => !["Validating", "Type not set"].includes(c.status));
-  const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready" || c.status === "Type mismatch");
-  const warn = columns.some((c) => c.status === "Type mismatch");
+  const ready = !duplicates && nonePending && columns.some((c) => c.status === "Ready" || c.status === "Type invalid");
+  const warn = columns.some((c) => c.status === "Type invalid");
 
   async function startUpload() {
     if (!ready) return;
@@ -218,16 +223,10 @@ export default function Upload({ user, indexId }: Props) {
   if (uploadStatus.status === "uploading")
     return <UploadScreen uploadStatus={uploadStatus} setUploadStatus={setUploadStatus} />;
 
-  const identifiers = fields.filter((f) => f.identifier);
-  const otherFields = fields.filter((f) => !f.identifier);
-  const newIdentifiers = columns.filter((c) => c.identifier && !c.exists && c.field);
-  const newFields = columns.filter((c) => !c.identifier && !c.exists && c.field);
-
   return (
     <div className="mb-12 flex flex-col gap-4">
       <CSVUploader fields={fields} setData={setData} setColumns={setColumns} />
       <div className={`flex flex-col gap-8 ${data.length === 0 ? "hidden" : ""}`}>
-        <ShowFields columns={columns} identifiers={identifiers} otherFields={otherFields} status={"Existing"} />
         <UploadTable
           columns={columns}
           data={data}
@@ -236,31 +235,34 @@ export default function Upload({ user, indexId }: Props) {
           createColumn={createColumn}
           setCreateColumn={setCreateColumn}
         />
-        {/*<ShowFields columns={columns} identifiers={newIdentifiers} otherFields={newFields} status={"New"} />*/}
-        <div className="flex items-center">
-          <Button disabled={!ready} onClick={onUpload}>
-            Upload {data.length || ""} documents
-          </Button>
-          <IdentifiersWarningDialog
-            noIdentifierWarning={noIdentifierWarning}
-            setNoIdentifierWarning={setNoIdentifierWarning}
-            onIgnoreNoIdentifierWarning={onIgnoreNoIdentifierWarning}
-          />
-          <UploadOptions isAdmin={!!isAdmin} operation={operation} setOperation={setOperation} />
+        <div className="prose max-w-none rounded border p-6 dark:prose-invert">
+          <h3>Confirm upload</h3>
+          <UnusedFields columns={columns} fields={fields} />
+          <div className="flex items-center">
+            <Button disabled={!ready} onClick={onUpload}>
+              Upload {data.length || ""} documents
+            </Button>
+            <IdentifiersWarningDialog
+              noIdentifierWarning={noIdentifierWarning}
+              setNoIdentifierWarning={setNoIdentifierWarning}
+              onIgnoreNoIdentifierWarning={onIgnoreNoIdentifierWarning}
+            />
+            <UploadOptions isAdmin={!!isAdmin} operation={operation} setOperation={setOperation} />
 
-          <div className="flex flex-col gap-2">
-            {warn ? (
-              <div className="ml-4 flex items-center gap-2">
-                <AlertCircleIcon className="h-6 w-6 text-secondary" />
-                <div>Some fields have type mismatches. These will become missing values</div>
-              </div>
-            ) : null}
-            {duplicates ? (
-              <div className="ml-4 flex items-center gap-2">
-                <AlertCircleIcon className="h-6 w-6 text-warn" />
-                <div>Some documents have duplicate identifiers</div>
-              </div>
-            ) : null}
+            <div className="flex flex-col gap-2">
+              {warn ? (
+                <div className="ml-4 flex items-center gap-2">
+                  <AlertCircleIcon className="h-6 w-6 text-secondary" />
+                  <div>Some field values have an invalid type. These will become missing values</div>
+                </div>
+              ) : null}
+              {duplicates ? (
+                <div className="ml-4 flex items-center gap-2">
+                  <AlertCircleIcon className="h-6 w-6 text-warn" />
+                  <div>Some documents have duplicate identifiers</div>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -292,12 +294,13 @@ function UploadTable({
 }) {
   const [editColumn, setEditColumn] = useState<Column | null>(null);
   return (
-    <Table className="table table-auto whitespace-nowrap">
+    <Table className="table table-fixed whitespace-nowrap">
       <TableHeader>
         <TableRow className="bg-primary hover:bg-primary">
           <TableHead className="text-lg font-semibold text-primary-foreground">CSV Column</TableHead>
           <TableHead className="text-lg font-semibold text-primary-foreground">AmCAT Field</TableHead>
-          <TableHead className="w-44 text-lg font-semibold text-primary-foreground">Status</TableHead>
+          <TableHead className="w-40 text-lg font-semibold text-primary-foreground"></TableHead>
+          <TableHead className="text-lg font-semibold text-primary-foreground">Status</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -316,6 +319,9 @@ function UploadTable({
                   createColumn={createColumn}
                   setCreateColumn={setCreateColumn}
                 />
+              </TableCell>
+              <TableCell>
+                <CreateNewField data={data} column={column} setColumn={setColumn} setCreateColumn={setCreateColumn} />
               </TableCell>
               <TableCell className="overflow-auto text-wrap">{getUploadStatus(column, data)}</TableCell>
             </TableRow>
@@ -336,10 +342,9 @@ function UploadScreen({
   return (
     <div className="mx-auto flex flex-col gap-4">
       <h3 className="prose-xl w-full">Uploading documents</h3>
-      <div className="flex gap-4">
-        <Loader className="h-8 w-8 animate-spin" />
+      <div className="flex items-center gap-4">
         <div>
-          batch {uploadStatus.batch_index + 1}/{uploadStatus.batches.length}
+          <Progress value={((uploadStatus.batch_index + 1) / uploadStatus.batches.length) * 100} className="w-96" />
         </div>
       </div>
       <div className="flex flex-col gap-2">
@@ -357,60 +362,40 @@ function UploadScreen({
   );
 }
 
-function ShowFields({
-  columns,
-  identifiers,
-  otherFields,
-  status,
-}: {
-  columns: Column[];
-  identifiers: AmcatField[] | Column[];
-  otherFields: AmcatField[] | Column[];
-  status: "New" | "Existing";
-}) {
-  function renderExistingField(fields: AmcatField[] | Column[], identifier = false, newField = false) {
-    let anyNotUsed = false;
+function UnusedFields({ columns, fields }: { columns: Column[]; fields: AmcatField[] }) {
+  const unusedIdentifiers = fields.filter((c) => c.identifier && !columns.find((col) => col.field === c.name));
+  const unusedOther = fields.filter((c) => !c.identifier && !columns.find((col) => col.field === c.name));
+
+  function UnusedDropdown({ identifier, items }: { identifier?: boolean; items: AmcatField[] }) {
     return (
-      <div className="flex flex-wrap gap-1 text-sm">
-        {fields.map((field) => {
-          const used = columns.find((c) => c.field === field.name);
-          if (!used && !newField) anyNotUsed = true;
-          return (
-            <div
-              key={field.name}
-              className={`${
-                newField || !!used ? "" : "bg-destructive text-destructive-foreground"
-              } flex items-center gap-3 rounded-lg border  p-1  text-xs  `}
-            >
-              <DynamicIcon type={field.type} />
-              <div className="flex w-full justify-between gap-3">
-                <div className="font-bold ">{field.name}</div>
-              </div>
-            </div>
-          );
-        })}
-        {anyNotUsed ? (
-          <div className="flex items-center gap-3">
-            <AlertCircleIcon className="h-6 w-6 text-warn" />
-            <div>Some {identifier ? "identifiers" : "fields"} are not used</div>
-          </div>
-        ) : null}
+      <div className={`${items.length > 0 ? "" : "hidden"}`}>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-3 py-3">
+            {identifier ? (
+              <AlertCircleIcon className="h-6 w-6 text-warn" />
+            ) : (
+              <AlertCircleIcon className="h-6 w-6 text-secondary" />
+            )}
+            {items.length} existing {identifier ? "identifier " : ""}fields are not used
+            <ChevronDown className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {items.map((field) => (
+              <DropdownMenuItem key={field.name} className="flex items-center gap-1">
+                <DynamicIcon type={field.type} className="mr-2 h-6 w-6 flex-shrink-0" />
+                {field.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
 
   return (
-    <div className="">
-      <div className="md: grid grid-cols-1 gap-4 py-4 md:grid-cols-2">
-        <div className={` ${identifiers.length === 0 ? "hidden" : ""}`}>
-          <h3 className="w-full">{status} index identifiers</h3>
-          {renderExistingField(identifiers, true, status === "New")}
-        </div>
-        <div className={` ${otherFields.length === 0 ? "hidden" : ""}`}>
-          <h3 className="w-full">{status} index fields</h3>
-          {renderExistingField(otherFields, false, status === "New")}
-        </div>
-      </div>
+    <div className="flex flex-col gap-3">
+      <UnusedDropdown identifier items={unusedIdentifiers} />
+      <UnusedDropdown items={unusedOther} />
     </div>
   );
 }
@@ -478,23 +463,26 @@ function UploadOptions({
             <ChevronDown className="h-5 w-5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" className="max-w-md">
-            <DropdownMenuItem onClick={() => setOperation("create")} className="flex-col items-start justify-start">
+            <DropdownMenuLabel>Upload operation</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => setOperation("create")}
+              className="flex-col items-start justify-start gap-1"
+            >
               <span className="">Create</span>
-              <div className=" text-foreground/60">If document (identifier) already exists, skip the document</div>
+              <div className=" font-light text-foreground/60">
+                Only create new documents. If an identifier already exists, do not upload the document.
+              </div>
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={!isAdmin}
               onClick={() => setOperation("update")}
-              className="flex-col items-start justify-start"
+              className="flex-col items-start justify-start gap-1"
             >
               <span className="">
                 Create or update{" "}
                 {isAdmin ? "" : <span className="rounded bg-warn px-1 text-warn-foreground">admin only</span>}
               </span>
-              <span className="text-foreground/60">
-                If document (identifier) already exists, add or overwrite the uploaded fields. (existing fields that are
-                not in the uploaded data will not not be removed)
-              </span>
+              <span className="font-light text-foreground/60">Create new documents and update existing ones </span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -517,9 +505,13 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
     case "Type not set":
       icon = <Square className="h-6 w-6 flex-shrink-0 text-warn" />;
       break;
-    case "Type mismatch":
+    case "Type invalid":
       icon = <AlertCircleIcon className="h-6 w-6 flex-shrink-0 text-warn" />;
-      text = column.typeWarning || "Type mismatch";
+      text = column.typeWarning || "Type invalid";
+      break;
+    case "Type warning":
+      icon = <AlertCircleIcon className="h-6 w-6 flex-shrink-0 text-secondary" />;
+      text = column.typeWarning || "Type warning";
       break;
     default:
       icon = <Square className="h-6 w-6 flex-shrink-0 text-secondary" />;
@@ -554,6 +546,57 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   );
 }
 
+function CreateNewField({
+  data,
+  column,
+  setColumn,
+  setCreateColumn,
+}: {
+  data: Record<string, jsType>[];
+  column: Column;
+  setColumn: (column: Column) => void;
+  setCreateColumn: (column: Column | null) => void;
+}) {
+  const label = column.field && !column.exists ? "Edit" : "Create new";
+  const existing = column.exists;
+  const notused = column.status === "Not used";
+
+  return (
+    <div className="flex items-center gap-3">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={notused ? "hidden" : ""}
+        onClick={() =>
+          setColumn({
+            name: column.name,
+            field: null,
+            type: null,
+            elastic_type: null,
+            status: "Not used",
+            exists: false,
+          })
+        }
+      >
+        <X className="h-6 w-6 text-foreground/60" />
+      </Button>
+      <Button
+        variant={"ghost"}
+        className={existing ? "hidden" : "bg-primary/10"}
+        onClick={() => {
+          if (notused) {
+            setCreateColumn(autoTypeColumn(data, column.name));
+          } else {
+            setCreateColumn(column);
+          }
+        }}
+      >
+        {label}
+      </Button>
+    </div>
+  );
+}
+
 function SelectAmcatField({
   data,
   column,
@@ -571,104 +614,51 @@ function SelectAmcatField({
 }) {
   if (!column) return null;
 
-  function autoType(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-    setColumn(autoTypeColumn(data, column.name));
+  if (column.type) {
+    return (
+      <div className="flex items-center gap-3 rounded p-2 pl-0">
+        <DynamicIcon type={column.type} className="h-6 w-6 flex-shrink-0" />
+        <div className="py-0 text-left leading-5">
+          <div className="break-all font-bold text-primary">{column.field}</div>
+          <div className="text-sm font-light text-foreground/60 ">{column.type}</div>
+        </div>
+      </div>
+    );
   }
 
-  const isNew = column.field && !column.exists;
+  if (unusedFields.length === 0) return <div></div>;
 
   return (
     <div className="flex items-center gap-2">
-      {/* {isNew ? <div className="h-6 rounded bg-secondary px-1 py-[2px] text-secondary-foreground">NEW</div> : null} */}
-      {/*<SimpleTooltip text={column.exists ? "This is an identifier field" : "Should new column be used as identifier?"}>
-        <Button
-          variant="ghost"
-          className={` mr-2 h-min rounded-full p-0 ${
-            !column.type || (column.exists && !column.identifier) ? "hidden" : ""
-          }`}
-        >
-          <Key
-            onClick={(e) => {
-              if (!column.exists) setColumn({ ...column, identifier: !column.identifier });
-            }}
-            className={` cursor-target text-secondary-foregroundf h-7 w-7  rounded-full p-1 ${
-              column.identifier ? "bg-secondary" : "border bg-gray-100 text-transparent"
-            }`}
-          />
-        </Button>
-      </SimpleTooltip>*/}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger className={`flex items-center gap-3 rounded p-2 pl-0 `}>
-          {column.field ? (
-            <>
-              <DynamicIcon type={column.type} className="h-6 w-6 flex-shrink-0" />
-              <div className="text-left leading-4">
-                <div className="break-words break-all font-bold text-primary">{column.field}</div>
-                <div className="text-sm italic text-foreground/60 ">{column.type}</div>
-              </div>
-            </>
-          ) : (
-            <>
-              Select field
-              <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
-            </>
-          )}
+          Select field
+          <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className={`${unusedFields.length > 0 ? "flex gap-2" : "hidden"} `}>
-              <List /> Select field
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {unusedFields.map((field) => {
-                return (
-                  <DropdownMenuItem
-                    key={field.name}
-                    onClick={() =>
-                      setColumn({
-                        ...column,
-                        field: field.name,
-                        type: field.type,
-                        elastic_type: field.elastic_type,
-                        status: "Validating",
-                        exists: true,
-                      })
-                    }
-                  >
-                    {field.name}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
-          <DropdownMenuItem className="flex gap-2" onClick={() => setCreateColumn(column)}>
-            {isNew ? <Edit /> : <Plus />}
-            {isNew ? "Edit new field" : "Create new field"}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className={column.field ? "flex gap-2" : "hidden"}
-            onClick={() =>
-              setColumn({
-                ...column,
-                field: null,
-                type: null,
-                elastic_type: null,
-                exists: false,
-                status: "Not used",
-              })
-            }
-          >
-            <X /> Remove field
-          </DropdownMenuItem>
+        <DropdownMenuContent className="max-h-[80vh] overflow-auto">
+          {unusedFields.map((field) => {
+            return (
+              <DropdownMenuItem
+                key={field.name}
+                className="flex items-center gap-2"
+                onClick={() =>
+                  setColumn({
+                    ...column,
+                    field: field.name,
+                    type: field.type,
+                    elastic_type: field.elastic_type,
+                    status: "Validating",
+                    exists: true,
+                  })
+                }
+              >
+                <DynamicIcon type={field.type} className="h-6 w-6 flex-shrink-0" /> &nbsp;
+                {field.name}
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <Button variant="outline" onClick={autoType} className={`${column.field ? "hidden" : ""} ml-3 h-6 px-2 py-0`}>
-        automate
-      </Button>
     </div>
   );
 }
@@ -708,7 +698,7 @@ function CreateFieldDialog({
           </p> */}
         </DialogHeader>
         <div className="flex flex-col gap-4 overflow-auto p-1">
-          <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr,10rem]">
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr,10rem]">
             <CreateFieldNameInput
               name={createColumn.field || undefined}
               setName={(name) => setCreateColumn({ ...createColumn, field: name })}
@@ -720,22 +710,23 @@ function CreateFieldDialog({
               setType={(type) => setCreateColumn({ ...createColumn, status: "Validating", type })}
             />
           </div>
-          <div
-            className=" flex items-center gap-3 "
-            onClick={() => {
-              setCreateColumn({ ...createColumn, identifier: !createColumn.identifier });
-            }}
-          >
+          <div className=" flex items-center gap-3 ">
             <Key className="h-6 w-6" />
             <label className="">Use as identifier</label>
-            <Checkbox className="ml-[2px] h-5 w-5" checked={createColumn.identifier}>
+            <Checkbox
+              className="ml-[2px] h-5 w-5"
+              checked={createColumn.identifier}
+              onCheckedChange={() => setCreateColumn({ ...createColumn, identifier: !createColumn.identifier })}
+            >
               Field exists
             </Checkbox>
           </div>
         </div>
         <div className="mt-2 flex items-center gap-2">
           <CreateFieldInfoDialog />
-          {error ? <div className="ml-auto text-destructive">{error}</div> : null}
+          {error ? (
+            <div className="ml-auto max-w-64 overflow-hidden text-ellipsis text-sm text-destructive">{error}</div>
+          ) : null}
           <div className="ml-auto flex gap-2">
             <Button
               disabled={!createColumn.field || !createColumn.type || !!error}
@@ -811,7 +802,7 @@ function CSVUploader({
             <div className="w-full">
               <Button
                 variant="outline"
-                className={`${zoneHover ? "bg-secondary/30" : ""} text-md w-full flex-auto border-dotted px-10 py-14 `}
+                className={`${zoneHover ? "bg-primary/30" : ""} text-md w-full flex-auto border-dotted bg-primary/10 px-10 py-14 hover:bg-primary/20 `}
                 {...getRootProps()}
               >
                 Click to upload a CSV file, or drag and drop it here
@@ -836,13 +827,20 @@ function prepareData({
   setData: Dispatch<SetStateAction<Record<string, jsType>[]>>;
   setColumns: Dispatch<SetStateAction<Column[]>>;
 }) {
+  const usedFields = new Set<string>();
+
   const columns = importedData[0].map((column): Column => {
     const name = String(column);
-    const field = fields.find((f) => f.name === name);
+    const field = fields.find((f) => {
+      if (usedFields.has(f.name)) return false;
+      return autoNameColumn(name) === f.name;
+    });
     if (!field) return { name, field: null, type: null, elastic_type: null, status: "Not used", exists: false };
+
+    usedFields.add(field.name);
     return {
       name,
-      field: name,
+      field: field.name,
       type: field.type,
       elastic_type: field.elastic_type,
       status: "Validating",

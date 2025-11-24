@@ -58,12 +58,11 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
     e.preventDefault();
     if (!user) return;
     const request: AmcatRequestProject = {
-      request_type: "create_project",
-      index: id,
+      type: "create_project",
+      project_id: id,
       name: name,
       description: description,
       message: message,
-      email: user.email,
     };
 
     setLoading(true);

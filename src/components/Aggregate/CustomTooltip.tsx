@@ -45,7 +45,7 @@ export const CustomTooltip = ({
     const others = sorted.length - items.length;
     return (
       <div className="rounded-md border-[1px] border-gray-400 bg-background/70 p-3">
-        <h3 className="mb-2 text-base font-bold">{label}</h3>
+        <h3 className="mb-2 text-sm font-semibold">{label}</h3>
         <div className="grid grid-cols-[25px,auto,1fr,1fr] items-center ">
           {items.map((item, i) => {
             return (

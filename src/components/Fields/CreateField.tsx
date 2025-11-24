@@ -124,7 +124,7 @@ export function CreateFieldNameInput({
     let error = "";
     value = value.replace(/[ \\.\\]/, "");
     value = value.replace(/^_+/, "");
-    if (fields.find((f) => f.name === value)) error = `Field ${value} already exists`;
+    if (fields.find((f) => f.name === value)) error = `Field name already exists`;
     return [value, error];
   };
 
@@ -140,7 +140,7 @@ export function CreateFieldNameInput({
     setName(value);
   }, [fields, name]);
 
-  return <Input required value={name} onChange={doSetField} placeholder="Field name" />;
+  return <Input name="field_name" required value={name} onChange={doSetField} placeholder="Field name" />;
 }
 
 export function CreateFieldSelectType({

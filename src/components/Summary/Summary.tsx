@@ -40,8 +40,8 @@ export default function Summary({ user, indexId, query }: Props) {
       </div>
       <div className="mt-12 flex snap-center flex-col  gap-3 md:gap-6">
         {visualizations.length === 0 ? (
-          <div className="w-full flex-auto px-10 py-14 text-xl text-primary">
-            {isWriter ? <a href="./data?tab=fields">Enable visualizations in field settings</a> : null}
+          <div className="w-full flex-auto px-10 py-14 text-right text-xl text-primary">
+            {isWriter ? <a href="./fields">Enable visualizations in field settings</a> : null}
           </div>
         ) : (
           visualizations

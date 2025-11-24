@@ -29,10 +29,19 @@ export default function AggregateBarChart({ data, createZoom, width, height, lim
   if (width == null) width = "100%";
 
   return (
-    <ResponsiveContainer width={width} height={height} className="text-sm">
+    <ResponsiveContainer width={width} height={height} className="text-sm ">
       <BarChart data={data.rows} layout="vertical">
         <CartesianGrid strokeDasharray="3 3" />
-        <YAxis type="category" dataKey={primary} width={250} interval={0} />
+        <YAxis
+          type="category"
+          dataKey={primary}
+          width={250}
+          interval={0}
+          fontSize={12}
+          tickFormatter={(value) =>
+            typeof value === "string" && value.length > 30 ? value.slice(0, 27) + "..." : value
+          }
+        />
         <XAxis type="number" domain={[0, data.domain[1]]} />
         <Tooltip cursor={{ opacity: 0.2 }} content={<CustomTooltip value={bar} />} />
 

@@ -64,12 +64,13 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   }
 
   function requestRoleChange() {
-    // if (index?.user_role === "ADMIN") return null;
+    if (index?.user_role === "ADMIN") return null;
+    if (isServerAdmin) return null;
     return <RequestRoleChange user={user} roles={roles} currentRole={index?.user_role} index={index} />;
   }
 
   function pointsOfContact() {
-    if (index?.contact)
+    if (index?.contact && index?.contact.length > 0)
       return (
         <div className=" mt-6  max-w-xl items-center gap-3 rounded-md">
           <div className="p-3">
@@ -86,8 +87,8 @@ function IndexRoleMenu({ user, index }: IndexRoleProps) {
   }
 
   return (
-    <div className="mt-12 flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-6  lg:grid-cols-2">
+    <div className="mt-12 flex flex-col gap-6 ">
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
         <div className=" flex items-center gap-3 py-3">
           {myRole()}
           <RoleInfoDialog />
