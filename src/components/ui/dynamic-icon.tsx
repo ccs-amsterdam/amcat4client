@@ -46,6 +46,9 @@ export function DynamicIcon({ type, className = "" }: { type: string | null; cla
   if (type === "video") return <MonitorPlay className={className} />;
   if (type === "audio") return <Volume2 className={className} />;
   if (type === "preprocess") return <Settings className={className} />;
+
+  if (type == null) return null;
+
   console.error(`Unknown icon type ${type}`);
   return <X />;
 }

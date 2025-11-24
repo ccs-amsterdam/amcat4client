@@ -363,20 +363,37 @@ function UploadScreen({
 }
 
 function UnusedFields({ columns, fields }: { columns: Column[]; fields: AmcatField[] }) {
+  const unusedColumns = columns.filter((c) => !c.field);
   const unusedIdentifiers = fields.filter((c) => c.identifier && !columns.find((col) => col.field === c.name));
   const unusedOther = fields.filter((c) => !c.identifier && !columns.find((col) => col.field === c.name));
 
-  function UnusedDropdown({ identifier, items }: { identifier?: boolean; items: AmcatField[] }) {
+  function UnusedDropdown({
+    items,
+    identifier,
+    column,
+  }: {
+    items: AmcatField[] | Column[];
+    identifier?: boolean;
+    column?: boolean;
+  }) {
+    if (items.length === 0) return null;
+    const what = identifier ? "identifier " : column ? "column " : "";
+    function msg() {
+      if (identifier) return "AmCAT identifier fields not used";
+      if (column) return "CSV columns not used";
+      return "AmCAT fields not used";
+    }
+
     return (
       <div className={`${items.length > 0 ? "" : "hidden"}`}>
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-3 py-3">
+          <DropdownMenuTrigger className="flex items-center gap-3 py-1">
             {identifier ? (
               <AlertCircleIcon className="h-6 w-6 text-warn" />
             ) : (
               <AlertCircleIcon className="h-6 w-6 text-secondary" />
             )}
-            {items.length} existing {identifier ? "identifier " : ""}fields are not used
+            {items.length} {msg()}
             <ChevronDown className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -393,8 +410,9 @@ function UnusedFields({ columns, fields }: { columns: Column[]; fields: AmcatFie
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <UnusedDropdown identifier items={unusedIdentifiers} />
+    <div className="flex flex-col py-2">
+      <UnusedDropdown items={unusedColumns} column />
+      <UnusedDropdown items={unusedIdentifiers} identifier />
       <UnusedDropdown items={unusedOther} />
     </div>
   );
