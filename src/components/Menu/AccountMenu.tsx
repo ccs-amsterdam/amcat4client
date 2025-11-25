@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatConfig } from "@/interfaces";
-import { AlertCircle, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
+import { AlertCircle, Bot, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
@@ -74,6 +74,10 @@ export default function AccountMenu() {
       >
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
         {renderAuthButtons()}
+        <DropdownMenuItem onClick={() => router.push("/api_keys")}>
+          <Bot className="mr-2 h-4 w-4" />
+          <span>API Keys</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <ThemeToggle label={true} />
       </DropdownMenuContent>

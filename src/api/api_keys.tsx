@@ -1,0 +1,47 @@
+import { AmcatApiKeyCreate } from "@/interfaces";
+import { amcatApiKeySchema } from "@/schemas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { toast } from "sonner";
+import { z } from "zod";
+
+export function useApiKeys(user: MiddlecatUser) {
+  return useQuery({
+    queryKey: ["api_keys"],
+    queryFn: async () => {
+      const res = await user.api.get(`api_keys`);
+      return z.array(amcatApiKeySchema).parse(res.data);
+    },
+  });
+}
+
+interface MutateApiKeysParams {
+  id: string;
+  update: AmcatApiKeyCreate;
+  action: "update" | "delete" | "create";
+}
+
+export function useMutateApiKeys(user?: MiddlecatUser) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: MutateApiKeysParams) => {
+      if (!user) throw new Error("Not logged in");
+      let api_key: string | null = null;
+      if (params.action === "delete") {
+        await user.api.delete(`api_keys/${params.id}`);
+      } else if (params.action === "update") {
+        const res = await user.api.put(`api_keys/${params.id}`, params.update);
+        api_key = res.data.api_key || null;
+      } else if (params.action === "create") {
+        const res = await user.api.post(`api_keys`, params.update);
+        api_key = res.data.api_key || null;
+      }
+      return api_key;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["api_keys"] });
+    },
+  });
+}

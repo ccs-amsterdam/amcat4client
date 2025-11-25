@@ -4,6 +4,7 @@ import { useAmcatBranding } from "@/api/branding";
 import { AmcatBranding } from "@/interfaces";
 import useAutoSignin from "@/lib/useAutoSignin";
 import {
+  Bot,
   Columns3Cog,
   DatabaseZap,
   LayoutDashboard,
@@ -26,6 +27,7 @@ const serverSubMenuPaths: SubMenuPath[] = [
   { href: "indices", label: "Indices", Icon: Library, minServerRole: "NONE" },
   { href: "branding", label: "Branding", Icon: Paintbrush, minServerRole: "ADMIN" },
   { href: "users", label: "Server users", Icon: Users, minServerRole: "ADMIN" },
+  { href: "api_keys", label: "API keys", Icon: Bot, minServerRole: "NONE" },
   { href: "access", label: "Server role", Icon: LockKeyholeOpen, minServerRole: "NONE" },
 ];
 

@@ -29,6 +29,7 @@ import {
   amcatUserDetailsSchema,
   amcatUserRoleSchema,
   amcatRequestServerRoleSchema,
+  amcatApiKeyCreateSchema,
 } from "./schemas";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
@@ -62,6 +63,7 @@ export type AmcatRequest = z.infer<typeof amcatRequestSchema>;
 export type AmcatRequestProjectRole = z.infer<typeof amcatRequestProjectRoleSchema>;
 export type AmcatRequestServerRole = z.infer<typeof amcatRequestServerRoleSchema>;
 export type AmcatRequestProject = z.infer<typeof amcatRequestProjectSchema>;
+export type AmcatApiKeyCreate = z.infer<typeof amcatApiKeyCreateSchema>;
 
 export type AmcatIndexId = string;
 
