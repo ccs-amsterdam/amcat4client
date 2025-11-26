@@ -1,6 +1,6 @@
 "use client";
 import { useAmcatConfig } from "@/api/config";
-import useAmcatIndices from "@/api/indices";
+import { useAmcatIndices } from "@/api/indices";
 import { useCurrentUserDetails } from "@/api/userDetails";
 
 import { RequestRoleChange } from "@/components/Access/RequestRoleChange";

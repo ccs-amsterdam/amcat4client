@@ -1,5 +1,5 @@
 import { useCount } from "@/api/aggregate";
-import useAmcatIndices from "@/api/indices";
+import { useAmcatIndices } from "@/api/indices";
 import { postReindex } from "@/api/query";
 import { AmcatIndex, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";

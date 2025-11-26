@@ -1,6 +1,6 @@
 "use client";
 
-import useAmcatIndices from "@/api/indices";
+import { useAmcatIndices } from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
@@ -113,9 +113,9 @@ export function SelectIndex() {
   const folderList = [...indexMap.keys()].filter((f) => f !== "");
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-3">
       <div className="mb-8 flex flex-col items-start gap-2 md:flex-row">
-        <div className="prose-xl mr-auto  flex items-center justify-between">
+        <div className="prose-xl mr-auto   flex items-center justify-between">
           <h3 className="">Indices</h3>
         </div>
         <CreateIndex folder={currentPath ?? undefined} request={!canCreate} />
@@ -123,7 +123,6 @@ export function SelectIndex() {
       </div>
 
       <div className="mb-3 flex items-center gap-6">
-        <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
         <SearchAndFilter
           isAdmin={isAdmin || false}
           search={search}
@@ -135,8 +134,9 @@ export function SelectIndex() {
         />
       </div>
 
-      <div className="grid grid-cols-[min(30vw,200px),1fr] gap-3">
-        <div className="flex h-full min-h-[500px]  flex-col  p-1 pl-0">
+      <div className="grid grid-cols-[min(30vw,250px),1fr] gap-3 rounded bg-gradient-to-tr from-primary/5 to-primary/20">
+        <div className="flex h-full min-h-[500px] flex-col rounded-l bg-primary/20 p-3">
+          <div className="px-1 pb-3 font-semibold text-foreground/60">Folders</div>
           <Button
             size="sm"
             variant="ghost"
@@ -150,34 +150,41 @@ export function SelectIndex() {
           {folderList.map((folder) => (
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
           ))}
-          {folderList?.length || path ? null : <div className="px-1 py-1 text-sm text-foreground/60">No folders</div>}
+          {folderList?.length || path ? null : (
+            <div className="px-1 py-1 text-sm text-foreground/60">No folders found</div>
+          )}
         </div>
         {indexMap.size === 0 ? (
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
           <div className="flex flex-col ">
             <div className="mb-6 min-h-[36rem] rounded p-3">
-              {[...indexMap].map(([folder, indices]) => {
-                if (search === "" && folder !== "") return null;
-                if (indices.length === 0) return null;
+              <div className="pb-3">
+                <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
+              </div>
+              {[...indexMap].map(([folder, indices], i) => {
+                // if (search === "" && folder !== "") return null;
+                if (indices.length === 0) {
+                  return null;
+                }
                 if (loadingIndices) return <Loading />;
 
                 return (
                   <div key={folder} className="mb-6">
                     <div
-                      className={`${folder === "" ? "hidden" : ""} mb-3 flex items-center gap-1  pt-1 text-sm text-foreground/60`}
+                      className={`${folder === "" ? "hidden" : ""} mb-1 flex items-center gap-1 text-sm text-foreground/60`}
                     >
-                      search results inside
+                      {/*Indices in folder*/}
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="flex h-6 items-center gap-2"
+                        className="my-1 flex h-6 w-full items-center gap-2 px-1 py-4 hover:bg-background/20"
                         onClick={() => appendFolder(folder)}
                       >
                         <Folder className="h-5 w-5" />
                         {folder}
+                        <div className={"flex-auto  border-b border-foreground/5 "} />
                       </Button>
-                      <div className={"flex-auto  border-b border-foreground/10"} />
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
                       {indices.map((index) => (

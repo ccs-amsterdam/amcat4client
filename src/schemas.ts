@@ -369,7 +369,7 @@ const amcatApiKeyRestrictionsSchema = z.object({
   edit_api_keys: z.boolean().default(false),
   server_role: amcatUserRoleSchema.nullish(),
   default_project_role: amcatUserRoleSchema.nullish(),
-  project_roles: z.record(z.string(), amcatUserRoleSchema),
+  project_roles: z.record(z.string(), z.enum(amcatUserRoles)),
 });
 
 export const amcatApiKeySchema = z.object({
@@ -377,12 +377,6 @@ export const amcatApiKeySchema = z.object({
   name: z.string(),
   expires_at: z.coerce.date(),
   restrictions: amcatApiKeyRestrictionsSchema,
-});
-
-export const amcatApiKeyCreateSchema = z.object({
-  name: z.string(),
-  expires_at: z.coerce.date(),
-  restrictions: amcatApiKeyRestrictionsSchema.nullish(),
 });
 
 export const amcatApiKeyUpdateResponseSchema = z.object({

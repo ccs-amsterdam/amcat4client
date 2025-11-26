@@ -1,123 +1,264 @@
-"use client";
-
-import { useAmcatBranding, useMutateBranding } from "@/api/branding";
-import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { Loading } from "@/components/ui/loading";
 import { useMiddlecat } from "middlecat-react";
 
-import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { amcatBrandingSchema, informationLinksSchema, linkArraySchema } from "@/schemas";
+import { amcatApiKeySchema, amcatUserRoles } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { JSONForm } from "@/components/ui/jsonForm";
 import { useMutateApiKeys } from "@/api/api_keys";
+import { useAmcatIndexRoles } from "@/api/indices";
+import { AmcatApiKey, AmcatIndexId, AmcatUserRole } from "@/interfaces";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+import { roleHigherThan } from "@/api/util";
+import { Button } from "../ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+import { X } from "lucide-react";
+import { useState } from "react";
+import set from "date-fns/esm/fp/set/index.js";
 
-export function ServerBrandingForm() {
+const now = new Date();
+const nextYear = now.setFullYear(now.getFullYear() + 1);
+
+const newDefault = {
+  id: "new",
+  name: "",
+  expires_at: new Date(nextYear),
+  restrictions: {
+    edit_api_keys: false,
+    server_role: undefined,
+    default_project_role: undefined,
+    project_roles: {},
+  },
+};
+
+export function CreateApiKey({
+  current,
+  onClose,
+  setShowKey,
+}: {
+  current: AmcatApiKey | "new";
+  onClose: () => void;
+  setShowKey: (key: string) => void;
+}) {
   const { user, loading } = useMiddlecat();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
-  const { data: userIndices, isLoading: loadingUserIndices } = useAmctIn;
+  const { data: userIndexRoles, isLoading: loadingUserIndices } = useAmcatIndexRoles(user);
   const mutateApiKeys = useMutateApiKeys(user);
-  const { data: branding, isLoading: loadingBranding } = useAmcatBranding();
-  const { data: config } = useAmcatConfig();
 
-  const brandingForm = useForm<z.input<typeof amcatBrandingSchema>, unknown, z.output<typeof amcatBrandingSchema>>({
-    resolver: zodResolver(amcatBrandingSchema),
-    defaultValues: {
-      ...branding,
-    },
+  const apikeyForm = useForm<z.input<typeof amcatApiKeySchema>, unknown, z.output<typeof amcatApiKeySchema>>({
+    resolver: zodResolver(amcatApiKeySchema),
+    defaultValues: current == "new" ? newDefault : current,
   });
 
-  function brandingFormSubmit(values: z.output<typeof amcatBrandingSchema>) {
-    mutateBranding.mutateAsync(values).catch(console.error);
+  function apikeyFormSubmit(values: z.output<typeof amcatApiKeySchema>) {
+    mutateApiKeys
+      .mutateAsync({
+        update: values,
+        action: current === "new" ? "create" : "update",
+      })
+      .then((apikey) => {
+        if (apikey) {
+          setShowKey(apikey);
+        } else {
+          onClose();
+        }
+      });
   }
 
-  if (loading || loadingBranding || loadingUserDetails) return <Loading />;
-  const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
+  if (loading || loadingUserDetails || loadingUserIndices) return <Loading />;
 
   return (
-    <Form {...brandingForm}>
-      <form onSubmit={brandingForm.handleSubmit(brandingFormSubmit)} className="space-y-6">
-        <FormField
-          control={brandingForm.control}
-          name="server_name"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Server Name</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ""} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={brandingForm.control}
-          name="server_url"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>External Project URL</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ""} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={brandingForm.control}
-          name="server_icon"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Server Icon URL</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ""} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={brandingForm.control}
-          name="welcome_text"
-          disabled={!isAdmin}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Welcome Text (Markdown)</FormLabel>
-              <FormControl>
-                <Textarea
-                  rows={6}
-                  placeholder="# Title and text using **MarkDown**"
-                  {...field}
-                  value={field.value ?? ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <JSONForm
-          control={brandingForm.control}
-          name="client_data.welcome_buttons"
-          label="Action Buttons below Welcome Text"
-          schema={linkArraySchema}
-        />
-        <JSONForm
-          control={brandingForm.control}
-          name="client_data.information_links"
-          label="Links column in homepage footer"
-          schema={informationLinksSchema}
-        />
-        {!isAdmin ? null : <Button type="submit">Save changes</Button>}
+    <Form {...apikeyForm}>
+      <form onSubmit={apikeyForm.handleSubmit(apikeyFormSubmit)} className="space-y-6">
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={apikeyForm.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>API Key Name*</FormLabel>
+                <FormControl>
+                  <Input {...field} value={field.value ?? ""} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          ></FormField>
+          <FormField
+            control={apikeyForm.control}
+            name="expires_at"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Expiration date*</FormLabel>
+                <FormControl>
+                  <DateInput value={field.value} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          ></FormField>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField
+            control={apikeyForm.control}
+            name="restrictions.server_role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>restrict server role</FormLabel>
+                <FormControl>
+                  <RoleInput value={field.value || undefined} onChange={field.onChange} actual={userDetails?.role} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          ></FormField>
+          <FormField
+            control={apikeyForm.control}
+            name="restrictions.default_project_role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>restrict index role</FormLabel>
+                <FormControl>
+                  <RoleInput value={field.value || undefined} onChange={field.onChange} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          ></FormField>
+        </div>
       </form>
+      <div className="mt-6">
+        <FormField
+          control={apikeyForm.control}
+          name="restrictions.project_roles"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Custom index role restrictions (overrides restrict index role)</FormLabel>
+              <FormControl>
+                <ProjectRoles value={field.value || {}} onChange={field.onChange} actual={userIndexRoles || {}} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+      </div>
+      <div className="mt-6 flex items-center justify-end gap-2">
+        <Button type="submit" onClick={apikeyForm.handleSubmit(apikeyFormSubmit)}>
+          {current === "new" ? "Create API Key" : "Update API Key"}
+        </Button>
+        <Button variant="outline" className="" onClick={onClose}>
+          Cancel
+        </Button>
+      </div>
     </Form>
+  );
+}
+
+function ProjectRoles({
+  value,
+  onChange,
+  actual,
+}: {
+  value: Record<string, AmcatUserRole>;
+  onChange: (value: Record<string, AmcatUserRole>) => void;
+  actual: Record<AmcatIndexId, AmcatUserRole>;
+}) {
+  const unassigned = Object.entries(actual).filter(([indexId]) => !(indexId in value));
+
+  return (
+    <div>
+      {Object.entries(value).map(([indexId, role]) => (
+        <div key={indexId} className="my-1 grid grid-cols-[1fr,150px,min-content] items-center gap-3 rounded  py-1">
+          <div className="h-full rounded bg-primary/10 p-2">{indexId}</div>
+          <div>
+            <RoleInput
+              value={role || undefined}
+              onChange={(newRole) => {
+                const newValue = { ...value, [indexId]: newRole };
+                onChange(newValue);
+              }}
+              actual={actual ? actual[indexId] : undefined}
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              const newValue = { ...value };
+              delete newValue[indexId];
+              onChange(newValue);
+            }}
+          >
+            <X />
+          </Button>
+        </div>
+      ))}
+      <DropdownMenu>
+        <DropdownMenuTrigger className={unassigned.length > 0 ? "" : "hidden"} asChild>
+          <Button>Add index role</Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {unassigned.map(([indexId, role]) => {
+            return (
+              <DropdownMenuItem
+                key={indexId}
+                onClick={() => {
+                  const newValue = { ...value, [indexId]: role };
+                  onChange(newValue);
+                }}
+              >
+                <div className="min-w-16">{indexId}</div>
+                <span className="text-foreground/60">{role}</span>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+function DateInput({ value, onChange }: { value: Date; onChange: (date: Date) => void }) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const date = new Date(e.target.value);
+    if (!isNaN(date.getTime())) {
+      onChange(date);
+    }
+  }
+
+  return <Input type="date" value={value.toISOString().substring(0, 10)} onChange={handleChange} className="" />;
+}
+
+function RoleInput({
+  value,
+  onChange,
+  actual,
+}: {
+  value?: AmcatUserRole;
+  onChange: (roles: AmcatUserRole) => void;
+  actual?: AmcatUserRole;
+}) {
+  return (
+    <Select onValueChange={(val) => onChange(val as AmcatUserRole)} value={value}>
+      <SelectTrigger className="border-none bg-primary/10 ">
+        <SelectValue placeholder="Select role(s)" />
+      </SelectTrigger>
+      <SelectContent className="bg-background">
+        <SelectGroup>
+          {amcatUserRoles.map((role) => {
+            const higher = actual ? roleHigherThan(role, actual) : false;
+            return (
+              <SelectItem key={role} value={role} className={higher ? "opacity-50" : ""}>
+                {role}
+              </SelectItem>
+            );
+          })}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useIndex } from "@/api/index";
-import useAmcatIndices from "@/api/indices";
+import { useAmcatIndices } from "@/api/indices";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AmcatIndex, AmcatIndexId } from "@/interfaces";
 import { CommandEmpty } from "cmdk";

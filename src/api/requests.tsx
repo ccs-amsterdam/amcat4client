@@ -34,7 +34,6 @@ export function useDeleteMyRequest(user: MiddlecatUser | undefined) {
 async function getRequests(user?: MiddlecatUser) {
   if (!user?.email) return undefined;
   const res = await user.api.get(`/permission_requests/admin`);
-  console.log(res.data);
   return z.array(amcatRequestSchema).parse(res.data);
 }
 

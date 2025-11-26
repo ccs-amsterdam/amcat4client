@@ -1,4 +1,4 @@
-import { AmcatApiKeyCreate } from "@/interfaces";
+import { AmcatApiKey } from "@/interfaces";
 import { amcatApiKeySchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -19,9 +19,9 @@ export function useApiKeys(user?: MiddlecatUser) {
 }
 
 interface MutateApiKeysParams {
-  id: string;
-  update: AmcatApiKeyCreate;
+  update: AmcatApiKey;
   action: "update" | "delete" | "create";
+  regenerate?: boolean;
 }
 
 export function useMutateApiKeys(user?: MiddlecatUser) {
@@ -31,10 +31,13 @@ export function useMutateApiKeys(user?: MiddlecatUser) {
     mutationFn: async (params: MutateApiKeysParams) => {
       if (!user) throw new Error("Not logged in");
       let api_key: string | null = null;
+
       if (params.action === "delete") {
-        await user.api.delete(`api_keys/${params.id}`);
+        await user.api.delete(`api_keys/${params.update.id}`);
       } else if (params.action === "update") {
-        const res = await user.api.put(`api_keys/${params.id}`, params.update);
+        const update: any = { ...params.update };
+        if (params.regenerate) update.regenerate_key = true;
+        const res = await user.api.put(`api_keys/${params.update.id}`, update);
         api_key = res.data.api_key || null;
       } else if (params.action === "create") {
         const res = await user.api.post(`api_keys`, params.update);
