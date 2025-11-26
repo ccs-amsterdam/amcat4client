@@ -1,4 +1,4 @@
-import { AmcatIndexId, AmcatUserRole } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId, AmcatUserRole } from "@/interfaces";
 import { amcatIndexSchema, amcatIndexUpdateSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -6,11 +6,25 @@ import { hasMinAmcatRole } from "@/lib/utils";
 import { MiddlecatUser } from "middlecat-react";
 import { z } from "zod";
 import { useAmcatConfig } from "./config";
+import useLocalStorage from "@/lib/useLocalStorage";
 
 export function useIndex(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+  const [recentIndices, setRecentIndices] = useLocalStorage<AmcatIndex[]>("recentIndices", []);
+
+  function addToRecentIndices(index: AmcatIndex) {
+    setRecentIndices((prev) => {
+      const newList = [index, ...prev.filter((ix) => ix.id !== index.id)];
+      return newList.slice(0, 50);
+    });
+  }
+
   return useQuery({
     queryKey: ["index", user, indexId],
-    queryFn: async () => getIndex(user, indexId),
+    queryFn: async () => {
+      const ix = await getIndex(user, indexId);
+      if (ix) addToRecentIndices(ix);
+      return ix;
+    },
     enabled: !!user && !!indexId,
   });
 }
@@ -51,7 +65,7 @@ export function useCreateIndex(user: MiddlecatUser | undefined) {
 async function createIndex(user: MiddlecatUser | undefined, value: z.input<typeof amcatIndexSchema>) {
   if (!user) throw new Error("Not logged in");
   if (value.guest_role === "NONE") value.guest_role = undefined;
-  return await user.api.post(`/index/`, value);
+  return await user.api.post(`/index`, value);
 }
 
 export function useMutateIndex(user: MiddlecatUser | undefined) {

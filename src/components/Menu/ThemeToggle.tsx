@@ -15,13 +15,13 @@ export default function ThemeToggle({ label }: ThemeToggleProps) {
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return <SunMoon className="mr-2 h-4 w-4" />;
+  if (!mounted) return <SunMoon className="mr-3 h-5 w-5" />;
 
   function renderIcon() {
     // if not on client
-    if (typeof window === "undefined") return <SunMoon className="mr-2 h-4 w-4" />;
-    if (theme === "dark") return <Sun className="mr-2 h-4 w-4" />;
-    return <Moon className="mr-2 h-4 w-4" />;
+    if (typeof window === "undefined") return <SunMoon className="mr-3 h-5 w-5" />;
+    if (theme === "dark") return <Sun className="mr-3 h-5 w-5" />;
+    return <Moon className="mr-3 h-5 w-5" />;
   }
 
   return (

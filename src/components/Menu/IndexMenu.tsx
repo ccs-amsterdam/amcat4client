@@ -3,13 +3,14 @@
 import { useIndex } from "@/api/index";
 import useAmcatIndices from "@/api/indices";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AmcatIndexId } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId } from "@/interfaces";
 import { CommandEmpty } from "cmdk";
 import { ChevronDown } from "lucide-react";
 import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import useLocalStorage from "@/lib/useLocalStorage";
 
 export default function IndexMenu() {
   const { user, loading } = useMiddlecat();
@@ -55,7 +56,8 @@ function SelectIndex({
   indexId: AmcatIndexId;
   onSelect: () => void;
 }) {
-  const { data: indices } = useAmcatIndices(user);
+  // const { data: indices } = useAmcatIndices(user, false, true);
+  const [indices] = useLocalStorage<AmcatIndex[]>("recentIndices", []);
   const router = useRouter();
 
   function onSelectIndex(index: string) {
@@ -64,14 +66,8 @@ function SelectIndex({
   }
 
   return (
-    // <DropdownMenuGroup>
-    //   <DropdownMenuSub>
-    //     <DropdownMenuSubTrigger className="">
-    //       <Book className="mr-2 h-4 w-4" />
-    //       <span>Quick select</span>
-    //     </DropdownMenuSubTrigger>
     <Command>
-      <CommandInput placeholder="Filter indices" autoFocus={true} className="h-9" />
+      <CommandInput placeholder="Recent indices" autoFocus={true} className="h-9" />
       <CommandList>
         <CommandEmpty>No index found</CommandEmpty>
         <CommandGroup>
@@ -87,7 +83,5 @@ function SelectIndex({
         </CommandGroup>
       </CommandList>
     </Command>
-    //   </DropdownMenuSub>
-    // </DropdownMenuGroup>
   );
 }

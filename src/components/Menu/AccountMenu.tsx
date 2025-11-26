@@ -40,14 +40,14 @@ export default function AccountMenu() {
     if (user?.authenticated) {
       return (
         <DropdownMenuItem onClick={() => signOut(true).then(() => router.push("/"))}>
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-3 h-5 w-5" />
           <span>Sign-out</span>
         </DropdownMenuItem>
       );
     } else {
       return (
         <DropdownMenuItem onClick={() => signIn()}>
-          <LogInIcon className="mr-2 h-4 w-4" />
+          <LogInIcon className="mr-3 h-5 w-5" />
           <span>Sign-in</span>
         </DropdownMenuItem>
       );
@@ -75,7 +75,7 @@ export default function AccountMenu() {
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
         {renderAuthButtons()}
         <DropdownMenuItem onClick={() => router.push("/api_keys")}>
-          <Bot className="mr-2 h-4 w-4" />
+          <Bot className="mr-3 h-5 w-5" />
           <span>API Keys</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />

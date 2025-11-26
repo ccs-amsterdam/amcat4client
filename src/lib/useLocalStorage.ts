@@ -1,8 +1,12 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-// https://blog.logrocket.com/using-localstorage-react-hooks/
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+
+declare global {
+  interface WindowEventMap {
+    "local-storage-update": CustomEvent<string>;
+  }
+}
 
 function getStorageValue<T>(key: string, defaultValue: T): T {
-  // getting stored value
   if (typeof window === "undefined") return defaultValue; // for nextjs serverside render
   const saved = localStorage.getItem(key);
   if (!saved) return defaultValue;
@@ -16,9 +20,26 @@ export default function useLocalStorage<T>(key: string, defaultValue: T): [T, Di
   });
 
   useEffect(() => {
-    // storing input name
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
+    function handleStorageChange(event: CustomEvent) {
+      if (event.detail === key) {
+        setValue(getStorageValue(key, defaultValue));
+      }
+    }
 
-  return [value, setValue];
+    window.addEventListener("local-storage-update", handleStorageChange);
+    return () => {
+      window.removeEventListener("local-storage-update", handleStorageChange);
+    };
+  }, [key, value, defaultValue]);
+
+  function updateValue(newValue: T | ((val: T) => T)) {
+    const valueToStore = newValue instanceof Function ? newValue(value) : newValue;
+    setValue(valueToStore);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(key, JSON.stringify(valueToStore));
+      window.dispatchEvent(new CustomEvent("local-storage-update", { detail: key }));
+    }
+  }
+
+  return [value, updateValue];
 }

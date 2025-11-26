@@ -49,7 +49,7 @@ export const IndexCard = ({
                 <IndexDropdownMenu index={index} folders={folders} toFolder={toFolder} activateConfirm={activate} />
               </div>
               <CardDescription className="h-16 overflow-hidden break-words rounded-b-md     bg-black/50 px-3 text-sm leading-4 text-white backdrop-blur-[2px] transition-all group-hover:line-clamp-4 group-hover:opacity-100 md:opacity-70">
-                <div className="my-2 line-clamp-3">{index.description || <i>(No description)</i>}</div>
+                <div className="my-2 line-clamp-3">{index.description || ""}</div>
               </CardDescription>
             </CardHeader>
 

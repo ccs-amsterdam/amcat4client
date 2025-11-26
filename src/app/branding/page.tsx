@@ -7,7 +7,7 @@ import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
-import { ServerBrandingForm } from "./ServerBrandingForm";
+import { ServerBrandingForm } from "@/components/Server/ServerBrandingForm";
 
 export default function Page() {
   const { user, loading: userLoading } = useMiddlecat();

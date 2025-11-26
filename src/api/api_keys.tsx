@@ -6,13 +6,15 @@ import { MiddlecatUser, useMiddlecat } from "middlecat-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function useApiKeys(user: MiddlecatUser) {
+export function useApiKeys(user?: MiddlecatUser) {
   return useQuery({
     queryKey: ["api_keys"],
     queryFn: async () => {
+      if (!user) return [];
       const res = await user.api.get(`api_keys`);
       return z.array(amcatApiKeySchema).parse(res.data);
     },
+    enabled: !!user,
   });
 }
 
