@@ -1,6 +1,6 @@
 "use client";
 
-import { useIndex, useMutateIndex } from "@/api/index";
+import { useArchiveIndex, useIndex, useMutateIndex } from "@/api/index";
 import { ContactInfo } from "@/components/Index/ContactInfo";
 import { UpdateIndex } from "@/components/Index/UpdateIndex";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export default function Index({ params }: Props) {
 
 function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
   const { mutate } = useMutateIndex(user);
+  const { mutate: archive } = useArchiveIndex(user);
   const [archiveOpen, setArchiveOpen] = useState(false);
 
   return (
@@ -56,8 +57,8 @@ function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
                 <p>Are you sure you want to {!!index.archived ? "unarchive" : "archive"} this index?</p>
                 <Button
                   onClick={() => {
-                    if (mutate) {
-                      mutate({ id: index.id, archive: !index.archived });
+                    if (archive) {
+                      archive({ indexId: index.id, archived: !index.archived });
                     }
                     setArchiveOpen(false);
                   }}

@@ -38,7 +38,7 @@ export const IndexCard = ({
       <Link href={`/indices/${index.id}/dashboard`}>
         <Card
           style={style}
-          className="relative aspect-video w-full max-w-[400px] justify-self-end  overflow-hidden  shadow-md"
+          className="relative aspect-video w-full max-w-[400px] animate-fade-in justify-self-end  overflow-hidden  shadow-md"
         >
           <div
             className={`group h-full w-full ${hasImage ? "bg-gradient-to-b from-black/90 via-black/30 to-transparent" : "rounded-md border-4 border-foreground/10 bg-gradient-to-br from-black/30 to-black/20"}    `}

@@ -31,7 +31,10 @@ export function SelectIndex() {
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [showAllIndices, setShowAllIndices] = useState(false);
-  const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user, showAllIndices);
+  const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user, {
+    showAll: showAllIndices,
+    showArchived: showArchived,
+  });
   const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]>>(new Map());
   const canCreate = useHasGlobalRole(user, "WRITER");
   const isAdmin = useHasGlobalRole(user, "ADMIN");

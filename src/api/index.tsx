@@ -86,6 +86,21 @@ async function mutateIndex(user: MiddlecatUser | undefined, value: z.input<typeo
   return await user.api.put(`index/${value.id}`, value);
 }
 
+export function useArchiveIndex(user: MiddlecatUser | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: { indexId: string; archived: boolean }) => {
+      if (!user) throw new Error("Not logged in");
+      return await user.api.post(`index/${params.indexId}/archive`, { archived: params.archived });
+    },
+    onSuccess: (_, value) => {
+      queryClient.invalidateQueries({ queryKey: ["index", user, value.indexId] });
+      queryClient.invalidateQueries({ queryKey: ["indices", user] });
+    },
+  });
+}
+
 export function useDeleteIndex(user: MiddlecatUser | undefined) {
   const queryClient = useQueryClient();
 
