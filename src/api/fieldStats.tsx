@@ -1,9 +1,9 @@
 import { AmcatFieldStats, AmcatIndexId } from "@/interfaces";
 import { amcatFieldStatsSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
-export function useFieldStats(user: MiddlecatUser, indexId: AmcatIndexId, field: string | undefined) {
+export function useFieldStats(user: AmcatSessionUser, indexId: AmcatIndexId, field: string | undefined) {
   return useQuery({
     queryKey: ["fieldStats", user, indexId, field],
     queryFn: async () => getFieldStats(user, indexId, field || ""),
@@ -11,7 +11,7 @@ export function useFieldStats(user: MiddlecatUser, indexId: AmcatIndexId, field:
   });
 }
 
-async function getFieldStats(user: MiddlecatUser, indexId: AmcatIndexId, field: string) {
+async function getFieldStats(user: AmcatSessionUser, indexId: AmcatIndexId, field: string) {
   const res = await user.api.get(`index/${indexId}/fields/${field}/stats`);
   const fieldValues: AmcatFieldStats = amcatFieldStatsSchema.parse(res.data);
   return fieldValues;

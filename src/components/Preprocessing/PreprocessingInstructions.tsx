@@ -7,7 +7,7 @@ import {
 } from "@/api/preprocessing";
 import { Loading } from "../ui/loading";
 import { AmcatIndexId, PreprocessingInstruction } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Fragment, useState } from "react";
 import { Dialog, DialogContent } from "../ui/dialog";
 import { AlertCircle, CheckCircle, HelpCircle, Pause, PauseCircle, Play, PlayCircle, RotateCcw } from "lucide-react";
@@ -15,7 +15,7 @@ import { Button } from "../ui/button";
 
 interface Props {
   indexId: AmcatIndexId;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
 }
 
 export default function PreprocessingInstructions({ indexId, user }: Props) {

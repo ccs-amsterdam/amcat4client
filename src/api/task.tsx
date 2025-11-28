@@ -1,8 +1,8 @@
 import { taskSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
-export function useTaskStatus(user?: MiddlecatUser, taskId?: string | null) {
+export function useTaskStatus(user?: AmcatSessionUser, taskId?: string | null) {
   return useQuery({
     queryKey: ["task_status", taskId],
     queryFn: async () => {

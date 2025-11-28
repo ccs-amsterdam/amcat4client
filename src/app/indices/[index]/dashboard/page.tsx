@@ -2,7 +2,7 @@
 
 import QueryForm from "@/components/QueryForm/QueryForm";
 import { AmcatQuery } from "@/interfaces";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 import { useMyIndexrole } from "@/api";
 import AggregateResultPanel from "@/components/Aggregate/AggregateResultPanel";
@@ -31,7 +31,7 @@ enum Tab {
 
 export default function Index({ params }: Props) {
   const indexId = decodeURI(params.index);
-  const { user, loading: loadingUser } = useMiddlecat();
+  const { user, loading: loadingUser } = useAmcatSession();
   const indexRole = useMyIndexrole(user, indexId);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");

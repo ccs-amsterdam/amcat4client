@@ -2,11 +2,11 @@ import { AmcatApiKey } from "@/interfaces";
 import { amcatApiKeySchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function useApiKeys(user?: MiddlecatUser) {
+export function useApiKeys(user?: AmcatSessionUser) {
   return useQuery({
     queryKey: ["api_keys"],
     queryFn: async () => {
@@ -24,7 +24,7 @@ interface MutateApiKeysParams {
   regenerate?: boolean;
 }
 
-export function useMutateApiKeys(user?: MiddlecatUser) {
+export function useMutateApiKeys(user?: AmcatSessionUser) {
   const queryClient = useQueryClient();
 
   return useMutation({

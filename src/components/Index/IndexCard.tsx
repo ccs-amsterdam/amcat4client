@@ -1,7 +1,7 @@
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AmcatIndex } from "@/interfaces";
 import { randomIcon, randomLightColor } from "@/lib/utils";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
 import { useConfirm } from "../ui/confirm";
 import { IndexDropdownMenu } from "./IndexDropdownMenu";
@@ -16,7 +16,7 @@ export const IndexCard = ({
   toFolder: (folder: string) => void;
 }) => {
   const { activate, confirmDialog } = useConfirm();
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   if (user == null) return null;
 
   const hasImage = !!index.image_url;

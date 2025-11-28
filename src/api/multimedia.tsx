@@ -1,7 +1,7 @@
 import { AmcatIndexId, MultimediaListItem, MultimediaPresignedPost } from "@/interfaces";
 import { amcatMultimediaListItem, amcatMultimediaPresignedGet, amcatMultimediaPresignedPost } from "@/schemas";
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useMemo } from "react";
 import { FileWithPath } from "react-dropzone";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ interface MultimediaParams {
 }
 
 export function useMultimediaList(
-  user?: MiddlecatUser,
+  user?: AmcatSessionUser,
   indexId?: AmcatIndexId | undefined,
   params?: MultimediaParams,
   enabled: boolean = true,
@@ -30,7 +30,7 @@ export function useMultimediaList(
 }
 
 export function useMultimediaConcatenatedList(
-  user?: MiddlecatUser,
+  user?: AmcatSessionUser,
   indexId?: AmcatIndexId | undefined,
   prefixes?: string[],
 ) {
@@ -52,7 +52,7 @@ export function useMultimediaConcatenatedList(
 }
 
 async function getMultimediaList(
-  user?: MiddlecatUser,
+  user?: AmcatSessionUser,
   indexId?: AmcatIndexId,
   params?: MultimediaParams,
 ): Promise<MultimediaListItem[]> {
@@ -75,7 +75,7 @@ async function getMultimediaList(
 }
 
 export function useMultimediaPresignedPost(
-  user?: MiddlecatUser,
+  user?: AmcatSessionUser,
   indexId?: AmcatIndexId | undefined,
   enabled: boolean = true,
 ) {
@@ -90,7 +90,7 @@ export function useMultimediaPresignedPost(
   });
 }
 
-export function useMultimediaPresignedGet(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, key?: string) {
+export function useMultimediaPresignedGet(user?: AmcatSessionUser, indexId?: AmcatIndexId | undefined, key?: string) {
   return useQuery({
     queryKey: ["presignedUrl", user, indexId, key],
     queryFn: async () => {
@@ -104,7 +104,7 @@ export function useMultimediaPresignedGet(user?: MiddlecatUser, indexId?: AmcatI
 }
 
 export function useMutateMultimedia(
-  user?: MiddlecatUser,
+  user?: AmcatSessionUser,
   indexId?: AmcatIndexId | undefined,
   presignedPost?: MultimediaPresignedPost,
 ) {

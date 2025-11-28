@@ -2,7 +2,7 @@ import { useMyIndexrole } from "@/api";
 import { useFields } from "@/api/fields";
 import { AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interfaces";
 import { ChevronDown, Download, EyeOff } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { MouseEvent, useEffect, useState } from "react";
 import { useCSVDownloader } from "react-papaparse";
 import { Button } from "../ui/button";
@@ -17,7 +17,7 @@ import usePaginatedArticles from "./usePaginatedArticles";
 import { Input } from "../ui/input";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }
@@ -89,7 +89,7 @@ export default function DownloadArticles({ user, indexId, query }: Props) {
 }
 
 interface DownloaderProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   fields: AmcatField[];

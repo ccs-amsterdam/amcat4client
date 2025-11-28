@@ -5,7 +5,7 @@ import { AmcatIndex, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ArrowRight, BarChart, CheckCircle, ChevronDown } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "../ui/button";
@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader } from "../ui/dialog"
 import { DropdownMenu, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }
@@ -33,7 +33,6 @@ export default function Reindex({ user, indexId, query }: Props) {
       postReindex(user, indexId, newIndex.id, query)
         .catch((error) => console.error(error))
         .then((res) => {
-          console.log(res);
           setTaskResult(res?.data.task);
         });
     }

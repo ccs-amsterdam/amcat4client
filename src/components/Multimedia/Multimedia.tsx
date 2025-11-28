@@ -1,5 +1,5 @@
 import { useMultimediaList } from "@/api/multimedia";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Loading } from "../ui/loading";
 import MultimediaUpload from "./MultimediaUpload";
 import { MultimediaListItem } from "@/interfaces";
@@ -11,7 +11,7 @@ import RenderMultimedia from "./RenderMultimedia";
 
 interface Props {
   indexId: string;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
 }
 
 export default function Multimedia({ indexId, user }: Props) {

@@ -1,7 +1,7 @@
 import { useRequests, useResolveRequests } from "@/api/requests";
 import { AmcatRequest, AmcatRequestProject, AmcatRequestProjectRole, AmcatRequestServerRole } from "@/interfaces";
 import { Bell, Check, CheckIcon, Loader, X } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
@@ -16,7 +16,7 @@ interface Action {
 }
 
 export function Notifications() {
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { data: requests } = useRequests(user);
   const [actions, setActions] = useState<Record<string, Action>>({});
 
@@ -32,7 +32,7 @@ interface NotificationProps {
 function NotificationModal({ requests, actions, setActions }: NotificationProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync: resolveRequests } = useResolveRequests(user);
 
   const done = Object.keys(actions).length;

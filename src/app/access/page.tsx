@@ -2,7 +2,7 @@
 
 import { useMyGlobalRole } from "@/api/userDetails";
 import { HelpCircle } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 import { RequestRoleChange } from "@/components/Access/RequestRoleChange";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } 
 const roles = ["NONE", "WRITER", "ADMIN"];
 
 export default function ServerRole() {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   if (loading || !user) return null;
 
   const user_role = useMyGlobalRole(user) || "NONE";

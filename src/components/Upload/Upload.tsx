@@ -8,7 +8,7 @@ import {
   UploadOperation,
 } from "@/interfaces";
 import { AlertCircleIcon, CheckSquare, ChevronDown, Edit, Key, List, Loader, Plus, Square, X } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useCSVReader } from "react-papaparse";
 import { Button } from "../ui/button";
@@ -41,7 +41,7 @@ import { Label } from "../ui/label";
 import { Progress } from "../ui/progress";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
 }
 

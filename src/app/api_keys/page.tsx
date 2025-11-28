@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/components/ui/confirm";
 import { AmcatApiKey } from "@/interfaces";
 import { Check, Clipboard, Cog, Recycle, Trash2 } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 import { toast } from "sonner";
 
 type CreateKey = AmcatApiKey | "new" | null;
 
 export default function Page() {
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { data: apiKeys } = useApiKeys(user);
   const [createKey, setCreateKey] = useState<CreateKey>(null);
   const [showKey, setShowKey] = useState<string>("");
@@ -96,7 +96,7 @@ function ShowKey({
 
 function DeleteButton({ apikey }: { apikey: AmcatApiKey }) {
   const { activate, confirmDialog } = useConfirm();
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync: mutateKey } = useMutateApiKeys(user);
 
   function onClick() {
@@ -119,7 +119,7 @@ function DeleteButton({ apikey }: { apikey: AmcatApiKey }) {
 
 function RegenerateButton({ apikey, setShowKey }: { apikey: AmcatApiKey; setShowKey: (key: string) => void }) {
   const { activate, confirmDialog } = useConfirm();
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync: mutateKey } = useMutateApiKeys(user);
 
   function onClick() {

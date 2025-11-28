@@ -3,11 +3,11 @@ import { amcatUserDetailsSchema, amcatUserRoleSchema } from "@/schemas";
 
 import { hasMinAmcatRole } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useSearchParams } from "next/navigation";
 import { useAmcatConfig } from "./config";
 
-export function useCurrentUserDetails(user?: MiddlecatUser) {
+export function useCurrentUserDetails(user?: AmcatSessionUser) {
   const params = useSearchParams();
 
   // This is a development feature to simulate different server roles without having to change them on the server
@@ -24,12 +24,12 @@ export function useCurrentUserDetails(user?: MiddlecatUser) {
   });
 }
 
-export function useMyGlobalRole(user?: MiddlecatUser | undefined) {
+export function useMyGlobalRole(user?: AmcatSessionUser | undefined) {
   const { data: userInfo } = useCurrentUserDetails(user);
   return userInfo?.role;
 }
 
-export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUserRole) {
+export function useHasGlobalRole(user: AmcatSessionUser | undefined, role: AmcatUserRole) {
   const { data: serverConfig } = useAmcatConfig();
   const actual_role = useMyGlobalRole(user);
   if (!user) return undefined;
@@ -38,7 +38,7 @@ export function useHasGlobalRole(user: MiddlecatUser | undefined, role: AmcatUse
   return hasMinAmcatRole(actual_role, role);
 }
 
-async function getCurrentUserDetails(user: MiddlecatUser | undefined, fakeServerRole?: string) {
+async function getCurrentUserDetails(user: AmcatSessionUser | undefined, fakeServerRole?: string) {
   if (!user?.email) return null;
   const res = await user.api.get(`/users/me`);
   const details = amcatUserDetailsSchema.parse(res.data);

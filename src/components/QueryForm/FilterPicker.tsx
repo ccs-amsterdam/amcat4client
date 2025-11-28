@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Delete } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { getField, useFields } from "@/api/fields";
 import { useState } from "react";
 
 interface FilterPickerProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   fieldName: string;
   value: AmcatFilter | undefined;

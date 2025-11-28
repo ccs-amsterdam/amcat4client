@@ -5,7 +5,7 @@ import { useFields } from "@/api/fields";
 import { useMyIndexrole } from "@/api/index";
 
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Button } from "../ui/button";
 import { Loading } from "../ui/loading";
 
@@ -15,7 +15,7 @@ import Meta from "./Meta";
 import PreprocessStatus from "./PreprocessStatus";
 
 export interface ArticleProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   /** An article id. Can also be an array of length 1 with the article id, which can trigger setOpen if the id didn't change */
   id: string;

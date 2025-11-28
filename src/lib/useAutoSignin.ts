@@ -1,10 +1,10 @@
 import { useAmcatConfig } from "@/api/config";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useEffect } from "react";
 
 export default function useAutoSignin() {
   const { data: config } = useAmcatConfig();
-  const { user, signInGuest, loading } = useMiddlecat();
+  const { user, signInGuest, loading } = useAmcatSession();
 
   useEffect(() => {
     if (!config || loading || user) return;

@@ -5,11 +5,11 @@ import {
   amcatPreprocessingTask,
 } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function usePreprocessingTasks(user: MiddlecatUser) {
+export function usePreprocessingTasks(user: AmcatSessionUser) {
   return useQuery({
     queryKey: ["preprocessingTasks"],
     queryFn: async () => {
@@ -19,7 +19,7 @@ export function usePreprocessingTasks(user: MiddlecatUser) {
   });
 }
 
-export function usePreprocessingInstructions(user: MiddlecatUser, indexId: string) {
+export function usePreprocessingInstructions(user: AmcatSessionUser, indexId: string) {
   return useQuery({
     queryKey: ["preprocessingInstructions", user, indexId],
     queryFn: async () => {
@@ -29,7 +29,7 @@ export function usePreprocessingInstructions(user: MiddlecatUser, indexId: strin
   });
 }
 
-export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: string) {
+export function useMutatePreprocessingInstruction(user: AmcatSessionUser, indexId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -48,7 +48,7 @@ export function useMutatePreprocessingInstruction(user: MiddlecatUser, indexId: 
 }
 
 export function usePreprocessingInstructionDetails(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: string,
   field: string,
   extra_options = {},
@@ -65,7 +65,7 @@ export function usePreprocessingInstructionDetails(
 }
 
 export function usePreprocessingInstructionStatus(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: string,
   field: string,
   extra_options = {},
@@ -81,7 +81,7 @@ export function usePreprocessingInstructionStatus(
   });
 }
 
-export function useMutatePreprocessingInstructionAction(user: MiddlecatUser, indexId: string, field: string) {
+export function useMutatePreprocessingInstructionAction(user: AmcatSessionUser, indexId: string, field: string) {
   const queryClient = useQueryClient();
 
   return useMutation({

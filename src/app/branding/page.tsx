@@ -3,14 +3,14 @@
 import { useAmcatBranding } from "@/api/branding";
 import { useAmcatConfig } from "@/api/config";
 import { Loading } from "@/components/ui/loading";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 
 import { Branding, BrandingFooter } from "@/components/Server/Branding";
 import { AmcatBranding, AmcatConfig } from "@/interfaces";
 import { ServerBrandingForm } from "@/components/Server/ServerBrandingForm";
 
 export default function Page() {
-  const { user, loading: userLoading } = useMiddlecat();
+  const { user, loading: userLoading } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
   if (userLoading || configLoading || brandingLoading) return <Loading />;
@@ -23,7 +23,7 @@ export default function Page() {
 }
 
 interface ServerSettingsProps {
-  user: MiddlecatUser | undefined;
+  user: AmcatSessionUser | undefined;
   serverConfig: AmcatConfig;
   serverBranding: AmcatBranding;
 }

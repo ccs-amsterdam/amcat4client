@@ -1,6 +1,6 @@
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatUserRole } from "@/interfaces";
 import { AlertTriangle, Link as LinkIcon, SkipBack, SkipForward } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
 import { highlightElasticTags, removeElasticTags } from "../../lib/highlightElasticTags";
 import { Badge } from "../ui/badge";
@@ -10,7 +10,7 @@ import { DynamicIcon } from "../ui/dynamic-icon";
 import { ReactNode } from "react";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   indexRole: AmcatUserRole;
   query: AmcatQuery;

@@ -1,6 +1,6 @@
 import { useMultimediaPresignedGet } from "@/api/multimedia";
 import { MultimediaType } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Loading } from "../ui/loading";
 import { extensionMapping } from "./MultimediaUpload";
 
@@ -11,7 +11,7 @@ export default function RenderMultimedia({
   renderAs,
   height,
 }: {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: string;
   url: string;
   // if renderAs is given it will always render the url for this type. If not, it will use the

@@ -1,12 +1,12 @@
 import { AmcatIndexId } from "@/interfaces";
 import { amcatUserDetailsSchema, amcatUserRoleSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function useIndexUsers(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+export function useIndexUsers(user?: AmcatSessionUser, indexId?: AmcatIndexId) {
   return useQuery({
     queryKey: ["indexusers", user, indexId],
     queryFn: () => getIndexUsers(user, indexId),
@@ -14,14 +14,14 @@ export function useIndexUsers(user?: MiddlecatUser, indexId?: AmcatIndexId) {
   });
 }
 
-async function getIndexUsers(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+async function getIndexUsers(user?: AmcatSessionUser, indexId?: AmcatIndexId) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`index/${indexId}/users`);
   const users = z.array(amcatUserDetailsSchema).parse(res.data);
   return users;
 }
 
-export function useMutateIndexUser(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
+export function useMutateIndexUser(user?: AmcatSessionUser, indexId?: AmcatIndexId | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -43,7 +43,7 @@ export function useMutateIndexUser(user?: MiddlecatUser, indexId?: AmcatIndexId 
 }
 
 async function mutateIndexUser(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   email: string,
   newRole: string,

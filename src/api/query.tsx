@@ -1,12 +1,17 @@
 import { AggregationOptions, AmcatFilters, AmcatIndexId, AmcatQuery, AmcatQueryParams } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 interface PostAmcatQuery {
   filters?: AmcatFilters;
   queries?: Record<string, string>;
 }
 
-export function postQuery(user: MiddlecatUser, indexId: AmcatIndexId, query?: AmcatQuery, params?: AmcatQueryParams) {
+export function postQuery(
+  user: AmcatSessionUser,
+  indexId: AmcatIndexId,
+  query?: AmcatQuery,
+  params?: AmcatQueryParams,
+) {
   const postAmcatQuery = query ? asPostAmcatQuery(query) : undefined;
   return user.api.post(`index/${indexId}/query`, {
     ...postAmcatQuery,
@@ -15,7 +20,7 @@ export function postQuery(user: MiddlecatUser, indexId: AmcatIndexId, query?: Am
 }
 
 export function postAggregateQuery(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   options: AggregationOptions,
   query?: AmcatQuery,
@@ -53,7 +58,12 @@ export function asPostAmcatQuery(query: AmcatQuery) {
   return postAmcatQuery;
 }
 
-export function postReindex(user: MiddlecatUser, source: AmcatIndexId, destination: AmcatIndexId, query: AmcatQuery) {
+export function postReindex(
+  user: AmcatSessionUser,
+  source: AmcatIndexId,
+  destination: AmcatIndexId,
+  query: AmcatQuery,
+) {
   const query_body = asPostAmcatQuery(query);
   return user.api.post(`index/${source}/reindex`, {
     destination: destination,

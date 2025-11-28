@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Filter } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
   return fields
@@ -16,7 +16,7 @@ export function fieldOptions(fields: AmcatField[], query: AmcatQuery) {
 
 interface AddFilterProps {
   children: React.ReactNode;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   value: AmcatQuery;
   onSubmit: (value: AmcatQuery) => void;

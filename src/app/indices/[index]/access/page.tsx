@@ -16,13 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AmcatIndex } from "@/interfaces";
 import { ChevronDown, Crown, HelpCircle } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useParams } from "next/navigation";
 
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
 export default function IndexRole() {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const params = useParams<{ index: string }>();
   const indexId = decodeURI(params?.index || "");
   const { data: index } = useIndex(user, indexId);
@@ -33,7 +33,7 @@ export default function IndexRole() {
 }
 
 interface IndexRoleProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   index: AmcatIndex;
 }
 

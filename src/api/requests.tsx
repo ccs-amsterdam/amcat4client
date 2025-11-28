@@ -2,10 +2,10 @@ import { AmcatRequest, AmcatRequestProject, AmcatRequestProjectRole, AmcatReques
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { amcatRequestSchema } from "@/schemas";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { z } from "zod";
 
-export function useRequests(user?: MiddlecatUser) {
+export function useRequests(user?: AmcatSessionUser) {
   return useQuery({
     queryKey: ["permission_requests/admin", user],
     queryFn: async () => getRequests(user),
@@ -13,7 +13,7 @@ export function useRequests(user?: MiddlecatUser) {
   });
 }
 
-export function useMyRequests(user?: MiddlecatUser) {
+export function useMyRequests(user?: AmcatSessionUser) {
   return useQuery({
     queryKey: ["permission_requests", user],
     queryFn: async () => getMyRequests(user),
@@ -21,7 +21,7 @@ export function useMyRequests(user?: MiddlecatUser) {
   });
 }
 
-export function useDeleteMyRequest(user: MiddlecatUser | undefined) {
+export function useDeleteMyRequest(user: AmcatSessionUser | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (value: AmcatRequest["request"]) => deleteMyRequest(user, value),
@@ -31,24 +31,24 @@ export function useDeleteMyRequest(user: MiddlecatUser | undefined) {
   });
 }
 
-async function getRequests(user?: MiddlecatUser) {
+async function getRequests(user?: AmcatSessionUser) {
   if (!user?.email) return undefined;
   const res = await user.api.get(`/permission_requests/admin`);
   return z.array(amcatRequestSchema).parse(res.data);
 }
 
-async function getMyRequests(user?: MiddlecatUser) {
+async function getMyRequests(user?: AmcatSessionUser) {
   if (!user?.email) return undefined;
   const res = await user.api.get(`/permission_requests`);
   return z.array(amcatRequestSchema).parse(res.data);
 }
 
-async function deleteMyRequest(user: MiddlecatUser | undefined, request: AmcatRequest["request"]) {
+async function deleteMyRequest(user: AmcatSessionUser | undefined, request: AmcatRequest["request"]) {
   if (!user) throw new Error("Not logged in");
   return await user.api.delete(`/permission_requests`, { data: request });
 }
 
-export function useSubmitRequest(user: MiddlecatUser | undefined) {
+export function useSubmitRequest(user: AmcatSessionUser | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (value: AmcatRequest["request"]) => {
@@ -64,12 +64,12 @@ export function useSubmitRequest(user: MiddlecatUser | undefined) {
   });
 }
 
-export async function submitRequest(user: MiddlecatUser | undefined, value: AmcatRequest["request"]) {
+export async function submitRequest(user: AmcatSessionUser | undefined, value: AmcatRequest["request"]) {
   if (!user) throw new Error("Not logged in");
   return await user.api.post(`/permission_requests`, value);
 }
 
-export function useResolveRequests(user: MiddlecatUser | undefined) {
+export function useResolveRequests(user: AmcatSessionUser | undefined) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (value: AmcatRequest[]) => {
@@ -96,7 +96,7 @@ export function useResolveRequests(user: MiddlecatUser | undefined) {
   });
 }
 
-export async function resolveRequests(user: MiddlecatUser | undefined, value: AmcatRequest[]) {
+export async function resolveRequests(user: AmcatSessionUser | undefined, value: AmcatRequest[]) {
   if (!user) throw new Error("Not logged in");
   return await user.api.post(`/permission_requests/admin`, value);
 }

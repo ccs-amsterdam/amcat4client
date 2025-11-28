@@ -2,20 +2,21 @@ import { AmcatBranding } from "@/interfaces";
 import { amcatBrandingSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import { z } from "zod";
 
 export function useAmcatBranding() {
-  const { fixedResource: host } = useMiddlecat();
   return useQuery({
     queryKey: ["branding"],
-    queryFn: () => getAmcatBranding(host),
+    queryFn: () => getAmcatBranding(),
     staleTime: 1000 * 60 * 60 * 1,
   });
 }
 
-async function getAmcatBranding(host?: string) {
+async function getAmcatBranding() {
+  const host = process.env.NEXT_PUBLIC_AMCAT_SERVER;
+
   function safeParseJson(input: string | null | undefined) {
     try {
       return input == null ? null : JSON.parse(input);
@@ -38,7 +39,7 @@ async function getAmcatBranding(host?: string) {
   return branding;
 }
 
-export function useMutateBranding(user?: MiddlecatUser) {
+export function useMutateBranding(user?: AmcatSessionUser) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -54,6 +55,6 @@ export function useMutateBranding(user?: MiddlecatUser) {
   });
 }
 
-async function mutateBranding(user: MiddlecatUser, value: any) {
+async function mutateBranding(user: AmcatSessionUser, value: any) {
   return await user.api.put(`config/branding`, value);
 }

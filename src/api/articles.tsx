@@ -8,13 +8,13 @@ import {
 } from "@/interfaces";
 import { amcatQueryResultSchema } from "@/schemas";
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useEffect } from "react";
 import { z } from "zod";
 import { postQuery } from "./query";
 
 export function useArticles(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   query: AmcatQuery,
   params?: AmcatQueryParams,
@@ -52,7 +52,7 @@ export function useArticles(
   });
 }
 
-async function getArticles(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
+async function getArticles(user: AmcatSessionUser, indexId: AmcatIndexId, query: AmcatQuery, params: AmcatQueryParams) {
   // TODO, make sure query doesn't run needlessly
   // also check that it doesn't run if field is added but empty
   const res = await postQuery(user, indexId, query, params);
@@ -60,7 +60,7 @@ async function getArticles(user: MiddlecatUser, indexId: AmcatIndexId, query: Am
   return queryResult;
 }
 
-export function useMutateArticles(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
+export function useMutateArticles(user?: AmcatSessionUser, indexId?: AmcatIndexId | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({

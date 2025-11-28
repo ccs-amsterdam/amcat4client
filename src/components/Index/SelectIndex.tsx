@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { Folder, FolderOpen, LogInIcon, Search, Settings2, Undo } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useQueryState } from "next-usequerystate";
 import { useEffect, useMemo, useState } from "react";
 import { ErrorMsg } from "../ui/error-message";
@@ -26,7 +26,7 @@ interface Folder {
 }
 
 export function SelectIndex() {
-  const { user, loading: loadingUser } = useMiddlecat();
+  const { user, loading: loadingUser } = useAmcatSession();
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -135,7 +135,7 @@ export function SelectIndex() {
       </div>
 
       <div className="grid grid-cols-[min(30vw,250px),1fr] gap-3 rounded bg-gradient-to-tr from-primary/5 to-primary/20">
-        <div className="flex h-full min-h-[500px] flex-col rounded-l bg-primary/20 p-3">
+        <div className="flex h-full min-h-[500px] flex-col rounded-l bg-primary/10 p-3">
           <div className="px-1 pb-3 font-semibold text-foreground/60">Folders</div>
           <Button
             size="sm"
@@ -158,16 +158,17 @@ export function SelectIndex() {
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
           <div className="flex flex-col ">
-            <div className="mb-6 min-h-[36rem] rounded p-3">
+            <div className="mb-6 min-h-[50rem] rounded p-3">
               <div className="pb-3">
                 <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
               </div>
+              {loadingIndices ? <Loading /> : null}
               {[...indexMap].map(([folder, indices], i) => {
                 // if (search === "" && folder !== "") return null;
                 if (indices.length === 0) {
                   return null;
                 }
-                if (loadingIndices) return <Loading />;
+                if (loadingIndices) return null;
 
                 return (
                   <div key={folder} className="mb-6">
@@ -268,7 +269,7 @@ const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => voi
 );
 
 function NoPublicIndicesMessage({}: {}) {
-  const { signIn } = useMiddlecat();
+  const { signIn } = useAmcatSession();
 
   return (
     <ErrorMsg type="No public indices">

@@ -1,13 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { ChevronsUpDown, Filter, Loader, Search } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Loading } from "../ui/loading";
 import { AddFilterButton } from "./AddFilterButton";
 import { queriesFromString, queriesToString } from "./libQuery";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;

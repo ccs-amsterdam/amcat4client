@@ -7,14 +7,14 @@ import FieldTable from "@/components/Fields/FieldTable";
 import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 interface Props {
   params: { index: string };
 }
 
 export default function Page({ params }: Props) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
@@ -29,7 +29,7 @@ export default function Page({ params }: Props) {
 }
 
 function Fields({ index }: { index: AmcatIndex }) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const { data: fields, isLoading: loadingFields } = useFields(user, index.id);
   const { mutate } = useMutateFields(user, index.id);
   const { data: config } = useAmcatConfig();

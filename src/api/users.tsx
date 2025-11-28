@@ -1,11 +1,11 @@
 import { amcatUserDetailsSchema, amcatUserRoleSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 import { toast } from "sonner";
 import { z } from "zod";
 
-export function useUsers(user?: MiddlecatUser) {
+export function useUsers(user?: AmcatSessionUser) {
   return useQuery({
     queryKey: ["users", user],
     queryFn: () => getUsers(user),
@@ -13,14 +13,14 @@ export function useUsers(user?: MiddlecatUser) {
   });
 }
 
-async function getUsers(user?: MiddlecatUser) {
+async function getUsers(user?: AmcatSessionUser) {
   if (!user) return undefined;
   const res = await user.api.get(`users`);
   const users = z.array(amcatUserDetailsSchema).parse(res.data);
   return users;
 }
 
-export function useMutateUser(user?: MiddlecatUser) {
+export function useMutateUser(user?: AmcatSessionUser) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -41,7 +41,12 @@ export function useMutateUser(user?: MiddlecatUser) {
   });
 }
 
-async function mutateUser(user: MiddlecatUser, email: string, newRole: string, action: "create" | "delete" | "update") {
+async function mutateUser(
+  user: AmcatSessionUser,
+  email: string,
+  newRole: string,
+  action: "create" | "delete" | "update",
+) {
   const role = amcatUserRoleSchema.parse(newRole);
   if (action === "delete") {
     return await user.api.delete(`users/${email}`);

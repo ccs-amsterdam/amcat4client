@@ -1,9 +1,9 @@
 import { AmcatArticle, AmcatField, AmcatIndexId, MultimediaType } from "@/interfaces";
 import RenderMultimedia from "../Multimedia/RenderMultimedia";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   article: AmcatArticle;
   fields: AmcatField[];

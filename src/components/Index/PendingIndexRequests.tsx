@@ -1,13 +1,13 @@
 import { useDeleteMyRequest, useMyRequests, useSubmitRequest } from "@/api/requests";
 import { AmcatRequest, AmcatRequestProject } from "@/interfaces";
 import { Loader } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useMemo, useState } from "react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 export function PendingIndexRequests() {
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { data: myRequests, isLoading } = useMyRequests(user);
   const { mutateAsync: deleteRequest } = useDeleteMyRequest(user);
 

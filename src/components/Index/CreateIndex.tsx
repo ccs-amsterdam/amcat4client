@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { amcatIndexSchema } from "@/schemas";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -17,7 +17,7 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
   const [open, setOpen] = useQueryState("create_index");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync: createIndexAsync } = useCreateIndex(user);
   const { mutateAsync: requestIndexAsync } = useSubmitRequest(user);
   const [name, setName] = useState("");

@@ -1,4 +1,4 @@
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useMultimediaPresignedPost, useMutateMultimedia } from "@/api/multimedia";
 import { useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
@@ -10,7 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   indexId: string;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
 }
 
 interface UploadQueue {

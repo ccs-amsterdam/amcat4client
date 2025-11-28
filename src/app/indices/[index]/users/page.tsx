@@ -15,7 +15,7 @@ import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex, AmcatUserRole } from "@/interfaces";
 import { Edit } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 const roles = ["METAREADER", "READER", "WRITER", "ADMIN"];
 
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
@@ -39,7 +39,7 @@ export default function Index({ params }: Props) {
 }
 
 function Users({ index }: { index: AmcatIndex }) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const { data: users, isLoading: loadingUsers } = useIndexUsers(user, index.id);
   const { mutateAsync } = useMutateIndexUser(user, index.id);
   const { mutate: mutateIndex } = useMutateIndex(user);

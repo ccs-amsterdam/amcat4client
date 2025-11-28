@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/
 import { AmcatIndex } from "@/interfaces";
 import { amcatIndexUpdateSchema, contactInfoSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +23,7 @@ import { Textarea } from "../ui/textarea";
 import { JSONForm } from "../ui/jsonForm";
 
 export function UpdateIndex({ index, children }: { index: AmcatIndex; children?: React.ReactNode }) {
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync } = useMutateIndex(user);
   const [open, setOpen] = useState(false);
   const form = useForm<z.input<typeof amcatIndexUpdateSchema>>({

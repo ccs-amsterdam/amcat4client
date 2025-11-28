@@ -1,5 +1,5 @@
 import { AggregationOptions, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 import AggregateResult from "./AggregateResult";
 import { AggregateResultOptions } from "./AggregateResultOptions";
@@ -10,7 +10,7 @@ const initialState: AggregationOptions = {
 };
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }

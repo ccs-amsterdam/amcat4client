@@ -1,6 +1,6 @@
 "use client";
 
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ export function Branding({
   serverConfig?: AmcatConfig;
   serverBranding?: AmcatBranding;
 }) {
-  const { user, signIn } = useMiddlecat();
+  const { user, signIn } = useAmcatSession();
   if (user == null || serverConfig == null || serverBranding == null) return null;
 
   const message_md =

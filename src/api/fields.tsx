@@ -1,7 +1,7 @@
 import { AmcatField, AmcatIndexId, UpdateAmcatField } from "@/interfaces";
 import { amcatFieldSchema } from "@/schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -30,7 +30,7 @@ const DEFAULT_CLIENT_SETTINGS: Record<string, any> = {
   },
 };
 
-export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined, enabled: boolean = true) {
+export function useFields(user?: AmcatSessionUser, indexId?: AmcatIndexId | undefined, enabled: boolean = true) {
   return useQuery({
     queryKey: ["fields", user, indexId],
     queryFn: () => getFields(user, indexId || ""),
@@ -38,7 +38,7 @@ export function useFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefin
   });
 }
 
-async function getFields(user?: MiddlecatUser, indexId?: AmcatIndexId) {
+async function getFields(user?: AmcatSessionUser, indexId?: AmcatIndexId) {
   if (!user || !indexId) return undefined;
   const res = await user.api.get(`/index/${indexId}/fields`);
   const fieldsArray = Object.keys(res.data).map((name) => ({ name, ...res.data[name] }));
@@ -60,7 +60,7 @@ interface MutateFieldsParams {
   action: "create" | "delete" | "update";
 }
 
-export function useMutateFields(user?: MiddlecatUser, indexId?: AmcatIndexId | undefined) {
+export function useMutateFields(user?: AmcatSessionUser, indexId?: AmcatIndexId | undefined) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -82,7 +82,7 @@ export function useMutateFields(user?: MiddlecatUser, indexId?: AmcatIndexId | u
 }
 
 async function mutateFields(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   action: "create" | "delete" | "update",
   fields: UpdateAmcatField[],

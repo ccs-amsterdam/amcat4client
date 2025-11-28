@@ -3,17 +3,18 @@
 import { useIndex } from "@/api/index";
 import { useAmcatIndices } from "@/api/indices";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { AmcatIndex, AmcatIndexId } from "@/interfaces";
+import { AmcatIndex, AmcatIndexId, RecentIndices } from "@/interfaces";
 import { CommandEmpty } from "cmdk";
 import { ChevronDown } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import useLocalStorage from "@/lib/useLocalStorage";
 
 export default function IndexMenu() {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
+  const [recentIndicesByUser] = useLocalStorage<RecentIndices>("recentIndices", {});
   const params = useParams<{ index: string }>();
   const indexId = decodeURI(params?.index || "");
   const [open, setOpen] = useState(false);
@@ -22,42 +23,47 @@ export default function IndexMenu() {
 
   if (loading || !user) return null;
 
+  const key = user?.email || "guest";
+  const recentIndices = recentIndicesByUser[key]?.filter((r) => r.id !== indexId) || [];
+  const noRecent = recentIndices.length === 0;
+
   function current() {
     if (indexId)
       return (
-        <span className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-          {index?.name || "loading index..."}
-        </span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">{index?.name || "..."}</span>
       );
-    return <span className="text-foreground/80">select index</span>;
+    return (
+      <span className={`overflow-hidden text-ellipsis whitespace-nowrap font-normal text-foreground/80 `}>
+        {noRecent ? "..." : "recent index"}
+      </span>
+    );
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open && !noRecent} onOpenChange={setOpen}>
       <DropdownMenuTrigger
+        disabled={noRecent}
         className={`flex h-full min-w-0  select-none items-center gap-1 px-1 outline-none hover:font-semibold md:px-3 ${open ? "font-semibold" : ""}`}
       >
         {current()}
-        <ChevronDown className="h-4 w-4 opacity-50" />
+        {noRecent ? null : <ChevronDown className="h-4 w-4 opacity-50" />}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="ml-2 w-[200px] max-w-[95vw] border-[1px] border-foreground">
-        <SelectIndex user={user} indexId={indexId} onSelect={() => setOpen(false)} />
+        <SelectRecentIndex recentIndices={recentIndices} indexId={indexId} onSelect={() => setOpen(false)} />
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
-function SelectIndex({
-  user,
+function SelectRecentIndex({
+  recentIndices,
   indexId,
   onSelect,
 }: {
-  user: MiddlecatUser;
+  recentIndices: AmcatIndex[];
   indexId: AmcatIndexId;
   onSelect: () => void;
 }) {
-  // const { data: indices } = useAmcatIndices(user, false, true);
-  const [indices] = useLocalStorage<AmcatIndex[]>("recentIndices", []);
   const router = useRouter();
 
   function onSelectIndex(index: string) {
@@ -71,7 +77,7 @@ function SelectIndex({
       <CommandList>
         <CommandEmpty>No index found</CommandEmpty>
         <CommandGroup>
-          {indices?.map((index) => {
+          {recentIndices.map((index) => {
             if (index.id === indexId) return null;
             if (index.archived) return null;
             return (

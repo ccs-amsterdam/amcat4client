@@ -3,9 +3,9 @@ import { postAggregateQuery } from "./query";
 
 import { amcatAggregateDataSchema } from "@/schemas";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
-export function useCount(user: MiddlecatUser, indexId: AmcatIndexId, query: AmcatQuery) {
+export function useCount(user: AmcatSessionUser, indexId: AmcatIndexId, query: AmcatQuery) {
   const result = useAggregate(user, indexId, query, { axes: [], display: "list" });
   const count = result.data == null ? null : result.data.pages[0].data[0].n;
 
@@ -13,7 +13,7 @@ export function useCount(user: MiddlecatUser, indexId: AmcatIndexId, query: Amca
 }
 
 export function useAggregate(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   query: AmcatQuery,
   options: AggregationOptions,
@@ -31,7 +31,7 @@ export function useAggregate(
 }
 
 async function postAggregate(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   indexId: AmcatIndexId,
   query: AmcatQuery,
   options: AggregationOptions,

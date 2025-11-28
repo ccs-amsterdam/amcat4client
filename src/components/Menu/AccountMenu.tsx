@@ -10,15 +10,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AmcatConfig } from "@/interfaces";
-import { AlertCircle, Bot, Loader, LogInIcon, LogOut, UserCheck, UserX } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AlertCircle, Bot, Loader, LogInIcon, LogOut, User, UserCheck, UserX } from "lucide-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
 const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_infinite] text-primary" />;
 
 export default function AccountMenu() {
-  const { user, loading: loadingUser, signIn, signOut } = useMiddlecat();
+  const { user, loading: loadingUser, signIn, signOut } = useAmcatSession();
   const { data: config, isLoading: loadingConfig } = useAmcatConfig();
   const router = useRouter();
   function renderAuthStatus() {
@@ -63,7 +63,7 @@ export default function AccountMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="h-full min-w-[2.5rem] px-3 outline-none hover:bg-primary/10">
+      <DropdownMenuTrigger className="h-full min-w-[2.5rem] px-3 outline-none hover:bg-primary/10 md:pr-6">
         <UserIcon user={user} config={config} className="h-8 w-8  text-primary" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -90,7 +90,7 @@ function UserIcon({
   config,
   className,
 }: {
-  user: MiddlecatUser | undefined;
+  user: AmcatSessionUser | undefined;
   config: AmcatConfig | undefined;
   className: string;
 }) {
@@ -98,7 +98,8 @@ function UserIcon({
     if (config.authorization === "no_auth") return <AlertCircle className={className} />;
   }
 
-  if (!user?.authenticated) return <UserX className={className} />;
+  // if (!user?.authenticated) return <LogInIcon className={className} />;
+  if (!user?.authenticated) return <span>sign-in</span>;
   if (user?.image)
     return (
       <img
@@ -108,5 +109,10 @@ function UserIcon({
         referrerPolicy="no-referrer"
       />
     );
-  return <UserCheck className={className} />;
+  return (
+    <div className="flex items-center gap-2">
+      {/*<span className="hidden md:inline">{user.email}</span>*/}
+      <User className={className} />
+    </div>
+  );
 }

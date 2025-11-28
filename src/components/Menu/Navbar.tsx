@@ -5,6 +5,7 @@ import { AmcatBranding } from "@/interfaces";
 import useAutoSignin from "@/lib/useAutoSignin";
 import {
   Bot,
+  ChevronRight,
   Columns3Cog,
   DatabaseZap,
   LayoutDashboard,
@@ -90,14 +91,14 @@ function BreadCrumbs({ branding, hasIndex }: { branding?: AmcatBranding; hasInde
 
   return (
     <>
-      <div className="hidden h-full items-center  overflow-hidden   text-sm sm:flex  md:text-lg">
+      <div className="hidden h-full items-center overflow-hidden  text-sm   sm:flex  md:text-lg">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
-        {/*<ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />*/}
+        <ChevronRight className="h-4 w-4 min-w-4 flex-shrink opacity-50" />
         {/*<span className="text-primary/50">|</span>*/}
-        <span className=" text-xs text-foreground/50">/</span>
+        {/*<span className=" text-xs text-foreground/50">/</span>*/}
         <IndexMenu />
       </div>
-      <div className="flex h-full flex-col items-start overflow-hidden  py-1 pl-2  text-sm sm:hidden  md:text-base">
+      <div className="flex  flex-col items-start overflow-hidden py-1  pl-2 text-sm sm:hidden  md:text-base">
         <BreadCrumbLink name={serverLinkLabel} href="/indices" active={!homepage && !hasIndex} />
         <IndexMenu />
       </div>

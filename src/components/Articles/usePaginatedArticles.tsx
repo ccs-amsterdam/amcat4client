@@ -1,11 +1,11 @@
 import { useArticles } from "@/api/articles";
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, AmcatSnippet, AmcatUserRole } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import useListFields from "./useListFields";
 
 interface params {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   fields?: AmcatField[];

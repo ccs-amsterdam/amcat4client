@@ -5,7 +5,7 @@ import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { useMutateUser, useUsers } from "@/api/users";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { Loading } from "@/components/ui/loading";
 import UserRoleTable from "@/components/Users/UserRoleTable";
 
@@ -15,7 +15,7 @@ import { Info } from "lucide-react";
 const roles = ["READER", "WRITER", "ADMIN"];
 
 export default function Page() {
-  const { user, loading: userLoading } = useMiddlecat();
+  const { user, loading: userLoading } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
   if (userLoading || configLoading || brandingLoading) return <Loading />;
@@ -28,7 +28,7 @@ export default function Page() {
 }
 
 interface ServerSettingsProps {
-  user: MiddlecatUser | undefined;
+  user: AmcatSessionUser | undefined;
   serverConfig: AmcatConfig;
   serverBranding: AmcatBranding;
 }

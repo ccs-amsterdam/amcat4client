@@ -1,6 +1,6 @@
 import { amcatIndexSchema, amcatUserRoleSchema } from "@/schemas";
 import { useQuery } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { z } from "zod";
 
 interface Params {
@@ -8,7 +8,7 @@ interface Params {
   showArchived?: boolean;
 }
 
-export function useAmcatIndices(user: MiddlecatUser | undefined, params?: Params) {
+export function useAmcatIndices(user: AmcatSessionUser | undefined, params?: Params) {
   return useQuery({
     queryKey: ["indices", user, params],
     queryFn: async () => {
@@ -19,7 +19,7 @@ export function useAmcatIndices(user: MiddlecatUser | undefined, params?: Params
   });
 }
 
-export function useAmcatIndexRoles(user: MiddlecatUser | undefined, params?: Params) {
+export function useAmcatIndexRoles(user: AmcatSessionUser | undefined, params?: Params) {
   return useQuery({
     queryKey: ["indices", user, params, "minimal"],
     queryFn: async () => {
@@ -30,7 +30,7 @@ export function useAmcatIndexRoles(user: MiddlecatUser | undefined, params?: Par
   });
 }
 
-async function getIndices(user: MiddlecatUser | undefined, p?: Params, minimal: boolean = false) {
+async function getIndices(user: AmcatSessionUser | undefined, p?: Params, minimal: boolean = false) {
   if (!user) return undefined;
 
   const params = {

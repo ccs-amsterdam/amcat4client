@@ -9,7 +9,7 @@ import { Loading } from "@/components/ui/loading";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AmcatIndex } from "@/interfaces";
 import { Edit, Trash2 } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
@@ -31,7 +31,7 @@ export default function Index({ params }: Props) {
   );
 }
 
-function Settings({ user, index }: { user: MiddlecatUser; index: AmcatIndex }) {
+function Settings({ user, index }: { user: AmcatSessionUser; index: AmcatIndex }) {
   const { mutate } = useMutateIndex(user);
   const { mutate: archive } = useArchiveIndex(user);
   const [archiveOpen, setArchiveOpen] = useState(false);

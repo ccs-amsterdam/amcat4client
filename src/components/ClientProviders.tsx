@@ -1,13 +1,13 @@
 "use client";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { MiddlecatProvider } from "middlecat-react";
 import { ThemeProvider } from "next-themes";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TooltipProvider } from "./ui/tooltip";
+import { AuthSessionProvider } from "./Auth/AuthProvider";
 
 const defaultOptions = {
   queries: {
@@ -102,9 +102,9 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     }
     return (
       <>
-        <MiddlecatProvider bff="/api/bffAuth" fixedResource={serverUrl}>
+        <AuthSessionProvider>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-        </MiddlecatProvider>
+        </AuthSessionProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </>
     );

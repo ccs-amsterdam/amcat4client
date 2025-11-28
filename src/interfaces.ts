@@ -31,6 +31,7 @@ import {
   amcatRequestServerRoleSchema,
   amcatApiKeySchema,
 } from "./schemas";
+import { Axios } from "axios";
 
 export type AmcatConfig = z.infer<typeof amcatConfigSchema>;
 export type AmcatBranding = z.infer<typeof amcatBrandingSchema>;
@@ -165,3 +166,5 @@ export interface MenuRoute {
 export type UploadOperation = "create" | "update" | "index";
 
 export type MultimediaType = "image" | "video" | "audio";
+
+export type RecentIndices = Record<string, AmcatIndex[]>;

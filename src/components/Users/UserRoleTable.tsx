@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/ui/datatable";
 import { AmcatUserDetails, AmcatUserRole } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -29,7 +29,7 @@ import { Input } from "../ui/input";
 import CreateUser from "./CreateUser";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   ownRole: AmcatUserRole;
   users: AmcatUserDetails[];
   roles: string[];

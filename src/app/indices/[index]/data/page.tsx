@@ -8,7 +8,7 @@ import { ErrorMsg } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { parseAsStringEnum, useQueryState } from "next-usequerystate";
 
 interface Props {
@@ -22,7 +22,7 @@ enum Tab {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);

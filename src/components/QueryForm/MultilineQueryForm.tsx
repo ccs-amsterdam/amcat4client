@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { ChevronUp, Loader, PlusSquareIcon } from "lucide-react";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { AddFilterButton } from "./AddFilterButton";
 import { queriesFromString, queriesToString } from "./libQuery";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   updateQuery: (query: AmcatQuery, executeAfter: number | "never") => void;

@@ -4,7 +4,7 @@ import { useAmcatBranding, useMutateBranding } from "@/api/branding";
 import { useAmcatConfig } from "@/api/config";
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -18,7 +18,7 @@ import { z } from "zod";
 import { JSONForm } from "@/components/ui/jsonForm";
 
 export function ServerBrandingForm() {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const mutateBranding = useMutateBranding(user);
   const { data: branding, isLoading: loadingBranding } = useAmcatBranding();

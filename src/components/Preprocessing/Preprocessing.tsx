@@ -1,11 +1,11 @@
 import { AmcatIndexId } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import PreprocessingTasks from "./PreprocessingTasks";
 import PreprocessingInstructions from "./PreprocessingInstructions";
 
 interface Props {
   indexId: AmcatIndexId;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
 }
 
 export default function Preprocessing({ indexId, user }: Props) {

@@ -4,13 +4,13 @@ import { useFieldStats } from "@/api/fieldStats";
 import { useFields } from "@/api/fields";
 import { AggregationAxis, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { autoFormatDate } from "@/lib/autoFormatDate";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useMemo } from "react";
 import AggregateResult from "../Aggregate/AggregateResult";
 import Articles from "../Articles/Articles";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }

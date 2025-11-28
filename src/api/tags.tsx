@@ -1,6 +1,6 @@
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import { z } from "zod";
 import { asPostAmcatQuery } from "./query";
@@ -12,7 +12,7 @@ interface MutateTagsParams {
   query: AmcatQuery;
 }
 
-export function useMutateTags(user: MiddlecatUser, indexId: AmcatIndexId) {
+export function useMutateTags(user: AmcatSessionUser, indexId: AmcatIndexId) {
   const queryClient = useQueryClient();
 
   return useMutation({

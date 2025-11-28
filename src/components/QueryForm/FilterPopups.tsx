@@ -2,13 +2,13 @@ import { useFieldStats } from "@/api/fieldStats";
 import { useFieldValues } from "@/api/fieldValues";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AmcatField, AmcatFilter, AmcatIndexId, DateFilter } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useMemo, useRef, useState } from "react";
 import { Input } from "../ui/input";
 import DatePicker from "./DatePicker";
 
 interface FilterPopupProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   field: AmcatField | undefined;
   value: AmcatFilter | undefined;

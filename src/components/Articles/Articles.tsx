@@ -3,13 +3,13 @@ import { useMyIndexrole } from "@/api/index";
 import ArticleModal from "@/components/Article/ArticleModal";
 import { Loading } from "@/components/ui/loading";
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery, SortSpec } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 import { ErrorMsg } from "../ui/error-message";
 import ArticleSnippets from "./ArticleSnippets";
 
 interface ArticlesProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   /** Query/filter of which documents to show */
   query: AmcatQuery;

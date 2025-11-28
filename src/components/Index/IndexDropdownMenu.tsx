@@ -2,7 +2,7 @@ import { useDeleteIndex, useHasIndexRole, useMutateIndex } from "@/api";
 import { Button } from "@/components/ui/button";
 import { AmcatIndex } from "@/interfaces";
 import { ArchiveRestore, ArchiveX, CornerLeftUp, FolderPlus, MoreVertical, Trash2 } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import React, { useState } from "react";
 import { ActivateConfirm } from "../ui/confirm";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
@@ -32,7 +32,7 @@ export function IndexDropdownMenu({
   const [newFolderName, setNewFolderName] = useState(index.folder || "");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { mutateAsync } = useMutateIndex(user);
   const { mutateAsync: deleteAsync } = useDeleteIndex(user);
 

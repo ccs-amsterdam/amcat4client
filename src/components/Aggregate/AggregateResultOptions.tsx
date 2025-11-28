@@ -16,7 +16,7 @@ import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from "r
 
 import { Button } from "@/components/ui/button";
 import { DynamicIcon } from "@/components/ui/dynamic-icon";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 
 // Style Idea:
 // Just single button with dropdown menu
@@ -24,7 +24,7 @@ import { MiddlecatUser } from "middlecat-react";
 // each item then has a combobox to select the column
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   options: AggregationOptions;
@@ -198,7 +198,7 @@ function DisplayPicker({ options, setOptions }: DisplayPickerProps) {
 }
 
 interface MetricPickerProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   value?: AggregationMetric;
   onChange: (value?: AggregationMetric) => void;
@@ -255,7 +255,7 @@ function MetricPicker({ user, indexId, value, onChange }: MetricPickerProps) {
 }
 
 interface AxisPickerProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   value?: AggregationAxis;

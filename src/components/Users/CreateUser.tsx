@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ChevronDown } from "lucide-react";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -51,7 +51,7 @@ function CreateUserForm({ ownRole, roles, createUser }: CreateUserProps) {
   const [emails, setEmails] = useState("");
   const [role, setRole] = useState("READER");
 
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

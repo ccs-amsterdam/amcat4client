@@ -1,5 +1,5 @@
 import { AggregationOptions, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import AggregateResult from "../Aggregate/AggregateResult";
 import { useFields } from "@/api/fields";
 import { useFieldValues } from "@/api/fieldValues";
@@ -23,7 +23,7 @@ import { Button } from "../ui/button";
 import { useCount } from "@/api/aggregate";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }

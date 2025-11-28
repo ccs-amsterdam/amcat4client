@@ -2,7 +2,7 @@ import { useMyRequests, useSubmitRequest } from "@/api/requests";
 import { AmcatIndex, AmcatIndexId, AmcatRequest, AmcatRequestProjectRole, AmcatRequestServerRole } from "@/interfaces";
 import { amcatRequestProjectRoleSchema, amcatRequestServerRoleSchema } from "@/schemas";
 import { ChevronDown, Loader, LogInIcon, Timer } from "lucide-react";
-import { MiddlecatUser, useMiddlecat } from "middlecat-react";
+import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -16,7 +16,7 @@ import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   roles: string[];
   currentRole: string;
   index?: AmcatIndex;
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function RequestRoleChange({ user, roles, currentRole, index, onSend }: Props) {
-  const { signIn } = useMiddlecat();
+  const { signIn } = useAmcatSession();
   const { mutateAsync: submitRequest } = useSubmitRequest(user);
   const [role, setRole] = useState<string | undefined>(undefined);
   const pending = usePendingRequest(user, index?.id);
@@ -142,7 +142,7 @@ export function RequestRoleChange({ user, roles, currentRole, index, onSend }: P
 }
 
 function usePendingRequest(
-  user: MiddlecatUser,
+  user: AmcatSessionUser,
   index?: AmcatIndexId,
 ): { request: AmcatRequestServerRole | AmcatRequestProjectRole | null; loading: boolean } {
   const { data: myRequests, isLoading } = useMyRequests(user);

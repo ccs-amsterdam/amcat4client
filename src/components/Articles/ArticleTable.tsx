@@ -1,6 +1,6 @@
 import { useMyIndexrole } from "@/api";
 import { AmcatArticle, AmcatField, AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useMemo, useState } from "react";
 
 import { formatField } from "@/lib/formatField";
@@ -9,7 +9,7 @@ import { DataTable } from "../ui/datatable";
 import usePaginatedArticles from "./usePaginatedArticles";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
   fields: AmcatField[];

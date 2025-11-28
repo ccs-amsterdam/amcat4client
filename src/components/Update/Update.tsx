@@ -1,10 +1,10 @@
 import { AmcatIndexId, AmcatQuery } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useFields } from "@/api/fields";
 import Tags from "./Tags";
 
 interface Props {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   query: AmcatQuery;
 }

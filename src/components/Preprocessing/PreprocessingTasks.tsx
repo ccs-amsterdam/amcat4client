@@ -7,7 +7,7 @@ import {
   PreprocessingTask,
   UpdateAmcatField,
 } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { useEffect, useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 import { Input } from "../ui/input";
@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   indexId: AmcatIndexId;
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
 }
 
 export default function PreprocessingTasks({ indexId, user }: Props) {
@@ -59,7 +59,7 @@ function TaskForm({
   task,
   fields,
 }: {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   task: PreprocessingTask;
   fields: AmcatField[];
@@ -275,7 +275,7 @@ function ArgumentInput({ value, onChange }: { value: ArgumentValue; onChange: (v
       })
       .filter((v) => v !== undefined);
     // had to resort to type coercion, because typescript is driving me mad
-    onChange(isArray ? (v as ArgumentValue) : v[0] ?? value);
+    onChange(isArray ? (v as ArgumentValue) : (v[0] ?? value));
   }
 
   return (

@@ -2,14 +2,14 @@
 
 import { useTaskStatus } from "@/api/task";
 import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 interface Props {
   params: { task: string };
 }
 export default function Task({ params }: Props) {
   //TODO: Make progress report nicer, maybe add progress bar?
   const taskId = decodeURI(params.task);
-  const { user } = useMiddlecat();
+  const { user } = useAmcatSession();
   const { data } = useTaskStatus(user, taskId);
   if (user == null || data == null) return <Loading />;
   if (taskId == null) return <div className="bg-warn">Please provide taskId in URL</div>;

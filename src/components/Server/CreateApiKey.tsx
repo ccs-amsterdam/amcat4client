@@ -1,6 +1,6 @@
 import { useCurrentUserDetails } from "@/api/userDetails";
 import { Loading } from "@/components/ui/loading";
-import { useMiddlecat } from "middlecat-react";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ export function CreateApiKey({
   onClose: () => void;
   setShowKey: (key: string) => void;
 }) {
-  const { user, loading } = useMiddlecat();
+  const { user, loading } = useAmcatSession();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const { data: userIndexRoles, isLoading: loadingUserIndices } = useAmcatIndexRoles(user);
   const mutateApiKeys = useMutateApiKeys(user);
@@ -243,22 +243,28 @@ function RoleInput({
   actual?: AmcatUserRole;
 }) {
   return (
-    <Select onValueChange={(val) => onChange(val as AmcatUserRole)} value={value}>
-      <SelectTrigger className="border-none bg-primary/10 ">
-        <SelectValue placeholder="Select role(s)" />
-      </SelectTrigger>
-      <SelectContent className="bg-background">
-        <SelectGroup>
-          {amcatUserRoles.map((role) => {
-            const higher = actual ? roleHigherThan(role, actual) : false;
-            return (
-              <SelectItem key={role} value={role} className={higher ? "opacity-50" : ""}>
-                {role}
-              </SelectItem>
-            );
-          })}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <div className="flex items-center gap-1">
+      <Select onValueChange={(val) => onChange(val as AmcatUserRole)} value={value}>
+        <SelectTrigger className="border-none bg-primary/10 ">
+          <SelectValue placeholder="Select role" />
+        </SelectTrigger>
+        <SelectContent className="bg-background">
+          <SelectGroup>
+            {amcatUserRoles.map((role) => {
+              const higher = actual ? roleHigherThan(role, actual) : false;
+              return (
+                <SelectItem key={role} value={role} className={higher ? "opacity-50" : ""}>
+                  {role}
+                </SelectItem>
+              );
+            })}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {/*Doesn't work because apparently cannot set a form value to undefined*/}
+      {/*<Button type="button" variant="ghost" size="icon" onClick={() => onChange(undefined)}>
+        <X />
+      </Button>*/}
+    </div>
   );
 }

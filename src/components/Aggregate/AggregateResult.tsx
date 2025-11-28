@@ -12,7 +12,7 @@ import {
   AmcatIndexId,
   AmcatQuery,
 } from "@/interfaces";
-import { MiddlecatUser } from "middlecat-react";
+import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { toast } from "sonner";
 import Articles from "../Articles/Articles";
 import { Button } from "../ui/button";
@@ -31,7 +31,7 @@ import { Input } from "../ui/input";
 import AggregatePagination, { useAggregatePagination } from "./AggregatePagination";
 
 interface AggregateResultProps {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   indexId: AmcatIndexId;
   /** The query for the results to show */
   query: AmcatQuery;
@@ -328,7 +328,7 @@ function ArticleListModal({
   zoom,
   onClose,
 }: {
-  user: MiddlecatUser;
+  user: AmcatSessionUser;
   index: AmcatIndexId;
   zoom?: Zoom;
   onClose: () => void;
