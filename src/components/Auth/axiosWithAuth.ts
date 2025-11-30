@@ -1,10 +1,6 @@
 import axios from "axios";
 import { toast } from "sonner";
-
-interface AccessToken {
-  access_token: string;
-  exp: number;
-}
+import { SessionData } from "./AuthProvider";
 
 /**
  * Creates an axios instance for making api requests to the AmCAT server.
@@ -17,30 +13,31 @@ interface AccessToken {
  * @param refresh_token
  * @returns
  */
-export default function AxiosWithAuth(access_token?: AccessToken, closeSession?: () => void) {
+export default function AxiosWithAuth(sessionData: SessionData | null, closeSession?: () => void) {
   const api = axios.create();
 
-  const guest = !access_token;
-  let currentAccessToken = access_token;
-  let getTokensPromise: Promise<AccessToken> | undefined;
+  let currentSession: SessionData | null = null;
+  if (sessionData) {
+    currentSession = { ...sessionData };
+    sessionData.access_token = "scrubbed";
+  }
+  let currentSessionPromise: Promise<SessionData> | undefined;
 
   async function requestInterceptor(config: any) {
     // ensure that resource is the base url, so that its not easy to
     // to send a request with the tokens somewhere else
     config.baseURL = process.env.NEXT_PUBLIC_AMCAT_SERVER;
-    if (guest) return config;
+
+    if (!currentSession) return config; // not authenticated
 
     // check if token still valid
     try {
-      if (!currentAccessToken) throw new Error("No access token");
+      // Storing the promise outside of the intercepter makes parallel requests await the same promise
+      if (!currentSessionPromise) currentSessionPromise = refreshToken(currentSession);
+      currentSession = await currentSessionPromise;
+      currentSessionPromise = undefined;
 
-      // to prevent parallel calls to the refresh token endpoint, we store the
-      // promise in getTokensPromise and return that promise if it exists.
-      if (!getTokensPromise) getTokensPromise = refreshToken(currentAccessToken);
-      currentAccessToken = await getTokensPromise;
-      getTokensPromise = undefined;
-
-      config.headers.Authorization = `Bearer ${currentAccessToken.access_token}`;
+      config.headers.Authorization = `Bearer ${currentSession.access_token}`;
     } catch (e) {
       closeSession?.();
       toast.error("Failed to refresh session, please sign in again.");
@@ -59,16 +56,16 @@ export default function AxiosWithAuth(access_token?: AccessToken, closeSession?:
 /**
  * Checks if access token is about to expire. If so, we first refresh the tokens.
  */
-async function refreshToken(access_token: AccessToken): Promise<AccessToken> {
+async function refreshToken(sessionData: SessionData): Promise<SessionData> {
   // We need to prevent multiple calls to the refresh token endpoint. So if
   // there is already a call to the refresh token endpoint ongoing, we return
   // that promise.
   const now = Date.now() / 1000;
   const nearfuture = now + 10; // refresh x seconds before expires
-  if (access_token.exp < nearfuture) {
-    const tokens = await axios.post("/auth/refresh");
-    const { access_token, exp } = tokens.data;
-    return { access_token, exp };
+  if (sessionData.exp < nearfuture) {
+    const tokens = await axios.post("/auth/refresh", {}, { headers: { "X-CSRF-TOKEN": sessionData.csrf_token } });
+    const { access_token, csrf_token, exp } = tokens.data;
+    return { ...sessionData, access_token, csrf_token, exp };
   }
-  return access_token;
+  return sessionData;
 }

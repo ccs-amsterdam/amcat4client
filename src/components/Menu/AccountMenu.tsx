@@ -39,7 +39,7 @@ export default function AccountMenu() {
     if (config?.authorization === "no_auth") return null;
     if (user?.authenticated) {
       return (
-        <DropdownMenuItem onClick={() => signOut(true).then(() => router.push("/"))}>
+        <DropdownMenuItem onClick={() => signOut().then(() => router.push("/"))}>
           <LogOut className="mr-3 h-5 w-5" />
           <span>Sign-out</span>
         </DropdownMenuItem>

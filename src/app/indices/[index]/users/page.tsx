@@ -49,7 +49,7 @@ function Users({ index }: { index: AmcatIndex }) {
 
   const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
 
-  async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
+  async function changeRole(email: string | undefined, role: string, action: "create" | "delete" | "update") {
     mutateAsync({ email, role, action }).catch(console.error);
   }
 

@@ -41,7 +41,7 @@ function ServerSettings({ user, serverConfig, serverBranding }: ServerSettingsPr
   if (loadingUserDetails || loadingUsers) return <Loading />;
 
   const ownRole = serverConfig?.authorization === "no_auth" ? "ADMIN" : userDetails?.role;
-  async function changeRole(email: string, role: string, action: "create" | "delete" | "update") {
+  async function changeRole(email: string | undefined, role: string, action: "create" | "delete" | "update") {
     mutate.mutateAsync({ email, role, action }).catch(console.error);
   }
 

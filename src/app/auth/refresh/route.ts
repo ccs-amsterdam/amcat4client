@@ -5,6 +5,11 @@ import { IronSession } from "iron-session";
 
 export async function POST(request: NextRequest) {
   const session = await getSession();
+
+  if (session.csrf_token && request.headers.get("X-CSRF-TOKEN") !== session.csrf_token) {
+    return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+  }
+
   const clientUrl = request.nextUrl.origin;
   const config = await getClientConfig(clientUrl);
 
@@ -17,6 +22,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     exp: session.exp,
     access_token: session.access_token,
+    csrf_token: session.csrf_token,
   });
 }
 
@@ -29,9 +35,10 @@ async function oidcRefreshTokenGrant({
 }) {
   const tokenSet = await client.refreshTokenGrant(config.configuration, session.refresh_token || "");
   const claims = tokenSet.claims()!;
-  const { sub, exp } = claims;
+  const { exp } = claims;
   session.access_token = tokenSet.access_token;
   session.refresh_token = tokenSet.refresh_token;
+  session.csrf_token = crypto.randomUUID();
   session.exp = exp;
   await session.save();
 }
@@ -58,15 +65,11 @@ async function middlecatRefreshTokenGrant({
   const tokenSet: Record<string, string> = await res.json();
 
   const claims = JSON.parse(Buffer.from(tokenSet.access_token.split(".")[1], "base64").toString("utf-8"));
-  const { name, email, exp } = claims;
+  const { exp } = claims;
 
   session.access_token = tokenSet.access_token;
   session.refresh_token = tokenSet.refresh_token;
+  session.csrf_token = crypto.randomUUID();
   session.exp = exp;
-  session.userInfo = {
-    sub: email,
-    name,
-    email,
-  };
   await session.save();
 }

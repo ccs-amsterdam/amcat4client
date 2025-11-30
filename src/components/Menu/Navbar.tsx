@@ -2,7 +2,6 @@
 
 import { useAmcatBranding } from "@/api/branding";
 import { AmcatBranding } from "@/interfaces";
-import useAutoSignin from "@/lib/useAutoSignin";
 import {
   Bot,
   ChevronRight,
@@ -46,7 +45,6 @@ export default function Navbar() {
   const hasIndex = !!params?.index;
   const path = usePathname();
   const { data: branding } = useAmcatBranding();
-  useAutoSignin();
 
   function logo() {
     return (

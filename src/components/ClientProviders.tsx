@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TooltipProvider } from "./ui/tooltip";
-import { AuthSessionProvider } from "./Auth/AuthProvider";
+import { AuthSessionProvider, SessionData } from "./Auth/AuthProvider";
 
 const defaultOptions = {
   queries: {
@@ -39,7 +39,13 @@ function defaultErrorToast(e: any) {
   }
 }
 
-export default function ClientProviders({ children }: { children: React.ReactNode }) {
+export default function ClientProviders({
+  children,
+  sessionData: sessionData,
+}: {
+  children: React.ReactNode;
+  sessionData: SessionData | null;
+}) {
   //const params = useSearchParams();
 
   // allow signing in to local server on specific port. Useful for development,
@@ -102,7 +108,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     }
     return (
       <>
-        <AuthSessionProvider>
+        <AuthSessionProvider sessionData={sessionData}>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         </AuthSessionProvider>
         <ReactQueryDevtools initialIsOpen={false} />

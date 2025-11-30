@@ -1,15 +1,24 @@
-import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { Axios } from "axios";
 import AxiosWithAuth from "./axiosWithAuth";
+import { toast } from "sonner";
 
 export interface AmcatSessionUser {
-  email: string;
+  email?: string;
   name?: string;
   image?: string;
   authenticated: boolean;
   api: Axios;
+}
+
+export interface SessionData {
+  email: string;
+  name: string;
+  access_token: string;
+  csrf_token: string;
+  exp: number;
 }
 
 export interface AmcatSession {
@@ -28,12 +37,14 @@ const loadingSession: AmcatSession = {
 
 const SessionContext = createContext<AmcatSession>(loadingSession);
 
-export function AuthSessionProvider({ children }: { children: ReactNode }) {
-  const { user, startSession, startGuestSession, signIn, signOut } = useSessionManager();
-
-  useEffect(() => {
-    startSession().catch(startGuestSession);
-  }, []);
+export function AuthSessionProvider({
+  children,
+  sessionData: initialSession,
+}: {
+  children: ReactNode;
+  sessionData: SessionData | null;
+}) {
+  const { user, signIn, signOut } = useSessionManager(initialSession);
 
   const session = {
     user: user || undefined,
@@ -45,41 +56,42 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
   return <SessionContext.Provider value={session || loadingSession}>{children}</SessionContext.Provider>;
 }
 
-function useSessionManager() {
+function useSessionManager(sessionData: SessionData | null) {
+  const [session, setSession] = useState<SessionData | null>(sessionData);
   const router = useRouter();
-  const [user, setUser] = useState<AmcatSessionUser | null>(null);
-
-  const startGuestSession = useCallback(() => {
-    setUser({
-      authenticated: false,
-      email: "",
-      name: "",
-      api: AxiosWithAuth(),
-    });
-  }, []);
 
   const signIn = useCallback(async () => {
     router.push("/auth/login");
   }, []);
 
   const signOut = useCallback(async () => {
-    router.push("/auth/logout");
-    startGuestSession();
-  }, [startGuestSession]);
+    if (!session) return;
+    axios
+      .post("/auth/logout", {}, { headers: { "X-CSRF-TOKEN": session.csrf_token } })
+      .then((res) => {
+        if (res.data.logout_url) {
+          window.location.href = res.data.logout_url;
+        } else {
+          setSession(null);
+        }
+      })
+      .catch(() => {
+        toast.error("Failed to log out properly.");
+      });
+  }, [session]);
 
-  const startSession = useCallback(async () => {
-    const res = await axios.get("/auth/session");
-    const data = await res.data;
+  const user: AmcatSessionUser = useMemo(() => {
+    const api = AxiosWithAuth(session, signOut);
+    if (!session) return { authenticated: false, api };
+    return {
+      authenticated: true,
+      email: session.email,
+      name: session.name,
+      api,
+    };
+  }, [session, signOut]);
 
-    setUser({
-      authenticated: data.userInfo?.sub ? true : false,
-      email: data.userInfo?.email || "",
-      name: data.userInfo?.name || "",
-      api: AxiosWithAuth({ access_token: data.access_token, exp: data.exp }, signOut),
-    });
-  }, []);
-
-  return { user, startGuestSession, startSession, signIn, signOut };
+  return { user, signIn, signOut };
 }
 
 export const useAmcatSession = () => useContext(SessionContext);

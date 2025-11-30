@@ -9,10 +9,15 @@ import {
 import * as client from "openid-client";
 import { IronSession } from "iron-session";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
+  const session = await getSession();
+
+  if (session.csrf_token && req.headers.get("X-CSRF-TOKEN") !== session.csrf_token) {
+    return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
+  }
+
   const clientUrl = req.nextUrl.origin;
   const currentUrl = req.headers.get("referer") || "";
-  const session = await getSession();
 
   const authConfig = await getClientConfig(clientUrl);
 
@@ -23,7 +28,7 @@ export async function GET(req: NextRequest) {
       id_token_hint: session.access_token!,
     });
     await closeSession(session);
-    return Response.redirect(endSessionUrl.href);
+    return NextResponse.json({ logout_url: endSessionUrl.href });
 
     // Middlecat logout
   } else {
@@ -38,7 +43,7 @@ export async function GET(req: NextRequest) {
     if (res.ok || res.status === 500) {
       await closeSession(session);
     }
-    return Response.redirect(currentUrl);
+    return NextResponse.json({});
   }
 }
 

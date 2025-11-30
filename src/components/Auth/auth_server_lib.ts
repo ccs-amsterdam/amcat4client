@@ -35,6 +35,7 @@ export type AuthConfig =
 export interface SessionData {
   access_token?: string;
   refresh_token?: string;
+  csrf_token?: string;
   exp?: number;
   code_verifier?: string;
   state?: string;
@@ -53,6 +54,8 @@ export const sessionOptions: SessionOptions = {
   cookieName: "next_js_session",
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    httpOnly: true,
   },
   ttl: 60 * 60 * 24 * 7, // 1 week
 };

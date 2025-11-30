@@ -25,7 +25,15 @@ export function useMutateIndexUser(user?: AmcatSessionUser, indexId?: AmcatIndex
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, role, action }: { email: string; role: string; action: "create" | "delete" | "update" }) => {
+    mutationFn: ({
+      email,
+      role,
+      action,
+    }: {
+      email: string | undefined;
+      role: string;
+      action: "create" | "delete" | "update";
+    }) => {
       if (!user) throw new Error("Not logged in");
       return mutateIndexUser(user, indexId || "", email, role, action);
     },
@@ -45,7 +53,7 @@ export function useMutateIndexUser(user?: AmcatSessionUser, indexId?: AmcatIndex
 async function mutateIndexUser(
   user: AmcatSessionUser,
   indexId: AmcatIndexId,
-  email: string,
+  email: string | undefined,
   newRole: string,
   action: "create" | "delete" | "update",
 ) {

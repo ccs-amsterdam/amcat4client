@@ -33,7 +33,7 @@ interface Props {
   ownRole: AmcatUserRole;
   users: AmcatUserDetails[];
   roles: string[];
-  changeRole: (email: string, role: string, action: "create" | "delete" | "update") => void;
+  changeRole: (email: string | undefined, role: string, action: "create" | "delete" | "update") => void;
 }
 
 // This components works for both Server and Index users, depending

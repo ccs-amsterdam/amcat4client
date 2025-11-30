@@ -24,7 +24,15 @@ export function useMutateUser(user?: AmcatSessionUser) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, role, action }: { email: string; role: string; action: "create" | "delete" | "update" }) => {
+    mutationFn: ({
+      email,
+      role,
+      action,
+    }: {
+      email: string | undefined;
+      role: string;
+      action: "create" | "delete" | "update";
+    }) => {
       if (!user) throw new Error("Not logged in");
       return mutateUser(user, email, role, action);
     },
@@ -43,7 +51,7 @@ export function useMutateUser(user?: AmcatSessionUser) {
 
 async function mutateUser(
   user: AmcatSessionUser,
-  email: string,
+  email: string | undefined,
   newRole: string,
   action: "create" | "delete" | "update",
 ) {

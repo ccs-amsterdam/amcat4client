@@ -53,6 +53,8 @@ async function oidcCodeGrant({
   const userinfo = await client.fetchUserInfo(oidcConfig, access_token, sub);
 
   session.access_token = access_token;
+  session.refresh_token = refresh_token;
+  session.csrf_token = crypto.randomUUID();
   session.exp = exp;
   session.userInfo = {
     sub: userinfo.sub,
@@ -98,6 +100,7 @@ async function middlecatCodeGrant({
 
   session.access_token = tokenSet.access_token;
   session.refresh_token = tokenSet.refresh_token;
+  session.csrf_token = crypto.randomUUID();
   session.exp = exp;
   session.userInfo = {
     sub: email,

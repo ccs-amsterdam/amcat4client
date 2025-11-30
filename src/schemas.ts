@@ -1,9 +1,5 @@
 import { z } from "zod";
 
-export const amcatSessionSchema = z.object({
-  user: z.object,
-});
-
 export const amcatConfigSchema = z.object({
   middlecat_url: z.string().url(),
   authorization: z.enum(["allow_guests", "no_auth", "allow_authenticated_guests", "authorized_users_only"]),
