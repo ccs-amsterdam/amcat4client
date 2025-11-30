@@ -22,11 +22,10 @@ import { useParams } from "next/navigation";
 const roles = ["NONE", "METAREADER", "READER", "WRITER", "ADMIN"];
 
 export default function IndexRole() {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const params = useParams<{ index: string }>();
   const indexId = decodeURI(params?.index || "");
   const { data: index } = useIndex(user, indexId);
-  if (loading || !user) return null;
   if (!index) return null;
 
   return <IndexRoleMenu user={user} index={index} />;

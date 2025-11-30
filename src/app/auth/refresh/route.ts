@@ -10,6 +10,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
   }
 
+  // if more than 5 minutes left, no need to refresh
+  const now = Math.floor(Date.now() / 1000);
+  if (session.exp && session.exp - now > 6 * 60) {
+    return NextResponse.json({
+      exp: session.exp,
+      access_token: session.access_token,
+      csrf_token: session.csrf_token,
+    });
+  }
+
   const clientUrl = request.nextUrl.origin;
   const config = await getClientConfig(clientUrl);
 

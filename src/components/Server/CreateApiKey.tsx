@@ -44,7 +44,7 @@ export function CreateApiKey({
   onClose: () => void;
   setShowKey: (key: string) => void;
 }) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const { data: userIndexRoles, isLoading: loadingUserIndices } = useAmcatIndexRoles(user);
   const mutateApiKeys = useMutateApiKeys(user);
@@ -69,7 +69,7 @@ export function CreateApiKey({
       });
   }
 
-  if (loading || loadingUserDetails || loadingUserIndices) return <Loading />;
+  if (loadingUserDetails || loadingUserIndices) return <Loading />;
 
   return (
     <Form {...apikeyForm}>
@@ -230,7 +230,9 @@ function DateInput({ value, onChange }: { value: Date; onChange: (date: Date) =>
     }
   }
 
-  return <Input type="date" value={value.toISOString().substring(0, 10)} onChange={handleChange} className="" />;
+  return (
+    <Input type="datetime-local" value={value.toISOString().substring(0, 16)} onChange={handleChange} className="" />
+  );
 }
 
 function RoleInput({

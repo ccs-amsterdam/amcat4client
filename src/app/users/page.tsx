@@ -15,10 +15,10 @@ import { Info } from "lucide-react";
 const roles = ["READER", "WRITER", "ADMIN"];
 
 export default function Page() {
-  const { user, loading: userLoading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
-  if (userLoading || configLoading || brandingLoading) return <Loading />;
+  if (configLoading || brandingLoading) return <Loading />;
 
   return (
     <div className="mx-auto mt-12 w-full max-w-7xl px-6 py-6">

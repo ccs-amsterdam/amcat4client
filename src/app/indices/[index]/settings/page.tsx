@@ -17,12 +17,12 @@ interface Props {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
-  if (loading || loadingIndex) return <Loading />;
-  if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
+  if (loadingIndex) return <Loading />;
+  if (!index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
     <div className="flex w-full  flex-col gap-10">

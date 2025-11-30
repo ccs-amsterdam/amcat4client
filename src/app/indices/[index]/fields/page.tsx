@@ -14,12 +14,12 @@ interface Props {
 }
 
 export default function Page({ params }: Props) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
-  if (loading || loadingIndex) return <Loading />;
-  if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
+  if (loadingIndex) return <Loading />;
+  if (!index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
     <div className="flex w-full  flex-col gap-10">
@@ -29,15 +29,15 @@ export default function Page({ params }: Props) {
 }
 
 function Fields({ index }: { index: AmcatIndex }) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: fields, isLoading: loadingFields } = useFields(user, index.id);
   const { mutate } = useMutateFields(user, index.id);
   const { data: config } = useAmcatConfig();
 
-  if (loading || loadingFields) return <Loading />;
+  if (loadingFields) return <Loading />;
 
   const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
-  if (!user || !ownRole || !mutate) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
+  if (!ownRole || !mutate) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
   if (ownRole !== "ADMIN" && ownRole !== "WRITER")
     return <ErrorMsg type="Not Allowed">Need to have the WRITER or ADMIN role to edit index fields</ErrorMsg>;
 

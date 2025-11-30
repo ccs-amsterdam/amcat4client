@@ -22,14 +22,14 @@ enum Tab {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Upload));
 
-  if (loading || loadingIndex || configLoading) return <Loading />;
-  if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
+  if (loadingIndex || configLoading) return <Loading />;
+  if (!index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
     <div className="flex w-full  flex-col gap-10">

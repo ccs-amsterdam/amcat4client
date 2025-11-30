@@ -13,7 +13,7 @@ import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from ".
 import useLocalStorage from "@/lib/useLocalStorage";
 
 export default function IndexMenu() {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const [recentIndicesByUser] = useLocalStorage<RecentIndices>("recentIndices", {});
   const params = useParams<{ index: string }>();
   const indexId = decodeURI(params?.index || "");
@@ -21,7 +21,7 @@ export default function IndexMenu() {
 
   const { data: index } = useIndex(user, indexId);
 
-  if (loading || !user) return null;
+  if (!user) return null;
 
   const key = user?.email || "guest";
   const recentIndices = recentIndicesByUser[key]?.filter((r) => r.id !== indexId) || [];

@@ -7,7 +7,7 @@ import {
   UpdateAmcatField,
   UploadOperation,
 } from "@/interfaces";
-import { AlertCircleIcon, CheckSquare, ChevronDown, Edit, Key, List, Loader, Plus, Square, X } from "lucide-react";
+import { AlertCircleIcon, Bot, CheckSquare, ChevronDown, Edit, Key, List, Loader, Plus, Square, X } from "lucide-react";
 import { AmcatSessionUser } from "@/components/Auth/AuthProvider";
 import { Dispatch, ReactNode, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import { useCSVReader } from "react-papaparse";
@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -321,7 +322,12 @@ function UploadTable({
                 />
               </TableCell>
               <TableCell>
-                <CreateNewField data={data} column={column} setColumn={setColumn} setCreateColumn={setCreateColumn} />
+                <RemoveOrEditField
+                  data={data}
+                  column={column}
+                  setColumn={setColumn}
+                  setCreateColumn={setCreateColumn}
+                />
               </TableCell>
               <TableCell className="overflow-auto text-wrap">{getUploadStatus(column, data)}</TableCell>
             </TableRow>
@@ -564,27 +570,36 @@ function getUploadStatus(column: Column, data: Record<string, jsType>[]) {
   );
 }
 
-function CreateNewField({
-  data,
-  column,
-  setColumn,
-  setCreateColumn,
-}: {
+interface RemoveOrEditProps {
   data: Record<string, jsType>[];
   column: Column;
   setColumn: (column: Column) => void;
   setCreateColumn: (column: Column | null) => void;
-}) {
-  const label = column.field && !column.exists ? "Edit" : "Create new";
-  const existing = column.exists;
+}
+
+function RemoveOrEditField({ data, column, setColumn, setCreateColumn }: RemoveOrEditProps) {
   const notused = column.status === "Not used";
 
+  if (!column.field) return null;
+
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-1">
+      <Button
+        variant={"ghost"}
+        size="icon"
+        className={column.exists || notused ? "invisible" : ""}
+        disabled={column.exists || notused}
+        onClick={() => {
+          setCreateColumn(column);
+        }}
+      >
+        <Edit className="h-5 w-5 flex-shrink-0" />
+      </Button>
       <Button
         variant="ghost"
         size="icon"
-        className={notused ? "hidden" : ""}
+        className={notused ? "invisible" : ""}
+        disabled={notused}
         onClick={() =>
           setColumn({
             name: column.name,
@@ -597,19 +612,6 @@ function CreateNewField({
         }
       >
         <X className="h-6 w-6 text-foreground/60" />
-      </Button>
-      <Button
-        variant={"ghost"}
-        className={existing ? "hidden" : "bg-primary/10"}
-        onClick={() => {
-          if (notused) {
-            setCreateColumn(autoTypeColumn(data, column.name));
-          } else {
-            setCreateColumn(column);
-          }
-        }}
-      >
-        {label}
       </Button>
     </div>
   );
@@ -644,37 +646,55 @@ function SelectAmcatField({
     );
   }
 
-  if (unusedFields.length === 0) return <div></div>;
+  // if (unusedFields.length === 0) return <div></div>;
 
   return (
     <div className="flex items-center gap-2">
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger className={`flex items-center gap-3 rounded p-2 pl-0 `}>
-          Select field
+          Assign to field
           <ChevronDown className={` h-5 w-5 ${!column.field ? "" : "hidden"}`} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="max-h-[80vh] overflow-auto">
-          {unusedFields.map((field) => {
-            return (
-              <DropdownMenuItem
-                key={field.name}
-                className="flex items-center gap-2"
-                onClick={() =>
-                  setColumn({
-                    ...column,
-                    field: field.name,
-                    type: field.type,
-                    elastic_type: field.elastic_type,
-                    status: "Validating",
-                    exists: true,
-                  })
-                }
-              >
-                <DynamicIcon type={field.type} className="h-6 w-6 flex-shrink-0" /> &nbsp;
-                {field.name}
-              </DropdownMenuItem>
-            );
-          })}
+          <DropdownMenuItem
+            onClick={() => setCreateColumn(autoTypeColumn(data, column.name))}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-6 w-6 flex-shrink-0" /> Create new field
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setColumn(autoTypeColumn(data, column.name))}
+            className="flex items-center gap-2"
+          >
+            <Bot className="h-6 w-6 flex-shrink-0" /> Suggest new field
+          </DropdownMenuItem>
+          <DropdownMenuGroup className={unusedFields.length > 0 ? "" : "hidden"}>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Use existing field</DropdownMenuLabel>
+            {unusedFields.map((field) => {
+              return (
+                <DropdownMenuItem
+                  key={field.name}
+                  className="flex items-center gap-2"
+                  onClick={() =>
+                    setColumn({
+                      ...column,
+                      field: field.name,
+                      type: field.type,
+                      elastic_type: field.elastic_type,
+                      status: "Validating",
+                      exists: true,
+                    })
+                  }
+                >
+                  <DynamicIcon type={field.type} className="h-6 w-6 flex-shrink-0" /> &nbsp;
+                  <span title={field.name} className="max-w-80 overflow-hidden text-ellipsis">
+                    {field.name}
+                  </span>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

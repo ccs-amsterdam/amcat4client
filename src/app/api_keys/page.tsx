@@ -31,7 +31,7 @@ export default function Page() {
       </Button>
       <div className="flex flex-col">
         {apiKeys?.map((key) => (
-          <div key={key.id} className="mt-4 rounded border p-3">
+          <div key={key.id} className="mt-4 rounded bg-primary/10 p-3">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="mt-0 text-lg font-medium">

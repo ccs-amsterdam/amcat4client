@@ -15,10 +15,8 @@ import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvide
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 
-const Spinner = () => <Loader className="h-7 w-7 animate-[spin_2000ms_linear_infinite] text-primary" />;
-
 export default function AccountMenu() {
-  const { user, loading: loadingUser, signIn, signOut } = useAmcatSession();
+  const { user, signIn, signOut } = useAmcatSession();
   const { data: config, isLoading: loadingConfig } = useAmcatConfig();
   const router = useRouter();
   function renderAuthStatus() {
@@ -39,7 +37,7 @@ export default function AccountMenu() {
     if (config?.authorization === "no_auth") return null;
     if (user?.authenticated) {
       return (
-        <DropdownMenuItem onClick={() => signOut().then(() => router.push("/"))}>
+        <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-3 h-5 w-5" />
           <span>Sign-out</span>
         </DropdownMenuItem>
@@ -54,13 +52,6 @@ export default function AccountMenu() {
     }
   }
 
-  if (loadingUser || loadingConfig)
-    return (
-      <div className="px-3">
-        <Spinner />
-      </div>
-    );
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="h-full min-w-[2.5rem] px-3 outline-none hover:bg-primary/10 md:pr-6">
@@ -74,7 +65,7 @@ export default function AccountMenu() {
       >
         <DropdownMenuLabel>{renderAuthStatus()}</DropdownMenuLabel>
         {renderAuthButtons()}
-        <DropdownMenuItem onClick={() => router.push("/api_keys")}>
+        <DropdownMenuItem onClick={() => router.push("/api_keys")} className={user.authenticated ? "" : "hidden"}>
           <Bot className="mr-3 h-5 w-5" />
           <span>API Keys</span>
         </DropdownMenuItem>
@@ -99,7 +90,7 @@ function UserIcon({
   }
 
   // if (!user?.authenticated) return <LogInIcon className={className} />;
-  if (!user?.authenticated) return <span>sign-in</span>;
+  if (!user?.authenticated) return <div className="">sign-in</div>;
   if (user?.image)
     return (
       <img

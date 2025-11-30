@@ -61,7 +61,7 @@ export function Branding({
           ) : (
             <>
               <Button size="lg" onClick={() => signIn()}>
-                Log in
+                Sign in
                 <LogIn className="ml-2 h-5 w-5" />
               </Button>
               &nbsp;

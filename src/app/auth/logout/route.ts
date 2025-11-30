@@ -12,6 +12,7 @@ import { IronSession } from "iron-session";
 export async function POST(req: NextRequest) {
   const session = await getSession();
 
+  console.log(req.headers.get("X-CSRF-TOKEN"), session.csrf_token);
   if (session.csrf_token && req.headers.get("X-CSRF-TOKEN") !== session.csrf_token) {
     return NextResponse.json({ error: "Invalid CSRF token" }, { status: 403 });
   }

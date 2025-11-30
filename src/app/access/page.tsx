@@ -10,8 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } 
 const roles = ["NONE", "WRITER", "ADMIN"];
 
 export default function ServerRole() {
-  const { user, loading } = useAmcatSession();
-  if (loading || !user) return null;
+  const { user } = useAmcatSession();
 
   const user_role = useMyGlobalRole(user) || "NONE";
 

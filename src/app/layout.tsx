@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         email: session.userInfo?.email || "",
         name: session.userInfo?.name || "",
         csrf_token: session.csrf_token || "",
-        access_token: session.access_token,
+        access_token: null, // fetch this more securely on the client
         exp: session.exp || 0,
       }
     : null;

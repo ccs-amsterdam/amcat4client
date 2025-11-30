@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ index: string }>();
-  const { user, loading: loadingUser } = useAmcatSession();
+  const { user } = useAmcatSession();
   const indexRole = useMyIndexrole(user, params?.index);
 
   if (!indexRole) return <NoAccessToThisIndex />;

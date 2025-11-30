@@ -18,7 +18,7 @@ import { z } from "zod";
 import { JSONForm } from "@/components/ui/jsonForm";
 
 export function ServerBrandingForm() {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: userDetails, isLoading: loadingUserDetails } = useCurrentUserDetails(user);
   const mutateBranding = useMutateBranding(user);
   const { data: branding, isLoading: loadingBranding } = useAmcatBranding();
@@ -35,7 +35,7 @@ export function ServerBrandingForm() {
     mutateBranding.mutateAsync(values).catch(console.error);
   }
 
-  if (loading || loadingBranding || loadingUserDetails) return <Loading />;
+  if (loadingBranding || loadingUserDetails) return <Loading />;
   const isAdmin = userDetails?.role === "ADMIN" || config?.authorization === "no_auth";
 
   return (

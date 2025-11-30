@@ -26,7 +26,7 @@ interface Folder {
 }
 
 export function SelectIndex() {
-  const { user, loading: loadingUser } = useAmcatSession();
+  const { user } = useAmcatSession();
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -35,7 +35,7 @@ export function SelectIndex() {
     showAll: showAllIndices,
     showArchived: showArchived,
   });
-  const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]>>(new Map());
+  const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]> | null>(null);
   const canCreate = useHasGlobalRole(user, "WRITER");
   const isAdmin = useHasGlobalRole(user, "ADMIN");
 
@@ -90,13 +90,6 @@ export function SelectIndex() {
     return () => clearTimeout(timeout);
   }, [myIndices, search, currentPath, showArchived, showAllIndices]);
 
-  if (loadingUser)
-    return (
-      <div className="mt-[20vh]">
-        <Loading />
-      </div>
-    );
-
   function updatePath(path: string | null) {
     // setVisibleFolders([]);
     // setVisibleIndices([]);
@@ -110,6 +103,7 @@ export function SelectIndex() {
   }
 
   if (user && !user.authenticated && allIndices?.length === 0) return <NoPublicIndicesMessage />;
+  if (indexMap === null) return <Loading />;
   const folderList = [...indexMap.keys()].filter((f) => f !== "");
 
   return (
@@ -171,7 +165,7 @@ export function SelectIndex() {
                 if (loadingIndices) return null;
 
                 return (
-                  <div key={folder} className="mb-6">
+                  <div key={folder} className="mb-12">
                     <div
                       className={`${folder === "" ? "hidden" : ""} mb-1 flex items-center gap-1 text-sm text-foreground/60`}
                     >
@@ -184,7 +178,7 @@ export function SelectIndex() {
                       >
                         <Folder className="h-5 w-5" />
                         {folder}
-                        <div className={"flex-auto  border-b border-foreground/5 "} />
+                        <div className={"flex-auto  border-b border-foreground/20 "} />
                       </Button>
                     </div>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">

@@ -16,48 +16,28 @@ export interface AmcatSessionUser {
 export interface SessionData {
   email: string;
   name: string;
-  access_token: string;
+  access_token: string | null;
   csrf_token: string;
   exp: number;
 }
 
 export interface AmcatSession {
-  user: AmcatSessionUser | undefined;
-  loading: boolean;
+  user: AmcatSessionUser;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-const loadingSession: AmcatSession = {
-  user: undefined,
-  loading: true,
-  signIn: async () => {},
-  signOut: async () => {},
-};
-
-const SessionContext = createContext<AmcatSession>(loadingSession);
+const SessionContext = createContext<AmcatSession | null>(null);
 
 export function AuthSessionProvider({
   children,
-  sessionData: initialSession,
+  sessionData,
 }: {
   children: ReactNode;
   sessionData: SessionData | null;
 }) {
-  const { user, signIn, signOut } = useSessionManager(initialSession);
-
-  const session = {
-    user: user || undefined,
-    loading: !user,
-    signIn,
-    signOut,
-  };
-
-  return <SessionContext.Provider value={session || loadingSession}>{children}</SessionContext.Provider>;
-}
-
-function useSessionManager(sessionData: SessionData | null) {
   const [session, setSession] = useState<SessionData | null>(sessionData);
+  const csrf_token = useRef<string | null>(sessionData?.csrf_token ?? null);
   const router = useRouter();
 
   const signIn = useCallback(async () => {
@@ -65,23 +45,20 @@ function useSessionManager(sessionData: SessionData | null) {
   }, []);
 
   const signOut = useCallback(async () => {
-    if (!session) return;
-    axios
-      .post("/auth/logout", {}, { headers: { "X-CSRF-TOKEN": session.csrf_token } })
-      .then((res) => {
-        if (res.data.logout_url) {
-          window.location.href = res.data.logout_url;
-        } else {
-          setSession(null);
-        }
-      })
-      .catch(() => {
-        toast.error("Failed to log out properly.");
-      });
-  }, [session]);
+    try {
+      const res = await axios.post("/auth/logout", {}, { headers: { "X-CSRF-TOKEN": csrf_token.current } });
+      if (res.data.logout_url) router.push(res.data.logout_url); // OIDC logout
+      setSession(null);
+    } catch (e) {
+      toast.error("An error occurred during logout.");
+    }
+  }, [session, csrf_token]);
 
   const user: AmcatSessionUser = useMemo(() => {
-    const api = AxiosWithAuth(session, signOut);
+    const updateCSRF = (csrf: string) => {
+      csrf_token.current = csrf;
+    };
+    const api = AxiosWithAuth(session, signOut, updateCSRF);
     if (!session) return { authenticated: false, api };
     return {
       authenticated: true,
@@ -91,7 +68,13 @@ function useSessionManager(sessionData: SessionData | null) {
     };
   }, [session, signOut]);
 
-  return { user, signIn, signOut };
+  return <SessionContext.Provider value={{ user, signIn, signOut }}>{children}</SessionContext.Provider>;
 }
 
-export const useAmcatSession = () => useContext(SessionContext);
+export const useAmcatSession = (): AmcatSession => {
+  const context = useContext(SessionContext);
+  if (!context) {
+    throw new Error("useAmcatSession must be used within an AuthSessionProvider");
+  }
+  return context;
+};

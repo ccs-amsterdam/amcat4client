@@ -31,7 +31,7 @@ enum Tab {
 
 export default function Index({ params }: Props) {
   const indexId = decodeURI(params.index);
-  const { user, loading: loadingUser } = useAmcatSession();
+  const { user } = useAmcatSession();
   const indexRole = useMyIndexrole(user, indexId);
   const [tab, setTab] = useQueryState("tab", parseAsStringEnum<Tab>(Object.values(Tab)).withDefault(Tab.Summary));
   const [queryState, setQueryState] = useQueryState("query");
@@ -43,7 +43,6 @@ export default function Index({ params }: Props) {
     setQueryState(serializeQuery(query));
   }, [query]);
 
-  if (loadingUser || !user) return <Loading />;
   if (indexRole === "NONE") return <NoAccess />;
 
   const isWriter = indexRole === "WRITER" || indexRole === "ADMIN";

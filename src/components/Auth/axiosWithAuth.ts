@@ -13,14 +13,14 @@ import { SessionData } from "./AuthProvider";
  * @param refresh_token
  * @returns
  */
-export default function AxiosWithAuth(sessionData: SessionData | null, closeSession?: () => void) {
+export default function AxiosWithAuth(
+  sessionData: SessionData | null,
+  closeSession: () => void,
+  updateCSRF: (csrf: string) => void,
+) {
   const api = axios.create();
 
-  let currentSession: SessionData | null = null;
-  if (sessionData) {
-    currentSession = { ...sessionData };
-    sessionData.access_token = "scrubbed";
-  }
+  let currentSession = sessionData || null;
   let currentSessionPromise: Promise<SessionData> | undefined;
 
   async function requestInterceptor(config: any) {
@@ -37,6 +37,7 @@ export default function AxiosWithAuth(sessionData: SessionData | null, closeSess
       currentSession = await currentSessionPromise;
       currentSessionPromise = undefined;
 
+      updateCSRF(currentSession.csrf_token);
       config.headers.Authorization = `Bearer ${currentSession.access_token}`;
     } catch (e) {
       closeSession?.();
@@ -54,15 +55,12 @@ export default function AxiosWithAuth(sessionData: SessionData | null, closeSess
 }
 
 /**
- * Checks if access token is about to expire. If so, we first refresh the tokens.
+ * Makes sure the access_token is set and valid.
  */
 async function refreshToken(sessionData: SessionData): Promise<SessionData> {
-  // We need to prevent multiple calls to the refresh token endpoint. So if
-  // there is already a call to the refresh token endpoint ongoing, we return
-  // that promise.
   const now = Date.now() / 1000;
   const nearfuture = now + 10; // refresh x seconds before expires
-  if (sessionData.exp < nearfuture) {
+  if (!sessionData.access_token || sessionData.exp < nearfuture) {
     const tokens = await axios.post("/auth/refresh", {}, { headers: { "X-CSRF-TOKEN": sessionData.csrf_token } });
     const { access_token, csrf_token, exp } = tokens.data;
     return { ...sessionData, access_token, csrf_token, exp };

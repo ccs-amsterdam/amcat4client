@@ -24,12 +24,12 @@ interface Props {
 }
 
 export default function Index({ params }: Props) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);
 
-  if (loading || loadingIndex) return <Loading />;
-  if (!user || !index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
+  if (loadingIndex) return <Loading />;
+  if (!index) return <ErrorMsg type="Not Allowed">Need to be logged in</ErrorMsg>;
 
   return (
     <div className="flex w-full  flex-col gap-10">
@@ -39,13 +39,13 @@ export default function Index({ params }: Props) {
 }
 
 function Users({ index }: { index: AmcatIndex }) {
-  const { user, loading } = useAmcatSession();
+  const { user } = useAmcatSession();
   const { data: users, isLoading: loadingUsers } = useIndexUsers(user, index.id);
   const { mutateAsync } = useMutateIndexUser(user, index.id);
   const { mutate: mutateIndex } = useMutateIndex(user);
   const { data: config } = useAmcatConfig();
 
-  if (loading || loadingUsers) return <Loading />;
+  if (loadingUsers) return <Loading />;
 
   const ownRole = config?.authorization === "no_auth" ? "ADMIN" : index?.user_role;
 

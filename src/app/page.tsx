@@ -14,9 +14,8 @@ import { useAmcatSession } from "@/components/Auth/AuthProvider";
 export default function Index() {
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const { data: serverBranding, isLoading: brandingLoading } = useAmcatBranding();
-  const { loading: userLoading } = useAmcatSession();
 
-  if (configLoading || brandingLoading || userLoading) return <Loading />;
+  if (configLoading || brandingLoading) return <Loading />;
 
   return (
     <>
@@ -84,7 +83,7 @@ function ReadyBanner() {
           ElasticSearch, it is highly scalable and extremely fast.
         </p>
         <Link href="https://amcat.nl/book/">
-          <Button size="lg" variant="secondary">
+          <Button size="lg" variant="outline">
             Learn more
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
