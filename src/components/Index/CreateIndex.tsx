@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { useHasGlobalRole } from "@/api/userDetails";
 import { AmcatRequestProject } from "@/interfaces";
 import { Loader } from "lucide-react";
-import { useQueryState } from "next-usequerystate";
+import { useQueryState } from "nuqs";
 
 export function CreateIndex({ folder, request }: { folder?: string; request?: boolean }) {
   const [open, setOpen] = useQueryState("create_index");

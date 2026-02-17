@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   const clientUrl = request.nextUrl.origin;
   const redirectBack = session.rd || clientUrl;
 
-  const headerList = headers();
+  const headerList = await headers();
   const host = headerList.get("x-forwarded-host") || headerList.get("host") || "localhost";
   const protocol = headerList.get("x-forwarded-proto") || "https";
   const currentUrl = new URL(`${protocol}://${host}${request.nextUrl.pathname}${request.nextUrl.search}`);

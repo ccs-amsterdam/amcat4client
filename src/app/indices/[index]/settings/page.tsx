@@ -10,13 +10,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AmcatIndex } from "@/interfaces";
 import { Edit, Trash2 } from "lucide-react";
 import { AmcatSessionUser, useAmcatSession } from "@/components/Auth/AuthProvider";
-import { useState } from "react";
+import { useState, use } from "react";
 
 interface Props {
-  params: { index: string };
+  params: Promise<{ index: string }>;
 }
 
-export default function Index({ params }: Props) {
+export default function Index(props: Props) {
+  const params = use(props.params);
   const { user } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);

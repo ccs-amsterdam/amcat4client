@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, type JSX } from "react";
 import { Control, ControllerRenderProps, FieldValues, Path } from "react-hook-form";
 import { z } from "zod";
 import { FormControl, FormField, FormItem, FormLabel } from "./form";

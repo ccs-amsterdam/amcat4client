@@ -8,6 +8,7 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TooltipProvider } from "./ui/tooltip";
 import { AuthSessionProvider, SessionData } from "./Auth/AuthProvider";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const defaultOptions = {
   queries: {
@@ -119,7 +120,7 @@ export default function ClientProviders({
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        {renderIfLoaded()}
+        <NuqsAdapter>{renderIfLoaded()}</NuqsAdapter>
       </ThemeProvider>
     </QueryClientProvider>
   );

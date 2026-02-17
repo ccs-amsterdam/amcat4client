@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { Folder, FolderOpen, LogInIcon, Search, Settings2, Undo } from "lucide-react";
-import { useQueryState } from "next-usequerystate";
+import { useQueryState } from "nuqs";
 import { useEffect, useMemo, useState } from "react";
 import { ErrorMsg } from "../ui/error-message";
 import { InfoMsg } from "../ui/info-message";
@@ -45,9 +45,7 @@ export function SelectIndex() {
   const myIndices = useMemo(() => {
     if (!allIndices) return undefined;
 
-    const hasOwnedIndices = allIndices.some(
-      (ix) => ix.user_role !== "NONE" || ix.guest_role !== "NONE"
-    );
+    const hasOwnedIndices = allIndices.some((ix) => ix.user_role !== "NONE" || ix.guest_role !== "NONE");
 
     return allIndices.filter((ix) => {
       if (!showAllIndices && hasOwnedIndices && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
@@ -59,12 +57,11 @@ export function SelectIndex() {
   // If no 'own' indices present, flip the toggle to show all indices cause that's what we're showing
   useEffect(() => {
     if (allIndices) {
-      if (!showAllIndices && !allIndices.some(ix => ix.user_role !== "NONE" || ix.guest_role !== "NONE")) {
+      if (!showAllIndices && !allIndices.some((ix) => ix.user_role !== "NONE" || ix.guest_role !== "NONE")) {
         setShowAllIndices(true);
       }
     }
   }, [allIndices]);
-
 
   useEffect(() => {
     function setVisible() {
@@ -146,8 +143,11 @@ export function SelectIndex() {
 
       <div className="grid grid-cols-[min(30vw,250px),1fr] gap-3 rounded bg-gradient-to-tr from-primary/5 to-primary/20">
         <div className="flex h-full min-h-[500px] flex-col rounded-l bg-primary/10 p-3">
-          <div className="px-1 pb-3 font-semibold text-foreground/60">Folders</div>
-          <Button
+          <div className="pb-3">
+            <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
+          </div>
+          {/*<div className="px-1 pb-3 font-semibold text-foreground/60">Folders</div>*/}
+          {/*<Button
             size="sm"
             variant="ghost"
             className={`${path ? "flex" : "hidden"}  h-8 items-center justify-start gap-3 px-1 text-foreground/50 `}
@@ -155,7 +155,7 @@ export function SelectIndex() {
           >
             <Undo className="h-4 w-4" />
             back
-          </Button>
+          </Button>*/}
 
           {folderList.map((folder) => (
             <ProjectFolder key={folder} folder={folder} onClick={() => appendFolder(folder)} />
@@ -168,10 +168,7 @@ export function SelectIndex() {
           <NoResultsMessage cancreate={!!canCreate} issearching={search !== ""} />
         ) : (
           <div className="flex flex-col ">
-            <div className="mb-6 min-h-[50rem] rounded p-3">
-              <div className="pb-3">
-                <FolderBreadcrumbs currentPath={path} toFolder={updatePath} />
-              </div>
+            <div className="mb-6 mt-3 min-h-[50rem] rounded p-3">
               {loadingIndices ? <Loading /> : null}
               {[...indexMap].map(([folder, indices], i) => {
                 // if (search === "" && folder !== "") return null;
@@ -278,7 +275,7 @@ const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => voi
   </Button>
 );
 
-function NoPublicIndicesMessage({ }: {}) {
+function NoPublicIndicesMessage({}: {}) {
   const { signIn } = useAmcatSession();
 
   return (

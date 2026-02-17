@@ -792,7 +792,7 @@ function CSVUploader({
   setColumns: Dispatch<SetStateAction<Column[]>>;
 }) {
   const { CSVReader } = useCSVReader();
-  const fileRef = useRef();
+  const fileRef = useRef(undefined);
   const [zoneHover, setZoneHover] = useState(false);
 
   return (

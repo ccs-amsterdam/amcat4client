@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Delete } from "lucide-react";
 
+import type { JSX } from "react";
+
 interface Props {
   placeholder: string;
   options: Option[];

@@ -14,7 +14,7 @@ interface Props {
 
 export default function QueryForm({ user, indexId, query, setQuery }: Props) {
   const [queryDebounced, setQueryDebounced] = useState<AmcatQuery>(query);
-  const debounceTimer = useRef<any>();
+  const debounceTimer = useRef<any>(undefined);
 
   if (!indexId) return null;
 

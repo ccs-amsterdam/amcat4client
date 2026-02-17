@@ -14,11 +14,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Reindex from "@/components/Update/Reindex";
 import Update from "@/components/Update/Update";
 import { deserializeQuery, serializeQuery } from "@/lib/serialieQuery";
-import { parseAsStringEnum, useQueryState } from "next-usequerystate";
-import { useEffect, useState } from "react";
+import { parseAsStringEnum, useQueryState } from "nuqs";
+import { useEffect, useState, use } from "react";
 
 interface Props {
-  params: { index: string };
+  params: Promise<{ index: string }>;
 }
 
 enum Tab {
@@ -29,7 +29,8 @@ enum Tab {
   Download = "download",
 }
 
-export default function Index({ params }: Props) {
+export default function Index(props: Props) {
+  const params = use(props.params);
   const indexId = decodeURI(params.index);
   const { user } = useAmcatSession();
   const indexRole = useMyIndexrole(user, indexId);

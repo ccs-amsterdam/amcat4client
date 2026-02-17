@@ -22,7 +22,7 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
-  tooltip?: React.ReactElement;
+  tooltip?: React.ReactElement<any>;
 }
 
 function Badge({ className, variant, tooltip, children, ...props }: BadgeProps) {

@@ -5,7 +5,7 @@ import { ReactElement } from "react";
  * Replace <em> tags in the input string by <highlight> jsx tags
  *
  */
-export function highlightElasticTags(text: string): ReactElement {
+export function highlightElasticTags(text: string): ReactElement<any> {
   // if </em> is immediately followed by <em>, remove them to the sequence is highlighted
   text = text.replaceAll("</em> <em>", " ");
 
@@ -14,7 +14,7 @@ export function highlightElasticTags(text: string): ReactElement {
     <>
       {String(text)
         .split(regex)
-        .reduce((prev: (string | ReactElement)[], tagged: string, i) => {
+        .reduce((prev: (string | ReactElement<any>)[], tagged: string, i) => {
           const cleanTagged = tagged.replaceAll("<em>", "").replaceAll("</em>", "");
           if (i % 2 === 0) {
             prev.push(cleanTagged);

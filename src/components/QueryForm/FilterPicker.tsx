@@ -55,7 +55,7 @@ export default function FilterPicker({
           </Button>
           <Button
             className={cn(
-              "flex h-8 justify-between gap-2 rounded-r-none first-letter:first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
+              "flex h-8 justify-between gap-2 rounded-r-none first-line:whitespace-nowrap hover:bg-primary  peer-hover:bg-destructive ",
               className,
             )}
           >

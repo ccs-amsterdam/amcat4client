@@ -1,4 +1,5 @@
 "use client";
+import { use } from "react";
 
 import { useAmcatConfig } from "@/api/config";
 import { useIndex } from "@/api/index";
@@ -9,10 +10,10 @@ import { Loading } from "@/components/ui/loading";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useAmcatSession } from "@/components/Auth/AuthProvider";
-import { parseAsStringEnum, useQueryState } from "next-usequerystate";
+import { parseAsStringEnum, useQueryState } from "nuqs";
 
 interface Props {
-  params: { index: string };
+  params: Promise<{ index: string }>;
 }
 
 enum Tab {
@@ -21,7 +22,8 @@ enum Tab {
   // Preprocessing = "preprocessing",
 }
 
-export default function Index({ params }: Props) {
+export default function Index(props: Props) {
+  const params = use(props.params);
   const { user } = useAmcatSession();
   const { data: serverConfig, isLoading: configLoading } = useAmcatConfig();
   const indexId = decodeURI(params.index);

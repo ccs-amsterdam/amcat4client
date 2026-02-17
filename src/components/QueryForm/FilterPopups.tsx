@@ -89,7 +89,7 @@ function KeywordPopup({ user, indexId, field, value, onChange }: FilterPopupProp
   const selected = value?.values || [];
 
   // this way the order of showValues doesn't immediately change on select/deselect
-  const selectedRef = useRef<(string | number)[]>();
+  const selectedRef = useRef<(string | number)[]>(undefined);
   selectedRef.current = selected;
 
   const showValues = useMemo(() => {

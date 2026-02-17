@@ -1,12 +1,14 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { useTaskStatus } from "@/api/task";
 import { Loading } from "@/components/ui/loading";
 import { useAmcatSession } from "@/components/Auth/AuthProvider";
 interface Props {
-  params: { task: string };
+  params: Promise<{ task: string }>;
 }
-export default function Task({ params }: Props) {
+export default function Task(props: Props) {
+  const params = use(props.params);
   //TODO: Make progress report nicer, maybe add progress bar?
   const taskId = decodeURI(params.task);
   const { user } = useAmcatSession();

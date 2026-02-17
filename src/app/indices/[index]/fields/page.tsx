@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { useAmcatConfig } from "@/api/config";
 import { useFields, useMutateFields } from "@/api/fields";
@@ -10,10 +11,11 @@ import { AmcatIndex } from "@/interfaces";
 import { useAmcatSession } from "@/components/Auth/AuthProvider";
 
 interface Props {
-  params: { index: string };
+  params: Promise<{ index: string }>;
 }
 
-export default function Page({ params }: Props) {
+export default function Page(props: Props) {
+  const params = use(props.params);
   const { user } = useAmcatSession();
   const indexId = decodeURI(params.index);
   const { data: index, isLoading: loadingIndex } = useIndex(user, indexId);

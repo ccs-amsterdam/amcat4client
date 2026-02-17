@@ -23,7 +23,8 @@ export function FolderBreadcrumbs({
             variant="ghost"
             onClick={() => toFolder(null)}
           >
-            <FolderOpen className="inline h-5 w-5" />
+            {/*<FolderOpen className="inline h-5 w-5" />*/}
+            Indices
           </Button>
         </BreadcrumbItem>
         {pathArray.map((folder, i) => (
@@ -31,7 +32,7 @@ export function FolderBreadcrumbs({
             <div className="mx-1 text-foreground/20">/</div>
             <BreadcrumbItem>
               <Button
-                className="h-7 px-1 text-lg"
+                className="h-7  overflow-hidden text-ellipsis text-nowrap px-1"
                 variant="ghost"
                 onClick={() => toFolder(pathArray.slice(0, i + 1).join("/"))}
               >
