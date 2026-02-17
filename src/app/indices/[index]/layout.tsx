@@ -1,11 +1,6 @@
 "use client";
-import { useAmcatConfig } from "@/api/config";
-import { useCurrentUserDetails } from "@/api/userDetails";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ErrorMsg } from "@/components/ui/error-message";
-import { HelpCircle, LogInIcon } from "lucide-react";
 import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useMyIndexrole } from "@/api";
 import { useParams } from "next/navigation";

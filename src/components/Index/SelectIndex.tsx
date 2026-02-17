@@ -19,6 +19,7 @@ import { CreateIndex } from "./CreateIndex";
 import { FolderBreadcrumbs } from "./FolderBreadcrumbs";
 import { IndexCard } from "./IndexCard";
 import { PendingIndexRequests } from "./PendingIndexRequests";
+import { useAmcatConfig } from "@/api/config";
 
 interface Folder {
   folders: Map<string, Folder>;
@@ -27,18 +28,20 @@ interface Folder {
 
 export function SelectIndex() {
   const { user } = useAmcatSession();
+  const { data: config } = useAmcatConfig();
   const [currentPath, setCurrentPath] = useQueryState("folder");
   const [search, setSearch] = useState("");
+  const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]> | null>(null);
+  const canCreate = useHasGlobalRole(user, "WRITER");
+  const isAdmin = useHasGlobalRole(user, "ADMIN");
+  const [path, setPath] = useState<string | null>(null);
+
   const [showArchived, setShowArchived] = useState(false);
   const [showAllIndices, setShowAllIndices] = useState(false);
   const { data: allIndices, isLoading: loadingIndices } = useAmcatIndices(user, {
     showAll: showAllIndices,
     showArchived: showArchived,
   });
-  const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]> | null>(null);
-  const canCreate = useHasGlobalRole(user, "WRITER");
-  const isAdmin = useHasGlobalRole(user, "ADMIN");
-  const [path, setPath] = useState<string | null>(null);
 
   // filter indices based on showAllIndices and showArchived.
   // If no 'own' indices present, show all indices to allow users to request access
@@ -54,14 +57,12 @@ export function SelectIndex() {
     });
   }, [allIndices, showAllIndices, showArchived]);
 
-  // If no 'own' indices present, flip the toggle to show all indices cause that's what we're showing
+  // In no_auth mode, set showAllIndices to true by default
   useEffect(() => {
-    if (allIndices) {
-      if (!showAllIndices && !allIndices.some((ix) => ix.user_role !== "NONE" || ix.guest_role !== "NONE")) {
-        setShowAllIndices(true);
-      }
+    if (config?.authorization === "no_auth" && !showAllIndices) {
+      setShowAllIndices(true);
     }
-  }, [allIndices]);
+  }, [allIndices, config]);
 
   useEffect(() => {
     function setVisible() {
