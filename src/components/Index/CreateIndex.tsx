@@ -1,14 +1,15 @@
 import { useCreateIndex } from "@/api";
 import { useSubmitRequest } from "@/api/requests";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { amcatIndexSchema } from "@/schemas";
-import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useHasGlobalRole } from "@/api/userDetails";
 import { AmcatRequestProject } from "@/interfaces";
 import { Loader } from "lucide-react";
 import { useQueryState } from "next-usequerystate";
@@ -18,6 +19,8 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { user } = useAmcatSession();
+  const isAdmin = useHasGlobalRole(user, "ADMIN");
+
   const { mutateAsync: createIndexAsync } = useCreateIndex(user);
   const { mutateAsync: requestIndexAsync } = useSubmitRequest(user);
   const [name, setName] = useState("");
@@ -31,7 +34,7 @@ export function CreateIndex({ folder, request }: { folder?: string; request?: bo
     setFolderValue(folder);
   }, [folder]);
 
-  if (!user?.authenticated) return null;
+  if (!isAdmin && !user?.authenticated) return null;
 
   function idFromName(name: string) {
     return name

@@ -2,11 +2,11 @@
 
 import { useAmcatIndices } from "@/api/indices";
 import { useHasGlobalRole } from "@/api/userDetails";
+import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Loading } from "@/components/ui/loading";
 import { AmcatIndex } from "@/interfaces";
 import { Folder, FolderOpen, LogInIcon, Search, Settings2, Undo } from "lucide-react";
-import { useAmcatSession } from "@/components/Auth/AuthProvider";
 import { useQueryState } from "next-usequerystate";
 import { useEffect, useMemo, useState } from "react";
 import { ErrorMsg } from "../ui/error-message";
@@ -38,17 +38,33 @@ export function SelectIndex() {
   const [indexMap, setIndexMap] = useState<Map<string, AmcatIndex[]> | null>(null);
   const canCreate = useHasGlobalRole(user, "WRITER");
   const isAdmin = useHasGlobalRole(user, "ADMIN");
-
   const [path, setPath] = useState<string | null>(null);
 
+  // filter indices based on showAllIndices and showArchived.
+  // If no 'own' indices present, show all indices to allow users to request access
   const myIndices = useMemo(() => {
     if (!allIndices) return undefined;
+
+    const hasOwnedIndices = allIndices.some(
+      (ix) => ix.user_role !== "NONE" || ix.guest_role !== "NONE"
+    );
+
     return allIndices.filter((ix) => {
-      if (!showAllIndices && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
+      if (!showAllIndices && hasOwnedIndices && ix.user_role === "NONE" && ix.guest_role === "NONE") return false;
       if (!showArchived && ix.archived) return false;
       return true;
     });
   }, [allIndices, showAllIndices, showArchived]);
+
+  // If no 'own' indices present, flip the toggle to show all indices cause that's what we're showing
+  useEffect(() => {
+    if (allIndices) {
+      if (!showAllIndices && !allIndices.some(ix => ix.user_role !== "NONE" || ix.guest_role !== "NONE")) {
+        setShowAllIndices(true);
+      }
+    }
+  }, [allIndices]);
+
 
   useEffect(() => {
     function setVisible() {
@@ -102,7 +118,7 @@ export function SelectIndex() {
     updatePath(currentPath ? currentPath + "/" + add : add);
   }
 
-  if (user && !user.authenticated && allIndices?.length === 0) return <NoPublicIndicesMessage />;
+  if (user && !isAdmin && !user.authenticated && allIndices?.length === 0) return <NoPublicIndicesMessage />;
   if (indexMap === null) return <Loading />;
   const folderList = [...indexMap.keys()].filter((f) => f !== "");
 
@@ -262,7 +278,7 @@ const ProjectFolder = ({ folder, onClick }: { folder: string; onClick: () => voi
   </Button>
 );
 
-function NoPublicIndicesMessage({}: {}) {
+function NoPublicIndicesMessage({ }: {}) {
   const { signIn } = useAmcatSession();
 
   return (
