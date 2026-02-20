@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import * as client from "openid-client";
 
 export const clientConfig = () => {
-  const amcat_url = process.env.AMCAT4_API;
+  const amcat_url = process.env.AMCAT4_DOCKER_API || process.env.AMCAT4_API;
   if (!amcat_url) throw new Error("Missing AMCAT4_API environment variable");
   return {
     amcat_url,

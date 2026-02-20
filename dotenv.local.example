@@ -3,3 +3,6 @@
 # URL of the AmCAT backend server this client should connect to
 AMCAT4_API=http://localhost:5000
 COOKIE_SECRET="can be anything but must be at least 32 characters long. See https://xkcd.com/221/"
+
+# Optional internal AMCAT4_API for docker compose network. If not set, AMCAT4_API will be used.
+# AMCAT4_DOCKER_API=http://api:5000
