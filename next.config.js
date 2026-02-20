@@ -1,1 +1,3 @@
-module.exports = {};
+module.exports = {
+  output: process.env.VERCEL ? undefined : "standalone",
+};
