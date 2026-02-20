@@ -38,8 +38,8 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
 
-  const amcat_url = process.env.AMCAT4_URL;
-  if (!amcat_url) throw new Error("AMCAT4_URL required");
+  const amcat_url = process.env.AMCAT4_API;
+  if (!amcat_url) throw new Error("AMCAT4_API required");
 
   const sessionData: SessionData | null = session.access_token
     ? {
