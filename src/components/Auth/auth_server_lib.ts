@@ -4,21 +4,16 @@ import { IronSession, SessionOptions, getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import * as client from "openid-client";
 
-// normally set these with env vars
-const amcat_url = process.env.AMCAT4_API;
-const secret = process.env.COOKIE_SECRET;
-
-if (!amcat_url) throw new Error("Missing AMCAT4_API environment variable");
-if (!secret) throw new Error("Missing COOKIE_SECRET environment variable");
-if (secret.length < 32) throw new Error("COOKIE_SECRET must be at least 32 characters long");
-
-export const clientConfig = {
-  // url: identity_provider_url,
-  amcat_url: amcat_url,
-  scope: "openid profile email",
-  response_type: "code",
-  grant_type: "authorization_code",
-  code_challenge_method: "S256",
+export const clientConfig = () => {
+  const amcat_url = process.env.AMCAT4_API;
+  if (!amcat_url) throw new Error("Missing AMCAT4_API environment variable");
+  return {
+    amcat_url,
+    scope: "openid profile email",
+    response_type: "code",
+    grant_type: "authorization_code",
+    code_challenge_method: "S256",
+  };
 };
 
 export type AuthConfig =
@@ -49,26 +44,33 @@ export interface SessionData {
 
 export const defaultSession: SessionData = {};
 
-export const sessionOptions: SessionOptions = {
-  password: secret,
-  cookieName: "next_js_session",
-  cookieOptions: {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    httpOnly: true,
-  },
-  ttl: 60 * 60 * 24 * 7, // 1 week
+export const sessionOptions: () => SessionOptions = () => {
+  const secret = process.env.COOKIE_SECRET;
+  if (!secret) throw new Error("Missing COOKIE_SECRET environment variable");
+  if (secret.length < 32) throw new Error("COOKIE_SECRET must be at least 32 characters long");
+
+  return {
+    password: secret,
+    cookieName: "next_js_session",
+    cookieOptions: {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      httpOnly: true,
+    },
+    ttl: 60 * 60 * 24 * 7, // 1 week
+  };
 };
 
 export async function getSession(): Promise<IronSession<SessionData>> {
   const cookiesList = await cookies();
-  const session = await getIronSession<SessionData>(cookiesList, sessionOptions);
+  const session = await getIronSession<SessionData>(cookiesList, sessionOptions());
   return session;
 }
 
 export async function getClientConfig(clientUrl: string): Promise<AuthConfig> {
   // discover OIDC or Middlecat configuration
-  const res = await fetch(`${clientConfig.amcat_url}/config`);
+  const config = clientConfig();
+  const res = await fetch(`${config.amcat_url}/config`);
   const amcatInfo = await res.json();
 
   // manually construct Middlecat configuration

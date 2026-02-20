@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SessionData, defaultSession, getClientConfig, getSession } from "@/components/Auth/auth_server_lib";
+import { SessionData, getClientConfig, getSession } from "@/components/Auth/auth_server_lib";
 import * as client from "openid-client";
 import { IronSession } from "iron-session";
 

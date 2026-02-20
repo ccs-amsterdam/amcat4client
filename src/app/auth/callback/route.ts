@@ -1,10 +1,4 @@
-import {
-  getClientConfig,
-  getSession,
-  clientConfig,
-  AmcatSessionUserInfo,
-  SessionData,
-} from "@/components/Auth/auth_server_lib";
+import { getClientConfig, getSession, SessionData } from "@/components/Auth/auth_server_lib";
 import { IronSession } from "iron-session";
 import { headers } from "next/headers";
 import { NextRequest } from "next/server";

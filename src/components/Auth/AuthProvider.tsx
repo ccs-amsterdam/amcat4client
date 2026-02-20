@@ -54,7 +54,7 @@ export function AuthSessionProvider({
     } catch (e) {
       toast.error("An error occurred during logout.");
     }
-  }, [session, csrf_token]);
+  }, [router, csrf_token]);
 
   const user: AmcatSessionUser = useMemo(() => {
     const updateCSRF = (csrf: string) => {
@@ -68,7 +68,7 @@ export function AuthSessionProvider({
       name: session.name,
       api,
     };
-  }, [session, signOut]);
+  }, [amcat_url, session, signOut]);
 
   return (
     <SessionContext.Provider value={{ user, amcat_url: amcat_url, signIn, signOut }}>

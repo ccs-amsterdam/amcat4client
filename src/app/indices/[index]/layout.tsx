@@ -15,8 +15,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return children;
 }
 
-function NoAccessToThisIndex({}: {}) {
-  const { signIn } = useAmcatSession();
+function NoAccessToThisIndex() {
+  // const { signIn } = useAmcatSession();
 
   return (
     <ErrorMsg type="No access">

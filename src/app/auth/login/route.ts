@@ -5,16 +5,17 @@ import * as client from "openid-client";
 export async function GET(req: NextRequest) {
   const clientUrl = req.nextUrl.origin;
   const currentUrl = req.headers.get("referer") || "";
+  const config = clientConfig();
 
   const session = await getSession();
   const code_verifier = client.randomPKCECodeVerifier();
   const code_challenge = await client.calculatePKCECodeChallenge(code_verifier);
   const parameters: Record<string, string> = {
     redirect_uri: `${clientUrl}/auth/callback`,
-    resource: clientConfig.amcat_url,
-    scope: clientConfig.scope!,
+    resource: config.amcat_url,
+    scope: config.scope!,
     code_challenge,
-    code_challenge_method: clientConfig.code_challenge_method,
+    code_challenge_method: config.code_challenge_method,
   };
   let state!: string;
 
