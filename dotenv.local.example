@@ -1,5 +1,5 @@
 # Copy this file to .env.local and edit the relevant values below
 
 # URL of the AmCAT backend server this client should connect to
-NEXT_PUBLIC_AMCAT_SERVER=http://localhost:5000
+AMCAT4_URL=http://localhost:5000
 COOKIE_SECRET="can be anything but must be at least 32 characters long. See https://xkcd.com/221/"

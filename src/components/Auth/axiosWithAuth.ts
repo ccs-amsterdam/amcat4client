@@ -17,6 +17,7 @@ export default function AxiosWithAuth(
   sessionData: SessionData | null,
   closeSession: () => void,
   updateCSRF: (csrf: string) => void,
+  amcat_url: string
 ) {
   const api = axios.create();
 
@@ -26,7 +27,7 @@ export default function AxiosWithAuth(
   async function requestInterceptor(config: any) {
     // ensure that resource is the base url, so that its not easy to
     // to send a request with the tokens somewhere else
-    config.baseURL = process.env.NEXT_PUBLIC_AMCAT_SERVER;
+    config.baseURL = amcat_url
 
     if (!currentSession) return config; // not authenticated
 

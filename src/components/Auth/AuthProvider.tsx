@@ -22,6 +22,7 @@ export interface SessionData {
 
 export interface AmcatSession {
   user: AmcatSessionUser;
+  amcat_url: string;
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -31,9 +32,11 @@ const SessionContext = createContext<AmcatSession | null>(null);
 export function AuthSessionProvider({
   children,
   sessionData,
+  amcat_url,
 }: {
   children: ReactNode;
   sessionData: SessionData | null;
+  amcat_url: string;
 }) {
   const [session, setSession] = useState<SessionData | null>(sessionData);
   const csrf_token = useRef<string | null>(sessionData?.csrf_token ?? null);
@@ -57,7 +60,7 @@ export function AuthSessionProvider({
     const updateCSRF = (csrf: string) => {
       csrf_token.current = csrf;
     };
-    const api = AxiosWithAuth(session, signOut, updateCSRF);
+    const api = AxiosWithAuth(session, signOut, updateCSRF, amcat_url);
     if (!session) return { authenticated: false, api };
     return {
       authenticated: true,
@@ -67,7 +70,11 @@ export function AuthSessionProvider({
     };
   }, [session, signOut]);
 
-  return <SessionContext.Provider value={{ user, signIn, signOut }}>{children}</SessionContext.Provider>;
+  return (
+    <SessionContext.Provider value={{ user, amcat_url: amcat_url, signIn, signOut }}>
+      {children}
+    </SessionContext.Provider>
+  );
 }
 
 export const useAmcatSession = (): AmcatSession => {

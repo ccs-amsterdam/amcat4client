@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AmCAT",
     description: "Amsterdam Content Analysis Toolkit",
-    url: absoluteUrl("/"),
+    // url: absoluteUrl("/"),
     locale: "en_US",
     type: "website",
   },
@@ -37,6 +37,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
+
+  const amcat_url = process.env.AMCAT4_URL;
+  if (!amcat_url) throw new Error("AMCAT4_URL required");
+
   const sessionData: SessionData | null = session.access_token
     ? {
         email: session.userInfo?.email || "",
@@ -50,7 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={font.className} suppressHydrationWarning>
       <body className="no-scrollbar relative flex min-h-screen flex-col scroll-smooth ">
-        <ClientProviders sessionData={sessionData}>
+        <ClientProviders sessionData={sessionData} amcat_url={amcat_url}>
           <Navbar />
           {children}
           <Toaster />

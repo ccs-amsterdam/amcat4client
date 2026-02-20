@@ -5,10 +5,10 @@ import { cookies } from "next/headers";
 import * as client from "openid-client";
 
 // normally set these with env vars
-const amcat_url = process.env.NEXT_PUBLIC_AMCAT_SERVER;
+const amcat_url = process.env.AMCAT4_URL;
 const secret = process.env.COOKIE_SECRET;
 
-if (!amcat_url) throw new Error("Missing NEXT_PUBLIC_AMCAT_SERVER environment variable");
+if (!amcat_url) throw new Error("Missing AMCAT4_URL environment variable");
 if (!secret) throw new Error("Missing COOKIE_SECRET environment variable");
 if (secret.length < 32) throw new Error("COOKIE_SECRET must be at least 32 characters long");
 

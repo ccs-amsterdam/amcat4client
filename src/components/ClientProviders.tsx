@@ -43,35 +43,17 @@ function defaultErrorToast(e: any) {
 export default function ClientProviders({
   children,
   sessionData: sessionData,
+  amcat_url,
 }: {
   children: React.ReactNode;
   sessionData: SessionData | null;
+  amcat_url: string;
 }) {
   //const params = useSearchParams();
 
   // allow signing in to local server on specific port. Useful for development,
   // or for running local amcat without having to run a new client
   //const [port] = useState(() => params?.get("port"));
-
-  const [serverUrl, setServerUrl] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch the server URL from our API endpoint
-    fetch("/api/config")
-      .then((response) => response.json())
-      .then((data) => {
-        setServerUrl(data.amcatServer);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch server URL:", error);
-        // Fallback to the public environment variable or default
-        setServerUrl(process.env.NEXT_PUBLIC_AMCAT_SERVER || "http://localhost:5000");
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
 
   const mutationCache = new MutationCache({
     onError: (e: any) => {
@@ -100,16 +82,9 @@ export default function ClientProviders({
   const [queryClient] = useState(() => new QueryClient({ mutationCache, queryCache, defaultOptions }));
 
   function renderIfLoaded() {
-    if (isLoading) {
-      return (
-        <div className="flex h-screen flex-col items-center justify-center gap-6">
-          <img src="/logo.png" alt="AmCAT" width={150} height={150} className="mx-2 animate-bounce px-1" />
-        </div>
-      );
-    }
     return (
       <>
-        <AuthSessionProvider sessionData={sessionData}>
+        <AuthSessionProvider sessionData={sessionData} amcat_url={amcat_url}>
           <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
         </AuthSessionProvider>
         <ReactQueryDevtools initialIsOpen={false} />

@@ -7,15 +7,15 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 export function useAmcatBranding() {
+  const session = useAmcatSession();
   return useQuery({
     queryKey: ["branding"],
-    queryFn: () => getAmcatBranding(),
+    queryFn: () => getAmcatBranding(session.amcat_url),
     staleTime: 1000 * 60 * 60 * 1,
   });
 }
 
-async function getAmcatBranding() {
-  const host = process.env.NEXT_PUBLIC_AMCAT_SERVER;
+async function getAmcatBranding(host: string) {
 
   function safeParseJson(input: string | null | undefined) {
     try {
