@@ -1,7 +1,6 @@
 import ClientProviders from "@/components/ClientProviders";
 import Navbar from "@/components/Menu/Navbar";
 import { Toaster } from "@/components/ui/sonner";
-import { absoluteUrl } from "@/lib/utils";
 import { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
@@ -25,7 +24,6 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AmCAT",
     description: "Amsterdam Content Analysis Toolkit",
-    // url: absoluteUrl("/"),
     locale: "en_US",
     type: "website",
   },
