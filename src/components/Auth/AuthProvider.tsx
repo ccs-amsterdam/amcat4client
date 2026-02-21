@@ -43,8 +43,9 @@ export function AuthSessionProvider({
   const router = useRouter();
 
   const signIn = useCallback(async () => {
-    router.push("/auth/login");
-  }, []);
+    const loginUrl = `/auth/login?returnTo=${encodeURIComponent(window.location.href)}`;
+    router.push(loginUrl);
+  }, [router]);
 
   const signOut = useCallback(async () => {
     try {

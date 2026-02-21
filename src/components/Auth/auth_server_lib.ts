@@ -7,6 +7,7 @@ import * as client from "openid-client";
 export const clientConfig = () => {
   const amcat_url = process.env.AMCAT4_API;
   if (!amcat_url) throw new Error("Missing AMCAT4_API environment variable");
+
   return {
     amcat_url,
     scope: "openid profile email",

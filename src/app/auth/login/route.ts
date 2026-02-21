@@ -3,8 +3,11 @@ import { getClientConfig, getSession, clientConfig } from "@/components/Auth/aut
 import * as client from "openid-client";
 
 export async function GET(req: NextRequest) {
-  const clientUrl = req.nextUrl.origin;
-  const currentUrl = req.headers.get("referer") || "";
+  const { searchParams } = new URL(req.url);
+
+  const clientUrl = getBaseUrl(req);
+  const currentUrl = searchParams.get("returnTo") || req.headers.get("referer") || clientUrl;
+  console.log(currentUrl);
   const config = clientConfig();
 
   const session = await getSession();
@@ -34,3 +37,14 @@ export async function GET(req: NextRequest) {
   await session.save();
   return Response.redirect(redirectTo.href);
 }
+
+const getBaseUrl = (req: NextRequest) => {
+  const host = req.headers.get("x-forwarded-host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  if (host) return `${proto}://${host}`;
+
+  const origin = req.headers.get("origin");
+  if (origin) return origin;
+
+  return req.nextUrl.origin;
+};
