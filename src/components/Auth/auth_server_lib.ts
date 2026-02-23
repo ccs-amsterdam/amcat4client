@@ -19,14 +19,14 @@ export const clientConfig = () => {
 
 export type AuthConfig =
   | {
-      type: "oidc";
-      configuration: client.Configuration;
-    }
+    type: "oidc";
+    configuration: client.Configuration;
+  }
   | {
-      type: "middlecat";
+    type: "middlecat";
 
-      configuration: client.Configuration;
-    };
+    configuration: client.Configuration;
+  };
 
 export interface SessionData {
   access_token?: string;
@@ -70,7 +70,7 @@ export async function getSession(): Promise<IronSession<SessionData>> {
 
 export async function getClientConfig(clientUrl: string): Promise<AuthConfig> {
   // discover OIDC or Middlecat configuration
-  const amcat_url = process.env.AMCAT4_SERVER_API || process.env.AMCAT4_API;
+  const amcat_url = process.env.AMCAT4_API;
   if (!amcat_url) throw new Error("Missing AMCAT4_API environment variable");
 
   const res = await fetch(`${amcat_url}/config`);
