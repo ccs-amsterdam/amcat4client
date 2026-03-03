@@ -1,3 +1,7 @@
+# Outdated!
+
+We folded this repository into the (now mono)repository [ccs-amsterdam/amcat4](https://github.com/ccs-amsterdam/amcat4). Please see that repository for instructions on how to install and use AmCAT
+
 # NextJS client for Amcat4
 
 ## Run development version
